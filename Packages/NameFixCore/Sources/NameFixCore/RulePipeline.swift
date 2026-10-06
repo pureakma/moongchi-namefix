@@ -57,6 +57,9 @@ public struct RulePipeline: Codable, Equatable, Sendable {
     public var manualPaths: [Data]?
     public var dateFormat: String?
     public var timeZone: String?
+    /// Batch rename changes regular, visible files. Folder names and hidden items join in only when these are set.
+    public var includeFolders: Bool?
+    public var includeHidden: Bool?
     public init(target: NormalizationTarget = .nfc, rules: [RenameRule] = []) { self.target = target; self.rules = rules }
     public var requiresPro: Bool { mapping != nil || !(pairExtensions ?? []).isEmpty || rules.contains { $0.enabled && $0.requiresPro } }
     public func validate(access: ProductAccess) throws {

@@ -12,10 +12,12 @@
 "ActivityRename" = "Renaming";
 "ActivityScan" = "Checking names";
 "ActivityUndo" = "Restoring names";
+"AddFavorite" = "Add Favorite Folder";
 "AddFiles" = "Add files";
 "AddFolders" = "Add folder";
 "AddMore" = "Add";
 "AddRule" = "Add Rule";
+"AddToFavorites" = "Add to Favorites";
 "AdvCSV" = "CSV list";
 "AdvFileInfo" = "File info";
 "AdvForm" = "Character form";
@@ -23,6 +25,7 @@
 "AdvPairs" = "File sets";
 "AdvPattern" = "Advanced pattern";
 "AdvPresets" = "Presets";
+"AdvTargets" = "What to Rename";
 "Advanced" = "Character details";
 "All" = "All";
 "Ambiguous" = "Manual review required";
@@ -114,6 +117,12 @@
 "Extension" = "Extension";
 "ExtensionCondition" = "Extension condition (e.g. jpg)";
 "Failed" = "Failed";
+"FavoriteMissing" = "Not found · choose again";
+"FavoriteRelink" = "Choose Folder Again…";
+"FavoriteUnavailable" = "This favorite folder can’t be opened. It was moved, deleted, or you no longer have access. Choose the folder again from Favorites.";
+"FavoriteUnavailableShort" = "Favorite folder can’t be opened";
+"Favorites" = "Favorites";
+"FavoritesEmpty" = "Add folders you use often and open them from here.";
 "FieldAddText" = "Text to add";
 "FieldFind" = "Find";
 "FieldJoin" = "Text between the name and the info";
@@ -129,6 +138,7 @@
 "FinalRenamed" = "Final name applied";
 "FinderServiceTitle" = "Inspect Names with NameFix";
 "FolderAccessPurpose" = "Inspect and rename only the files and folders you explicitly select.";
+"FolderExcluded" = "Folder names are not renamed by default. Turn on “Also rename folders” under Add Rule → Advanced → What to Rename.";
 "FolderWatch" = "Watch a Folder";
 "FormatGuide" = "About character forms";
 "FormatIntro" = "Combine separated Hangul letters, Japanese voicing marks, and accented characters in names. Names can look identical while storing characters differently.";
@@ -149,6 +159,7 @@
 "HelpStepRename" = "Rename";
 "HelpStepRenameDetail" = "You confirm once more in a dialog. Renamed items can be undone from History.";
 "HelpTitle" = "Quick guide";
+"HiddenExcluded" = "Hidden items are not renamed by default. Turn on “Include hidden files” under Add Rule → Advanced → What to Rename.";
 "HiddenSelected" = "{0} selected but hidden";
 "HiddenSelectionConfirm" = "This includes {0} selected items hidden by the current search or filter. Cancel and choose Selected items to review them.";
 "HideNormal" = "Hide unchanged items";
@@ -161,6 +172,10 @@
 "HistoryWarningShort" = "Some history is unreadable";
 "ImportCSV" = "Import list";
 "ImportRecipe" = "Import preset";
+"IncludeFolders" = "Also rename folders";
+"IncludeFoldersHelp" = "Rules also apply to the folders you added and to the subfolders inside them.";
+"IncludeHidden" = "Include hidden files";
+"IncludeHiddenHelp" = "Rules also apply to items whose names start with a dot and to items inside such folders. Finder’s own files such as .DS_Store are always left out.";
 "InputSummary" = "Files and folders added: {0}";
 "InsertOffset" = "Insert after {0} characters";
 "InspectShort" = "Details";
@@ -248,6 +263,7 @@
 "Normal" = "✓ No change";
 "NormalHelp" = "No changes with the current settings.";
 "NormalizationNotice" = "Names can look identical while storing their characters differently. Separated names are not errors; they can be combined into one consistent form. The small boxes explain the characters and are not part of the name.";
+"NotTarget" = "Not a target";
 "NotificationDenied" = "Notifications are not allowed. Results remain available in the app.";
 "NotificationFailed" = "Could not deliver a notification. Check results in the app.";
 "NotificationFailedShort" = "Notification not delivered";
@@ -319,6 +335,8 @@
 "RawExportHelp" = "Raw CSV preserves names exactly. Import it as text in spreadsheet apps to avoid formula interpretation.";
 "RecentFolders" = "Recent folders";
 "RecentPrivacy" = "Off by default. Stores up to 10 folder paths locally. Turning this off clears the saved list.";
+"RecentUnavailable" = "The folder couldn’t be found and was removed from Recent Folders.";
+"RecentUnavailableShort" = "Recent folder not found";
 "RecipeActions" = "Preset actions";
 "RecipeName" = "Preset name";
 "RecipeReadOnly" = "Could not read or save your rules and presets. The existing file is preserved.";
@@ -336,6 +354,7 @@
 "RegexInvalid" = "Check the pattern (regex) syntax.";
 "RememberFolders" = "Remember recent folders on this device";
 "Remove" = "Remove";
+"RemoveFromFavorites" = "Remove from Favorites";
 "RemoveInput" = "Close This Item";
 "RemoveRule" = "Remove rule";
 "Rename" = "Rename";
@@ -431,6 +450,7 @@
 "SummarySelected" = "Selected";
 "System" = "System default";
 "TabSeparated" = "Tab separated (TSV)";
+"TargetsHelp" = "By default only the names of visible, regular files change. Files inside subfolders are included; folder names and hidden items are left as they are.";
 "TemporaryRenamed" = "Temporary name applied";
 "TextInput" = "Text to convert";
 "TextTool" = "Convert Copied Text";

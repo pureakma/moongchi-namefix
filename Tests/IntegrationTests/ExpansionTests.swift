@@ -218,6 +218,10 @@ final class ExpansionTests: XCTestCase, @unchecked Sendable {
         var pipeline = RulePipeline(target: .unchanged)
         pipeline.mapping = NameMapping(rows: [.init(source: "a", destination: "b"), .init(source: "b", destination: "a"), .init(source: "a/x.txt", destination: "y.txt"), .init(source: "b/x.txt", destination: "z.txt")])
         let scan = Scanner.scan(roots: [RawPath(root.appendingPathComponent("a").path), RawPath(root.appendingPathComponent("b").path)], recursive: true, token: CancellationToken())
+        // A list that names folders is refused while folder names are not a target, never applied in part.
+        do { _ = try await RulePreview.apply(scan.entries, pipeline: pipeline, access: .pro, token: CancellationToken()); XCTFail("A folder row must not be skipped silently") }
+        catch { XCTAssertEqual((error as? FSError)?.code, "MappingAmbiguous") }
+        pipeline.includeFolders = true
         let entries = try await RulePreview.apply(scan.entries, pipeline: pipeline, access: .pro, token: CancellationToken())
         let plan = try Planning.make(entries: entries, selected: Set(entries.map(\.id)), generation: UUID())
         XCTAssertEqual(plan.operations.count, 4)
@@ -368,7 +372,8 @@ final class ExpansionTests: XCTestCase, @unchecked Sendable {
         try Data("a".utf8).write(to: folder.appendingPathComponent("a.txt"))
         var rule = RenameRule(.metadata); rule.text = "size"; rule.replacement = "_"; rule.metadataFallback = "x"
         let scan = Scanner.scan(roots: [RawPath(folder.path)], recursive: true, token: CancellationToken())
-        let entries = try await RulePreview.apply(scan.entries, pipeline: RulePipeline(rules: [rule]), access: .pro, token: CancellationToken())
+        var pipeline = RulePipeline(rules: [rule]); pipeline.includeFolders = true
+        let entries = try await RulePreview.apply(scan.entries, pipeline: pipeline, access: .pro, token: CancellationToken())
         // A folder's mtime changes when its children are renamed, so it must not carry a freshness snapshot.
         XCTAssertNil(entries.first { $0.isDirectory }?.contentVersion)
         let plan = try Planning.make(entries: entries, selected: Set(entries.filter { $0.status.fixable }.map(\.id)), generation: UUID())
@@ -376,6 +381,46 @@ final class ExpansionTests: XCTestCase, @unchecked Sendable {
         let store = try JournalStore(root: root.appendingPathComponent("journal"))
         let result = try await TransactionCoordinator(store: store).execute(plan, token: CancellationToken())
         XCTAssertEqual(result.status, "Completed"); XCTAssertEqual(result.succeeded, 2)
+    }
+    func testBatchRenameTargetsVisibleFilesUnlessFoldersOrHiddenItemsAreOptedIn() async throws {
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        let top = root.appendingPathComponent("trip")
+        for folder in ["day", ".cache"] { try FileManager.default.createDirectory(at: top.appendingPathComponent(folder), withIntermediateDirectories: true) }
+        for name in ["a.txt", ".hidden.txt", ".DS_Store", "day/b.txt", ".cache/c.txt"] { try Data(name.utf8).write(to: top.appendingPathComponent(name)) }
+        var number = RenameRule(.numbering); number.text = "_"; number.start = 1
+        let scan = Scanner.scan(roots: [RawPath(top.path)], recursive: true, token: CancellationToken()).entries
+        func preview(_ pipeline: RulePipeline, batch: Bool? = nil) async throws -> [String: FileEntry] {
+            let entries = try await RulePreview.apply(scan, pipeline: pipeline, access: .free, token: CancellationToken(), batch: batch)
+            return Dictionary(uniqueKeysWithValues: entries.map { (String($0.path.display.dropFirst(root.path.count + 1)), $0) })
+        }
+        // Default: the added folder, its subfolders and hidden items keep their names and take no number.
+        var rows = try await preview(RulePipeline(rules: [number]))
+        XCTAssertEqual(Set(rows.filter { $0.value.status.fixable }.keys), ["trip/a.txt", "trip/day/b.txt"])
+        XCTAssertEqual(Set(rows.values.filter { $0.status.fixable }.map(\.preview)), ["a_001.txt", "b_002.txt"])
+        XCTAssertEqual(rows["trip"]?.reason, "FolderExcluded"); XCTAssertEqual(rows["trip/day"]?.reason, "FolderExcluded")
+        XCTAssertEqual(rows["trip/.hidden.txt"]?.reason, "HiddenExcluded"); XCTAssertEqual(rows["trip/.cache/c.txt"]?.reason, "HiddenExcluded")
+        XCTAssertTrue(rows.values.filter { !$0.status.fixable }.allSatisfy { $0.proposed == $0.path.leaf && $0.status == .normal })
+        // Folders opted in: every visible folder, the added one included; hidden ones still stay.
+        var pipeline = RulePipeline(rules: [number]); pipeline.includeFolders = true
+        rows = try await preview(pipeline)
+        XCTAssertEqual(Set(rows.filter { $0.value.status.fixable }.keys), ["trip", "trip/a.txt", "trip/day", "trip/day/b.txt"])
+        // Hidden items opted in: hidden files and files in hidden folders, but never Finder's own files.
+        pipeline = RulePipeline(rules: [number]); pipeline.includeHidden = true
+        rows = try await preview(pipeline)
+        XCTAssertEqual(Set(rows.filter { $0.value.status.fixable }.keys), ["trip/a.txt", "trip/.hidden.txt", "trip/day/b.txt", "trip/.cache/c.txt"])
+        XCTAssertEqual(rows["trip/.DS_Store"]?.status, .normal); XCTAssertEqual(rows["trip/.cache"]?.reason, "FolderExcluded")
+        // Plain character repair is not a batch rename: nothing is left out for being a folder or hidden…
+        rows = try await preview(RulePipeline())
+        XCTAssertFalse(rows.values.contains { $0.reason == "FolderExcluded" || $0.reason == "HiddenExcluded" })
+        // …unless the batch rename screen asks for its targets even before a rule exists.
+        rows = try await preview(RulePipeline(), batch: true)
+        XCTAssertEqual(rows["trip"]?.reason, "FolderExcluded"); XCTAssertEqual(rows["trip/.hidden.txt"]?.reason, "HiddenExcluded")
+        // The options survive storage and are absent from pipelines saved before they existed.
+        pipeline.includeFolders = true
+        let restored = try JSONDecoder().decode(RulePipeline.self, from: JSONEncoder().encode(pipeline))
+        XCTAssertEqual(restored.includeFolders, true); XCTAssertEqual(restored.includeHidden, true)
+        let legacy = try JSONDecoder().decode(RulePipeline.self, from: JSONEncoder().encode(RulePipeline(rules: [number])))
+        XCTAssertNil(legacy.includeFolders); XCTAssertNil(legacy.includeHidden)
     }
     func testFinderBookkeepingFilesAreNotRenamedOrNumbered() async throws {
         let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }

@@ -12,10 +12,12 @@
 "ActivityRename" = "이름 바꾸는 중";
 "ActivityScan" = "이름 검사 중";
 "ActivityUndo" = "원래 이름으로 복원 중";
+"AddFavorite" = "즐겨찾기 폴더 추가";
 "AddFiles" = "파일 추가";
 "AddFolders" = "폴더 추가";
 "AddMore" = "추가";
 "AddRule" = "규칙 추가";
+"AddToFavorites" = "즐겨찾기에 추가";
 "AdvCSV" = "CSV 목록";
 "AdvFileInfo" = "파일 정보";
 "AdvForm" = "글자 저장 형식";
@@ -23,6 +25,7 @@
 "AdvPairs" = "묶음 파일";
 "AdvPattern" = "고급 패턴";
 "AdvPresets" = "프리셋";
+"AdvTargets" = "대상 범위";
 "Advanced" = "글자 구성 자세히";
 "All" = "전체";
 "Ambiguous" = "직접 확인 필요";
@@ -114,6 +117,12 @@
 "Extension" = "확장자";
 "ExtensionCondition" = "확장자 조건 (예: jpg)";
 "Failed" = "실패";
+"FavoriteMissing" = "찾을 수 없음 · 다시 선택";
+"FavoriteRelink" = "폴더 다시 선택…";
+"FavoriteUnavailable" = "즐겨찾기 폴더를 열 수 없습니다. 폴더가 옮겨졌거나 삭제되었거나 접근 권한이 없습니다. 즐겨찾기에서 폴더를 다시 선택하세요.";
+"FavoriteUnavailableShort" = "즐겨찾기 폴더를 열 수 없음";
+"Favorites" = "즐겨찾기";
+"FavoritesEmpty" = "자주 쓰는 폴더를 추가하면 여기에서 바로 열 수 있습니다.";
 "FieldAddText" = "붙일 글자";
 "FieldFind" = "찾을 글자";
 "FieldJoin" = "이름과 정보 사이에 넣을 글자";
@@ -129,6 +138,7 @@
 "FinalRenamed" = "최종 이름 적용";
 "FinderServiceTitle" = "NameFix로 파일 이름 검사";
 "FolderAccessPurpose" = "직접 선택한 파일과 폴더의 이름만 검사하고 바꿉니다.";
+"FolderExcluded" = "폴더 이름은 일괄 변경의 기본 대상이 아닙니다. 규칙 추가 → 고급 → 대상 범위에서 ‘폴더 이름도 변경’을 켤 수 있습니다.";
 "FolderWatch" = "폴더 자동 감시";
 "FormatGuide" = "글자 저장 형식 안내";
 "FormatIntro" = "한글 자소 분리, 일본어 탁점·반탁점, 악센트가 있는 문자 등 이름의 문자 구성을 정리합니다. 겉모양이 같아도 저장된 구성은 다를 수 있습니다.";
@@ -149,6 +159,7 @@
 "HelpStepRename" = "이름 바꾸기";
 "HelpStepRenameDetail" = "확인 창에서 한 번 더 확인합니다. 바꾼 이름은 작업 기록에서 되돌릴 수 있습니다.";
 "HelpTitle" = "사용 방법";
+"HiddenExcluded" = "숨김 항목은 일괄 변경의 기본 대상이 아닙니다. 규칙 추가 → 고급 → 대상 범위에서 ‘숨김 파일 포함’을 켤 수 있습니다.";
 "HiddenSelected" = "숨은 선택 {0}개";
 "HiddenSelectionConfirm" = "현재 검색·필터로 숨겨진 선택 항목 {0}개도 포함됩니다. 확인하려면 취소 후 선택한 항목을 누르세요.";
 "HideNormal" = "변경 없는 항목 숨기기";
@@ -161,6 +172,10 @@
 "HistoryWarningShort" = "일부 기록을 읽을 수 없음";
 "ImportCSV" = "목록 가져오기";
 "ImportRecipe" = "프리셋 가져오기";
+"IncludeFolders" = "폴더 이름도 변경";
+"IncludeFoldersHelp" = "추가한 폴더 자체와 그 안의 하위 폴더 이름에도 규칙을 적용합니다.";
+"IncludeHidden" = "숨김 파일 포함";
+"IncludeHiddenHelp" = "이름이 점(.)으로 시작하는 항목과 그런 폴더 안의 항목에도 규칙을 적용합니다. .DS_Store 같은 Finder 관리 파일은 항상 제외합니다.";
 "InputSummary" = "추가한 파일·폴더 {0}개";
 "InsertOffset" = "앞에서 {0}자 뒤에 삽입";
 "InspectShort" = "상세 보기";
@@ -248,6 +263,7 @@
 "Normal" = "✓ 변경 없음";
 "NormalHelp" = "현재 설정에서 바꿀 부분이 없습니다.";
 "NormalizationNotice" = "겉모양은 같아도 저장된 글자 구성이 다를 수 있습니다. 글자가 분리 저장된 이름은 오류가 아니며, 하나로 합쳐 통일할 수 있습니다. 작은 칸은 실제 이름이 아니라 글자 구성을 풀어 보여 주는 설명입니다.";
+"NotTarget" = "대상 아님";
 "NotificationDenied" = "알림이 허용되지 않았습니다. 결과는 앱에서 확인할 수 있습니다.";
 "NotificationFailed" = "알림을 전달하지 못했습니다. 앱에서 결과를 확인하세요.";
 "NotificationFailedShort" = "알림 전달 실패";
@@ -319,6 +335,8 @@
 "RawExportHelp" = "원문 CSV는 이름을 그대로 저장합니다. 스프레드시트에서 열면 수식처럼 해석될 수 있으므로 텍스트로 가져오세요.";
 "RecentFolders" = "최근 폴더";
 "RecentPrivacy" = "기본값은 꺼짐입니다. 폴더 경로 최대 10개를 로컬에 저장하며, 끄면 저장된 목록을 지웁니다.";
+"RecentUnavailable" = "폴더를 찾을 수 없어 최근 폴더 목록에서 뺐습니다.";
+"RecentUnavailableShort" = "최근 폴더를 찾을 수 없음";
 "RecipeActions" = "프리셋 관리";
 "RecipeName" = "프리셋 이름";
 "RecipeReadOnly" = "규칙 설정을 읽거나 저장하지 못했습니다. 기존 파일은 보존합니다.";
@@ -336,6 +354,7 @@
 "RegexInvalid" = "패턴(정규식) 문법을 확인하세요.";
 "RememberFolders" = "이 기기에 최근 폴더 기억";
 "Remove" = "제거";
+"RemoveFromFavorites" = "즐겨찾기에서 제거";
 "RemoveInput" = "이 항목 닫기";
 "RemoveRule" = "규칙 제거";
 "Rename" = "이름 바꾸기";
@@ -431,6 +450,7 @@
 "SummarySelected" = "선택";
 "System" = "시스템 기본값";
 "TabSeparated" = "탭으로 구분 (TSV)";
+"TargetsHelp" = "기본으로는 보이는 일반 파일의 이름만 바꿉니다. 하위 폴더 안의 파일은 포함하지만 폴더 이름과 숨김 항목은 그대로 둡니다.";
 "TemporaryRenamed" = "임시 이름 적용";
 "TextInput" = "변환할 텍스트";
 "TextTool" = "복사한 글자 변환";

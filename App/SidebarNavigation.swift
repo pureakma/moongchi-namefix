@@ -1,6 +1,8 @@
 import AppKit
 import SwiftUI
 import Combine
+import NameFixCore
+import NameFixRuntime
 
 /// Left side of the window. It has no toggle: nothing added → named navigation,
 /// something added → icon rail + folder tree, narrow window → hidden.
@@ -198,7 +200,8 @@ struct SidebarNavigation: View {
     private func navigation(expanded: Bool) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             ForEach(primary) { destination(for: $0, expanded: expanded) }
-            Spacer(minLength: Metrics.gap)
+            // With names showing there is room for the pinned folders; the rail keeps to icons.
+            if expanded { favorites } else { Spacer(minLength: Metrics.gap) }
             ForEach(secondary) { destination(for: $0, expanded: expanded) }
         }
         .padding(.horizontal, expanded ? 10 : 7).padding(.vertical, Metrics.gap)
@@ -234,6 +237,24 @@ struct SidebarNavigation: View {
         .zIndex(hovered == item.id ? 1 : 0)
         .accessibilityLabel(model.t(item.id)).accessibilityAddTraits(selected ? .isSelected : [])
         .accessibilityIdentifier(["HistoryShort": "history", "Settings": "settings", "HelpMenu": "help"][item.id] ?? item.id)
+    }
+    /// Pinned folders: one click adds the folder and checks it. Nothing here watches a folder.
+    private var favorites: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 4) {
+                Text(model.t("Favorites")).font(.caption).fontWeight(.semibold).foregroundStyle(palette.secondary).accessibilityAddTraits(.isHeader)
+                Spacer(minLength: 0)
+                Button { AppDelegate.shared?.pickFavorite() } label: { Image(systemName: "plus").font(.caption).frame(width: 20, height: 20).contentShape(Rectangle()) }
+                    .buttonStyle(.plain).foregroundStyle(palette.secondary).hoverTip(model.t("AddFavorite")).accessibilityLabel(model.t("AddFavorite")).accessibilityIdentifier("addFavorite")
+            }.padding(.leading, 7).padding(.top, Metrics.gap)
+            if model.favorites.isEmpty {
+                Text(model.t("FavoritesEmpty")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true).padding(.horizontal, 7)
+            } else {
+                ScrollView { VStack(alignment: .leading, spacing: 2) { ForEach(model.favorites) { FavoriteRow(model: model, palette: palette, favorite: $0) } } }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading).padding(.bottom, Metrics.gap)
+        .onAppear { model.checkFavorites() }
     }
     private func open(_ id: String) {
         switch id {
@@ -301,11 +322,52 @@ private struct FolderBranch: View {
             .help(node.id.display)
             .contextMenu {
                 if node.isRoot { Button(model.t("RemoveInput")) { model.remove(node.id) } }
+                if node.isRoot, node.isDirectory {
+                    if let pinned = model.favorites.first(where: { Data($0.path.utf8) == node.id.bytes }) { Button(model.t("RemoveFromFavorites")) { model.removeFavorite(pinned.id) } }
+                    else { Button(model.t("AddToFavorites")) { model.addFavorite(URL(fileURLWithPath: node.id.display)) } }
+                }
                 Button(model.t("CopyPath")) { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(node.id.display, forType: .string) }
             }
             if expanded, let children = node.children {
                 ForEach(children) { FolderBranch(model: model, palette: palette, node: $0, depth: depth + 1) }
             }
+        }
+    }
+}
+
+/// One pinned folder. A folder that cannot be opened says so and asks to be chosen again.
+private struct FavoriteRow: View {
+    @ObservedObject var model: AppModel
+    let palette: Palette
+    let favorite: FavoriteFolder
+    @State private var hovering = false
+    private var missing: Bool { model.favoriteProblems.contains(favorite.id) }
+    private var name: String { URL(fileURLWithPath: favorite.path).lastPathComponent }
+    var body: some View {
+        HStack(spacing: 4) {
+            Button { if missing { AppDelegate.shared?.pickFavorite(replacing: favorite.id) } else { model.openFavorite(favorite) } } label: {
+                HStack(spacing: 9) {
+                    Image(systemName: missing ? "exclamationmark.triangle" : "star").font(.system(size: 13)).frame(width: 20, height: 20)
+                        .foregroundStyle(missing ? palette.warning : palette.secondary).accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(name).lineLimit(1).truncationMode(.middle)
+                        if missing { Text(model.t("FavoriteMissing")).font(.caption2).foregroundStyle(palette.warning).lineLimit(1) }
+                    }
+                    Spacer(minLength: 0)
+                }.frame(maxWidth: .infinity, minHeight: 28, alignment: .leading).contentShape(Rectangle())
+            }.buttonStyle(.plain).help(favorite.path).accessibilityLabel(missing ? name + ", " + model.t("FavoriteMissing") : name)
+            if hovering {
+                Button { model.removeFavorite(favorite.id) } label: { Image(systemName: "xmark").font(.system(size: 9, weight: .semibold)).frame(width: 16, height: 22).contentShape(Rectangle()) }
+                    .buttonStyle(.plain).foregroundStyle(palette.secondary).hoverTip(model.t("RemoveFromFavorites")).accessibilityLabel(model.t("RemoveFromFavorites") + " " + name)
+            }
+        }
+        .padding(.leading, 7).padding(.trailing, 4)
+        .onHover { hovering = $0 }
+        .contextMenu {
+            Button(model.t("FavoriteRelink")) { AppDelegate.shared?.pickFavorite(replacing: favorite.id) }
+            if !missing { Button(model.t("ShowInFinder")) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: favorite.path)]) } }
+            Divider()
+            Button(model.t("RemoveFromFavorites")) { model.removeFavorite(favorite.id) }
         }
     }
 }

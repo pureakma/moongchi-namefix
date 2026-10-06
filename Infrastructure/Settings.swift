@@ -7,6 +7,15 @@ public enum AppTheme: String, CaseIterable, Sendable {
         switch self { case .system: "System"; case .dark: "Dark"; case .light: "Light"; case .olive: "OliveArchive" }
     }
 }
+/// A folder the user pinned for quick access. It is a shortcut only: adding one never starts
+/// watching the folder, and removing one never touches the folder itself.
+public struct FavoriteFolder: Codable, Sendable, Equatable, Identifiable {
+    public var id = UUID()
+    public var path: String
+    /// Lets the favourite follow a folder that was moved or renamed; absent if it could not be made.
+    public var bookmark: Data?
+    public init(path: String, bookmark: Data?) { self.path = path; self.bookmark = bookmark }
+}
 public struct AppSettings: Codable, Sendable, Equatable {
     public var schemaVersion = 1
     public var platform = "macOS"
@@ -22,8 +31,10 @@ public struct AppSettings: Codable, Sendable, Equatable {
     public var workbenchEnabled: Bool? = nil // Optional for existing schema-1 settings.
     public var compactRows = false
     public var nameColumnRatio = 50.0
+    public var favoriteFolders: [FavoriteFolder]? = nil // Optional for existing schema-1 settings.
     public init() {}
-    public var valid: Bool { schemaVersion == 1 && platform == "macOS" && ["system", "ko-KR", "en-US", "ja-JP"].contains(language) && ["dark", "light", "olive", "system"].contains(theme) && (1...1000).contains(historyLimit) && nameColumnRatio.isFinite && (25...75).contains(nameColumnRatio) && recentFolders.count <= 10 }
+    public var valid: Bool { schemaVersion == 1 && platform == "macOS" && ["system", "ko-KR", "en-US", "ja-JP"].contains(language) && ["dark", "light", "olive", "system"].contains(theme) && (1...1000).contains(historyLimit) && nameColumnRatio.isFinite && (25...75).contains(nameColumnRatio) && recentFolders.count <= 10 && (favoriteFolders ?? []).count <= AppSettings.favoriteLimit && Set((favoriteFolders ?? []).map(\.id)).count == (favoriteFolders ?? []).count }
+    public static let favoriteLimit = 100
 }
 public actor SettingsStore {
     public let url: URL

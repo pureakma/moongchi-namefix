@@ -5,9 +5,9 @@ import NameFixRuntime
 
 /// Pipeline-level options that are not rules. Each opens in its own sheet from the Add Rule menu.
 enum AdvancedOption: String, Identifiable, CaseIterable {
-    case form = "AdvForm", order = "AdvOrder", csv = "AdvCSV", pairs = "AdvPairs", presets = "AdvPresets"
+    case form = "AdvForm", targets = "AdvTargets", order = "AdvOrder", csv = "AdvCSV", pairs = "AdvPairs", presets = "AdvPresets"
     var id: String { rawValue }
-    var icon: String { ["AdvForm": "doc.text", "AdvOrder": "list.number", "AdvCSV": "tablecells", "AdvPairs": "square.on.square", "AdvPresets": "square.stack"][rawValue] ?? "gearshape" }
+    var icon: String { ["AdvForm": "doc.text", "AdvTargets": "scope", "AdvOrder": "list.number", "AdvCSV": "tablecells", "AdvPairs": "square.on.square", "AdvPresets": "square.stack"][rawValue] ?? "gearshape" }
 }
 
 /// A row whose whole width toggles its content; the chevron is only a hint.
@@ -56,6 +56,7 @@ struct RuleEditor: View {
     private var configured: [AdvancedOption] {
         var result: [AdvancedOption] = []
         if draft.target != .nfc { result.append(.form) }
+        if draft.includeFolders == true || draft.includeHidden == true { result.append(.targets) }
         if let order = draft.order, order != .path { result.append(.order) }
         if draft.mapping != nil { result.append(.csv) }
         if !(draft.pairExtensions ?? []).isEmpty { result.append(.pairs) }
@@ -180,6 +181,7 @@ struct RuleEditor: View {
     private func optionSummary(_ choice: AdvancedOption) -> String {
         switch choice {
         case .form: return model.t(draft.target.rawValue)
+        case .targets: return [draft.includeFolders == true ? model.t("IncludeFolders") : nil, draft.includeHidden == true ? model.t("IncludeHidden") : nil].compactMap { $0 }.joined(separator: " · ")
         case .order: return model.t((draft.order ?? .path).rawValue)
         case .csv: return model.t("MappingCount", model.n(draft.mapping?.rows.count ?? 0))
         case .pairs: return model.t("SumPairs", (draft.pairExtensions ?? []).joined(separator: ", "))
@@ -189,6 +191,7 @@ struct RuleEditor: View {
     private func clear(_ choice: AdvancedOption) {
         switch choice {
         case .form: draft.target = .nfc
+        case .targets: draft.includeFolders = nil; draft.includeHidden = nil
         case .order: draft.order = nil; draft.manualPaths = nil
         case .csv: draft.mapping = nil
         case .pairs: draft.pairExtensions = nil
@@ -327,6 +330,14 @@ struct AdvancedRuleSheet: View {
                         }.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
                     }.buttonStyle(.plain).accessibilityAddTraits(draft.target == target ? .isSelected : [])
                 }
+            }
+        case .targets:
+            VStack(alignment: .leading, spacing: Metrics.gap) {
+                Text(model.t("TargetsHelp")).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
+                Toggle(model.t("IncludeFolders"), isOn: Binding(get: { draft.includeFolders == true }, set: { draft.includeFolders = $0 ? true : nil })).accessibilityIdentifier("includeFolders")
+                Text(model.t("IncludeFoldersHelp")).font(.callout).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
+                Toggle(model.t("IncludeHidden"), isOn: Binding(get: { draft.includeHidden == true }, set: { draft.includeHidden = $0 ? true : nil })).accessibilityIdentifier("includeHidden")
+                Text(model.t("IncludeHiddenHelp")).font(.callout).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
             }
         case .order:
             VStack(alignment: .leading, spacing: Metrics.gap) {

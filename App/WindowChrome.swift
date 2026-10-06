@@ -68,12 +68,24 @@ import Combine
         menu.removeAllItems()
         menu.addItem(ActionItem(model.t("ChooseFiles")) { AppDelegate.shared?.pick(folders: false) })
         menu.addItem(ActionItem(model.t("ChooseFolders")) { AppDelegate.shared?.pick(folders: true) })
-        guard model.settings.rememberRecentFolders, !model.settings.recentFolders.isEmpty else { return }
-        menu.addItem(.separator())
-        let header = NSMenuItem(title: model.t("RecentFolders"), action: nil, keyEquivalent: ""); header.isEnabled = false; menu.addItem(header)
-        for path in model.settings.recentFolders {
-            menu.addItem(ActionItem(URL(fileURLWithPath: path).lastPathComponent) { [weak self] in self?.model.add([URL(fileURLWithPath: path)]) })
+        func section(_ title: String) { menu.addItem(.separator()); let header = NSMenuItem(title: model.t(title), action: nil, keyEquivalent: ""); header.isEnabled = false; menu.addItem(header) }
+        if !model.favorites.isEmpty {
+            section("Favorites")
+            for favorite in model.favorites {
+                let missing = model.favoriteProblems.contains(favorite.id)
+                let item = ActionItem(URL(fileURLWithPath: favorite.path).lastPathComponent) { [weak self] in
+                    if missing { AppDelegate.shared?.pickFavorite(replacing: favorite.id) } else { self?.model.openFavorite(favorite) }
+                }
+                item.image = NSImage(systemSymbolName: missing ? "exclamationmark.triangle" : "star", accessibilityDescription: nil); item.toolTip = favorite.path
+                menu.addItem(item)
+            }
         }
+        menu.addItem(.separator())
+        menu.addItem(ActionItem(model.t("AddFavorite") + "…") { AppDelegate.shared?.pickFavorite() })
+        let recent = model.recentShortcuts
+        guard !recent.isEmpty else { return }
+        section("RecentFolders")
+        for path in recent { menu.addItem(ActionItem(URL(fileURLWithPath: path).lastPathComponent) { [weak self] in self?.model.openRecent(path) }) }
     }
     @objc private func export() { guard !model.entries.isEmpty else { return }; model.present("tools") }
     @objc private func rescan() { guard model.canInput, !model.busy, !model.roots.isEmpty else { return }; model.scan() }

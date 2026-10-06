@@ -43,8 +43,9 @@ import NameFixRuntime
             return model
         }
         /// The real window composition: title bar band, sidebar in its current mode, content.
-        func render(_ name: String, language: String, theme: String, size: CGSize, workbench: Bool = false, entries: [FileEntry] = [], rules: [RenameRule] = [], applied: Bool = true, rulesFirst: Bool = false) throws {
+        func render(_ name: String, language: String, theme: String, size: CGSize, workbench: Bool = false, entries: [FileEntry] = [], rules: [RenameRule] = [], applied: Bool = true, rulesFirst: Bool = false, configure: ((AppModel) -> Void)? = nil) throws {
             let model = makeModel(language: language, theme: theme, workbench: workbench, entries: entries, rules: rules, applied: applied)
+            configure?(model)
             let controller = MainSidebarController(model: model, rulesFirst: rulesFirst)
             let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView], backing: .buffered, defer: false)
             window.isReleasedWhenClosed = false; window.appearance = NSApp.appearance; window.titlebarAppearsTransparent = true
@@ -122,6 +123,27 @@ import NameFixRuntime
                 let model = makeModel(language: "ko-KR", theme: "olive", workbench: true, entries: rows(conflict: false), rules: rules, applied: true)
                 try renderPart(name + "-ko-KR", theme: "olive", size: CGSize(width: 360, height: 300), RuleEditor(model: model, palette: Palette("olive", systemDark: false)).padding(Metrics.page))
             }
+        }
+        // Favourites on the first screen (one that cannot be opened), the batch rename target options,
+        // and a list in which folders and hidden items are left alone.
+        for language in ["ko-KR", "en-US"] {
+            try render("R-favorites-\(language)", language: language, theme: "olive", size: wide) { model in
+                model.settings.favoriteFolders = [FavoriteFolder(path: "/Users/Shared", bookmark: nil), FavoriteFolder(path: "/private/tmp", bookmark: nil), FavoriteFolder(path: "/Volumes/Gone/Project Photos", bookmark: nil)]
+                model.checkFavorites()
+            }
+        }
+        do {
+            let model = makeModel(language: "ko-KR", theme: "olive", workbench: true, entries: rows(conflict: false), rules: [prefix], applied: true)
+            model.workbenchDraft.includeFolders = true
+            try renderPart("S-targets-sheet-ko-KR", theme: "olive", size: CGSize(width: 480, height: 330), AdvancedRuleSheet(model: model, palette: Palette("olive", systemDark: false), option: .targets) {})
+            try renderPart("S-targets-row-ko-KR", theme: "olive", size: CGSize(width: 360, height: 300), RuleEditor(model: model, palette: Palette("olive", systemDark: false)).padding(Metrics.page))
+            let excluded = rows(conflict: false).map { entry -> FileEntry in
+                var e = entry
+                if e.isDirectory { e.proposed = e.path.leaf; e.status = .normal; e.reason = "FolderExcluded" }
+                else { e.proposed = Data(("Trip_" + entry.name).precomposedStringWithCanonicalMapping.utf8); e.status = .needsNormalization; e.reason = "RuleChangeHelp" }
+                return e
+            }
+            try render("S-targets-list-ko-KR", language: "ko-KR", theme: "olive", size: wide, workbench: true, entries: excluded, rules: [prefix])
         }
         try render("I-narrow-quick-empty-ko-KR", language: "ko-KR", theme: "olive", size: narrow)
         try render("I-narrow-quick-results-ko-KR", language: "ko-KR", theme: "olive", size: narrow, entries: rows(conflict: true))

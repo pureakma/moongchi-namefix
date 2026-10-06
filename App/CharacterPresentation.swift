@@ -28,6 +28,7 @@ struct CharacterPresentation: Sendable {
         return zip(original, proposed).enumerated().map { index, pair in CharacterUnit(id: index, original: String(pair.0), composed: String(pair.1)) }.filter(\.changed)
     }
     static func statusKey(_ status: EntryStatus, name: String, reason: String? = nil) -> String {
+        if reason == "FolderExcluded" || reason == "HiddenExcluded" { return "NotTarget" }
         if status.fixable, reason == "RuleChangeHelp" { return "PlannedChange" }
         if status.fixable, reason == "NFDChangeHelp" { return "NFDPlannedChange" }
         // Non-NFC also includes canonical singleton/reordering cases, not only NFD.

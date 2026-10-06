@@ -194,6 +194,17 @@ import NameFixCore
         let panel = NSOpenPanel(); panel.canChooseDirectories = folders; panel.canChooseFiles = !folders; panel.allowsMultipleSelection = true; panel.resolvesAliases = false
         if let window { panel.beginSheetModal(for: window) { [weak self] response in if response == .OK { self?.model.add(panel.urls) } } }
     }
+    /// Chooses folders to pin, or the new location of a favourite that could not be opened.
+    func pickFavorite(replacing id: UUID? = nil) {
+        let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.allowsMultipleSelection = id == nil; panel.resolvesAliases = false
+        panel.prompt = id == nil ? model.t("AddToFavorites") : model.t("ChooseFolders")
+        guard let window else { return }
+        panel.beginSheetModal(for: window) { [weak self] response in
+            guard response == .OK, let model = self?.model else { return }
+            if let id { if let url = panel.url { model.relinkFavorite(id, to: url) } } else { panel.urls.forEach(model.addFavorite) }
+            model.checkFavorites()
+        }
+    }
     func application(_ application: NSApplication, open urls: [URL]) { model.add(urls, fromOS: true); window?.makeKeyAndOrderFront(nil) }
     @objc func inspectNames(_ pasteboard: NSPasteboard, userData: String?, error: AutoreleasingUnsafeMutablePointer<NSString?>) {
         guard let urls = pasteboard.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL], !urls.isEmpty else { error.pointee = model.t("NoInputs") as NSString; return }
@@ -224,6 +235,7 @@ import NameFixCore
         let file = menu(model.t("FileMenu"))
         file.addItem(ActionItem(model.t("AddFiles"), key: "o") { [weak self] in self?.pick(folders: false) })
         let folder = ActionItem(model.t("AddFolders"), key: "O") { [weak self] in self?.pick(folders: true) }; folder.keyEquivalentModifierMask = [.command, .shift]; file.addItem(folder)
+        file.addItem(ActionItem(model.t("AddFavorite") + "…") { [weak self] in self?.pickFavorite() })
         file.addItem(ActionItem(model.t("Rescan"), key: "r") { [weak self] in self?.model.scan() })
         file.addItem(.separator())
         let save = ActionItem(model.t("ExportShort") + "…", key: "e") { [weak self] in guard self?.model.entries.isEmpty == false else { return }; self?.model.present("tools") }; save.keyEquivalentModifierMask = [.command, .shift]; file.addItem(save)

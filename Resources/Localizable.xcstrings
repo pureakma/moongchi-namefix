@@ -11408,6 +11408,466 @@
           }
         }
       }
+    },
+    "AdvTargets": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "대상 범위"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What to Rename"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "変更する対象"
+          }
+        }
+      }
+    },
+    "TargetsHelp": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기본으로는 보이는 일반 파일의 이름만 바꿉니다. 하위 폴더 안의 파일은 포함하지만 폴더 이름과 숨김 항목은 그대로 둡니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By default only the names of visible, regular files change. Files inside subfolders are included; folder names and hidden items are left as they are."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "既定では、表示されている通常のファイルの名前だけを変更します。サブフォルダ内のファイルは含みますが、フォルダ名と非表示の項目はそのままです。"
+          }
+        }
+      }
+    },
+    "IncludeFolders": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더 이름도 변경"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Also rename folders"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォルダ名も変更"
+          }
+        }
+      }
+    },
+    "IncludeFoldersHelp": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추가한 폴더 자체와 그 안의 하위 폴더 이름에도 규칙을 적용합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rules also apply to the folders you added and to the subfolders inside them."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "追加したフォルダ自体と、その中のサブフォルダの名前にもルールを適用します。"
+          }
+        }
+      }
+    },
+    "IncludeHidden": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "숨김 파일 포함"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Include hidden files"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "非表示のファイルを含める"
+          }
+        }
+      }
+    },
+    "IncludeHiddenHelp": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름이 점(.)으로 시작하는 항목과 그런 폴더 안의 항목에도 규칙을 적용합니다. .DS_Store 같은 Finder 관리 파일은 항상 제외합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rules also apply to items whose names start with a dot and to items inside such folders. Finder’s own files such as .DS_Store are always left out."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名前がドット(.)で始まる項目と、そのフォルダ内の項目にもルールを適用します。.DS_StoreなどFinderが管理するファイルは常に除外します。"
+          }
+        }
+      }
+    },
+    "NotTarget": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "대상 아님"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not a target"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "対象外"
+          }
+        }
+      }
+    },
+    "FolderExcluded": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더 이름은 일괄 변경의 기본 대상이 아닙니다. 규칙 추가 → 고급 → 대상 범위에서 ‘폴더 이름도 변경’을 켤 수 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folder names are not renamed by default. Turn on “Also rename folders” under Add Rule → Advanced → What to Rename."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォルダ名は一括変更の既定の対象ではありません。「ルールを追加」→「詳細」→「変更する対象」で「フォルダ名も変更」をオンにできます。"
+          }
+        }
+      }
+    },
+    "HiddenExcluded": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "숨김 항목은 일괄 변경의 기본 대상이 아닙니다. 규칙 추가 → 고급 → 대상 범위에서 ‘숨김 파일 포함’을 켤 수 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hidden items are not renamed by default. Turn on “Include hidden files” under Add Rule → Advanced → What to Rename."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "非表示の項目は一括変更の既定の対象ではありません。「ルールを追加」→「詳細」→「変更する対象」で「非表示のファイルを含める」をオンにできます。"
+          }
+        }
+      }
+    },
+    "Favorites": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "즐겨찾기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorites"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "お気に入り"
+          }
+        }
+      }
+    },
+    "AddFavorite": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "즐겨찾기 폴더 추가"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Favorite Folder"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "お気に入りフォルダを追加"
+          }
+        }
+      }
+    },
+    "FavoritesEmpty": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자주 쓰는 폴더를 추가하면 여기에서 바로 열 수 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add folders you use often and open them from here."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "よく使うフォルダを追加すると、ここからすぐに開けます。"
+          }
+        }
+      }
+    },
+    "AddToFavorites": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "즐겨찾기에 추가"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to Favorites"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "お気に入りに追加"
+          }
+        }
+      }
+    },
+    "RemoveFromFavorites": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "즐겨찾기에서 제거"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Favorites"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "お気に入りから削除"
+          }
+        }
+      }
+    },
+    "FavoriteMissing": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "찾을 수 없음 · 다시 선택"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not found · choose again"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "見つかりません · 選び直す"
+          }
+        }
+      }
+    },
+    "FavoriteRelink": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더 다시 선택…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose Folder Again…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォルダを選び直す…"
+          }
+        }
+      }
+    },
+    "FavoriteUnavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "즐겨찾기 폴더를 열 수 없습니다. 폴더가 옮겨졌거나 삭제되었거나 접근 권한이 없습니다. 즐겨찾기에서 폴더를 다시 선택하세요."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This favorite folder can’t be opened. It was moved, deleted, or you no longer have access. Choose the folder again from Favorites."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このお気に入りフォルダを開けません。移動または削除されたか、アクセス権がありません。お気に入りからフォルダを選び直してください。"
+          }
+        }
+      }
+    },
+    "FavoriteUnavailableShort": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "즐겨찾기 폴더를 열 수 없음"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorite folder can’t be opened"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "お気に入りフォルダを開けません"
+          }
+        }
+      }
+    },
+    "RecentUnavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더를 찾을 수 없어 최근 폴더 목록에서 뺐습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The folder couldn’t be found and was removed from Recent Folders."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォルダが見つからないため、最近使ったフォルダから外しました。"
+          }
+        }
+      }
+    },
+    "RecentUnavailableShort": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "최근 폴더를 찾을 수 없음"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent folder not found"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近使ったフォルダが見つかりません"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

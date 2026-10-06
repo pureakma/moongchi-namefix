@@ -18,7 +18,9 @@ import NameFixRuntime
         let model = AppModel(dataRoot: root.appendingPathComponent("support")); await model.start()
         model.add([file]); try await settle(model)
         var rule = RenameRule(.prefix); rule.text = "Client_"
-        model.openWorkbench(); model.workbenchDraft = RulePipeline(rules: [rule])
+        // Entering batch rename rescans with its own targets.
+        model.openWorkbench(); try await settle(model)
+        model.workbenchDraft = RulePipeline(rules: [rule])
         model.usePipeline(model.workbenchDraft); try await settle(model)
         XCTAssertEqual(model.entries.first?.preview, "Client_invoice.txt")
         model.prepare(); try await settle(model)
@@ -47,9 +49,70 @@ import NameFixRuntime
     func testLegacySettingsDecodeWithoutWorkspaceKey() throws {
         let data = try JSONEncoder().encode(AppSettings())
         var object = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
-        object.removeValue(forKey: "workbenchEnabled")
+        object.removeValue(forKey: "workbenchEnabled"); object.removeValue(forKey: "favoriteFolders")
         let settings = try JSONDecoder().decode(AppSettings.self, from: JSONSerialization.data(withJSONObject: object))
-        XCTAssertNil(settings.workbenchEnabled); XCTAssertTrue(settings.valid)
+        XCTAssertNil(settings.workbenchEnabled); XCTAssertNil(settings.favoriteFolders); XCTAssertTrue(settings.valid)
+    }
+    func testDamagedFavoritesAreSetAsideAndDefaultsRestored() async throws {
+        let root = URL(fileURLWithPath: "/private/tmp/namefix-favorites-\(UUID())")
+        defer { try? FileManager.default.removeItem(at: root) }
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        var object = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(AppSettings())) as? [String: Any])
+        object["favoriteFolders"] = "not a list"
+        let url = root.appendingPathComponent("settings.json"), damaged = try JSONSerialization.data(withJSONObject: object)
+        try damaged.write(to: url)
+        do { _ = try await SettingsStore(url: url).load(); XCTFail("Damaged favourites must not load") }
+        catch { XCTAssertEqual((error as? FSError)?.code, "SettingsWarning") }
+        // The damaged file is kept beside a fresh default one; nothing is silently dropped.
+        let kept = try FileManager.default.contentsOfDirectory(at: root, includingPropertiesForKeys: nil).filter { $0.lastPathComponent.contains("corrupt-") }
+        XCTAssertEqual(try kept.first.map { try Data(contentsOf: $0) }, damaged)
+        let fresh = try await SettingsStore(url: url).load()
+        XCTAssertNil(fresh.favoriteFolders); XCTAssertTrue(fresh.valid)
+        // Duplicate ids or an oversized list are not valid settings either.
+        var settings = AppSettings(); let one = FavoriteFolder(path: "/a", bookmark: nil)
+        settings.favoriteFolders = [one, one]; XCTAssertFalse(settings.valid)
+        settings.favoriteFolders = (0...AppSettings.favoriteLimit).map { FavoriteFolder(path: "/\($0)", bookmark: nil) }; XCTAssertFalse(settings.valid)
+    }
+    func testFavoritesPersistOpenOnDemandNeverWatchAndReportUnavailableFolders() async throws {
+        let root = URL(fileURLWithPath: "/private/tmp/namefix-favorites-\(UUID())")
+        defer { try? FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: root.appendingPathComponent("photos").path); try? FileManager.default.removeItem(at: root) }
+        let photos = root.appendingPathComponent("photos"), notes = root.appendingPathComponent("notes"), support = root.appendingPathComponent("support")
+        for folder in [photos, notes] {
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            try Data("kept".utf8).write(to: folder.appendingPathComponent("a.txt"))
+        }
+        var model = AppModel(dataRoot: support); await model.start()
+        // A folder is pinned once; a file is not a favourite; pinning neither adds nor watches.
+        model.addFavorite(photos); model.addFavorite(photos); model.addFavorite(photos.appendingPathComponent("a.txt"))
+        XCTAssertEqual(model.favorites.map(\.path), [photos.path])
+        XCTAssertTrue(model.roots.isEmpty); XCTAssertTrue(model.watches.folders.isEmpty); XCTAssertTrue(model.watchPending.isEmpty)
+        await model.shutdown()
+        let saved = try await SettingsStore(url: support.appendingPathComponent("settings.json")).load()
+        XCTAssertEqual(saved.favoriteFolders?.map(\.path), [photos.path])
+        // After a restart the favourite is there, and opening it adds the folder and checks it now.
+        model = AppModel(dataRoot: support); await model.start()
+        let favorite = try XCTUnwrap(model.favorites.first)
+        model.openFavorite(favorite); try await settle(model)
+        XCTAssertEqual(model.roots.map(\.display), [photos.path]); XCTAssertTrue(model.entries.contains { $0.name == "a.txt" })
+        XCTAssertTrue(model.watches.folders.isEmpty); XCTAssertTrue(model.watchPending.isEmpty)
+        model.remove(nil); try await settle(model)
+        // No access: reported and marked, not skipped in silence.
+        try FileManager.default.setAttributes([.posixPermissions: 0o000], ofItemAtPath: photos.path)
+        model.message = nil; model.openFavorite(favorite)
+        XCTAssertEqual(model.message, "FavoriteUnavailable"); XCTAssertTrue(model.favoriteProblems.contains(favorite.id)); XCTAssertTrue(model.roots.isEmpty)
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: photos.path)
+        // Gone: the same.
+        try FileManager.default.removeItem(at: photos)
+        model.message = nil; model.openFavorite(favorite)
+        XCTAssertEqual(model.message, "FavoriteUnavailable"); XCTAssertTrue(model.favoriteProblems.contains(favorite.id)); XCTAssertTrue(model.roots.isEmpty)
+        // Choosing a folder again repairs the favourite in place.
+        model.relinkFavorite(favorite.id, to: notes)
+        XCTAssertEqual(model.favorites.map(\.path), [notes.path]); XCTAssertEqual(model.favorites.first?.id, favorite.id); XCTAssertFalse(model.favoriteProblems.contains(favorite.id))
+        // Removing a favourite removes the shortcut only.
+        model.removeFavorite(favorite.id)
+        XCTAssertTrue(model.favorites.isEmpty)
+        XCTAssertEqual(try Data(contentsOf: notes.appendingPathComponent("a.txt")), Data("kept".utf8))
+        await model.shutdown()
     }
     func testQuickModeRemovesActiveRulesButRetainsDraftAndRestartOpensRepairScreen() async throws {
         let root = URL(fileURLWithPath: "/private/tmp/namefix-workspace-\(UUID())")

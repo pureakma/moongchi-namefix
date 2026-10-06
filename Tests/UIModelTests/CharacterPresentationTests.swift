@@ -57,4 +57,9 @@ final class CharacterPresentationTests: XCTestCase {
         XCTAssertEqual(CharacterPresentation.statusKey(.needsNormalization, name: "한글", reason: "NFDChangeHelp"), "NFDPlannedChange")
     }
 
+    func testItemsBatchRenameLeavesAloneAreLabelledAsNotTargets() {
+        XCTAssertEqual(CharacterPresentation.statusKey(.normal, name: "trip", reason: "FolderExcluded"), "NotTarget")
+        XCTAssertEqual(CharacterPresentation.statusKey(.normal, name: ".env", reason: "HiddenExcluded"), "NotTarget")
+        XCTAssertEqual(CharacterPresentation.statusKey(.normal, name: "a.txt", reason: "NormalHelp"), "Normal")
+    }
 }

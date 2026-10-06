@@ -60,6 +60,22 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 과거 build3 Release 후보의 서명·패키지 검증은 현재 source의 근거가 아니다. 경쟁 제품 대비 속도로 확대하지 않는다.
 
+## 즐겨찾기와 일괄 변경 대상 정책 검증 (T-005)
+
+2026-10-06. 영수증은 MAC-FAVORITES-TARGETS-20261006, evidence는 artifacts/development/favorites-targets다. Core(선택 필드 2개)·Application(대상 정책)·Infrastructure(설정)·CLI·App이 바뀌어 직전 MAC-OPTIMIZATION-GATE-20261006을 대체한다. 성능 프로파일과 시작·유휴 측정은 다시 하지 않았다(대상 정책은 항목마다 이름 한 번을 더 보는 정도이고 scan·plan 경로는 그대로다).
+
+| 항목 | 명령 | 결과 |
+|---|---|---|
+| Runtime·UI model·Core test | eng/test.sh --level 3 --scope all | 116개 실행, 실패 0 (통합 54, UI model 42, Core 20; 성능 프로파일 4종 skip) |
+| 리소스 | eng/resources.py; eng/validate-resources.py | 516 keys × ko/en/ja PASS |
+| CLI | Debug/Release build + eng/test-expansion-cli.py, eng/test-release-cli.py | PASS |
+| Build | eng/build.sh Debug; eng/build.sh Release + --self-test | 둘 다 BUILD SUCCEEDED |
+| 화면 | --render-ux(54장: 즐겨찾기 목록과 열 수 없는 항목, 대상 범위 sheet, ‘대상 아님’ 목록 포함), --render-shell, --render-expansion(±--native-sidebar), --render-responsive, --diagnose-window | 249장, assertion PASS |
+
+추가·수정한 test: 대상 정책(기본 제외, 두 옵션, 번호 미차지, Finder 관리 파일 상시 제외, 규칙 없는 글자 합치기는 대상 아님, 옵션의 저장 호환), 폴더를 가리키는 이름 목록 거부, 즐겨찾기(한 번만 고정, 파일은 불가, 저장·재시작 후 유지, 열면 입력 추가와 검사, 감시 미시작, 접근 권한 없음·삭제 시 표시와 알림, 다시 선택, 제거해도 파일 유지), 손상된 즐겨찾기 설정의 원본 보존과 기본값 복구, 구버전 설정 호환, ‘대상 아님’ 상태 문구. 폴더 이름 변경을 전제로 하던 기존 test 3개는 옵션을 켜거나 새 흐름에 맞게 고쳤다.
+
+확인하지 못한 것: 폴더가 옮겨졌을 때 bookmark로 따라가는 동작(test 환경에서는 bookmark 생성 여부가 보장되지 않아 경로 기준으로만 검증), 실제 창에서의 즐겨찾기 추가·다시 선택 panel, 일괄 변경 화면 진입 시 목록이 바뀌는 체감.
+
 ## First-use UX 구조 단순화 검증 (T-003)
 
 2026-10-06 화면 구조 재설계와 그 뒤 사용자 지시(전 기능 무료, UI 구조 재설계 2차: 입력 상태를 따르는 왼쪽 영역, 창 chrome과 앱 이름, 전체 band drag, 일괄 변경 2-pane)를 반영한 뒤의 Engineering Verification이다. 영수증은 MAC-FIRST-USE-UX-20261006, 로컬 evidence는 artifacts/development/ui-structure-2다.
@@ -104,6 +120,16 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 
 
 ## User QA — 한 번에 확인할 목록
+
+### 지금 확인할 것 (T-005)
+
+| 번호 | 확인할 것 | 결과 |
+|---|---|---|
+| F1 | 첫 화면 왼쪽 ‘즐겨찾기’의 +로 폴더를 추가하고, 눌러서 열리고, ×로 제거되는가(폴더는 그대로인가) | PENDING |
+| F2 | 즐겨찾기한 폴더의 이름을 바꾸거나 지운 뒤 누르면 ‘찾을 수 없음 · 다시 선택’으로 표시되고 다시 고를 수 있는가 | PENDING |
+| F3 | 폴더를 넣은 상태에서 오른쪽 위 + 메뉴와 트리 폴더의 우클릭 메뉴로 즐겨찾기를 쓸 수 있는가 | PENDING |
+| F4 | 파일 이름 일괄 변경에서 폴더와 숨김 파일이 ‘대상 아님’으로 나오고 파일만 바뀌는가 | PENDING |
+| F5 | ‘+ 규칙 추가’ → 고급 → ‘대상 범위’에서 두 옵션을 켜면 폴더·숨김 파일이 대상에 들어오는가 | PENDING |
 
 ### 지금 확인할 다섯 가지 (T-004 종료 시점)
 

@@ -41,6 +41,8 @@ import NameFixApplication
             case "--nfd": pipeline.target = .nfd
             case "--keep-form": pipeline.target = .unchanged
             case "--no-recurse": recursive = false
+            case "--include-folders": pipeline.includeFolders = true
+            case "--include-hidden": pipeline.includeHidden = true
             case "--execute": execute = true
             case "--json": json = true
             case "--prefix", "--suffix", "--number":

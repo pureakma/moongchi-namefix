@@ -29,6 +29,8 @@ import NameFixApplication
         sheet = nil
         changeSettings { $0.workbenchEnabled = true }
         if Self.applicable(workbenchDraft) == pipeline { markWorkbenchPreviewApplied() }
+        // The list switches to batch rename's targets: files only, unless the options say otherwise.
+        if !roots.isEmpty { scan() }
     }
     /// Batch Rename opens with a Replace Text rule ready to fill in. Returns its id when it was added.
     func addStarterRule() -> UUID? {
@@ -164,7 +166,7 @@ import NameFixApplication
         let watchStore = WatchStore(url: dataRoot.appendingPathComponent("watches.json")); self.watchStore = watchStore
         do { watches = try await watchStore.load(); watchBaselines = watches.baselines ?? [:] } catch { message = "WatchReadOnly" }
         restartWatches()
-        ready = true; flushQueued()
+        ready = true; flushQueued(); checkFavorites()
     }
     func changeSettings(_ edit: (inout AppSettings) -> Void) {
         let old = settings
@@ -182,6 +184,80 @@ import NameFixApplication
         settingsTask = Task { [weak self] in
             await previous?.value
             do { try await store.save(snapshot) } catch { self?.message = (error as? FSError)?.code ?? "SettingsSaveFailed" }
+        }
+    }
+    // MARK: Favourite and recent folders — shortcuts to add a folder; neither one watches anything
+
+    var favorites: [FavoriteFolder] { settings.favoriteFolders ?? [] }
+    /// Favourites that could not be opened when last checked: moved away, deleted or unreadable.
+    @Published private(set) var favoriteProblems: Set<UUID> = []
+    /// Recent folders not already pinned, so a folder is listed once.
+    var recentShortcuts: [String] {
+        guard settings.rememberRecentFolders else { return [] }
+        let pinned = Set(favorites.map { Data($0.path.utf8) })
+        return settings.recentFolders.filter { !pinned.contains(Data($0.utf8)) }
+    }
+    func isFavorite(_ path: RawPath) -> Bool { favorites.contains { Data($0.path.utf8) == path.bytes } }
+    /// The folder a favourite points to now, or nil when it cannot be opened.
+    nonisolated static func resolve(_ favorite: FavoriteFolder) -> URL? {
+        var url = URL(fileURLWithPath: favorite.path)
+        if let bookmark = favorite.bookmark {
+            var stale = false
+            if let found = try? URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope, .withoutUI, .withoutMounting], relativeTo: nil, bookmarkDataIsStale: &stale) { url = found }
+        }
+        return usableFolder(url) ? url : nil
+    }
+    nonisolated static func usableFolder(_ url: URL) -> Bool {
+        var directory: ObjCBool = false
+        return FileManager.default.fileExists(atPath: url.path, isDirectory: &directory) && directory.boolValue && FileManager.default.isReadableFile(atPath: url.path)
+    }
+    func addFavorite(_ url: URL) {
+        guard Self.usableFolder(url), !isFavorite(RawPath(url.path)), favorites.count < AppSettings.favoriteLimit else { return }
+        let bookmark = try? url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
+        changeSettings { $0.favoriteFolders = ($0.favoriteFolders ?? []) + [FavoriteFolder(path: url.path, bookmark: bookmark)] }
+    }
+    /// Takes the shortcut away. The folder and its files are not touched.
+    func removeFavorite(_ id: UUID) {
+        favoriteProblems.remove(id)
+        changeSettings { $0.favoriteFolders?.removeAll { $0.id == id } }
+    }
+    /// Points an unavailable favourite at the folder the user picked again.
+    func relinkFavorite(_ id: UUID, to url: URL) {
+        guard Self.usableFolder(url) else { return }
+        let bookmark = try? url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
+        changeSettings { settings in
+            guard let index = settings.favoriteFolders?.firstIndex(where: { $0.id == id }) else { return }
+            // Picking a folder that is already a favourite keeps one entry for it.
+            if settings.favoriteFolders?.contains(where: { $0.id != id && Data($0.path.utf8) == Data(url.path.utf8) }) == true { settings.favoriteFolders?.remove(at: index) }
+            else { settings.favoriteFolders?[index].path = url.path; settings.favoriteFolders?[index].bookmark = bookmark }
+        }
+        favoriteProblems.remove(id)
+    }
+    /// Adds the favourite to the current input and checks it now. A favourite that cannot be
+    /// opened is marked and reported instead of being skipped.
+    func openFavorite(_ favorite: FavoriteFolder) {
+        guard canInput else { message = "BusyDropRejected"; return }
+        guard let url = Self.resolve(favorite) else { favoriteProblems.insert(favorite.id); message = "FavoriteUnavailable"; return }
+        favoriteProblems.remove(favorite.id)
+        if url.path != favorite.path { changeSettings { settings in if let index = settings.favoriteFolders?.firstIndex(where: { $0.id == favorite.id }) { settings.favoriteFolders?[index].path = url.path } } }
+        add([url])
+    }
+    func openRecent(_ path: String) {
+        let url = URL(fileURLWithPath: path)
+        guard Self.usableFolder(url) else {
+            message = "RecentUnavailable"
+            changeSettings { $0.recentFolders.removeAll { Data($0.utf8) == Data(path.utf8) } }
+            return
+        }
+        add([url])
+    }
+    /// Refreshes which favourites can be opened, off the main thread.
+    func checkFavorites() {
+        let list = favorites
+        Task { [weak self] in
+            let missing = await Task.detached { Set(list.filter { Self.resolve($0) == nil }.map(\.id)) }.value
+            guard let self, favorites.map(\.id) == list.map(\.id) else { return }
+            favoriteProblems = missing
         }
     }
     func add(_ urls: [URL], fromOS: Bool = false) {
@@ -217,7 +293,7 @@ import NameFixApplication
         scanToken.cancel(); scanToken = CancellationToken(); generation = UUID()
         let id = generation, token = scanToken, inputs = roots, recursive = activeWatchID == nil ? settings.recursive : true
         let watchID = activeWatchID, baseline = activeWatchID.flatMap { watchBaselines[$0] } ?? [:]
-        let oldEntries = entries, oldSelected = selected, pipeline = pipeline, access = entitlement.access()
+        let oldEntries = entries, oldSelected = selected, pipeline = pipeline, access = entitlement.access(), batch = isWorkbench
         let recipient = self
         phase = "ActivityScan"; scanned = 0; started = Date(); cancelled = false
         worker = Task { [weak self] in
@@ -229,8 +305,8 @@ import NameFixApplication
                     do { scan.entries = try await WatchSnapshot.candidates(scan.entries, baseline: baseline, token: token, pairExtensions: pipeline.pairExtensions ?? []) }
                     catch { scan.cancelled = token.cancelled; scan.entries = [] }
                 }
-                if !pipeline.rules.isEmpty || pipeline.mapping != nil || !(pipeline.pairExtensions ?? []).isEmpty {
-                    do { scan.entries = try await RulePreview.apply(scan.entries, pipeline: pipeline, access: access, token: token) }
+                if batch || !pipeline.rules.isEmpty || pipeline.mapping != nil || !(pipeline.pairExtensions ?? []).isEmpty {
+                    do { scan.entries = try await RulePreview.apply(scan.entries, pipeline: pipeline, access: access, token: token, batch: batch ? true : nil) }
                     catch { if token.cancelled { scan.cancelled = true }; scan.entries = scan.entries.map { item in var e = item; if !e.status.isError { e.status = .unsupported; e.reason = (error as? RuleFailure)?.rawValue ?? (error as? FSError)?.code ?? "OperationError" }; return e } }
                 }
                 let old = Dictionary(oldEntries.map { ($0.path, $0) }, uniquingKeysWith: { first, _ in first })

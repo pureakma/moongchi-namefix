@@ -12,10 +12,12 @@
 "ActivityRename" = "名前を変更中";
 "ActivityScan" = "名前を検査中";
 "ActivityUndo" = "元の名前に復元中";
+"AddFavorite" = "お気に入りフォルダを追加";
 "AddFiles" = "ファイルを追加";
 "AddFolders" = "フォルダを追加";
 "AddMore" = "追加";
 "AddRule" = "ルールを追加";
+"AddToFavorites" = "お気に入りに追加";
 "AdvCSV" = "CSVリスト";
 "AdvFileInfo" = "ファイル情報";
 "AdvForm" = "文字の保存形式";
@@ -23,6 +25,7 @@
 "AdvPairs" = "ファイルの組";
 "AdvPattern" = "高度なパターン";
 "AdvPresets" = "プリセット";
+"AdvTargets" = "変更する対象";
 "Advanced" = "文字構成の詳細";
 "All" = "すべて";
 "Ambiguous" = "手動確認が必要";
@@ -114,6 +117,12 @@
 "Extension" = "拡張子";
 "ExtensionCondition" = "拡張子条件 (例: jpg)";
 "Failed" = "失敗";
+"FavoriteMissing" = "見つかりません · 選び直す";
+"FavoriteRelink" = "フォルダを選び直す…";
+"FavoriteUnavailable" = "このお気に入りフォルダを開けません。移動または削除されたか、アクセス権がありません。お気に入りからフォルダを選び直してください。";
+"FavoriteUnavailableShort" = "お気に入りフォルダを開けません";
+"Favorites" = "お気に入り";
+"FavoritesEmpty" = "よく使うフォルダを追加すると、ここからすぐに開けます。";
 "FieldAddText" = "追加する文字";
 "FieldFind" = "検索する文字";
 "FieldJoin" = "名前と情報の間に入れる文字";
@@ -129,6 +138,7 @@
 "FinalRenamed" = "最終名に変更済み";
 "FinderServiceTitle" = "NameFixでファイル名を検査";
 "FolderAccessPurpose" = "選択したファイルとフォルダの名前だけを検査・変更します。";
+"FolderExcluded" = "フォルダ名は一括変更の既定の対象ではありません。「ルールを追加」→「詳細」→「変更する対象」で「フォルダ名も変更」をオンにできます。";
 "FolderWatch" = "フォルダを自動監視";
 "FormatGuide" = "文字の保存形式について";
 "FormatIntro" = "ハングルの字母や、日本語の濁点・半濁点、アクセント付き文字の構成を整えます。見た目が同じでも、保存されている文字の構成が異なる場合があります。";
@@ -149,6 +159,7 @@
 "HelpStepRename" = "名前を変更";
 "HelpStepRenameDetail" = "確認画面でもう一度確認します。変更した名前は履歴から元に戻せます。";
 "HelpTitle" = "使い方";
+"HiddenExcluded" = "非表示の項目は一括変更の既定の対象ではありません。「ルールを追加」→「詳細」→「変更する対象」で「非表示のファイルを含める」をオンにできます。";
 "HiddenSelected" = "非表示の選択 {0}件";
 "HiddenSelectionConfirm" = "検索・フィルターで非表示の選択項目 {0} 件も含まれます。確認するにはキャンセルして「選択した項目」を表示してください。";
 "HideNormal" = "変更のない項目を隠す";
@@ -161,6 +172,10 @@
 "HistoryWarningShort" = "一部の履歴を読めません";
 "ImportCSV" = "一覧を読み込む";
 "ImportRecipe" = "プリセットを読み込む";
+"IncludeFolders" = "フォルダ名も変更";
+"IncludeFoldersHelp" = "追加したフォルダ自体と、その中のサブフォルダの名前にもルールを適用します。";
+"IncludeHidden" = "非表示のファイルを含める";
+"IncludeHiddenHelp" = "名前がドット(.)で始まる項目と、そのフォルダ内の項目にもルールを適用します。.DS_StoreなどFinderが管理するファイルは常に除外します。";
 "InputSummary" = "追加したファイル・フォルダ {0}件";
 "InsertOffset" = "先頭から{0}文字の後に挿入";
 "InspectShort" = "詳細";
@@ -248,6 +263,7 @@
 "Normal" = "✓ 変更なし";
 "NormalHelp" = "現在の設定では変更はありません。";
 "NormalizationNotice" = "見た目が同じでも、保存されている文字の構成が異なることがあります。文字が分離した名前はエラーではなく、合成して統一できます。小さな枠は実際の名前ではなく、文字構成の説明です。";
+"NotTarget" = "対象外";
 "NotificationDenied" = "通知が許可されていません。結果はアプリで確認できます。";
 "NotificationFailed" = "通知できませんでした。アプリで結果を確認してください。";
 "NotificationFailedShort" = "通知を送れませんでした";
@@ -319,6 +335,8 @@
 "RawExportHelp" = "元の文字をそのまま保存します。数式として解釈されないよう、表計算アプリにはテキストとして読み込んでください。";
 "RecentFolders" = "最近のフォルダ";
 "RecentPrivacy" = "初期設定はオフです。最大10件のフォルダパスをローカルに保存します。オフにすると保存済みの一覧を消去します。";
+"RecentUnavailable" = "フォルダが見つからないため、最近使ったフォルダから外しました。";
+"RecentUnavailableShort" = "最近使ったフォルダが見つかりません";
 "RecipeActions" = "プリセット管理";
 "RecipeName" = "プリセット名";
 "RecipeReadOnly" = "ルール設定を読み込みまたは保存できません。既存ファイルは保持します。";
@@ -336,6 +354,7 @@
 "RegexInvalid" = "パターン（正規表現）の構文を確認してください。";
 "RememberFolders" = "このデバイスに最近のフォルダを保存";
 "Remove" = "削除";
+"RemoveFromFavorites" = "お気に入りから削除";
 "RemoveInput" = "この項目を閉じる";
 "RemoveRule" = "ルールを削除";
 "Rename" = "名前を変更";
@@ -431,6 +450,7 @@
 "SummarySelected" = "選択";
 "System" = "システムの既定";
 "TabSeparated" = "タブ区切り (TSV)";
+"TargetsHelp" = "既定では、表示されている通常のファイルの名前だけを変更します。サブフォルダ内のファイルは含みますが、フォルダ名と非表示の項目はそのままです。";
 "TemporaryRenamed" = "一時名に変更済み";
 "TextInput" = "変換するテキスト";
 "TextTool" = "コピーした文字を変換";

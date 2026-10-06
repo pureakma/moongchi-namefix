@@ -117,7 +117,13 @@ struct MainView: View {
                     VStack(spacing: 8) { chooseFiles; chooseFolders }
                 }.controlSize(.large).padding(.top, 8)
                 recursiveToggle.padding(.top, 2)
-                if model.settings.rememberRecentFolders, !model.settings.recentFolders.isEmpty {
+                // The sidebar lists the favourites; while it is hidden they are offered here.
+                if model.sidebarCollapsed, !model.favorites.isEmpty {
+                    Menu(model.t("Favorites")) {
+                        ForEach(model.favorites) { favorite in Button(URL(fileURLWithPath: favorite.path).lastPathComponent) { model.openFavorite(favorite) }.help(favorite.path) }
+                    }.menuStyle(.borderlessButton).fixedSize()
+                }
+                if !model.recentShortcuts.isEmpty {
                     Menu(model.t("RecentFolders")) { recentFolderItems }.menuStyle(.borderlessButton).fixedSize()
                 }
                 if model.isWorkbench { Button(model.t("RulesFirst")) { rulesFirst = true }.buttonStyle(.link) }
@@ -139,8 +145,8 @@ struct MainView: View {
         Toggle(model.t("Recursive"), isOn: Binding(get: { model.settings.recursive }, set: { value in model.changeSettings { $0.recursive = value } })).disabled(model.busy)
     }
     @ViewBuilder private var recentFolderItems: some View {
-        ForEach(model.settings.recentFolders, id: \.self) { path in
-            Button(URL(fileURLWithPath: path).lastPathComponent) { model.add([URL(fileURLWithPath: path)]) }.help(path)
+        ForEach(model.recentShortcuts, id: \.self) { path in
+            Button(URL(fileURLWithPath: path).lastPathComponent) { model.openRecent(path) }.help(path)
         }
     }
 

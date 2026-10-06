@@ -4,8 +4,33 @@ import NameFixCore
 import NameFixRuntime
 
 public enum RulePreview {
-    public static func apply(_ entries: [FileEntry], pipeline: RulePipeline, access: ProductAccess, token: CancellationToken) async throws -> [FileEntry] {
+    /// `batch` says whether the batch rename target policy applies. Left out, it follows the
+    /// pipeline: rules, a name list or bundled files make it a batch rename; plain character
+    /// repair is not one.
+    public static func apply(_ entries: [FileEntry], pipeline: RulePipeline, access: ProductAccess, token: CancellationToken, batch: Bool? = nil) async throws -> [FileEntry] {
         try pipeline.validate(access: access)
+        // Batch rename changes regular, visible files. Folder names (the added folder itself
+        // included) and hidden items, with everything inside a hidden folder, keep their names
+        // unless the pipeline opts in. They are left out before sequence numbers are handed out.
+        let policy = batch ?? (!pipeline.rules.isEmpty || pipeline.mapping != nil || !(pipeline.pairExtensions ?? []).isEmpty)
+        let keepFolders = policy && pipeline.includeFolders != true, keepHidden = policy && pipeline.includeHidden != true
+        let scannedFolders = keepHidden ? Set(entries.lazy.filter(\.isDirectory).map(\.path)) : []
+        func hidden(_ path: RawPath) -> Bool {
+            if path.leaf.first == 0x2E { return true }
+            var folder = path.parent
+            while scannedFolders.contains(folder) {
+                if folder.leaf.first == 0x2E { return true }
+                let parent = folder.parent
+                if parent == folder { break }
+                folder = parent
+            }
+            return false
+        }
+        func excluded(_ entry: FileEntry) -> String? {
+            if keepFolders && entry.isDirectory { return "FolderExcluded" }
+            if keepHidden && hidden(entry.path) { return "HiddenExcluded" }
+            return nil
+        }
         let map = try pipeline.mapping?.index()
         var matchedKeys: [Data: Int] = [:], entryKeys: [RawPath: Data] = [:]
         func matchingKeys(_ path: RawPath, map: [Data: String]) -> [Data] {
@@ -18,7 +43,7 @@ public enum RulePreview {
             return keys
         }
         if let map {
-            for entry in entries where !entry.status.isError {
+            for entry in entries where !entry.status.isError && excluded(entry) == nil {
                 let keys = matchingKeys(entry.path, map: map)
                 guard keys.count <= 1 else { throw FSError("MappingAmbiguous") }
                 if let key = keys.first { matchedKeys[key, default: 0] += 1; entryKeys[entry.path] = key }
@@ -45,7 +70,7 @@ public enum RulePreview {
             return entries[a].path.bytes.lexicographicallyPrecedes(entries[b].path.bytes)
         }
         let extensions = (pipeline.pairExtensions ?? []).map { $0.lowercased() }
-        let pairMembers = Dictionary(grouping: entries.indices.filter { !entries[$0].isDirectory && extensions.contains(RulePipeline.parts(entries[$0].name, directory: false).ext.lowercased()) }) { i in
+        let pairMembers = Dictionary(grouping: entries.indices.filter { !entries[$0].isDirectory && excluded(entries[$0]) == nil && extensions.contains(RulePipeline.parts(entries[$0].name, directory: false).ext.lowercased()) }) { i in
             RawPath(bytes: entries[i].path.parent.bytes + Data([0]) + Data(RulePipeline.parts(entries[i].name, directory: false).stem.utf8))
         }
         var pairKeys: [Int: RawPath] = [:], invalidPairs = Set<Int>()
@@ -76,6 +101,7 @@ public enum RulePreview {
             if token.cancelled { throw RuleFailure.cancelled }
             guard !entries[i].status.isError else { continue }
             var entry = entries[i]
+            if let reason = excluded(entry) { entry.proposed = entry.path.leaf; entry.status = .normal; entry.reason = reason; result[i] = entry; continue }
             if invalidPairs.contains(i) { entry.status = .unsupported; entry.reason = "PairAmbiguous"; result[i] = entry; continue }
             entry.groupID = pairKeys[i]?.bytes
             // Finder bookkeeping files keep their names and do not consume a sequence number.
