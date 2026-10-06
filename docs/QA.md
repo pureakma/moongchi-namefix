@@ -116,6 +116,21 @@ build 4 후보(build4-pre-sign)는 대체됐고 파일은 그대로다(CLI hash�
 
 build 4의 알려진 차이였던 CLI 도움말 누락은 build 5에서 고쳤다.
 
+## 웹사이트 공개와 마케팅 자료 검증 (2026-10-07)
+
+영수증 MAC-MARKETING-WEBSITE-20261007, evidence artifacts/marketing/namefix/1.0.0/manifest.json. 직접 배포 산출물의 기존 PASS(서명·공증·staple·Gatekeeper·hash·test)는 제품 source가 바뀌지 않아 그대로 쓴다. 다운로드를 열지 않았으므로 공개 주소에서 DMG를 다시 받아 대조하는 확인은 하지 않았다.
+
+| 항목 | 명령·방법 | 결과 |
+|---|---|---|
+| 화면 촬영 도구 | eng/build.sh Debug, 앱 --render-marketing --marketing-samples | PASS. 15장면(5 × ko/en/ja), 예시 파일을 앱이 직접 검사·확인·일괄 변경 미리보기·이름 변경·작업 기록 표시 |
+| Release에 미포함 | eng/build.sh Release 뒤 실행 파일 문자열 확인 | PASS. render-marketing 관련 문자열 0건 |
+| UI model test | eng/test.sh --scope ui-model | PASS (Package.swift 제외 목록 변경의 영향 확인) |
+| 스토어 문구 | python3 eng/validate-marketing.py | PASS. ko/en/ja 전 항목이 한도 안, 버전·bundle ID·문의 주소·저작권이 앱과 일치 |
+| 화면 합성 | python3 eng/marketing-shots.py | PASS. 스토어 2880×1800 15장, 웹 1600×976 15장, 공유 미리보기 1장, manifest |
+| 웹사이트 정적 검증 | 웹사이트 저장소 node scripts/verify.mjs, node scripts/build.mjs | PASS. 42개 페이지/언어 렌더·링크·자산, NameFix 계약(미공개 다운로드 포함) |
+| 웹사이트 브라우저 | 7개 경로 × ko/en/ja × light/dark × 1440·1100·920·850·740·390·320px | PASS. 가로 넘침·탐색 넘침·깨진 이미지·JS 오류 없음(일본어 제목 넘침 1건은 고친 뒤 재확인) |
+| 공개본 | https://moongchi.ailoworks.com 의 홈·/namefix/·/namefix/privacy/·/support/ 와 자산 27개 | PASS. 병합 commit 0984460과 hash 동일, ko/en/ja 렌더와 화면 15장 로드, 다운로드·Store 주소 빈 값, DMG 경로 미노출 |
+
 ## 즐겨찾기와 일괄 변경 대상 정책 검증 (T-005)
 
 2026-10-06. 영수증은 MAC-FAVORITES-TARGETS-20261006, evidence는 artifacts/development/favorites-targets다. Core(선택 필드 2개)·Application(대상 정책)·Infrastructure(설정)·CLI·App이 바뀌어 직전 MAC-OPTIMIZATION-GATE-20261006을 대체한다. 성능 프로파일과 시작·유휴 측정은 다시 하지 않았다(대상 정책은 항목마다 이름 한 번을 더 보는 정도이고 scan·plan 경로는 그대로다).
@@ -237,6 +252,8 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 | U17 | 첫 실행 소개: 4쪽 내용과 그림, 어두운 테마에서도 밝게 보이는지, ‘다시 보지 않기’ 후 다시 실행하면 안 나오는지, 설정·도움말 메뉴에서 다시 열리는지 | PENDING |
 | U18 | 사용 방법 화면과 설정(제목 없는 첫 묶음, 오른쪽 정렬 switch, 맨 아래 개발자 카드)의 모양 | PENDING |
 | U19 | 설정의 ‘버그 신고 및 문의’ 버튼이 메일 앱에서 ailo@ailoworks.com으로 새 메일을 여는지 | PENDING |
+| U20 | 웹사이트 https://moongchi.ailoworks.com/namefix/ 와 /namefix/privacy/, 홈의 NameFix 카드, 지원 페이지의 NameFix 항목: ko/en/ja 문구, 화면, 휴대폰 폭, 다운로드 버튼이 주소 업데이트 예정 안내만 내는지 | PENDING |
+| U21 | 스토어용 화면 15장(artifacts/marketing/namefix/1.0.0/store)과 문구(marketing/appstore.json)의 ko/en/ja 표현과 장면 | PENDING |
 
 ## 문서/도구 검증
 

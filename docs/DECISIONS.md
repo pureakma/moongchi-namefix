@@ -114,3 +114,8 @@
 - 날짜: 2026-10-06
 - 결정: v1.0은 Mac App Store가 아니라 직접 배포한다(Developer ID Application 서명 + Apple 공증 + DMG). Release 구성의 bundle ID는 com.ailoworks.namefix, Debug 구성은 com.moongchi.namefix.dev로 분리하고 원본은 project.yml 하나다. 서명·공증 도구는 앱의 식별자를 바꾸지 않고 기대값과 다르면 멈춘다. 버전은 1.0.0, 이번 후보의 build는 4이며 후보를 다시 만들면 5 이상을 쓴다. App Sandbox는 OFF, Hardened Runtime은 ON, arm64 전용을 유지한다. 개발사는 AILO WORKS, 문의는 ailo@ailoworks.com이다. 설정·작업 기록 폴더(Application Support/Moongchi/NameFix)는 식별자와 무관하게 그대로 쓰므로 데이터 이전은 없다. UserDefaults는 식별자별로 따로 저장되어 출시 앱은 창 위치·소개 표시 여부 같은 개인 설정을 처음 상태로 시작한다.
 - 이유: 사용자가 배포 채널과 출시 식별자를 결정했다. 개발용 앱과 공개 앱이 같은 식별자를 쓰지 않아야 하고, 식별자를 build 뒤에 고쳐 넣는 방식은 서명 대상과 build 결과가 달라지는 길을 연다.
+
+### D-024 제품 페이지는 공개하고, 다운로드 공개와 Mac App Store는 따로 연다 [accepted]
+- 날짜: 2026-10-07
+- 결정: 뭉치 웹사이트에 NameFix 제품 페이지와 전용 개인정보처리방침을 공개한다. 다운로드 주소는 다른 뭉치 앱과 같이 빈 값으로 두고 공증된 DMG는 올리지 않는다. 주소와 DMG를 넣으면 열리도록 준비만 하고, 여는 시점은 사용자가 정한다. Mac App Store는 직접 배포와 별도 트랙(별도 sandbox 구성, build 6 이상)으로 두며 직접 배포 build 5와 그 구성은 바꾸지 않는다. D-023의 서명·공증·bundle ID 결정은 그대로이고 ‘Mac App Store는 대상이 아니다’만 이 결정으로 바뀐다.
+- 이유: 사용자가 2026-10-06에 출시·스토어·마케팅 진행을 승인했고, 2026-10-07에 다운로드 공개는 보류하고 준비만 하도록 정했다. sandbox 구성은 파일 안전 경계의 기준점을 바꾸는 작업이라 직접 배포본과 섞지 않는다.
