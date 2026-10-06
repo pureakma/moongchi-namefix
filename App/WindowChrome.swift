@@ -1,17 +1,16 @@
 import AppKit
+import SwiftUI
 import Combine
 
-/// Native toolbar: the screen name as the window title, plus the actions that only
-/// make sense once something has been added (save results, rescan, add more).
-/// Navigation lives in the sidebar and menu bar and is not repeated here.
+/// Title bar band over the content: the current screen name as the window title and, on the
+/// right, the actions that only make sense once something has been added (save results, rescan,
+/// add more). The app name sits beside the window buttons, above the navigation.
 @MainActor final class WindowChrome: NSObject, NSToolbarDelegate, NSMenuDelegate {
-    private weak var splitController: MainSidebarController?
     private weak var window: NSWindow?
     private let model: AppModel
     private var observation: AnyCancellable?
     // Toolbars sharing an identifier mirror each other's item changes; items here follow one window's state.
     let toolbar = NSToolbar(identifier: "NameFix.MainToolbar." + UUID().uuidString)
-    private let separator = NSToolbarItem.Identifier("NameFix.separator")
     private let actions = ["export", "rescan", "add"].map { NSToolbarItem.Identifier("NameFix." + $0) }
     private let addMenu = NSMenu()
     init(model: AppModel) {
@@ -26,19 +25,16 @@ import Combine
         }
     }
     func install(on window: NSWindow, split: MainSidebarController? = nil) {
-        splitController = split; self.window = window
+        self.window = window
         window.titleVisibility = .visible
+        window.titlebarSeparatorStyle = .none
         window.toolbarStyle = .unified
         window.toolbar = toolbar
         refresh()
     }
-    func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] { [separator, .flexibleSpace] }
-    func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] { [separator, .flexibleSpace] + actions }
+    func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] { [.flexibleSpace] }
+    func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] { [.flexibleSpace] + actions }
     func toolbar(_ toolbar: NSToolbar, itemForItemIdentifier identifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
-        if identifier == separator {
-            guard let splitController else { return nil }
-            return NSTrackingSeparatorToolbarItem(identifier: identifier, splitView: splitController.splitView, dividerIndex: 0)
-        }
         guard let index = actions.firstIndex(of: identifier) else { return nil }
         let symbol = ["square.and.arrow.up", "arrow.clockwise", "plus"][index]
         let item: NSToolbarItem
@@ -62,7 +58,8 @@ import Combine
     }
     /// The action items exist only while there is something to act on.
     func refresh() {
-        window?.title = model.t(model.isWorkbench ? "BatchWorkspace" : "RestoreNames")
+        let screen = model.t(model.isWorkbench ? "BatchWorkspace" : "RestoreNames")
+        if window?.title != screen { window?.title = screen }
         let wanted = !model.roots.isEmpty
         let present = toolbar.items.contains { actions.contains($0.itemIdentifier) }
         if wanted && !present { for identifier in actions { toolbar.insertItem(withItemIdentifier: identifier, at: toolbar.items.count) } }
@@ -82,4 +79,31 @@ import Combine
     }
     @objc private func export() { guard !model.entries.isEmpty else { return }; model.present("tools") }
     @objc private func rescan() { guard model.canInput, !model.busy, !model.roots.isEmpty else { return }; model.scan() }
+}
+
+/// "[icon] NameFix" beside the window buttons. It is a drag handle like the rest of the band:
+/// the icon and label never take the click.
+final class TitleBrandView: WindowDragView {
+    private let icon = NSImageView()
+    private let name = NSTextField(labelWithString: "NameFix")
+    override init(frame: NSRect) {
+        super.init(frame: frame)
+        icon.image = NSImage(named: NSImage.applicationIconName); icon.imageScaling = .scaleProportionallyUpOrDown
+        name.font = .systemFont(ofSize: 15, weight: .semibold)
+        let stack = NSStackView(views: [icon, name])
+        stack.orientation = .horizontal; stack.alignment = .centerY; stack.spacing = 6
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stack)
+        NSLayoutConstraint.activate([
+            icon.widthAnchor.constraint(equalToConstant: 20), icon.heightAnchor.constraint(equalToConstant: 20),
+            stack.leadingAnchor.constraint(equalTo: leadingAnchor), stack.trailingAnchor.constraint(equalTo: trailingAnchor),
+            stack.topAnchor.constraint(equalTo: topAnchor), stack.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+        name.setContentCompressionResistancePriority(.required, for: .horizontal)
+        setAccessibilityElement(true); setAccessibilityRole(.staticText); setAccessibilityLabel("NameFix")
+    }
+    required init?(coder: NSCoder) { nil }
+    func update(text: NSColor) { name.textColor = text }
+    // One drag handle; its label and icon never receive the click.
+    override func hitTest(_ point: NSPoint) -> NSView? { super.hitTest(point) == nil ? nil : self }
 }

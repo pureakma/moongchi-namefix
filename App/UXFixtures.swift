@@ -23,7 +23,14 @@ import NameFixRuntime
             return result
         }
         var count = 0
-        func render(_ name: String, language: String, theme: String, size: CGSize, workbench: Bool = false, entries: [FileEntry] = [], rules: [RenameRule] = [], applied: Bool = true, advanced: Bool = false) throws {
+        func capture(_ view: NSView, _ name: String) throws {
+            view.layoutSubtreeIfNeeded()
+            guard let bitmap = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { throw FSError("RenderFailed") }
+            view.cacheDisplay(in: view.bounds, to: bitmap)
+            guard let png = bitmap.representation(using: .png, properties: [:]) else { throw FSError("RenderFailed") }
+            try png.write(to: output.appendingPathComponent(name + ".png")); count += 1
+        }
+        func makeModel(language: String, theme: String, workbench: Bool, entries: [FileEntry], rules: [RenameRule], applied: Bool) -> AppModel {
             let model = AppModel(dataRoot: output.appendingPathComponent("isolated")); model.ready = true
             model.settings.language = language; model.settings.theme = theme; model.settings.workbenchEnabled = workbench
             model.entries = entries; model.visible = entries; model.selected = Set(entries.filter { $0.status.fixable }.map(\.id)); model.focused = nil
@@ -31,53 +38,76 @@ import NameFixRuntime
             if !entries.isEmpty { model.roots = [RawPath("/Users/me/Documents/Trip")]; model.rebuildFolderTree() }
             model.workbenchDraft = RulePipeline(rules: rules)
             if applied { model.pipeline = model.workbenchDraft; model.markWorkbenchPreviewApplied() }
-            let dark = theme == "dark"
-            NSApp.appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
-            let controller = MainSidebarController(model: model, startAdvanced: advanced)
+            NSApp.appearance = NSAppearance(named: theme == "dark" ? .darkAqua : .aqua)
+            return model
+        }
+        /// The real window composition: title bar band, sidebar in its current mode, content.
+        func render(_ name: String, language: String, theme: String, size: CGSize, workbench: Bool = false, entries: [FileEntry] = [], rules: [RenameRule] = [], applied: Bool = true, rulesFirst: Bool = false) throws {
+            let model = makeModel(language: language, theme: theme, workbench: workbench, entries: entries, rules: rules, applied: applied)
+            let controller = MainSidebarController(model: model, rulesFirst: rulesFirst)
             let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView], backing: .buffered, defer: false)
             window.isReleasedWhenClosed = false; window.appearance = NSApp.appearance; window.titlebarAppearsTransparent = true
-            window.backgroundColor = NSColor(Palette(theme, systemDark: dark).canvas)
+            window.backgroundColor = NSColor(Palette(theme, systemDark: theme == "dark").sidebar)
             window.contentViewController = controller
             let chrome = WindowChrome(model: model); chrome.install(on: window, split: controller)
             window.setContentSize(size)
             controller.fit(width: size.width)
-            RunLoop.main.run(until: Date().addingTimeInterval(0.3))
-            let view = window.contentView!.superview!
-            view.layoutSubtreeIfNeeded()
-            guard let bitmap = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { throw FSError("RenderFailed") }
-            view.cacheDisplay(in: view.bounds, to: bitmap)
-            guard let png = bitmap.representation(using: .png, properties: [:]) else { throw FSError("RenderFailed") }
-            try png.write(to: output.appendingPathComponent(name + ".png")); count += 1
+            RunLoop.main.run(until: Date().addingTimeInterval(0.35))
+            try capture(window.contentView!.superview!, name)
             window.close(); withExtendedLifetime(chrome) {}
+        }
+        /// Popovers and sheets are separate windows, so their content is captured on its own.
+        func renderPart<V: View>(_ name: String, theme: String, size: CGSize, _ view: V) throws {
+            let palette = Palette(theme, systemDark: theme == "dark")
+            let host = NSHostingView(rootView: view.frame(width: size.width, alignment: .top).background(palette.dialog)); host.sizingOptions = []
+            let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.borderless], backing: .buffered, defer: false)
+            window.isReleasedWhenClosed = false; window.contentView = host; window.setContentSize(size); host.frame = NSRect(origin: .zero, size: size)
+            RunLoop.main.run(until: Date().addingTimeInterval(0.25))
+            try capture(host, name); window.close()
         }
         let wide = CGSize(width: 1180, height: 780), narrow = CGSize(width: 440, height: 680)
         var prefix = RenameRule(.prefix); prefix.text = "Trip_"
         var number = RenameRule(.numbering); number.text = "_"
+        var replace = RenameRule(.replace); replace.text = "초안"; replace.replacement = "최종"
         func renamed(_ source: [FileEntry]) -> [FileEntry] {
             source.map { entry in guard !entry.isDirectory else { return entry }; var e = entry; e.proposed = Data(("Trip_" + entry.name).precomposedStringWithCanonicalMapping.utf8); e.status = .needsNormalization; e.reason = "RuleChangeHelp"; return e }
         }
         for language in ["ko-KR", "en-US", "ja-JP"] {
             try render("A-quick-empty-\(language)", language: language, theme: "olive", size: wide)
             try render("B-quick-results-\(language)", language: language, theme: "olive", size: wide, entries: rows(conflict: false))
-            try render("D-batch-empty-\(language)", language: language, theme: "olive", size: wide, workbench: true)
-            try render("D2-batch-choose-\(language)", language: language, theme: "olive", size: wide, workbench: true, entries: rows(conflict: false))
-            try render("E-batch-basic-\(language)", language: language, theme: "olive", size: wide, workbench: true, entries: renamed(rows(conflict: false)), rules: [prefix])
+            try render("D-batch-no-rules-\(language)", language: language, theme: "olive", size: wide, workbench: true, entries: rows(conflict: false))
+            try render("F-batch-one-rule-\(language)", language: language, theme: "olive", size: wide, workbench: true, entries: renamed(rows(conflict: false)), rules: [prefix])
+            let model = makeModel(language: language, theme: "olive", workbench: true, entries: [], rules: [], applied: true)
+            try renderPart("E-add-rule-popover-\(language)", theme: "olive", size: CGSize(width: 266, height: 560), AddRuleMenu(model: model, palette: Palette("olive", systemDark: false), startExpanded: false, rule: { _ in }, advanced: { _ in }))
+        }
+        do {
+            let model = makeModel(language: "ko-KR", theme: "olive", workbench: true, entries: rows(conflict: false), rules: [replace, number], applied: true)
+            try renderPart("F2-rule-editing-ko-KR", theme: "olive", size: CGSize(width: 360, height: 430), RuleEditor(model: model, palette: Palette("olive", systemDark: false), selecting: replace.id).padding(Metrics.page))
         }
         try render("C-quick-conflict-ko-KR", language: "ko-KR", theme: "olive", size: wide, entries: rows(conflict: true))
-        try render("E2-batch-unapplied-ko-KR", language: "ko-KR", theme: "olive", size: wide, workbench: true, entries: rows(conflict: false), rules: [prefix, number], applied: false)
-        try render("F-batch-advanced-ko-KR", language: "ko-KR", theme: "olive", size: wide, workbench: true, entries: renamed(rows(conflict: false)), rules: [prefix], advanced: true)
-        try render("G-narrow-quick-empty-ko-KR", language: "ko-KR", theme: "olive", size: narrow)
-        try render("G-narrow-quick-results-ko-KR", language: "ko-KR", theme: "olive", size: narrow, entries: rows(conflict: true))
-        try render("G-narrow-batch-choose-ja-JP", language: "ja-JP", theme: "olive", size: narrow, workbench: true, entries: rows(conflict: false))
-        try render("I-dark-quick-empty", language: "ko-KR", theme: "dark", size: wide)
-        try render("I-dark-quick-results", language: "en-US", theme: "dark", size: wide, entries: rows(conflict: true))
-        try render("I-dark-batch-basic", language: "ko-KR", theme: "dark", size: wide, workbench: true, entries: renamed(rows(conflict: false)), rules: [prefix])
-        try render("I-light-batch-choose", language: "en-US", theme: "light", size: wide, workbench: true, entries: rows(conflict: false))
-        print("PASS: \(count) representative first-use screens; no user window controlled")
+        try render("D0-batch-empty-ko-KR", language: "ko-KR", theme: "olive", size: wide, workbench: true)
+        try render("D1-batch-rules-first-ko-KR", language: "ko-KR", theme: "olive", size: wide, workbench: true, rulesFirst: true)
+        try render("G-batch-stale-ko-KR", language: "ko-KR", theme: "olive", size: wide, workbench: true, entries: rows(conflict: false), rules: [replace, number], applied: false)
+        do {
+            let model = makeModel(language: "ko-KR", theme: "olive", workbench: true, entries: rows(conflict: false), rules: [prefix], applied: true)
+            let palette = Palette("olive", systemDark: false)
+            try renderPart("H-advanced-form-ko-KR", theme: "olive", size: CGSize(width: 480, height: 420), AdvancedRuleSheet(model: model, palette: palette, option: .form) {})
+            try renderPart("H-advanced-presets-ko-KR", theme: "olive", size: CGSize(width: 480, height: 360), AdvancedRuleSheet(model: model, palette: palette, option: .presets) {})
+            try renderPart("H-advanced-csv-ko-KR", theme: "olive", size: CGSize(width: 480, height: 320), AdvancedRuleSheet(model: model, palette: palette, option: .csv) {})
+            try renderPart("E-add-rule-popover-expanded-ko-KR", theme: "olive", size: CGSize(width: 266, height: 760), AddRuleMenu(model: model, palette: palette, startExpanded: true, rule: { _ in }, advanced: { _ in }))
+        }
+        try render("I-narrow-quick-empty-ko-KR", language: "ko-KR", theme: "olive", size: narrow)
+        try render("I-narrow-quick-results-ko-KR", language: "ko-KR", theme: "olive", size: narrow, entries: rows(conflict: true))
+        try render("I-narrow-batch-ja-JP", language: "ja-JP", theme: "olive", size: narrow, workbench: true, entries: renamed(rows(conflict: false)), rules: [prefix])
+        try render("K-dark-quick-empty", language: "ko-KR", theme: "dark", size: wide)
+        try render("K-dark-quick-results", language: "en-US", theme: "dark", size: wide, entries: rows(conflict: true))
+        try render("K-dark-batch-stale", language: "ko-KR", theme: "dark", size: wide, workbench: true, entries: rows(conflict: false), rules: [replace], applied: false)
+        try render("K-light-batch-one-rule", language: "en-US", theme: "light", size: wide, workbench: true, entries: renamed(rows(conflict: false)), rules: [prefix])
+        print("PASS: \(count) representative screens; no user window controlled")
     }
 
-    /// Window behaviour that a still image cannot show: the sidebar must stay visible after
-    /// something is added, and the title bar band must drag the window wherever it has no control.
+    /// Window behaviour that a still image cannot show: the sidebar follows the input state without
+    /// a toggle, and the whole title bar band — left, middle and right — moves the window.
     static func diagnose(output: URL) throws {
         try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
         NSApplication.shared.setActivationPolicy(.prohibited)
@@ -93,38 +123,50 @@ import NameFixRuntime
         let chrome = WindowChrome(model: model); chrome.install(on: window, split: controller)
         window.setContentSize(NSSize(width: 1400, height: 800)); controller.fit(width: 1400)
         func settle(_ seconds: Double) { RunLoop.main.run(until: Date().addingTimeInterval(seconds)) }
+        func sidebarWidth() -> CGFloat { controller.navigationItem.viewController.view.frame.width }
         func report(_ label: String) {
-            let side = controller.navigationItem.viewController.view
-            print("\(label): collapsed=\(controller.navigationItem.isCollapsed) sidebarWidth=\(Int(side.frame.width)) hidden=\(side.isHidden) toolbarItems=\(chrome.toolbar.items.map { $0.itemIdentifier.rawValue.replacingOccurrences(of: "NameFix.", with: "") })")
+            print("\(label): mode=\(controller.mode) collapsed=\(controller.navigationItem.isCollapsed) sidebarWidth=\(Int(sidebarWidth())) tree=\(model.folderTree.count) toolbarItems=\(chrome.toolbar.items.map { $0.itemIdentifier.rawValue.replacingOccurrences(of: "NameFix.", with: "") })")
         }
-        settle(0.4); report("empty")
-        guard !controller.navigationItem.isCollapsed else { throw NSError(domain: "SidebarContract", code: 1) }
+        func expect(_ condition: Bool, _ code: Int) throws { if !condition { throw NSError(domain: "WindowContract", code: code) } }
+        settle(0.4); report("A nothing added")
+        try expect(controller.mode == .navigation && abs(sidebarWidth() - WindowLayout.navigationWidth) < 1 && !controller.navigationItem.canCollapse, 1)
+        try bandDrags(window, "A")
         model.add([folder.deletingLastPathComponent()])
         for _ in 0..<60 { settle(0.1); if !model.busy && !model.entries.isEmpty { break } }
-        settle(0.5); report("after add (\(model.entries.count) entries, tree \(model.folderTree.count))")
-        guard !controller.navigationItem.isCollapsed, controller.navigationItem.viewController.view.frame.width >= 200 else { throw NSError(domain: "SidebarContract", code: 2) }
+        settle(0.5); report("B folder added")
+        try expect(controller.mode == .railWithTree && abs(sidebarWidth() - (WindowLayout.railWidth + WindowLayout.defaultTreeWidth)) < 1 && !model.folderTree.isEmpty, 2)
+        try bandDrags(window, "B")
         model.folderFilter = model.folderTree.first?.children?.first?.id
-        settle(0.5); report("after choosing a tree folder")
-        guard !controller.navigationItem.isCollapsed else { throw NSError(domain: "SidebarContract", code: 3) }
-        // Title bar band: every point without a control must move the window. Over the sidebar that
-        // means the drag strip, because a SwiftUI hosting view there would swallow the click.
-        guard let frame = window.contentView?.superview else { throw NSError(domain: "DragContract", code: 1) }
-        let bandY = frame.bounds.height - 26, sidebarWidth = Int(controller.navigationItem.viewController.view.frame.width)
-        var blocked: [Int] = []
-        for x in stride(from: 100, through: 1100, by: 20) {
-            let hit = frame.hitTest(NSPoint(x: CGFloat(x), y: bandY))
-            let hosting = hit.map { String(describing: type(of: $0)).contains("HostingView") } ?? false
-            if x < sidebarWidth - 8 ? !(hit is WindowDragView) : (hosting || (hit != nil && !(hit is NSControl) && hit?.mouseDownCanMoveWindow == false)) { blocked.append(x) }
-        }
-        print("band points that would not drag the window: \(blocked)")
-        guard blocked.isEmpty else { throw NSError(domain: "DragContract", code: 2) }
-        // Dragging the divider must not be able to collapse a sidebar that has no toggle.
-        guard !controller.navigationItem.canCollapse else { throw NSError(domain: "SidebarContract", code: 4) }
+        settle(0.4); try expect(controller.mode == .railWithTree && !controller.navigationItem.isCollapsed, 3)
+        model.remove(nil)
+        for _ in 0..<60 { settle(0.1); if !model.busy { break } }
+        settle(0.5); report("C everything removed")
+        try expect(controller.mode == .navigation && abs(sidebarWidth() - WindowLayout.navigationWidth) < 1 && model.folderTree.isEmpty && model.folderFilter == nil, 4)
         window.setContentSize(NSSize(width: 600, height: 800)); controller.fit(width: 600); settle(0.3); report("narrow window")
-        guard controller.navigationItem.isCollapsed, model.sidebarCollapsed else { throw NSError(domain: "SidebarContract", code: 5) }
+        try expect(controller.mode == .hidden && controller.navigationItem.isCollapsed && model.sidebarCollapsed, 5)
+        try bandDrags(window, "narrow")
         window.setContentSize(NSSize(width: 1400, height: 800)); controller.fit(width: 1400); settle(0.3); report("wide again")
-        guard !controller.navigationItem.isCollapsed, !model.sidebarCollapsed, !controller.navigationItem.canCollapse else { throw NSError(domain: "SidebarContract", code: 6) }
+        try expect(controller.mode == .navigation && !controller.navigationItem.isCollapsed && !model.sidebarCollapsed, 6)
         window.close(); withExtendedLifetime(chrome) {}
-        print("PASS: sidebar stays visible after adding and filtering, cannot be collapsed by the divider, returns after a narrow window; title bar band drags the window")
+        print("PASS: sidebar follows input and width without a toggle; left, middle and right of the title bar band move the window")
+    }
+    /// Every point of the band must go to a drag strip, a system title bar view or a control —
+    /// never to a SwiftUI hosting view, which would swallow the click.
+    static func bandDrags(_ window: NSWindow, _ label: String) throws {
+        guard let frame = window.contentView?.superview else { throw NSError(domain: "DragContract", code: 1) }
+        let width = frame.bounds.width
+        var blocked: [String] = [], thirds = [0, 0, 0]
+        for depth in [8, 26, 44] {
+            for x in stride(from: 90, to: Int(width) - 6, by: 12) {
+                let hit = frame.hitTest(NSPoint(x: CGFloat(x), y: frame.bounds.height - CGFloat(depth)))
+                let name = hit.map { String(describing: type(of: $0)) } ?? "nil"
+                let control = hit is NSControl || name.contains("ToolbarItemViewer") || name.contains("ToolbarButton")
+                let drags = hit is WindowDragView || (!name.contains("HostingView") && hit?.mouseDownCanMoveWindow == true)
+                if control { continue }
+                if drags { thirds[min(2, x * 3 / Int(width))] += 1 } else { blocked.append("\(x),-\(depth):\(name.prefix(24))") }
+            }
+        }
+        print("band \(label): draggable samples left/middle/right = \(thirds), blocked = \(blocked.prefix(6))")
+        guard blocked.isEmpty, thirds.allSatisfy({ $0 > 0 }) else { throw NSError(domain: "DragContract", code: 2) }
     }
 }

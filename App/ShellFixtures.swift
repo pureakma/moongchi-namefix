@@ -21,7 +21,7 @@ import NameFixCore
             for size in [CGSize(width: 1180, height: 720), CGSize(width: 600, height: 600), CGSize(width: 320, height: 560)] {
                 let window = NSWindow(contentRect: CGRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
                 window.isReleasedWhenClosed = false; window.title = "Moongchi NameFix"; window.titlebarAppearsTransparent = true
-                window.backgroundColor = NSColor(Palette(model.settings.theme, systemDark: false).canvas)
+                window.backgroundColor = NSColor(Palette(model.settings.theme, systemDark: false).sidebar)
                 let host = NSHostingView(rootView: MainView(model: model)); host.sizingOptions = []
                 window.contentView = host
                 let chrome = WindowChrome(model: model); chrome.install(on: window); window.setContentSize(size)
@@ -77,6 +77,6 @@ import NameFixCore
                 }
             }
         }
-        print("PASS: \(count) shell/settings renders; screen title, contextual toolbar actions and Olive default verified")
+        print("PASS: \(count) shell/settings renders; screen title in the band, contextual toolbar actions and Olive default verified")
     }
 }

@@ -51,4 +51,22 @@ final class WindowLayoutTests: XCTestCase {
         WindowPlacementStore(defaults: defaults).save(invalid)
         XCTAssertEqual(WindowPlacementStore(defaults: defaults).load()?.frame, saved.frame)
     }
+    func testSidebarFollowsInputAndWindowWidthWithoutAToggle() {
+        XCTAssertEqual(WindowLayout.sidebarMode(windowWidth: 1180, hasInput: false), .navigation)
+        XCTAssertEqual(WindowLayout.sidebarMode(windowWidth: 1180, hasInput: true), .railWithTree)
+        XCTAssertEqual(WindowLayout.sidebarMode(windowWidth: 759, hasInput: false), .hidden)
+        XCTAssertEqual(WindowLayout.sidebarMode(windowWidth: 759, hasInput: true), .hidden)
+        XCTAssertEqual(WindowLayout.sidebarMode(windowWidth: 760, hasInput: false), .navigation)
+    }
+    func testNavigationWidthIsFixedAndOnlyTheTreeWidthIsRemembered() {
+        let navigation = WindowLayout.sidebarWidths(.navigation, treeWidth: 300)
+        XCTAssertEqual(navigation.minimum, navigation.maximum); XCTAssertEqual(navigation.preferred, WindowLayout.navigationWidth)
+        let tree = WindowLayout.sidebarWidths(.railWithTree, treeWidth: 300)
+        XCTAssertEqual(tree.preferred, WindowLayout.railWidth + 300)
+        XCTAssertLessThan(tree.minimum, tree.preferred); XCTAssertGreaterThan(tree.maximum, tree.preferred)
+        XCTAssertEqual(WindowLayout.treeWidth(nil), WindowLayout.defaultTreeWidth)
+        XCTAssertEqual(WindowLayout.treeWidth(10), WindowLayout.treeWidthRange.lowerBound)
+        XCTAssertEqual(WindowLayout.treeWidth(9999), WindowLayout.treeWidthRange.upperBound)
+        XCTAssertEqual(WindowLayout.treeWidth(.nan), WindowLayout.defaultTreeWidth)
+    }
 }

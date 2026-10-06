@@ -11,17 +11,18 @@ struct MainView: View {
     @Environment(\.colorSchemeContrast) private var contrast
     @FocusState private var searchFocused: Bool
     @State private var locationsExpanded = false
-    @State private var workbenchRulesExpanded = true
     @State private var rulesFirst: Bool
-    private let startAdvanced: Bool
-    init(model: AppModel, rulesFirst: Bool = false, startAdvanced: Bool = false) {
-        self.model = model; self.startAdvanced = startAdvanced
+    init(model: AppModel, rulesFirst: Bool = false) {
+        self.model = model
         _rulesFirst = State(initialValue: rulesFirst)
     }
     var palette: Palette { Palette(model.settings.theme, systemDark: scheme == .dark) }
     private var awaitingInput: Bool { model.roots.isEmpty && model.entries.isEmpty }
     private var conflicts: Int { model.counts["ConflictCaption"] ?? 0 }
     private var filtering: Bool { !model.query.isEmpty || model.filter != "All" || model.settings.hideNormal }
+    /// Where the panel meets the left side: a rounded turn beside the navigation, a straight
+    /// divider beside the folder tree, nothing when the sidebar is hidden.
+    private var panelEdge: ChromePanel.Leading { model.sidebarCollapsed ? .none : model.roots.isEmpty ? .rounded : .squared }
     var body: some View {
         GeometryReader { proxy in
             let width = max(280, proxy.size.width)
@@ -31,9 +32,11 @@ struct MainView: View {
                     else { quick(width: width, height: proxy.size.height) }
                 }.frame(width: width).frame(maxHeight: .infinity)
             }
-            .background(palette.canvas).foregroundStyle(contrast == .increased ? Color.primary : palette.text)
+            // The panel starts below the title bar band; the band itself keeps the window chrome colour.
+            .background { ChromePanel(palette: palette, leading: panelEdge) }
+            .foregroundStyle(contrast == .increased ? Color.primary : palette.text)
             .font(L10n.font(model.settings.language)).tint(palette.accent)
-            .overlay { if model.dragActive { RoundedRectangle(cornerRadius: 12).stroke(palette.accent, lineWidth: 3).padding(4).allowsHitTesting(false) } }
+            .overlay { if model.dragActive { RoundedRectangle(cornerRadius: Metrics.corner).stroke(palette.accent, lineWidth: 3).padding(4).allowsHitTesting(false) } }
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if let message = model.message {
                     ScrollView {
@@ -57,6 +60,7 @@ struct MainView: View {
                 if let result = model.result { resultView(result, available: proxy.size) }
             }
         }
+        .background(palette.sidebar.ignoresSafeArea())
         .onChange(of: model.searchFocus) { _, value in if value { searchFocused = true; model.searchFocus = false } }
     }
 
@@ -64,47 +68,45 @@ struct MainView: View {
 
     @ViewBuilder private func quick(width: CGFloat, height: CGFloat) -> some View {
         if awaitingInput { inputState(title: "EmptyTitle", icon: "character.cursor.ibeam", height: height) }
-        else if WindowLayout.wide(width: width) && height >= 420 { resultColumn.padding(16) }
+        else if WindowLayout.wide(width: width) && height >= 420 { resultPane.padding(Metrics.page) }
         else { compactResults(height: height) { EmptyView() } }
     }
+    /// Two panes that start on the same line: rules on the left, their preview on the right.
     @ViewBuilder private func workbench(width: CGFloat, height: CGFloat) -> some View {
         if awaitingInput && !rulesFirst { inputState(title: "BatchEmptyTitle", icon: "pencil.line", height: height) }
-        else if WindowLayout.wide(width: width) && height >= 520 {
-            HSplitView {
-                RuleEditor(model: model, palette: palette, startAdvanced: startAdvanced).padding(16).frame(minWidth: 300, idealWidth: 340, maxWidth: 380)
-                resultColumn.padding(16).frame(minWidth: 440)
+        else if width >= 820 && height >= 480 {
+            HStack(alignment: .top, spacing: 0) {
+                RuleEditor(model: model, palette: palette).padding(Metrics.page).frame(width: min(360, width * 0.38))
+                Rectangle().fill(palette.border).frame(width: 1).accessibilityHidden(true)
+                resultPane.padding(Metrics.page)
             }
         } else {
-            compactResults(height: height) {
-                DisclosureGroup(model.t("Rules"), isExpanded: $workbenchRulesExpanded) {
-                    RuleEditor(model: model, palette: palette, startAdvanced: startAdvanced, embedded: true).padding(.top, 8)
-                }
-            }
+            compactResults(height: height) { RuleEditor(model: model, palette: palette, embedded: true) }
         }
     }
-    private var resultColumn: some View {
-        VStack(alignment: .leading, spacing: 12) {
+    private var resultPane: some View {
+        VStack(alignment: .leading, spacing: Metrics.gap) {
+            if model.isWorkbench { previewHeader }
             overview
-            unappliedNotice
             filterRow
             results
             footer
         }
     }
     @ViewBuilder private func compactResults<Rules: View>(height: CGFloat, @ViewBuilder rules: () -> Rules) -> some View {
-        let sections = LazyVStack(alignment: .leading, spacing: 14) {
-            overview
+        let sections = LazyVStack(alignment: .leading, spacing: Metrics.gap) {
             rules()
-            unappliedNotice
+            if model.isWorkbench { previewHeader }
+            overview
             filterRow
             if model.busy { activity }
             if model.visible.isEmpty { noResults.frame(minHeight: 150) }
             else { ForEach(model.visible) { entry in CompactResultRow(model: model, entry: entry, palette: palette).id(entry.id) } }
-        }.padding(12)
+        }.padding(Metrics.gap)
         if height < 300 {
-            ScrollView { sections; footer.padding(12) }
+            ScrollView { sections; footer.padding(Metrics.gap) }
         } else {
-            ScrollView { sections }.safeAreaInset(edge: .bottom, spacing: 0) { footer.padding(12).background(palette.canvas) }
+            ScrollView { sections }.safeAreaInset(edge: .bottom, spacing: 0) { footer.padding(Metrics.gap).background(palette.canvas) }
         }
     }
 
@@ -130,7 +132,7 @@ struct MainView: View {
             .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
             .padding(.horizontal, 28).padding(.vertical, 32).frame(maxWidth: 480)
             .background(RoundedRectangle(cornerRadius: 14).strokeBorder(palette.border, style: StrokeStyle(lineWidth: 1.5, dash: [6, 5])))
-            .padding(16).frame(maxWidth: .infinity, minHeight: max(220, height))
+            .padding(Metrics.page).frame(maxWidth: .infinity, minHeight: max(220, height))
         }
         .disabled(model.busy || model.plan != nil).accessibilityIdentifier("emptyState")
     }
@@ -151,12 +153,28 @@ struct MainView: View {
 
     // MARK: Result state
 
-    /// One row: what was added (expandable), the summary that doubles as filters, and how much is shown.
+    /// Fixed-height header: a stale preview is a status here, never a banner that pushes the table down.
+    private var previewHeader: some View {
+        HStack(spacing: Metrics.control) {
+            Text(model.t("PreviewPane")).font(.headline).accessibilityAddTraits(.isHeader)
+            if model.hasUnappliedRules {
+                Label(model.t("PreviewStale"), systemImage: "arrow.triangle.2.circlepath").font(.caption).foregroundStyle(palette.warning)
+                    .padding(.horizontal, 7).padding(.vertical, 2).background(palette.warning.opacity(0.12), in: Capsule())
+                    .help(model.t("StaleHelp")).accessibilityLabel(model.t("StaleHelp"))
+            }
+            Spacer(minLength: Metrics.control)
+            if model.hasUnappliedRules {
+                Button(model.t("UpdateFilePreview")) { model.usePipeline(model.workbenchDraft) }.buttonStyle(.borderedProminent).controlSize(.small)
+                    .disabled(model.busy || model.plan != nil).accessibilityIdentifier("updatePreview")
+            }
+        }.frame(height: Metrics.paneHeader)
+    }
+    /// Compact summary. Each item is also the filter for that group.
     private var overview: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Metrics.control) {
             ViewThatFits(in: .horizontal) {
-                HStack(spacing: 8) { if model.sidebarCollapsed { locationsToggle }; summaryItems; conflictAction; Spacer(minLength: 8); scopeCaption }
-                VStack(alignment: .leading, spacing: 8) { if model.sidebarCollapsed { locationsToggle }; HStack(spacing: 8) { summaryItems; conflictAction }; scopeCaption }
+                HStack(spacing: Metrics.control) { if model.sidebarCollapsed { locationsToggle }; summaryItems; conflictAction }
+                VStack(alignment: .leading, spacing: Metrics.control) { if model.sidebarCollapsed { locationsToggle }; HStack(spacing: Metrics.control) { summaryItems }; conflictAction }
             }
             // The sidebar tree owns the added locations; this fallback exists only while the sidebar is hidden.
             if model.sidebarCollapsed, locationsExpanded { locations }
@@ -167,7 +185,7 @@ struct MainView: View {
                     Button(model.t("TreeAll")) { model.folderFilter = nil }.buttonStyle(.link)
                 }
             }
-        }.disabled(model.plan != nil)
+        }.frame(maxWidth: .infinity, alignment: .leading).disabled(model.plan != nil)
     }
     private var locationsToggle: some View {
         Button { locationsExpanded.toggle() } label: {
@@ -182,7 +200,7 @@ struct MainView: View {
         if conflicts > 0 { Button(model.t("NumberConflicts")) { model.numberConflicts() }.buttonStyle(.borderless).fixedSize().disabled(model.busy) }
     }
     private var locations: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Metrics.control) {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 4) {
                     ForEach(model.roots, id: \.self) { root in
@@ -203,13 +221,6 @@ struct MainView: View {
     private var resetInputs: some View {
         Button(model.t("ResetInputs")) { model.remove(nil); locationsExpanded = false }.disabled(model.roots.isEmpty)
     }
-    @ViewBuilder private var unappliedNotice: some View {
-        if model.hasUnappliedRules {
-            Label(model.t("UnappliedRules"), systemImage: "arrow.triangle.2.circlepath").font(.callout).foregroundStyle(palette.warning)
-                .fixedSize(horizontal: false, vertical: true).frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-    /// Flat summary: each item is also the filter for that group.
     @ViewBuilder private var summaryItems: some View {
         summaryItem(model.isWorkbench ? "NeededBatch" : "NeededCaption", model.counts["NeededCaption"] ?? 0, "NeedsNormalization", palette.preview)
         if conflicts > 0 { summaryItem("ConflictCaption", conflicts, "Conflict", palette.warning) }
@@ -233,22 +244,40 @@ struct MainView: View {
             .font(.caption).foregroundStyle(model.hiddenSelected > 0 ? palette.warning : palette.secondary).fixedSize(horizontal: false, vertical: true)
     }
     private var filterRow: some View {
-        HStack(spacing: 8) {
-            TextField(model.t("Search"), text: $model.query).textFieldStyle(.roundedBorder).focused($searchFocused).accessibilityIdentifier("search")
-            Menu {
-                Picker(model.t("Filter"), selection: $model.filter) {
-                    ForEach(["All", "NeedsNormalization", "Normal", "Conflict", "Errors", "SelectedOnly"], id: \.self) {
-                        Text(model.t($0 == "NeedsNormalization" ? (model.isWorkbench ? "NeededBatch" : "NeededCaption") : $0)).tag($0)
-                    }
-                }.pickerStyle(.inline)
-                Picker(model.t("Sort"), selection: $model.sort) { ForEach(["Name", "Status", "Path"], id: \.self) { Text(model.t($0)).tag($0) } }.pickerStyle(.inline)
-                Divider()
-                Toggle(model.t("HideNormal"), isOn: Binding(get: { model.settings.hideNormal }, set: { value in model.changeSettings { $0.hideNormal = value } }))
-                Button(model.t("ResetFilters")) { model.query = ""; model.filter = "All"; model.changeSettings { $0.hideNormal = false } }.disabled(!filtering)
-            } label: {
-                Label(model.t("ViewOptions"), systemImage: filtering ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
-            }.menuStyle(.borderlessButton).fixedSize().accessibilityIdentifier("viewOptions")
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: Metrics.control) { searchField; viewOptions; selectionMenu }
+            VStack(alignment: .leading, spacing: Metrics.control) { searchField; HStack(spacing: Metrics.gap) { viewOptions; selectionMenu } }
         }
+    }
+    private var searchField: some View {
+        TextField(model.t("Search"), text: $model.query).textFieldStyle(.roundedBorder).focused($searchFocused).frame(minWidth: 150).accessibilityIdentifier("search")
+    }
+    private var viewOptions: some View {
+        Menu {
+            Picker(model.t("Filter"), selection: $model.filter) {
+                ForEach(["All", "NeedsNormalization", "Normal", "Conflict", "Errors", "SelectedOnly"], id: \.self) {
+                    Text(model.t($0 == "NeedsNormalization" ? (model.isWorkbench ? "NeededBatch" : "NeededCaption") : $0)).tag($0)
+                }
+            }.pickerStyle(.inline)
+            Picker(model.t("Sort"), selection: $model.sort) { ForEach(["Name", "Status", "Path"], id: \.self) { Text(model.t($0)).tag($0) } }.pickerStyle(.inline)
+            Divider()
+            Toggle(model.t("HideNormal"), isOn: Binding(get: { model.settings.hideNormal }, set: { value in model.changeSettings { $0.hideNormal = value } }))
+            Button(model.t("ResetFilters")) { model.query = ""; model.filter = "All"; model.changeSettings { $0.hideNormal = false } }.disabled(!filtering)
+        } label: {
+            Label(model.t("ViewOptions"), systemImage: filtering ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+        }.menuStyle(.borderlessButton).fixedSize().accessibilityIdentifier("viewOptions")
+    }
+    /// Selection commands live beside the list controls, not in the footer.
+    private var selectionMenu: some View {
+        Menu {
+            Button(model.t("SelectVisible")) { model.select("visible") }
+            Button(model.t("ClearVisible")) { model.select("clearVisible") }
+            Divider()
+            Button(model.t("SelectAllSafe")) { model.select("all") }
+            Button(model.t("ClearAll")) { model.select("none") }
+            Button(model.t("InvertVisible")) { model.select("invert") }
+        } label: { Label(model.t("SelectMenu"), systemImage: "checklist") }
+            .menuStyle(.borderlessButton).fixedSize().disabled(model.busy).accessibilityIdentifier("selectMenu")
     }
     private var results: some View {
         VStack(spacing: 0) {
@@ -289,26 +318,18 @@ struct MainView: View {
             }.multilineTextAlignment(.center).padding(20).frame(maxWidth: .infinity, maxHeight: .infinity).accessibilityIdentifier("noResults")
         } else { Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity) }
     }
+    /// The bottom holds the one primary action; the count beside it is secondary information.
     private var footer: some View {
         ViewThatFits(in: .horizontal) {
-            HStack(spacing: 12) { selectionMenu; Spacer(); primaryAction }
-            VStack(alignment: .leading, spacing: 10) { selectionMenu; HStack { Spacer(); primaryAction } }
-        }.disabled(model.busy)
+            HStack(spacing: Metrics.gap) { scopeCaption; Spacer(minLength: Metrics.control); primaryAction }
+            VStack(alignment: .trailing, spacing: Metrics.control) { scopeCaption; primaryAction }.frame(maxWidth: .infinity, alignment: .trailing)
+        }
     }
-    private var selectionMenu: some View {
-        Menu(model.t("SelectMenu")) {
-            Button(model.t("SelectVisible")) { model.select("visible") }
-            Button(model.t("ClearVisible")) { model.select("clearVisible") }
-            Divider()
-            Button(model.t("SelectAllSafe")) { model.select("all") }
-            Button(model.t("ClearAll")) { model.select("none") }
-            Button(model.t("InvertVisible")) { model.select("invert") }
-        }.menuStyle(.borderlessButton).fixedSize().accessibilityIdentifier("selectMenu")
-    }
-    /// The single primary action of the screen.
     private var primaryAction: some View {
         Button { model.prepare() } label: { Text(model.t(model.isWorkbench ? "RenameCount" : "CombineCount", model.n(model.selected.count))).fontWeight(.semibold).padding(.horizontal, 12).padding(.vertical, 6) }
-            .buttonStyle(PrimaryButtonStyle(palette: palette)).disabled(model.selected.isEmpty || model.busy || !model.ready || model.hasUnappliedRules).accessibilityIdentifier("rename")
+            .buttonStyle(PrimaryButtonStyle(palette: palette)).disabled(model.selected.isEmpty || model.busy || !model.ready || model.hasUnappliedRules)
+            .help(model.hasUnappliedRules ? model.t("StaleHelp") : "").accessibilityHint(model.hasUnappliedRules ? model.t("StaleHelp") : "")
+            .accessibilityIdentifier("rename")
     }
     private func pick(folders: Bool) { AppDelegate.shared?.pick(folders: folders) }
     func resultView(_ result: TransactionSummary, available: CGSize) -> some View {

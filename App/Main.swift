@@ -108,21 +108,13 @@ import NameFixCore
     private func liveSidebarCheck(folder: URL) {
         func report(_ label: String) {
             let item = sidebarController?.navigationItem
-            print("LIVE \(label): collapsed=\(item?.isCollapsed ?? true) sidebarWidth=\(Int(item?.viewController.view.frame.width ?? -1)) flag=\(model.sidebarCollapsed) window=\(Int(window?.frame.width ?? 0))x\(Int(window?.frame.height ?? 0)) entries=\(model.entries.count)")
+            print("LIVE \(label): mode=\(sidebarController.map { "\($0.mode)" } ?? "-") collapsed=\(item?.isCollapsed ?? true) sidebarWidth=\(Int(item?.viewController.view.frame.width ?? -1)) window=\(Int(window?.frame.width ?? 0))x\(Int(window?.frame.height ?? 0)) entries=\(model.entries.count)")
         }
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(1.5)); report("launched")
             @MainActor func band(_ label: String) {
-                guard let window = self.window, let frame = window.contentView?.superview else { return }
-                for dy in [10, 26, 44] {
-                    var line = "LIVE band \(label) y-\(dy):"
-                    for x in stride(from: 20, through: Int(frame.bounds.width) - 20, by: 60) {
-                        let hit = frame.hitTest(NSPoint(x: CGFloat(x), y: frame.bounds.height - CGFloat(dy)))
-                        let name = hit.map { String(describing: type(of: $0)).prefix(18) } ?? "nil"
-                        line += " \(x):\(name)\(hit?.mouseDownCanMoveWindow == true ? "+" : "-")"
-                    }
-                    print(line)
-                }
+                guard let window = self.window else { return }
+                do { try UXFixtures.bandDrags(window, "LIVE " + label) } catch { print("LIVE band \(label): FAILED \(error)") }
             }
             band("empty")
             let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false
@@ -137,6 +129,8 @@ import NameFixCore
             try? await Task.sleep(for: .seconds(1.0)); report("tree folder chosen")
             model.openWorkbench()
             try? await Task.sleep(for: .seconds(1.0)); report("batch screen")
+            model.remove(nil)
+            try? await Task.sleep(for: .seconds(1.5)); report("everything removed"); band("after removing")
             fflush(stdout); exit(0)
         }
     }
@@ -186,7 +180,7 @@ import NameFixCore
             lastTheme = model.settings.theme
             NSApp.appearance = lastTheme == "system" ? nil : NSAppearance(named: lastTheme == "dark" ? .darkAqua : .aqua)
             window?.appearance = NSApp.appearance
-            window?.backgroundColor = NSColor(Palette(lastTheme, systemDark: NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua).canvas)
+            window?.backgroundColor = NSColor(Palette(lastTheme, systemDark: NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua).sidebar)
         }
         if lastLanguage != model.settings.language { lastLanguage = model.settings.language; buildMenus(); integration?.refresh() }
     }
@@ -271,7 +265,7 @@ import NameFixCore
     @MainActor required dynamic init?(coder: NSCoder) { nil }
     override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
-        if model?.settings.theme == "system" { window?.backgroundColor = NSColor(Palette("system", systemDark: effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua).canvas) }
+        if model?.settings.theme == "system" { window?.backgroundColor = NSColor(Palette("system", systemDark: effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua).sidebar) }
     }
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
         guard let model, model.canInput, urls(sender).isEmpty == false else { return [] }; model.dragActive = true; return .copy

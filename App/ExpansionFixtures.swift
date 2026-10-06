@@ -23,7 +23,7 @@ import NameFixRuntime
                         window.contentViewController = controller
                         let chrome = WindowChrome(model: model); chrome.install(on: window, split: controller)
                         window.setContentSize(NSSize(width: mode == "collapsed" ? 600 : 1180, height: 850))
-                        controller.navigationItem.isCollapsed = mode == "collapsed"
+                        controller.fit(width: mode == "collapsed" ? 600 : 1180)
                         RunLoop.main.run(until: Date().addingTimeInterval(0.25))
                         let sidebarView = controller.navigationItem.viewController.view
                         sidebarView.layoutSubtreeIfNeeded(); sidebarView.displayIfNeeded()

@@ -46,6 +46,44 @@ enum WindowLayout {
     static func cardColumns(width: CGFloat) -> Int { width >= 600 ? 4 : width >= 360 ? 2 : 1 }
     static func wide(width: CGFloat) -> Bool { width >= 900 }
 }
+/// What the left side of the window shows. It follows the input state; the user never toggles it.
+enum SidebarMode: Equatable, Sendable {
+    /// Nothing added yet: icon + name navigation, no folder tree.
+    case navigation
+    /// Something added: icon rail with the folder tree beside it.
+    case railWithTree
+    /// Narrow window: content first.
+    case hidden
+}
+extension WindowLayout {
+    static let navigationWidth: CGFloat = 208
+    static let railWidth: CGFloat = 48
+    static let treeWidthRange: ClosedRange<CGFloat> = 170...380
+    static let defaultTreeWidth: CGFloat = 220
+    static let sidebarHiddenBelow: CGFloat = 760
+    static func sidebarMode(windowWidth: CGFloat, hasInput: Bool) -> SidebarMode {
+        windowWidth < sidebarHiddenBelow ? .hidden : hasInput ? .railWithTree : .navigation
+    }
+    static func treeWidth(_ stored: CGFloat?) -> CGFloat {
+        guard let stored, stored.isFinite else { return defaultTreeWidth }
+        return min(max(stored, treeWidthRange.lowerBound), treeWidthRange.upperBound)
+    }
+    /// Sidebar thickness limits for a mode. Navigation is fixed; only the tree part is resizable.
+    static func sidebarWidths(_ mode: SidebarMode, treeWidth stored: CGFloat?) -> (minimum: CGFloat, preferred: CGFloat, maximum: CGFloat) {
+        switch mode {
+        case .navigation, .hidden: return (navigationWidth, navigationWidth, navigationWidth)
+        case .railWithTree: return (railWidth + treeWidthRange.lowerBound, railWidth + treeWidth(stored), railWidth + treeWidthRange.upperBound)
+        }
+    }
+}
+/// Shared spacing so panes that sit side by side start on the same lines.
+enum Metrics {
+    static let page: CGFloat = 16
+    static let paneHeader: CGFloat = 28
+    static let gap: CGFloat = 12
+    static let control: CGFloat = 8
+    static let corner: CGFloat = 10
+}
 @MainActor final class WindowPlacementStore {
     private let defaults: UserDefaults
     private let key = "NameFix.windowPlacement.v1"

@@ -1,9 +1,22 @@
 import AppKit
 import SwiftUI
+import Combine
 
+/// Left side of the window. It has no toggle: nothing added → named navigation,
+/// something added → icon rail + folder tree, narrow window → hidden.
 @MainActor final class MainSidebarController: NSSplitViewController {
     let navigationItem: NSSplitViewItem
-    init(model: AppModel, startAdvanced: Bool = false) {
+    private let model: AppModel
+    private var observation: AnyCancellable?
+    private var windowWidth: CGFloat = 1180
+    private var remembersTreeWidth = false
+    private var applying = false
+    private(set) var mode: SidebarMode = .navigation
+    private let brand = TitleBrandView()
+    private var themeObservation: AnyCancellable?
+    private static let treeWidthKey = "NameFix.TreeWidth.v1"
+    init(model: AppModel, rulesFirst: Bool = false) {
+        self.model = model
         let navigation = NSViewController()
         let sidebar = DropHostingView(rootView: SidebarNavigation(model: model)); sidebar.model = model; sidebar.sizingOptions = []
         let container = NSView()
@@ -18,26 +31,24 @@ import SwiftUI
             backdrop.topAnchor.constraint(equalTo: container.topAnchor),
             backdrop.bottomAnchor.constraint(equalTo: container.bottomAnchor)
         ])
-        // App name beside the window controls, centred in the title bar band.
-        let title = NSHostingView(rootView: SidebarTitle(model: model)); title.translatesAutoresizingMaskIntoConstraints = false
-        title.safeAreaRegions = []  // it sits inside the title bar band; do not push the text below it
-        let band = NSLayoutGuide(); container.addLayoutGuide(band)
-        container.addSubview(title)
-        NSLayoutConstraint.activate([
-            band.topAnchor.constraint(equalTo: container.topAnchor),
-            band.bottomAnchor.constraint(equalTo: container.safeAreaLayoutGuide.topAnchor),
-            title.centerYAnchor.constraint(equalTo: band.centerYAnchor),
-            title.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 92)
-        ])
         // Content views receive clicks in the title bar band of a full-height sidebar, and a SwiftUI
-        // hosting view does not move the window. This strip makes the whole band a drag handle.
+        // hosting view does not move the window. This strip keeps the whole band a drag handle.
+        let band = NSLayoutGuide(); container.addLayoutGuide(band)
         let handle = WindowDragView(); handle.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(handle)
         NSLayoutConstraint.activate([
+            band.topAnchor.constraint(equalTo: container.topAnchor),
+            band.bottomAnchor.constraint(equalTo: container.safeAreaLayoutGuide.topAnchor),
             handle.leadingAnchor.constraint(equalTo: container.leadingAnchor),
             handle.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             handle.topAnchor.constraint(equalTo: band.topAnchor),
             handle.bottomAnchor.constraint(equalTo: band.bottomAnchor)
+        ])
+        // App icon and name beside the window buttons, on the band's centre line.
+        container.addSubview(brand); brand.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            brand.centerYAnchor.constraint(equalTo: band.centerYAnchor),
+            brand.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 86)
         ])
         container.addSubview(sidebar)
         NSLayoutConstraint.activate([
@@ -47,124 +58,209 @@ import SwiftUI
             sidebar.bottomAnchor.constraint(equalTo: container.bottomAnchor)
         ])
         navigationItem = NSSplitViewItem(sidebarWithViewController: navigation)
-        self.model = model
         super.init(nibName: nil, bundle: nil)
-        navigationItem.minimumThickness = 220; navigationItem.maximumThickness = 380
-        // There is no toggle to bring it back, so the sidebar hides only through fit(width:).
-        // Dragging the divider or AppKit's own resize handling must not collapse it.
+        // The panel draws its own hairlines; the split view's divider would cut straight through the band.
+        splitView = ClearDividerSplitView()
+        splitView.isVertical = true; splitView.dividerStyle = .thin
+        navigationItem.allowsFullHeightLayout = true
+        navigationItem.titlebarSeparatorStyle = .none
+        // Hidden only through apply(); neither the divider nor AppKit's resize handling may collapse it.
         navigationItem.canCollapse = false
         navigationItem.canCollapseFromWindowResize = false
-        navigationItem.allowsFullHeightLayout = true
         let detail = NSViewController()
-        let host = DropHostingView(rootView: MainView(model: model, startAdvanced: startAdvanced)); host.model = model; host.sizingOptions = []
-        detail.view = host
-        addSplitViewItem(navigationItem); addSplitViewItem(NSSplitViewItem(viewController: detail))
+        let host = DropHostingView(rootView: MainView(model: model, rulesFirst: rulesFirst)); host.model = model; host.sizingOptions = []
+        // Same drag strip over the content's band: toolbar buttons sit above it and keep their clicks,
+        // every other point of the band moves the window.
+        let surface = NSView(), contentHandle = WindowDragView()
+        host.translatesAutoresizingMaskIntoConstraints = false; contentHandle.translatesAutoresizingMaskIntoConstraints = false
+        surface.addSubview(host); surface.addSubview(contentHandle)
+        NSLayoutConstraint.activate([
+            host.leadingAnchor.constraint(equalTo: surface.leadingAnchor), host.trailingAnchor.constraint(equalTo: surface.trailingAnchor),
+            host.topAnchor.constraint(equalTo: surface.topAnchor), host.bottomAnchor.constraint(equalTo: surface.bottomAnchor),
+            contentHandle.leadingAnchor.constraint(equalTo: surface.leadingAnchor), contentHandle.trailingAnchor.constraint(equalTo: surface.trailingAnchor),
+            contentHandle.topAnchor.constraint(equalTo: surface.topAnchor), contentHandle.bottomAnchor.constraint(equalTo: surface.safeAreaLayoutGuide.topAnchor)
+        ])
+        detail.view = surface
+        let content = NSSplitViewItem(viewController: detail); content.titlebarSeparatorStyle = .none
+        addSplitViewItem(navigationItem); addSplitViewItem(content)
+        apply(); tintBrand()
+        themeObservation = model.objectWillChange.sink { [weak self] _ in Task { @MainActor [weak self] in self?.tintBrand() } }
+        // @Published emits before the change lands, so read the model on the next main-actor turn.
+        observation = model.$roots.map(\.isEmpty).removeDuplicates().sink { [weak self] _ in
+            Task { @MainActor [weak self] in self?.apply() }
+        }
     }
     required init?(coder: NSCoder) { nil }
-    private static let autosaveName = "NameFix.Sidebar.v4"
-    private var remembersWidth = false, placedDivider = false
-    /// Only the real window remembers the sidebar width. Render fixtures run the same binary and
-    /// must not write their throwaway layouts into the user's saved state.
-    func rememberWidth() { remembersWidth = true; splitView.autosaveName = Self.autosaveName }
-    override func viewDidAppear() {
-        super.viewDidAppear()
-        // First run starts at the compact width; later runs restore what the user dragged to.
-        guard remembersWidth, !placedDivider else { return }; placedDivider = true
-        if UserDefaults.standard.object(forKey: "NSSplitView Subview Frames " + Self.autosaveName) == nil { splitView.setPosition(240, ofDividerAt: 0) }
-        if let width = view.window?.frame.width { fit(width: width) }
+    private func tintBrand() {
+        let dark = (view.window?.effectiveAppearance ?? NSApp.effectiveAppearance).bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        brand.update(text: NSColor(Palette(model.settings.theme, systemDark: dark).text))
     }
-    /// The sidebar has no toggle button: it yields to the content in narrow windows and returns when there is room.
-    func fit(width: CGFloat) {
-        let collapse = width < 760
-        if navigationItem.isCollapsed != collapse {
+    /// Only the real window remembers the tree width. Render fixtures run the same binary and
+    /// must not write their throwaway layouts into the user's saved state.
+    func rememberWidth() { remembersTreeWidth = true; apply() }
+    func fit(width: CGFloat) { windowWidth = width; apply() }
+    override func viewDidAppear() { super.viewDidAppear(); apply(); tintBrand() }
+    private var storedTreeWidth: CGFloat? {
+        remembersTreeWidth ? (UserDefaults.standard.object(forKey: Self.treeWidthKey) as? Double).map { CGFloat($0) } : nil
+    }
+    /// Brings the sidebar in line with the input state and window width.
+    private func apply() {
+        let next = WindowLayout.sidebarMode(windowWidth: windowWidth, hasInput: !model.roots.isEmpty)
+        applying = true; defer { applying = false }
+        let hidden = next == .hidden
+        if navigationItem.isCollapsed != hidden {
             // canCollapse also gates programmatic changes, so it is opened only for this call.
             navigationItem.canCollapse = true
-            navigationItem.isCollapsed = collapse
+            navigationItem.isCollapsed = hidden
         }
-        if navigationItem.canCollapse != collapse { navigationItem.canCollapse = collapse }
-        if model.sidebarCollapsed != collapse { model.sidebarCollapsed = collapse }
+        if navigationItem.canCollapse != hidden { navigationItem.canCollapse = hidden }
+        if !hidden {
+            let widths = WindowLayout.sidebarWidths(next, treeWidth: storedTreeWidth)
+            // Widen the limits before moving the divider, then settle on the mode's own limits.
+            navigationItem.minimumThickness = min(navigationItem.minimumThickness, widths.minimum)
+            navigationItem.maximumThickness = max(navigationItem.maximumThickness, widths.maximum)
+            if isViewLoaded, next != mode || abs(navigationItem.viewController.view.frame.width - widths.preferred) > 0.5 && next == .navigation {
+                splitView.setPosition(widths.preferred, ofDividerAt: 0)
+            }
+            navigationItem.minimumThickness = widths.minimum; navigationItem.maximumThickness = widths.maximum
+        }
+        mode = next
+        if model.sidebarCollapsed != hidden { model.sidebarCollapsed = hidden }
     }
-    /// Whatever else changes the split layout, a wide window always ends up with its sidebar.
     override func splitViewDidResizeSubviews(_ notification: Notification) {
         super.splitViewDidResizeSubviews(notification)
-        guard isViewLoaded, let width = view.window?.frame.width, width >= 760, navigationItem.isCollapsed else { return }
-        DispatchQueue.main.async { [weak self] in self?.fit(width: width) }
+        guard isViewLoaded, !applying else { return }
+        let width = navigationItem.viewController.view.frame.width
+        // A drag of the divider is the only way the user changes the tree width.
+        if mode == .railWithTree, remembersTreeWidth, NSApp.currentEvent?.type == .leftMouseDragged, width > WindowLayout.railWidth {
+            UserDefaults.standard.set(Double(WindowLayout.treeWidth(width - WindowLayout.railWidth)), forKey: Self.treeWidthKey)
+        }
+        // Whatever else changes the split layout, a wide window always ends up with its sidebar.
+        if let window = view.window, window.frame.width >= WindowLayout.sidebarHiddenBelow, navigationItem.isCollapsed {
+            DispatchQueue.main.async { [weak self] in self?.apply() }
+        }
     }
-    private let model: AppModel
 }
 
-/// Sidebar = a narrow icon rail for navigation plus the tree of what was added.
+/// Canvas-coloured area below the title bar band. Its hairline continues the title bar's bottom
+/// edge and, where it meets the navigation, turns down through a rounded corner.
+struct ChromePanel: View {
+    enum Leading { case rounded, squared, none }
+    let palette: Palette
+    let leading: Leading
+    var body: some View {
+        GeometryReader { proxy in
+            let width = proxy.size.width, height = proxy.size.height, radius: CGFloat = leading == .rounded ? Metrics.corner : 0
+            Path { path in
+                path.move(to: CGPoint(x: 0, y: height)); path.addLine(to: CGPoint(x: 0, y: radius))
+                if radius > 0 { path.addArc(center: CGPoint(x: radius, y: radius), radius: radius, startAngle: .degrees(180), endAngle: .degrees(270), clockwise: false) }
+                path.addLine(to: CGPoint(x: width, y: 0)); path.addLine(to: CGPoint(x: width, y: height)); path.closeSubpath()
+            }.fill(palette.canvas)
+            Path { path in
+                if leading == .none { path.move(to: CGPoint(x: 0, y: 0.5)) } else {
+                    path.move(to: CGPoint(x: 0.5, y: height)); path.addLine(to: CGPoint(x: 0.5, y: radius + 0.5))
+                    if radius > 0 { path.addArc(center: CGPoint(x: radius + 0.5, y: radius + 0.5), radius: radius, startAngle: .degrees(180), endAngle: .degrees(270), clockwise: false) }
+                }
+                path.addLine(to: CGPoint(x: width, y: 0.5))
+            }.stroke(palette.border, lineWidth: 1)
+        }.accessibilityHidden(true)
+    }
+}
+
 struct SidebarNavigation: View {
     @ObservedObject var model: AppModel
     @Environment(\.colorScheme) private var scheme
     private var palette: Palette { Palette(model.settings.theme, systemDark: scheme == .dark) }
     private var locked: Bool { model.busy || model.plan != nil || model.result != nil }
+    private struct Destination: Identifiable { let id: String; let tip: String?; let icon: String }
+    private let primary = [
+        Destination(id: "RestoreNames", tip: "RestoreNamesDetail", icon: "character.cursor.ibeam"),
+        Destination(id: "BatchWorkspace", tip: "BatchWorkspaceDetail", icon: "pencil.line"),
+        Destination(id: "FolderWatch", tip: "WatchToolDetail", icon: "folder.badge.gearshape"),
+        Destination(id: "TextTool", tip: "TextToolDetail", icon: "doc.on.clipboard")
+    ]
+    private let secondary = [
+        Destination(id: "HistoryShort", tip: "HistoryDetail", icon: "clock.arrow.circlepath"),
+        Destination(id: "Settings", tip: nil, icon: "gearshape"),
+        Destination(id: "HelpMenu", tip: nil, icon: "questionmark.circle")
+    ]
     var body: some View {
-        HStack(spacing: 0) {
-            rail
-            Divider()
-            tree
-        }.frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(palette.sidebar.ignoresSafeArea()).foregroundStyle(palette.text)
-            .font(L10n.font(model.settings.language)).tint(palette.accent)
+        Group {
+            if model.roots.isEmpty { navigation(expanded: true) }
+            else { HStack(spacing: 0) { navigation(expanded: false).frame(width: WindowLayout.railWidth); tree } }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .foregroundStyle(palette.text).font(L10n.font(model.settings.language)).tint(palette.accent)
     }
 
-    // MARK: Icon rail — every destination is one icon with a tooltip
+    // MARK: Navigation — the same rows as names (nothing added) or as an icon rail (something added)
 
-    private var rail: some View {
-        VStack(spacing: 4) {
-            destination("RestoreNames", tip: "RestoreNamesDetail", icon: "character.cursor.ibeam", selected: !model.isWorkbench) { model.openQuickCleanup() }
-            destination("BatchWorkspace", tip: "BatchWorkspaceDetail", icon: "pencil.line", selected: model.isWorkbench) { model.openWorkbench() }
-            destination("FolderWatch", tip: "WatchToolDetail", icon: "folder.badge.gearshape") { model.sheet = "watch" }
-            destination("TextTool", tip: "TextToolDetail", icon: "doc.on.clipboard") { model.clipboard = ""; model.clipboardTruncated = false; model.sheet = "clipboard" }
-            Spacer(minLength: 8)
-            destination("HistoryShort", tip: "HistoryDetail", icon: "clock.arrow.circlepath", identifier: "history") { model.sheet = "history"; Task { await model.reloadHistory() } }
-            destination("Settings", icon: "gearshape", identifier: "settings") { model.sheet = "settings" }
-            destination("HelpMenu", icon: "questionmark.circle", identifier: "help") { model.sheet = "help" }
-        }.padding(.vertical, 8).frame(width: 46).disabled(locked)
+    private func navigation(expanded: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            ForEach(primary) { destination(for: $0, expanded: expanded) }
+            Spacer(minLength: Metrics.gap)
+            ForEach(secondary) { destination(for: $0, expanded: expanded) }
+        }
+        .padding(.horizontal, expanded ? 10 : 7).padding(.vertical, Metrics.gap)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .disabled(locked).accessibilityElement(children: .contain).accessibilityLabel(model.t("NavigationLabel"))
     }
-    private func destination(_ title: String, tip: String? = nil, icon: String, selected: Bool = false, identifier: String? = nil, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: icon).font(.system(size: 15)).frame(width: 34, height: 30)
-                .foregroundStyle(selected ? palette.accent : palette.secondary)
-                .background(selected ? palette.accent.opacity(0.16) : .clear, in: RoundedRectangle(cornerRadius: 7)).contentShape(Rectangle())
-        }.buttonStyle(.plain)
-            .help(tip.map { model.t(title) + " — " + model.t($0) } ?? model.t(title))
-            .accessibilityLabel(model.t(title)).accessibilityAddTraits(selected ? .isSelected : [])
-            .accessibilityIdentifier(identifier ?? title)
+    private func destination(for item: Destination, expanded: Bool) -> some View {
+        let selected = item.id == "RestoreNames" ? !model.isWorkbench : item.id == "BatchWorkspace" ? model.isWorkbench : false
+        return Button { open(item.id) } label: {
+            HStack(spacing: 9) {
+                Image(systemName: item.icon).font(.system(size: 14)).frame(width: 20, height: 20)
+                    .foregroundStyle(selected ? palette.accent : palette.secondary).accessibilityHidden(true)
+                if expanded { Text(model.t(item.id)).fontWeight(selected ? .semibold : .regular).lineLimit(1); Spacer(minLength: 0) }
+            }
+            .padding(.horizontal, 7).frame(maxWidth: .infinity, minHeight: 30, alignment: .leading)
+            .background(selected ? palette.accent.opacity(0.15) : .clear, in: RoundedRectangle(cornerRadius: 7)).contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(item.tip.map { model.t(item.id) + " — " + model.t($0) } ?? model.t(item.id))
+        .accessibilityLabel(model.t(item.id)).accessibilityAddTraits(selected ? .isSelected : [])
+        .accessibilityIdentifier(["HistoryShort": "history", "Settings": "settings", "HelpMenu": "help"][item.id] ?? item.id)
+    }
+    private func open(_ id: String) {
+        switch id {
+        case "RestoreNames": model.openQuickCleanup()
+        case "BatchWorkspace": model.openWorkbench()
+        case "FolderWatch": model.sheet = "watch"
+        case "TextTool": model.clipboard = ""; model.clipboardTruncated = false; model.sheet = "clipboard"
+        case "HistoryShort": model.sheet = "history"; Task { await model.reloadHistory() }
+        case "Settings": model.sheet = "settings"
+        default: model.sheet = "help"
+        }
     }
 
-    // MARK: Tree of added files and folders
+    // MARK: Tree of added files and folders — exists only while something is added
 
     private var tree: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: Metrics.control) {
             HStack(spacing: 4) {
-                Text(model.t("TreeTitle")).font(.caption).foregroundStyle(palette.secondary).lineLimit(1).accessibilityAddTraits(.isHeader)
+                Text(model.t("TreeTitle")).fontWeight(.medium).lineLimit(1).accessibilityAddTraits(.isHeader)
                 Spacer(minLength: 0)
-                if !model.roots.isEmpty {
-                    Menu {
-                        Toggle(model.t("Recursive"), isOn: Binding(get: { model.settings.recursive }, set: { value in model.changeSettings { $0.recursive = value } }))
-                        Divider()
-                        Button(model.t("ResetInputs")) { model.remove(nil) }
-                    } label: { Image(systemName: "ellipsis.circle") }.menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
-                        .help(model.t("TreeOptions")).accessibilityLabel(model.t("TreeOptions"))
-                }
-            }.padding(.horizontal, 10).frame(height: 22)
-            if model.folderTree.isEmpty {
-                Text(model.t("TreeEmpty")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true).padding(.horizontal, 10)
-                Spacer(minLength: 0)
-            } else {
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 1) {
-                        row(icon: "tray.full", name: model.t("TreeAll"), pending: 0, depth: 0, selected: model.folderFilter == nil, expanded: nil) { model.folderFilter = nil }
-                        ForEach(model.folderTree) { FolderBranch(model: model, palette: palette, node: $0, depth: 0) }
-                    }.padding(.horizontal, 6)
+                Menu {
+                    Toggle(model.t("Recursive"), isOn: Binding(get: { model.settings.recursive }, set: { value in model.changeSettings { $0.recursive = value } }))
+                    Divider()
+                    Button(model.t("ResetInputs")) { model.remove(nil) }
+                } label: { Image(systemName: "ellipsis.circle") }.menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
+                    .help(model.t("TreeOptions")).accessibilityLabel(model.t("TreeOptions"))
+            }.frame(height: Metrics.paneHeader).padding(.horizontal, 6)
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 1) {
+                    // "Show all" only matters when there is a folder to narrow to.
+                    if model.folderTree.contains(where: \.isDirectory) || model.folderTree.count > 1 {
+                        FolderRow(palette: palette, icon: "tray.full", name: model.t("TreeAll"), pending: 0, depth: 0, selected: model.folderFilter == nil, expanded: nil, pendingLabel: "") { model.folderFilter = nil }
+                    }
+                    ForEach(model.folderTree) { FolderBranch(model: model, palette: palette, node: $0, depth: 0) }
                 }
             }
-        }.padding(.top, 8).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading).disabled(locked)
-    }
-    private func row(icon: String, name: String, pending: Int, depth: Int, selected: Bool, expanded: Binding<Bool>?, action: @escaping () -> Void) -> some View {
-        FolderRow(palette: palette, icon: icon, name: name, pending: pending, depth: depth, selected: selected, expanded: expanded, pendingLabel: model.t("TreePending", model.n(pending)), action: action)
+        }
+        .padding(.horizontal, 6).padding(.top, Metrics.page)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background { ChromePanel(palette: palette, leading: .rounded) }
+        .disabled(locked)
     }
 }
 
@@ -212,25 +308,29 @@ private struct FolderRow: View {
         HStack(spacing: 4) {
             if let expanded {
                 Button { expanded.wrappedValue.toggle() } label: {
-                    Image(systemName: "chevron.right").font(.system(size: 9, weight: .semibold)).rotationEffect(.degrees(expanded.wrappedValue ? 90 : 0)).frame(width: 14, height: 18).contentShape(Rectangle())
+                    Image(systemName: "chevron.right").font(.system(size: 9, weight: .semibold)).rotationEffect(.degrees(expanded.wrappedValue ? 90 : 0)).frame(width: 16, height: 22).contentShape(Rectangle())
                 }.buttonStyle(.plain).foregroundStyle(palette.secondary).accessibilityLabel(name).accessibilityValue(expanded.wrappedValue ? "1" : "0")
-            } else { Color.clear.frame(width: 14, height: 18) }
+            } else { Color.clear.frame(width: 16, height: 22) }
             Button(action: action) {
                 HStack(spacing: 6) {
                     Image(systemName: icon).frame(width: 16).foregroundStyle(selected ? palette.accent : palette.secondary).accessibilityHidden(true)
                     Text(name).lineLimit(1).truncationMode(.middle).fontWeight(selected ? .semibold : .regular)
                     Spacer(minLength: 2)
                     if pending > 0 { Text(String(pending)).font(.caption).monospacedDigit().foregroundStyle(palette.preview).accessibilityLabel(pendingLabel) }
-                }.contentShape(Rectangle())
+                }.frame(maxWidth: .infinity, minHeight: 22, alignment: .leading).contentShape(Rectangle())
             }.buttonStyle(.plain).accessibilityAddTraits(selected ? .isSelected : [])
         }
-        .padding(.leading, CGFloat(depth) * 12).padding(.trailing, 6).padding(.vertical, 3)
+        .padding(.leading, CGFloat(depth) * 12).padding(.trailing, 6).padding(.vertical, 2)
         .background(selected ? palette.accent.opacity(0.14) : .clear, in: RoundedRectangle(cornerRadius: 6))
     }
 }
 
-/// Transparent strip over the sidebar's title bar band: drag to move, double-click as the system setting says.
-final class WindowDragView: NSView {
+final class ClearDividerSplitView: NSSplitView {
+    override var dividerColor: NSColor { .clear }
+}
+
+/// Transparent strip for a title bar band: drag to move, double-click as the system setting says.
+class WindowDragView: NSView {
     override var mouseDownCanMoveWindow: Bool { true }
     override func mouseDown(with event: NSEvent) {
         guard let window else { return }
@@ -241,15 +341,6 @@ final class WindowDragView: NSView {
             default: window.performZoom(nil)
             }
         } else { window.performDrag(with: event) }
-    }
-}
-
-private struct SidebarTitle: View {
-    @ObservedObject var model: AppModel
-    @Environment(\.colorScheme) private var scheme
-    var body: some View {
-        Text("NameFix").font(L10n.font(model.settings.language, size: 13, weight: .semibold))
-            .foregroundStyle(Palette(model.settings.theme, systemDark: scheme == .dark).text).fixedSize().accessibilityAddTraits(.isHeader)
     }
 }
 

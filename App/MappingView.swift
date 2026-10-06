@@ -14,8 +14,7 @@ struct MappingView: View {
     @State private var problem: String?
     @State private var loadTask: Task<Void, Never>?
     var body: some View {
-        DisclosureGroup {
-            VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 10) {
                 Text(model.t("MappingHelp")).font(.caption)
                 Toggle(model.t("TabSeparated"), isOn: $tabSeparated).disabled(working || !rows.isEmpty)
                 Button(model.t("ImportCSV")) { pick() }.disabled(working)
@@ -29,8 +28,7 @@ struct MappingView: View {
                 }
                 if let mapping = pipeline.mapping { Text(model.t("MappingCount", String(mapping.rows.count))); if rows.isEmpty { Button(model.t("ClearMapping")) { pipeline.mapping = nil } } }
                 if let problem { Text(model.t(problem)).foregroundStyle(.red) }
-            }
-        } label: { Text(model.t("CSVMapping")) }.onDisappear { loadTask?.cancel() }
+        }.onDisappear { loadTask?.cancel() }
     }
     private func describe(_ error: Error) -> String {
         if let error = error as? DelimitedTextError { return model.t("MappingRowError", String(error.row), model.t(error.reason.rawValue)) }

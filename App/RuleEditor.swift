@@ -3,8 +3,34 @@ import AppKit
 import NameFixCore
 import NameFixRuntime
 
-/// Task-first rule editor: choose one everyday action, fill in its value, preview.
-/// Everything beyond that lives under Advanced rules and appears only on request.
+/// Pipeline-level options that are not rules. Each opens in its own sheet from the Add Rule menu.
+enum AdvancedOption: String, Identifiable, CaseIterable {
+    case form = "AdvForm", order = "AdvOrder", csv = "AdvCSV", pairs = "AdvPairs", presets = "AdvPresets"
+    var id: String { rawValue }
+    var icon: String { ["AdvForm": "doc.text", "AdvOrder": "list.number", "AdvCSV": "tablecells", "AdvPairs": "square.on.square", "AdvPresets": "square.stack"][rawValue] ?? "gearshape" }
+}
+
+/// A row whose whole width toggles its content; the chevron is only a hint.
+struct Expander<Content: View>: View {
+    let title: String
+    let palette: Palette
+    @State private var open = false
+    @ViewBuilder var content: () -> Content
+    var body: some View {
+        VStack(alignment: .leading, spacing: Metrics.control) {
+            Button { open.toggle() } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "chevron.right").font(.system(size: 9, weight: .semibold)).rotationEffect(.degrees(open ? 90 : 0)).foregroundStyle(palette.secondary).accessibilityHidden(true)
+                    Text(title); Spacer(minLength: 0)
+                }.frame(maxWidth: .infinity, minHeight: 22, alignment: .leading).contentShape(Rectangle())
+            }.buttonStyle(.plain).accessibilityValue(open ? "1" : "0")
+            if open { content() }
+        }
+    }
+}
+
+/// Left pane of Batch Rename: a header with Add Rule, then a compact list of what will be applied.
+/// Only the selected rule shows its fields; everything else stays one summary line.
 struct RuleEditor: View {
     @ObservedObject var model: AppModel
     let palette: Palette
@@ -12,33 +38,25 @@ struct RuleEditor: View {
         get { model.workbenchDraft }
         nonmutating set { model.workbenchDraft = newValue }
     }
-    private var draftBinding: Binding<RulePipeline> { $model.workbenchDraft }
-    @State private var advanced: Bool
-    @State private var recipeName = ""
-    @State private var sampleSteps: [RuleStep] = []
-    @State private var sampleError: String?
-    @State private var manualRows: [RawPath] = []
-    @State private var sample = "photo  001.jpg"
-    @State private var pairExpanded = false
     /// Embedded in a scrolling parent (narrow windows): lay out inline instead of nesting a scroll view.
     private let embedded: Bool
-    init(model: AppModel, palette: Palette, startAdvanced: Bool = false, embedded: Bool = false) {
+    @State private var adding = false
+    @State private var selected: UUID?
+    @State private var option: AdvancedOption?
+    @State private var sampleSteps: [RuleStep] = []
+    @State private var sampleError: String?
+    @State private var sample = "photo  001.jpg"
+    init(model: AppModel, palette: Palette, embedded: Bool = false, selecting: UUID? = nil) {
         self.model = model; self.palette = palette; self.embedded = embedded
-        _advanced = State(initialValue: startAdvanced)
+        _selected = State(initialValue: selecting)
     }
-    private struct BasicAction: Identifiable { let kind: RuleKind; let title: String; let example: String; let icon: String; var id: String { title } }
-    private let basicActions = [
-        BasicAction(kind: .replace, title: "RuleReplace", example: "ExampleReplace", icon: "arrow.left.arrow.right"),
-        BasicAction(kind: .prefix, title: "RulePrefix", example: "ExamplePrefix", icon: "text.insert"),
-        BasicAction(kind: .suffix, title: "RuleSuffix", example: "ExampleSuffix", icon: "text.append"),
-        BasicAction(kind: .numbering, title: "RuleNumbering", example: "ExampleNumber", icon: "number"),
-        BasicAction(kind: .spaces, title: "RuleSpaces", example: "ExampleSpaces", icon: "space"),
-        BasicAction(kind: .uppercase, title: "ActionCase", example: "ExampleCase", icon: "textformat")
-    ]
-    private func add(_ kind: RuleKind) {
-        var rule = RenameRule(kind)
-        if kind == .numbering { rule.text = "_" }
-        draft.rules.append(rule)
+    private var configured: [AdvancedOption] {
+        var result: [AdvancedOption] = []
+        if draft.target != .nfc { result.append(.form) }
+        if let order = draft.order, order != .path { result.append(.order) }
+        if draft.mapping != nil { result.append(.csv) }
+        if !(draft.pairExtensions ?? []).isEmpty { result.append(.pairs) }
+        return result
     }
     var body: some View {
         Group { if embedded { content } else { ScrollView { content } } }
@@ -49,166 +67,290 @@ struct RuleEditor: View {
                 let steps = try await withTaskCancellationHandler(operation: { try await work.value }, onCancel: { token.cancel(); work.cancel() })
                 if !Task.isCancelled { sampleSteps = steps; sampleError = nil }
             } catch { if !Task.isCancelled { sampleSteps = []; sampleError = (error as? RuleFailure)?.rawValue ?? "RuleInvalid" } }
-        }.onAppear { pairExpanded = !(draft.pairExtensions ?? []).isEmpty; manualRows = model.entries.map(\.path); if let name = model.entries.first(where: { !$0.isDirectory && !$0.status.isError })?.name { sample = name } }
+        }
+        .onAppear { if let name = model.entries.first(where: { !$0.isDirectory && !$0.status.isError })?.name { sample = name } }
+        .sheet(item: $option) { AdvancedRuleSheet(model: model, palette: palette, option: $0) { option = nil } }
     }
     private var content: some View {
-            VStack(alignment: .leading, spacing: 16) {
-                if draft.rules.isEmpty { chooser } else { steps }
-                DisclosureGroup(isExpanded: $advanced) { advancedContent.padding(.top, 10) } label: {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(model.t("AdvancedRules")).fontWeight(.medium)
-                        if !advanced { Text(model.t("AdvancedHint")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true) }
-                    }
-                }.accessibilityIdentifier("advancedRules")
-                if let message = model.message { Text(model.t(message)).foregroundStyle(palette.warning).fixedSize(horizontal: false, vertical: true) }
-            }.textFieldStyle(.roundedBorder).frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    // MARK: Step 1 — what do you want to do?
-
-    private var chooser: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(model.t("ChooseAction")).font(L10n.font(model.settings.language, size: 17, weight: .semibold)).accessibilityAddTraits(.isHeader).padding(.bottom, 2)
-            ForEach(basicActions) { action in
-                Button { add(action.kind) } label: {
-                    HStack(spacing: 12) {
-                        Image(systemName: action.icon).frame(width: 22).foregroundStyle(palette.accent).accessibilityHidden(true)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(model.t(action.title))
-                            Text(model.t(action.example)).font(.caption).foregroundStyle(palette.secondary)
-                        }
-                        Spacer(minLength: 4)
-                        Image(systemName: "chevron.right").font(.caption).foregroundStyle(palette.secondary).accessibilityHidden(true)
-                    }.padding(.vertical, 8).padding(.horizontal, 12).frame(maxWidth: .infinity, alignment: .leading)
-                        .background(palette.surface, in: RoundedRectangle(cornerRadius: 8)).contentShape(Rectangle())
-                }.buttonStyle(.plain).accessibilityIdentifier("action-" + action.kind.rawValue)
+        VStack(alignment: .leading, spacing: Metrics.gap) {
+            header
+            if draft.rules.isEmpty && configured.isEmpty {
+                Text(model.t("RulesEmpty")).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
             }
-        }
-    }
-
-    // MARK: Step 2 — fill in the value, then preview
-
-    private var steps: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ForEach(Array(draft.rules.enumerated()), id: \.element.id) { index, rule in
-                if index < draft.rules.count {
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(spacing: 8) {
-                            Toggle(isOn: $model.workbenchDraft.rules[index].enabled) { Text(model.t(title(rule.kind))).fontWeight(.medium) }
-                            Spacer(minLength: 4)
-                            if draft.rules.count > 1 {
-                                Button { if index > 0 { draft.rules.swapAt(index, index - 1) } } label: { Image(systemName: "arrow.up") }.disabled(index == 0).accessibilityLabel(model.t("MoveUp")).help(model.t("MoveUp"))
-                                Button { if index + 1 < draft.rules.count { draft.rules.swapAt(index, index + 1) } } label: { Image(systemName: "arrow.down") }.disabled(index + 1 == draft.rules.count).accessibilityLabel(model.t("MoveDown")).help(model.t("MoveDown"))
-                            }
-                            Button { draft.rules.remove(at: index) } label: { Image(systemName: "minus.circle") }.accessibilityLabel(model.t("RemoveRule")).help(model.t("RemoveRule"))
-                        }.buttonStyle(.borderless)
-                        RuleFields(model: model, rule: $model.workbenchDraft.rules[index], palette: palette)
-                    }.padding(12).background(palette.surface, in: RoundedRectangle(cornerRadius: 8))
-                }
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                Text(model.t("RulePreviewSection")).font(.caption).foregroundStyle(palette.secondary)
-                TextField(model.t("SampleName"), text: $sample).accessibilityLabel(model.t("SampleName"))
-                sampleResult
-            }
-            ViewThatFits(in: .horizontal) {
-                HStack { addMenu; Spacer(minLength: 8); resetButton; updateButton }
-                VStack(alignment: .leading, spacing: 8) { HStack { addMenu; resetButton }; updateButton }
-            }
-        }
-    }
-    private func title(_ kind: RuleKind) -> String { [.uppercase, .lowercase, .titlecase].contains(kind) ? "ActionCase" : kind.rawValue }
-    @ViewBuilder private var sampleResult: some View {
-        if let sampleError { Text(model.t(sampleError)).foregroundStyle(palette.warning).fixedSize(horizontal: false, vertical: true) }
-        else if let last = sampleSteps.last {
-            Label(last.after, systemImage: "arrow.right").textSelection(.enabled).foregroundStyle(palette.preview)
-                .accessibilityLabel(model.t("SampleResult") + " " + last.after)
-        }
-    }
-    private var addMenu: some View {
-        Menu {
-            ForEach(basicActions) { action in Button(model.t(action.title)) { add(action.kind) } }
-            Divider()
-            Menu(model.t("OtherRules")) {
-                ForEach(RuleKind.allCases.filter { kind in !basicActions.contains { $0.kind == kind } && ![.lowercase, .titlecase].contains(kind) }, id: \.self) { kind in Button(model.t(kind.rawValue)) { add(kind) } }
-            }
-        } label: { Label(model.t("AddAction"), systemImage: "plus") }.menuStyle(.borderlessButton).fixedSize().accessibilityIdentifier("addAction")
-    }
-    private var resetButton: some View { Button(model.t("ResetRules")) { draft = RulePipeline() }.buttonStyle(.borderless) }
-    private var updateButton: some View {
-        Button(model.t("UpdateFilePreview")) { model.usePipeline(draft) }.buttonStyle(.borderedProminent)
-            .disabled(model.busy || model.plan != nil || !model.hasUnappliedRules).accessibilityIdentifier("updatePreview")
-    }
-
-    // MARK: Advanced — only when opened
-
-    @ViewBuilder private var advancedContent: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            if draft.rules.isEmpty { addMenu }
             VStack(alignment: .leading, spacing: 4) {
-                Text(model.t("OutputForm")).font(.caption).foregroundStyle(palette.secondary)
-                Picker(model.t("OutputForm"), selection: $model.workbenchDraft.target) {
-                    ForEach(NormalizationTarget.allCases, id: \.self) { target in Text(model.t(target.rawValue)).tag(target) }
-                }.labelsHidden()
+                ForEach(Array(draft.rules.enumerated()), id: \.element.id) { index, rule in
+                    if index < draft.rules.count { ruleRow(index, rule) }
+                }
+                ForEach(configured) { optionRow($0) }
             }
-            if draft.rules.contains(where: { $0.kind == .numbering }) || draft.order == .manual {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(model.t("SequenceOrder")).font(.caption).foregroundStyle(palette.secondary)
-                    Picker(model.t("SequenceOrder"), selection: Binding(get: { draft.order ?? .path }, set: { draft.order = $0 })) {
-                        ForEach(SequenceOrder.allCases, id: \.self) { Text(model.t($0.rawValue)).tag($0) }
-                    }.labelsHidden()
-                    if draft.order == .manual {
-                        Text(model.t("ManualOrderHelp")).font(.caption)
-                        List {
-                            ForEach(manualRows, id: \.self) { row in
-                                HStack {
-                                    Text(row.display).lineLimit(1).help(row.display)
-                                    Spacer()
-                                    Button { moveManual(row, delta: -1) } label: { Image(systemName: "arrow.up") }.accessibilityLabel(model.t("MoveUp")).disabled(manualRows.first == row)
-                                    Button { moveManual(row, delta: 1) } label: { Image(systemName: "arrow.down") }.accessibilityLabel(model.t("MoveDown")).disabled(manualRows.last == row)
-                                }
-                            }
-                            .onMove { source, destination in manualRows.move(fromOffsets: source, toOffset: destination); draft.manualPaths = manualRows.map(\.bytes) }
-                        }.frame(height: 160)
+            if !draft.rules.isEmpty || !configured.isEmpty { sampleLine }
+            if let message = model.message { Text(model.t(message)).font(.callout).foregroundStyle(palette.warning).fixedSize(horizontal: false, vertical: true) }
+        }.textFieldStyle(.roundedBorder).frame(maxWidth: .infinity, alignment: .leading)
+    }
+    private var header: some View {
+        HStack(spacing: Metrics.control) {
+            Text(model.t("RulesPane")).font(.headline).accessibilityAddTraits(.isHeader)
+            Spacer(minLength: Metrics.control)
+            if !draft.rules.isEmpty || !configured.isEmpty {
+                Button { draft = RulePipeline(); selected = nil } label: { Image(systemName: "trash") }
+                    .buttonStyle(.borderless).help(model.t("ResetRules")).accessibilityLabel(model.t("ResetRules"))
+            }
+            Button { adding = true } label: { Label(model.t("AddRule"), systemImage: "plus") }
+                .controlSize(.small).accessibilityIdentifier("addRule")
+                .popover(isPresented: $adding, arrowEdge: .bottom) {
+                    AddRuleMenu(model: model, palette: palette) { kind in adding = false; add(kind) } advanced: { choice in adding = false; option = choice }
+                }
+        }.frame(height: Metrics.paneHeader)
+    }
+    private func add(_ kind: RuleKind) {
+        var rule = RenameRule(kind)
+        if kind == .numbering { rule.text = "_" }
+        draft.rules.append(rule); selected = rule.id
+    }
+
+    // MARK: Rule list
+
+    private func ruleRow(_ index: Int, _ rule: RenameRule) -> some View {
+        let open = selected == rule.id
+        return VStack(alignment: .leading, spacing: Metrics.control) {
+            HStack(alignment: .top, spacing: Metrics.control) {
+                Toggle(model.t(RuleSummary.title(rule.kind)), isOn: $model.workbenchDraft.rules[index].enabled).labelsHidden().padding(.top, 1)
+                Button { selected = open ? nil : rule.id } label: {
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(model.t(RuleSummary.title(rule.kind))).fontWeight(.medium)
+                        Text(RuleSummary.text(rule, model: model)).font(.caption).foregroundStyle(palette.secondary).lineLimit(1).truncationMode(.middle)
+                    }.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
+                }.buttonStyle(.plain).accessibilityHint(model.t("EditRule")).accessibilityAddTraits(open ? .isSelected : [])
+                Menu { ruleActions(index) } label: { Image(systemName: "ellipsis") }
+                    .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize().accessibilityLabel(model.t("RuleMore")).help(model.t("RuleMore"))
+            }
+            if open {
+                VStack(alignment: .leading, spacing: Metrics.control) {
+                    RuleFields(model: model, rule: $model.workbenchDraft.rules[index], palette: palette)
+                    if rule.kind == .metadata {
+                        TextField(model.t("DateFormat"), text: Binding(get: { draft.dateFormat ?? "yyyy-MM-dd" }, set: { draft.dateFormat = $0 }))
+                        TextField(model.t("TimeZone"), text: Binding(get: { draft.timeZone ?? "UTC" }, set: { draft.timeZone = $0 }))
+                        Text(model.t("MetadataHelp")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
                     }
+                }.padding(.leading, 26)
+            }
+        }
+        .padding(8).background(open ? palette.surface : .clear, in: RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(open ? palette.border : .clear, lineWidth: 1))
+        .contextMenu { ruleActions(index) }
+    }
+    @ViewBuilder private func ruleActions(_ index: Int) -> some View {
+        Button(model.t("MoveUp")) { if index > 0, index < draft.rules.count { draft.rules.swapAt(index, index - 1) } }.disabled(index == 0)
+        Button(model.t("MoveDown")) { if index + 1 < draft.rules.count { draft.rules.swapAt(index, index + 1) } }.disabled(index + 1 >= draft.rules.count)
+        Divider()
+        Button(model.t("RemoveRule")) { if index < draft.rules.count { draft.rules.remove(at: index) } }
+    }
+    /// An active pipeline option, shown like a rule so nothing configured is hidden.
+    private func optionRow(_ choice: AdvancedOption) -> some View {
+        HStack(alignment: .top, spacing: Metrics.control) {
+            Image(systemName: choice.icon).frame(width: 18).foregroundStyle(palette.secondary).padding(.top, 2).accessibilityHidden(true)
+            Button { option = choice } label: {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(model.t(choice.rawValue)).fontWeight(.medium)
+                    Text(optionSummary(choice)).font(.caption).foregroundStyle(palette.secondary).lineLimit(1).truncationMode(.middle)
+                }.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
+            }.buttonStyle(.plain).accessibilityHint(model.t("EditRule"))
+            Button { clear(choice) } label: { Image(systemName: "minus.circle") }.buttonStyle(.borderless).help(model.t("Remove")).accessibilityLabel(model.t("Remove"))
+        }.padding(8)
+    }
+    private func optionSummary(_ choice: AdvancedOption) -> String {
+        switch choice {
+        case .form: return model.t(draft.target.rawValue)
+        case .order: return model.t((draft.order ?? .path).rawValue)
+        case .csv: return model.t("MappingCount", model.n(draft.mapping?.rows.count ?? 0))
+        case .pairs: return model.t("SumPairs", (draft.pairExtensions ?? []).joined(separator: ", "))
+        case .presets: return ""
+        }
+    }
+    private func clear(_ choice: AdvancedOption) {
+        switch choice {
+        case .form: draft.target = .nfc
+        case .order: draft.order = nil; draft.manualPaths = nil
+        case .csv: draft.mapping = nil
+        case .pairs: draft.pairExtensions = nil
+        case .presets: break
+        }
+    }
+    /// What the rules do to one real name, before the list preview is refreshed.
+    @ViewBuilder private var sampleLine: some View {
+        if let sampleError { Text(model.t(sampleError)).font(.caption).foregroundStyle(palette.warning).fixedSize(horizontal: false, vertical: true) }
+        else if let last = sampleSteps.last {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(model.t("SampleLabel")).font(.caption).foregroundStyle(palette.secondary)
+                Text(sample).font(.caption).lineLimit(1).truncationMode(.middle)
+                Label(last.after, systemImage: "arrow.turn.down.right").font(.callout).foregroundStyle(palette.preview).lineLimit(2).textSelection(.enabled)
+            }.padding(.horizontal, 8).accessibilityElement(children: .combine)
+        }
+    }
+    private struct SampleRequest: Equatable {
+        var target: NormalizationTarget; var rules: [RenameRule]; var name: String
+        static func == (a: Self, b: Self) -> Bool { a.target == b.target && a.rules == b.rules && Data(a.name.utf8) == Data(b.name.utf8) }
+    }
+}
+
+/// One-line description of a rule for the compact list.
+@MainActor enum RuleSummary {
+    static func title(_ kind: RuleKind) -> String { [.uppercase, .lowercase, .titlecase].contains(kind) ? "ActionCase" : kind.rawValue }
+    static func text(_ rule: RenameRule, model: AppModel) -> String {
+        func needs(_ value: String, _ make: () -> String) -> String { value.isEmpty ? model.t("SumNeedsValue") : make() }
+        switch rule.kind {
+        case .replace, .regex, .wildcard: return needs(rule.text) { model.t("SumReplace", rule.text, rule.replacement) }
+        case .prefix: return needs(rule.text) { model.t("SumPrefix", rule.text) }
+        case .suffix: return needs(rule.text) { model.t("SumSuffix", rule.text) }
+        case .insert: return needs(rule.text) { model.t("SumInsert", model.n(rule.position), rule.text) }
+        case .removeFirst, .removeLast, .keepFirst, .keepLast: return model.t("SumCount", model.n(rule.position))
+        case .setName: return needs(rule.text) { rule.text }
+        case .numbering: return model.t("SumNumber", String(rule.start), model.n(rule.digits))
+        case .metadata: return rule.text.isEmpty ? model.t("ChooseField") : model.t(rule.text)
+        case .spaces: return model.t("SumSpaces")
+        case .uppercase, .lowercase, .titlecase: return model.t(rule.kind.rawValue)
+        default: return ""
+        }
+    }
+}
+
+/// Add Rule popover. Every row is a full-width target; nothing depends on hitting a small arrow.
+struct AddRuleMenu: View {
+    @ObservedObject var model: AppModel
+    let palette: Palette
+    var startExpanded = false
+    let rule: (RuleKind) -> Void
+    let advanced: (AdvancedOption) -> Void
+    @State private var more = false
+    @State private var hovered: String?
+    private let basic: [(RuleKind, String, String)] = [
+        (.replace, "RuleReplace", "arrow.left.arrow.right"), (.prefix, "RulePrefix", "text.insert"), (.suffix, "RuleSuffix", "text.append"),
+        (.numbering, "RuleNumbering", "number"), (.spaces, "RuleSpaces", "space"), (.uppercase, "ActionCase", "textformat")
+    ]
+    private let other: [RuleKind] = [.insert, .removeFirst, .removeLast, .keepFirst, .keepLast, .setName, .accents, .wildcard]
+    var body: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            section("SectionBasic")
+            ForEach(basic, id: \.1) { kind, title, icon in row(title, icon: icon) { rule(kind) } }
+            Divider().padding(.vertical, 5)
+            section("SectionAdvanced")
+            row("AdvPattern", icon: "asterisk") { rule(.regex) }
+            row("AdvFileInfo", icon: "info.circle") { rule(.metadata) }
+            ForEach(AdvancedOption.allCases) { choice in row(choice.rawValue, icon: choice.icon) { advanced(choice) } }
+            Divider().padding(.vertical, 5)
+            row("SectionMore", icon: more || startExpanded ? "chevron.down" : "chevron.right") { more.toggle() }
+            if more || startExpanded { ForEach(other, id: \.self) { kind in row(kind.rawValue, icon: "plus") { rule(kind) } } }
+        }
+        .padding(8).frame(width: 250)
+        .foregroundStyle(palette.text).font(L10n.font(model.settings.language)).tint(palette.accent)
+    }
+    private func section(_ key: String) -> some View {
+        Text(model.t(key)).font(.caption).foregroundStyle(palette.secondary).padding(.horizontal, 8).padding(.vertical, 3).accessibilityAddTraits(.isHeader)
+    }
+    private func row(_ key: String, icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 9) {
+                Image(systemName: icon).frame(width: 18).foregroundStyle(palette.accent).accessibilityHidden(true)
+                Text(model.t(key)); Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 8).frame(maxWidth: .infinity, minHeight: 26, alignment: .leading)
+            .background(hovered == key ? palette.accent.opacity(0.14) : .clear, in: RoundedRectangle(cornerRadius: 6)).contentShape(Rectangle())
+        }.buttonStyle(.plain).onHover { hovered = $0 ? key : (hovered == key ? nil : hovered) }.accessibilityIdentifier("add-" + key)
+    }
+}
+
+/// One advanced option in its own sheet, so the main screen never shows every advanced field at once.
+struct AdvancedRuleSheet: View {
+    @ObservedObject var model: AppModel
+    let palette: Palette
+    let option: AdvancedOption
+    let close: () -> Void
+    @State private var recipeName = ""
+    @State private var manualRows: [RawPath] = []
+    private var draft: RulePipeline {
+        get { model.workbenchDraft }
+        nonmutating set { model.workbenchDraft = newValue }
+    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Label(model.t(option.rawValue), systemImage: option.icon).font(.title3).fontWeight(.semibold)
+                Spacer()
+                Button(model.t("Done"), action: close).keyboardShortcut(.defaultAction)
+            }.padding(Metrics.page)
+            Divider()
+            ScrollView { detail.padding(Metrics.page).frame(maxWidth: .infinity, alignment: .leading) }
+        }
+        .frame(width: 480).frame(minHeight: 300, maxHeight: 560)
+        .background(palette.dialog).foregroundStyle(palette.text).font(L10n.font(model.settings.language)).tint(palette.accent).textFieldStyle(.roundedBorder)
+        .onAppear { manualRows = model.entries.map(\.path) }
+    }
+    @ViewBuilder private var detail: some View {
+        switch option {
+        case .form:
+            VStack(alignment: .leading, spacing: Metrics.gap) {
+                ForEach(NormalizationTarget.allCases, id: \.self) { target in
+                    Button { draft.target = target } label: {
+                        HStack(alignment: .top, spacing: 10) {
+                            Image(systemName: draft.target == target ? "largecircle.fill.circle" : "circle").foregroundStyle(palette.accent).padding(.top, 2)
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(model.t(target.rawValue)).fontWeight(.medium)
+                                Text(model.t(target == .nfc ? "ComposeHelp" : target == .nfd ? "DecomposeHelp" : "KeepFormHelp")).font(.callout).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
+                            }
+                        }.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
+                    }.buttonStyle(.plain).accessibilityAddTraits(draft.target == target ? .isSelected : [])
                 }
             }
-            if draft.rules.contains(where: { $0.kind == .metadata }) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(model.t("MetadataHelp")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
-                    TextField(model.t("DateFormat"), text: Binding(get: { draft.dateFormat ?? "yyyy-MM-dd" }, set: { draft.dateFormat = $0 }))
-                    TextField(model.t("TimeZone"), text: Binding(get: { draft.timeZone ?? "UTC" }, set: { draft.timeZone = $0 }))
+        case .order:
+            VStack(alignment: .leading, spacing: Metrics.gap) {
+                Picker(model.t("SequenceOrder"), selection: Binding(get: { draft.order ?? .path }, set: { draft.order = $0 })) {
+                    ForEach(SequenceOrder.allCases, id: \.self) { Text(model.t($0.rawValue)).tag($0) }
+                }.pickerStyle(.radioGroup)
+                if draft.order == .manual {
+                    Text(model.t("ManualOrderHelp")).font(.callout).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
+                    List {
+                        ForEach(manualRows, id: \.self) { row in
+                            HStack {
+                                Text(row.display).lineLimit(1).truncationMode(.middle).help(row.display)
+                                Spacer()
+                                Button { moveManual(row, delta: -1) } label: { Image(systemName: "arrow.up") }.accessibilityLabel(model.t("MoveUp")).disabled(manualRows.first == row)
+                                Button { moveManual(row, delta: 1) } label: { Image(systemName: "arrow.down") }.accessibilityLabel(model.t("MoveDown")).disabled(manualRows.last == row)
+                            }
+                        }
+                        .onMove { source, destination in manualRows.move(fromOffsets: source, toOffset: destination); draft.manualPaths = manualRows.map(\.bytes) }
+                    }.frame(height: 220)
                 }
             }
-            DisclosureGroup(isExpanded: $pairExpanded) {
-                VStack(alignment: .leading, spacing: 8) {
-                    TextField(model.t("PairExtensions"), text: Binding(get: { (draft.pairExtensions ?? []).joined(separator: ",") }, set: { draft.pairExtensions = $0.lowercased().split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty } }))
-                    Text(model.t("PairHelp")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
-                }.padding(.top, 6)
-            } label: { Text(model.t("PairSection")) }
-            MappingView(model: model, pipeline: draftBinding)
-            DisclosureGroup(model.t("RecipeSection")) { presets.padding(.top, 6) }
+        case .csv: MappingView(model: model, pipeline: $model.workbenchDraft)
+        case .pairs:
+            VStack(alignment: .leading, spacing: Metrics.gap) {
+                TextField(model.t("PairExtensions"), text: Binding(get: { (draft.pairExtensions ?? []).joined(separator: ",") }, set: { draft.pairExtensions = $0.lowercased().split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty } }))
+                Text(model.t("PairHelp")).font(.callout).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
+            }
+        case .presets: presets
         }
     }
     private var presets: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Button(model.t("BasicExample")) {
-                var prefix = RenameRule(.prefix); prefix.text = "Project_"
-                var number = RenameRule(.numbering); number.text = "_"
-                draft = RulePipeline(rules: [RenameRule(.spaces), prefix, number])
-            }
-            Menu(model.t("ProExamples")) {
-                Button(model.t("PhotoExample")) {
-                    var name = RenameRule(.setName); name.text = ""
-                    var date = RenameRule(.metadata); date.text = "photo.date"
+        VStack(alignment: .leading, spacing: Metrics.gap) {
+            HStack {
+                Button(model.t("BasicExample")) {
+                    var prefix = RenameRule(.prefix); prefix.text = "Project_"
                     var number = RenameRule(.numbering); number.text = "_"
-                    draft = RulePipeline(rules: [name, date, number])
+                    draft = RulePipeline(rules: [RenameRule(.spaces), prefix, number]); close()
                 }
-                Button(model.t("RegexExample")) {
-                    var rule = RenameRule(.regex); rule.text = "(?i)^(?:IMG|DSC)[_-]?"; rule.replacement = "Photo_"
-                    draft = RulePipeline(rules: [rule])
-                }
-            }.fixedSize()
+                Menu(model.t("ProExamples")) {
+                    Button(model.t("PhotoExample")) {
+                        var name = RenameRule(.setName); name.text = ""
+                        var date = RenameRule(.metadata); date.text = "photo.date"
+                        var number = RenameRule(.numbering); number.text = "_"
+                        draft = RulePipeline(rules: [name, date, number]); close()
+                    }
+                    Button(model.t("RegexExample")) {
+                        var rule = RenameRule(.regex); rule.text = "(?i)^(?:IMG|DSC)[_-]?"; rule.replacement = "Photo_"
+                        draft = RulePipeline(rules: [rule]); close()
+                    }
+                }.fixedSize()
+            }
             Divider()
             HStack {
                 TextField(model.t("RecipeName"), text: $recipeName)
@@ -218,7 +360,7 @@ struct RuleEditor: View {
             ForEach(model.recipes.recipes) { recipe in
                 HStack {
                     TextField(model.t("RecipeName"), text: Binding(get: { recipe.name }, set: { model.editRecipe(recipe.id, name: $0) })).lineLimit(2)
-                    Button(model.t("LoadRecipe")) { if model.productAccess == .pro { draft = recipe.pipeline } else { model.message = "ProRequired" } }
+                    Button(model.t("LoadRecipe")) { draft = recipe.pipeline; close() }
                     Menu(model.t("RecipeActions")) {
                         Button(model.t("Export")) { export(recipe) }
                         Button(model.t("Duplicate")) { model.editRecipe(recipe.id, duplicate: true) }
@@ -226,18 +368,14 @@ struct RuleEditor: View {
                     }.fixedSize()
                 }
             }
+            if let message = model.message { Text(model.t(message)).font(.callout).foregroundStyle(palette.warning).fixedSize(horizontal: false, vertical: true) }
         }
-    }
-    private struct SampleRequest: Equatable {
-        var target: NormalizationTarget; var rules: [RenameRule]; var name: String
-        static func == (a: Self, b: Self) -> Bool { a.target == b.target && a.rules == b.rules && Data(a.name.utf8) == Data(b.name.utf8) }
     }
     private func moveManual(_ row: RawPath, delta: Int) {
         guard let index = manualRows.firstIndex(of: row), manualRows.indices.contains(index + delta) else { return }
         manualRows.swapAt(index, index + delta); draft.manualPaths = manualRows.map(\.bytes)
     }
     private func importRecipe() {
-        guard model.productAccess == .pro else { model.message = "ProRequired"; return }
         let panel = NSOpenPanel(); panel.allowedContentTypes = [.json]
         guard panel.runModal() == .OK, let url = panel.url else { return }
         Task {
@@ -258,7 +396,7 @@ struct RuleEditor: View {
     }
 }
 
-/// The value fields of one step. Only what the action needs is visible; scope,
+/// The value fields of one rule. Only what the action needs is visible; scope,
 /// conditions and advanced numbering sit under More options.
 struct RuleFields: View {
     @ObservedObject var model: AppModel
@@ -273,7 +411,7 @@ struct RuleFields: View {
         }
     }
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Metrics.control) {
             switch rule.kind {
             case .replace: field("FieldFind", $rule.text); field("FieldReplaceWith", $rule.replacement)
             case .prefix, .suffix: field("FieldAddText", $rule.text)
@@ -298,8 +436,8 @@ struct RuleFields: View {
                 }.pickerStyle(.segmented).labelsHidden()
             default: EmptyView()
             }
-            DisclosureGroup(model.t("RuleOptions")) {
-                VStack(alignment: .leading, spacing: 8) {
+            Expander(title: model.t("RuleOptions"), palette: palette) {
+                VStack(alignment: .leading, spacing: Metrics.control) {
                     LabeledContent(model.t("RuleScope")) {
                         Picker(model.t("RuleScope"), selection: $rule.scope) { ForEach(RuleScope.allCases, id: \.self) { Text(model.t(scopeKey($0))).tag($0) } }.labelsHidden().fixedSize()
                     }
@@ -312,7 +450,7 @@ struct RuleFields: View {
                     }
                     Text(model.t("RuleCondition")).font(.caption).foregroundStyle(palette.secondary)
                     TextField(model.t("ExtensionCondition"), text: $rule.conditionExtension)
-                }.padding(.top, 6)
+                }
             }.font(.callout)
         }
     }
