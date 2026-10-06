@@ -122,19 +122,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "하위 폴더 포함"
+            "value": "하위 폴더 안까지 함께 검사"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Include subfolders"
+            "value": "Also check inside subfolders"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "サブフォルダを含む"
+            "value": "サブフォルダの中も検査"
           }
         }
       }
@@ -1939,7 +1939,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이름 충돌"
+            "value": "충돌"
           }
         },
         "en": {
@@ -1951,7 +1951,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "名前の競合"
+            "value": "競合"
           }
         }
       }
@@ -2077,19 +2077,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "자소 분리된 파일 이름, 한 번에 정리"
+            "value": "자소 분리된 파일 이름 정리"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bring file names back together"
+            "value": "Fix file names with separated characters"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "分離したファイル名をまとめて整理"
+            "value": "文字が分離したファイル名を整理"
           }
         }
       }
@@ -2123,19 +2123,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "변경 가능"
+            "value": "정리할 이름"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changes available"
+            "value": "Names to fix"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "変更可能"
+            "value": "整理する名前"
           }
         }
       }
@@ -2261,19 +2261,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파일이나 폴더를 이 창에 놓으세요. 이름의 자소 분리를 검사하고, 변경 내용을 확인한 뒤 합칠 수 있습니다. 파일 내용은 바꾸지 않습니다."
+            "value": "파일이나 폴더를 이 창에 놓으면 자소 분리된 이름을 찾아 줍니다. 바뀔 이름을 확인한 뒤에만 합치며, 파일 내용은 바꾸지 않습니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drop files or folders anywhere in this window. Check separated characters and review the names before combining them. File contents stay unchanged."
+            "value": "Drop files or folders in this window to find names with separated characters. Names change only after you review them, and file contents are never changed."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイルやフォルダをこのウインドウにドロップ。濁点などが分離した名前を検査し、変更内容を確認してから合成できます。ファイルの内容は変更しません。"
+            "value": "ファイルやフォルダをこのウインドウにドロップすると、文字が分離した名前を探します。変更後の名前を確認してから合成し、ファイルの内容は変更しません。"
           }
         }
       }
@@ -2376,19 +2376,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파일·폴더 추가 → 변경 전후 이름 확인 → 이름 바꾸기 순서로 진행합니다. 위쪽 요약 숫자를 누르면 해당 항목만 볼 수 있습니다. 선택 버튼은 화면에 표시된 항목에 적용되며, 숨은 선택 수는 목록 위에 표시됩니다. 바꾼 이름은 작업 기록에서 되돌릴 수 있습니다.\n⌘O 파일 추가 · ⇧⌘O 폴더 추가 · ⌘F 검색 · ⌘R 다시 검사 · ⌘1 자소 분리 해결 · ⌘2 이름 일괄 변경 · ⌘, 설정. 목록에서 ⌘A는 표시 항목을 선택합니다."
+            "value": "파일·폴더 추가 → 변경 전후 이름 확인 → 이름 바꾸기 순서로 진행합니다. 목록 위의 요약(정리할 이름·충돌·선택)을 누르면 해당 항목만 볼 수 있습니다. 바꾼 이름은 작업 기록에서 되돌릴 수 있습니다.\n⌘O 파일 추가 · ⇧⌘O 폴더 추가 · ⌘F 검색 · ⌘R 다시 검사 · ⌘1 자소 분리 해결 · ⌘2 이름 일괄 변경 · ⌘, 설정. 목록에서 ⌘A는 표시 항목을 선택합니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Add files or folders → review the current and new names → rename. Click a summary number to show only those items. Selection buttons apply to the items shown; selections hidden by a filter are counted above the list. Renamed items can be undone from History.\n⌘O add files · ⇧⌘O add folders · ⌘F search · ⌘R rescan · ⌘1 repair separated characters · ⌘2 batch rename · ⌘, settings. In the list, ⌘A selects the items shown."
+            "value": "Add files or folders → review the current and new names → rename. Click a summary item above the list (names to fix, conflicts, selected) to show only those items. Renamed items can be undone from History.\n⌘O add files · ⇧⌘O add folders · ⌘F search · ⌘R rescan · ⌘1 repair separated characters · ⌘2 batch rename · ⌘, settings. In the list, ⌘A selects the items shown."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイル・フォルダを追加 → 変更前後の名前を確認 → 名前を変更、の順に進めます。上部の集計を押すと該当する項目だけを表示します。選択ボタンは表示中の項目に適用され、非表示の選択数は一覧の上に表示されます。変更した名前は履歴から元に戻せます。\n⌘O ファイル追加 · ⇧⌘O フォルダ追加 · ⌘F 検索 · ⌘R 再検査 · ⌘1 分離した文字を修復 · ⌘2 名前を一括変更 · ⌘, 設定。一覧では⌘Aで表示中の項目を選択します。"
+            "value": "ファイル・フォルダを追加 → 変更前後の名前を確認 → 名前を変更、の順に進めます。一覧の上の集計（整理する名前・競合・選択）を押すと該当する項目だけを表示します。変更した名前は履歴から元に戻せます。\n⌘O ファイル追加 · ⇧⌘O フォルダ追加 · ⌘F 検索 · ⌘R 再検査 · ⌘1 分離した文字を修復 · ⌘2 名前を一括変更 · ⌘, 設定。一覧では⌘Aで表示中の項目を選択します。"
           }
         }
       }
@@ -5757,19 +5757,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "규칙 초기화"
+            "value": "처음부터 다시"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reset rules"
+            "value": "Start Over"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ルールをリセット"
+            "value": "最初からやり直す"
           }
         }
       }
@@ -5803,19 +5803,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "프리셋 저장 · Pro"
+            "value": "프리셋 저장"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Save preset · Pro"
+            "value": "Save preset"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "プリセット保存 · Pro"
+            "value": "プリセット保存"
           }
         }
       }
@@ -5826,19 +5826,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "불러오기 · Pro"
+            "value": "불러오기"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Load · Pro"
+            "value": "Load"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "読み込み · Pro"
+            "value": "読み込み"
           }
         }
       }
@@ -6102,19 +6102,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "고급 번호 · Pro"
+            "value": "고급 번호"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Advanced numbering · Pro"
+            "value": "Advanced numbering"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "高度な連番 · Pro"
+            "value": "高度な連番"
           }
         }
       }
@@ -6194,19 +6194,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "적용 조건 · Pro"
+            "value": "적용 조건"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Condition · Pro"
+            "value": "Condition"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "適用条件 · Pro"
+            "value": "適用条件"
           }
         }
       }
@@ -6309,19 +6309,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "찾기·바꾸기"
+            "value": "텍스트 바꾸기"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Find and replace"
+            "value": "Replace text"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "検索と置換"
+            "value": "文字を置き換える"
           }
         }
       }
@@ -6332,19 +6332,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "앞에 추가"
+            "value": "앞에 붙이기"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Add prefix"
+            "value": "Add to the front"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "先頭に追加"
+            "value": "前に付ける"
           }
         }
       }
@@ -6355,19 +6355,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "뒤에 추가"
+            "value": "뒤에 붙이기"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Add suffix"
+            "value": "Add to the end"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "末尾に追加"
+            "value": "後ろに付ける"
           }
         }
       }
@@ -6499,7 +6499,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Clean whitespace"
+            "value": "Tidy spaces"
           }
         },
         "ja": {
@@ -6614,13 +6614,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Add numbering"
+            "value": "Add numbers"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "連番を追加"
+            "value": "連番を付ける"
           }
         }
       }
@@ -7068,19 +7068,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "CSV 목록으로 이름 바꾸기 · Pro"
+            "value": "CSV 목록으로 이름 바꾸기"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rename from a CSV list · Pro"
+            "value": "Rename from a CSV list"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "CSVリストで名前を変更 · Pro"
+            "value": "CSVリストで名前を変更"
           }
         }
       }
@@ -7666,19 +7666,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "프리셋 가져오기 (Pro)"
+            "value": "프리셋 가져오기"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Import preset (Pro)"
+            "value": "Import preset"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "プリセットを読み込む（Pro）"
+            "value": "プリセットを読み込む"
           }
         }
       }
@@ -7758,19 +7758,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "폴더 감시 · Pro"
+            "value": "폴더 감시"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Watch folders · Pro"
+            "value": "Watch folders"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フォルダ監視 · Pro"
+            "value": "フォルダ監視"
           }
         }
       }
@@ -9368,19 +9368,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "규칙이 변경됐습니다. 아래 목록은 이전 결과입니다. 미리보기를 갱신한 후 이름을 변경하세요."
+            "value": "규칙을 바꿨습니다. 미리보기를 갱신하면 목록에 반영됩니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rules have changed. The list shows previous results. Update the preview before renaming."
+            "value": "The rules changed. Update the preview to see the new names."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ルールが変更されています。一覧は前の結果です。プレビューを更新してから名前を変更してください。"
+            "value": "ルールを変更しました。プレビューを更新すると一覧に反映されます。"
           }
         }
       }
@@ -9414,19 +9414,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파일 미리보기 갱신"
+            "value": "미리보기 갱신"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Update file preview"
+            "value": "Update Preview"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイルのプレビューを更新"
+            "value": "プレビューを更新"
           }
         }
       }
@@ -9483,19 +9483,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파일 이름의 분리된 문자 합치기"
+            "value": "파일 이름의 분리된 글자를 하나로 합칩니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Combine separated characters in file names"
+            "value": "Combine separated characters in file names."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイル名の濁点などを合成"
+            "value": "ファイル名の分離した文字を合成します。"
           }
         }
       }
@@ -9506,19 +9506,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "문구 바꾸기 · 번호 · 날짜 붙이기"
+            "value": "글자 바꾸기, 번호 붙이기 등 여러 이름을 한 번에 바꿉니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Replace text, add numbers and dates"
+            "value": "Replace text, add numbers and more across many names."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "文字の置換・連番・日付の追加"
+            "value": "文字の置換や連番など、複数の名前をまとめて変更します。"
           }
         }
       }
@@ -9529,19 +9529,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "보조 도구"
+            "value": "도구"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Utilities"
+            "value": "Tools"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "補助ツール"
+            "value": "ツール"
           }
         }
       }
@@ -9552,19 +9552,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "붙여 넣은 글자를 변환하고 복사"
+            "value": "붙여 넣은 글자를 변환해 복사합니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Convert and copy pasted text"
+            "value": "Convert pasted text and copy it."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "貼り付けた文字を変換してコピー"
+            "value": "貼り付けた文字を変換してコピーします。"
           }
         }
       }
@@ -9575,19 +9575,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "새로 생긴 파일을 찾아 검토 목록에 모으기"
+            "value": "폴더에 새로 생긴 파일을 찾아 검토 목록에 모읍니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Collect newly added files for review"
+            "value": "Collect new files in a folder for review."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "新しいファイルを検出して確認"
+            "value": "フォルダに追加されたファイルを確認リストに集めます。"
           }
         }
       }
@@ -9598,19 +9598,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "검사 결과를 표 파일로 저장"
+            "value": "검사 결과를 표 파일(CSV)로 저장합니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Save inspection results as a table"
+            "value": "Save the results as a table file (CSV)."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "検査結果を表として保存"
+            "value": "検査結果を表ファイル（CSV）で保存します。"
           }
         }
       }
@@ -9667,19 +9667,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파일 이름을 원하는 규칙으로 바꾸는 작업입니다. 자소 분리만 해결하려면 왼쪽의 ‘자소 분리 해결’을 사용하세요."
+            "value": "파일을 추가하고, 원하는 작업을 고르고, 미리보기를 확인한 뒤 이름을 바꿉니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rename files using your own rules. To only combine separated characters, choose Repair separated characters in the sidebar."
+            "value": "Add files, choose what to do, check the preview, then rename."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ルールに沿ってファイル名を変更します。濁点などの合成だけなら、サイドバーの「分離した文字を修復」を使ってください。"
+            "value": "ファイルを追加し、操作を選び、プレビューを確認してから名前を変更します。"
           }
         }
       }
@@ -9736,19 +9736,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "여러 파일 이름을 원하는 규칙으로"
+            "value": "여러 파일 이름을 한 번에 바꾸기"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rename multiple files with your rules"
+            "value": "Rename many files at once"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ルールで複数のファイル名を変更"
+            "value": "複数のファイル名をまとめて変更"
           }
         }
       }
@@ -10219,19 +10219,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "바꾼 이름 확인 · 되돌리기"
+            "value": "바꾼 이름을 확인하고 되돌립니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Review and undo renames"
+            "value": "Review and undo renames."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "変更の確認・元に戻す"
+            "value": "変更した名前を確認して元に戻します。"
           }
         }
       }
@@ -10242,19 +10242,847 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "묶음 파일 함께 바꾸기 · Pro"
+            "value": "묶음 파일 함께 바꾸기"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rename file sets together · Pro"
+            "value": "Rename file sets together"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイルの組を一緒に変更 · Pro"
+            "value": "ファイルの組を一緒に変更"
+          }
+        }
+      }
+    },
+    "EmptyDrop": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파일이나 폴더를 여기에 놓으세요."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop files or folders here."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルやフォルダをここにドロップしてください。"
+          }
+        }
+      }
+    },
+    "EmptySafety": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름만 확인하며 파일 내용은 바꾸지 않습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only names are checked. File contents are never changed."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名前だけを確認し、ファイルの内容は変更しません。"
+          }
+        }
+      }
+    },
+    "ChooseFiles": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파일 선택"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose Files"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルを選択"
+          }
+        }
+      }
+    },
+    "ChooseFolders": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더 선택"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose Folder"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォルダを選択"
+          }
+        }
+      }
+    },
+    "RulesFirst": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파일 없이 규칙부터 만들기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up rules first"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "先にルールを作成"
+          }
+        }
+      }
+    },
+    "InputSummary": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추가한 파일·폴더 {0}개"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Files and folders added: {0}"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "追加したファイル・フォルダ {0}件"
+          }
+        }
+      }
+    },
+    "AddMore": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추가"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "追加"
+          }
+        }
+      }
+    },
+    "NeededBatch": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "바꿀 이름"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Names to change"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "変更する名前"
+          }
+        }
+      }
+    },
+    "SummarySelected": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "선택"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selected"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選択"
+          }
+        }
+      }
+    },
+    "ShownCount": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전체 {1}개 중 {0}개 표시"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Showing {0} of {1}"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{1}件中{0}件を表示"
+          }
+        }
+      }
+    },
+    "HiddenSelected": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "숨은 선택 {0}개"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{0} selected but hidden"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "非表示の選択 {0}件"
+          }
+        }
+      }
+    },
+    "ViewOptions": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "필터·정렬"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter & Sort"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "絞り込み・並べ替え"
+          }
+        }
+      }
+    },
+    "SelectMenu": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "선택"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選択"
+          }
+        }
+      }
+    },
+    "NoFilesYet": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아직 추가한 파일이 없습니다. 파일이나 폴더를 여기에 놓으세요."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No files added yet. Drop files or folders here."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "まだファイルがありません。ファイルやフォルダをここにドロップしてください。"
+          }
+        }
+      }
+    },
+    "ExportShort": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "결과 저장"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save Results"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "結果を保存"
+          }
+        }
+      }
+    },
+    "ChooseAction": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름을 어떻게 바꿀까요?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do you want to rename?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "どのように名前を変更しますか？"
+          }
+        }
+      }
+    },
+    "ActionCase": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "대소문자 바꾸기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change letter case"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大文字・小文字を変更"
+          }
+        }
+      }
+    },
+    "ExampleReplace": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보고서_초안 → 보고서_최종"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "report_draft → report_final"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "報告書_下書き → 報告書_最終"
+          }
+        }
+      }
+    },
+    "ExamplePrefix": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사진 → 여행_사진"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "photo → Trip_photo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写真 → 旅行_写真"
+          }
+        }
+      }
+    },
+    "ExampleSuffix": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사진 → 사진_제주"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "photo → photo_Jeju"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写真 → 写真_京都"
+          }
+        }
+      }
+    },
+    "ExampleNumber": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사진 → 사진_001, 사진_002 …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "photo → photo_001, photo_002 …"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写真 → 写真_001、写真_002 …"
+          }
+        }
+      }
+    },
+    "ExampleSpaces": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내   사진 → 내 사진"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "my   photo → my photo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "私の   写真 → 私の 写真"
+          }
+        }
+      }
+    },
+    "ExampleCase": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "photo → PHOTO, Photo"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "photo → PHOTO, Photo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "photo → PHOTO、Photo"
+          }
+        }
+      }
+    },
+    "AddAction": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "작업 추가"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Another Step"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "操作を追加"
+          }
+        }
+      }
+    },
+    "AdvancedRules": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "고급 규칙"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced Rules"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高度なルール"
+          }
+        }
+      }
+    },
+    "AdvancedHint": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패턴, 파일 정보(날짜 등), CSV 목록, 묶음 파일, 프리셋"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Patterns, file info such as dates, CSV lists, file sets and presets"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パターン、ファイル情報（日付など）、CSVリスト、ファイルの組、プリセット"
+          }
+        }
+      }
+    },
+    "RuleOptions": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "세부 옵션"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More Options"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "詳細オプション"
+          }
+        }
+      }
+    },
+    "FieldFind": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "찾을 글자"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "検索する文字"
+          }
+        }
+      }
+    },
+    "FieldReplaceWith": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "바꿀 글자"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace with"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "置き換える文字"
+          }
+        }
+      }
+    },
+    "FieldAddText": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "붙일 글자"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text to add"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "追加する文字"
+          }
+        }
+      }
+    },
+    "FieldSeparator": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "번호 앞에 넣을 글자"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text before the number"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "番号の前に入れる文字"
+          }
+        }
+      }
+    },
+    "FieldNewName": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 이름"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New name"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい名前"
+          }
+        }
+      }
+    },
+    "FieldPattern": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패턴"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pattern"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パターン"
+          }
+        }
+      }
+    },
+    "FieldJoin": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름과 정보 사이에 넣을 글자"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text between the name and the info"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名前と情報の間に入れる文字"
+          }
+        }
+      }
+    },
+    "SampleResult": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "예시 결과"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sample result"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サンプルの結果"
+          }
+        }
+      }
+    },
+    "OtherRules": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다른 작업"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other steps"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "その他の操作"
           }
         }
       }

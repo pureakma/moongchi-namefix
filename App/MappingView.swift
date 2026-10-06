@@ -5,6 +5,7 @@ import NameFixCore
 struct MappingView: View {
     @ObservedObject var model: AppModel
     @Binding var pipeline: RulePipeline
+    let palette: Palette
     @State private var rows: [[String]] = []
     @State private var sourceColumn = 0
     @State private var destinationColumn = 1
@@ -14,7 +15,7 @@ struct MappingView: View {
     @State private var problem: String?
     @State private var loadTask: Task<Void, Never>?
     var body: some View {
-        DisclosureGroup(model.t("CSVMapping")) {
+        DisclosureGroup {
             VStack(alignment: .leading, spacing: 10) {
                 Text(model.t("MappingHelp")).font(.caption)
                 Toggle(model.t("TabSeparated"), isOn: $tabSeparated).disabled(working || !rows.isEmpty)
@@ -30,7 +31,7 @@ struct MappingView: View {
                 if let mapping = pipeline.mapping { Text(model.t("MappingCount", String(mapping.rows.count))); if rows.isEmpty { Button(model.t("ClearMapping")) { pipeline.mapping = nil } } }
                 if let problem { Text(model.t(problem)).foregroundStyle(.red) }
             }
-        }.onDisappear { loadTask?.cancel() }
+        } label: { HStack(spacing: 6) { Text(model.t("CSVMapping")); ProBadge(palette: palette) } }.onDisappear { loadTask?.cancel() }
     }
     private func describe(_ error: Error) -> String {
         if let error = error as? DelimitedTextError { return model.t("MappingRowError", String(error.row), model.t(error.reason.rawValue)) }

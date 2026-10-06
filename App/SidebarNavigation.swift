@@ -3,7 +3,7 @@ import SwiftUI
 
 @MainActor final class MainSidebarController: NSSplitViewController {
     let navigationItem: NSSplitViewItem
-    init(model: AppModel) {
+    init(model: AppModel, startAdvanced: Bool = false) {
         let navigation = NSViewController()
         let sidebar = DropHostingView(rootView: SidebarNavigation(model: model)); sidebar.model = model; sidebar.sizingOptions = []
         let container = NSView()
@@ -31,7 +31,7 @@ import SwiftUI
         navigationItem.canCollapse = true
         navigationItem.allowsFullHeightLayout = true
         let detail = NSViewController()
-        let host = DropHostingView(rootView: MainView(model: model)); host.model = model; host.sizingOptions = []
+        let host = DropHostingView(rootView: MainView(model: model, startAdvanced: startAdvanced)); host.model = model; host.sizingOptions = []
         detail.view = host
         addSplitViewItem(navigationItem); addSplitViewItem(NSSplitViewItem(viewController: detail))
         splitView.autosaveName = "NameFix.NavigationSidebar"
@@ -46,41 +46,45 @@ struct SidebarNavigation: View {
     private var palette: Palette { Palette(model.settings.theme, systemDark: scheme == .dark) }
     var body: some View {
         ScrollView {
-          VStack(alignment: .leading, spacing: 18) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(model.t("FileTasks")).font(.caption).foregroundStyle(palette.secondary).padding(.horizontal, 8)
-                navigation("RestoreNames", detail: "RestoreNamesDetail", icon: "character.cursor.ibeam", selected: !model.isWorkbench) { model.openQuickCleanup() }
-                navigation("BatchWorkspace", detail: "BatchWorkspaceDetail", icon: "pencil.line", selected: model.isWorkbench) { model.openWorkbench() }
+          VStack(alignment: .leading, spacing: 16) {
+            section("FileTasks") {
+                navigation("RestoreNames", tip: "RestoreNamesDetail", icon: "character.cursor.ibeam", selected: !model.isWorkbench) { model.openQuickCleanup() }
+                navigation("BatchWorkspace", tip: "BatchWorkspaceDetail", icon: "pencil.line", selected: model.isWorkbench) { model.openWorkbench() }
             }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(model.t("Utilities")).font(.caption).foregroundStyle(palette.secondary).padding(.horizontal, 8)
-                navigation("TextTool", detail: "TextToolDetail", icon: "text.cursor") { model.clipboard = ""; model.clipboardTruncated = false; model.sheet = "clipboard" }
-                navigation("FolderWatch", detail: "WatchToolDetail", icon: "folder.badge.gearshape") { model.sheet = "watch" }
-                navigation("ExportReport", detail: "ExportToolDetail", icon: "square.and.arrow.up") { model.sheet = "tools" }
+            section("Utilities") {
+                navigation("TextTool", tip: "TextToolDetail", icon: "text.cursor") { model.clipboard = ""; model.clipboardTruncated = false; model.sheet = "clipboard" }
+                navigation("FolderWatch", tip: "WatchToolDetail", icon: "folder.badge.gearshape", pro: true) { model.sheet = "watch" }
+                navigation("ExportShort", tip: "ExportToolDetail", icon: "square.and.arrow.up") { model.sheet = "tools" }
             }
-            Divider()
-            VStack(alignment: .leading, spacing: 4) {
-                navigation("HistoryShort", detail: "HistoryDetail", icon: "clock.arrow.circlepath") { model.sheet = "history"; Task { await model.reloadHistory() } }
-                navigation("Settings", icon: "gearshape") { model.sheet = "settings" }
-                navigation("HelpTitle", icon: "questionmark.circle") { model.sheet = "help" }
+            Divider().padding(.horizontal, 8)
+            VStack(alignment: .leading, spacing: 2) {
+                navigation("HistoryShort", tip: "HistoryDetail", icon: "clock.arrow.circlepath", identifier: "history") { model.sheet = "history"; Task { await model.reloadHistory() } }
+                navigation("Settings", icon: "gearshape", identifier: "settings") { model.sheet = "settings" }
+                navigation("HelpMenu", icon: "questionmark.circle", identifier: "help") { model.sheet = "help" }
             }
           }.padding(10).frame(maxWidth: .infinity, alignment: .leading)
         }.frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(palette.sidebar.ignoresSafeArea()).foregroundStyle(palette.text)
             .font(L10n.font(model.settings.language)).tint(palette.accent)
     }
-    private func navigation(_ title: String, detail: String? = nil, icon: String, selected: Bool = false, action: @escaping () -> Void) -> some View {
+    private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(model.t(title)).font(.caption).foregroundStyle(palette.secondary).padding(.horizontal, 8).padding(.bottom, 2).accessibilityAddTraits(.isHeader)
+            content()
+        }
+    }
+    /// One line per destination. Explanations live in the tooltip and on the screen itself.
+    private func navigation(_ title: String, tip: String? = nil, icon: String, selected: Bool = false, pro: Bool = false, identifier: String? = nil, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: icon).frame(width: 18).padding(.top, 2)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(model.t(title)).fontWeight(selected ? .semibold : .regular)
-                    if let detail { Text(model.t(detail)).font(.caption).foregroundStyle(palette.secondary) }
-                }
+            HStack(spacing: 9) {
+                Image(systemName: icon).frame(width: 18).foregroundStyle(selected ? palette.accent : palette.secondary).accessibilityHidden(true)
+                Text(model.t(title)).fontWeight(selected ? .semibold : .regular).lineLimit(1)
+                if pro { ProBadge(palette: palette) }
                 Spacer(minLength: 0)
-            }.fixedSize(horizontal: false, vertical: true).padding(8).frame(maxWidth: .infinity, alignment: .leading)
-                .background(selected ? palette.accent.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: 7)).contentShape(Rectangle())
-        }.buttonStyle(.plain).accessibilityAddTraits(selected ? .isSelected : [])
+            }.padding(.horizontal, 8).padding(.vertical, 6).frame(maxWidth: .infinity, alignment: .leading)
+                .background(selected ? palette.accent.opacity(0.14) : .clear, in: RoundedRectangle(cornerRadius: 6)).contentShape(Rectangle())
+        }.buttonStyle(.plain).help(model.t(tip ?? title)).accessibilityAddTraits(selected ? .isSelected : [])
+            .accessibilityIdentifier(identifier ?? title)
             .disabled(model.busy || model.plan != nil || model.result != nil)
     }
 }

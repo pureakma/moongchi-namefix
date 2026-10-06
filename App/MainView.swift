@@ -3,31 +3,37 @@ import AppKit
 import NameFixCore
 import NameFixRuntime
 
+/// One screen, three states: an input-only empty state, a scan in progress, and results.
+/// Result controls exist only once something has been added.
 struct MainView: View {
     @ObservedObject var model: AppModel
     @Environment(\.colorScheme) private var scheme
     @Environment(\.colorSchemeContrast) private var contrast
     @FocusState private var searchFocused: Bool
+    @State private var locationsExpanded = false
     @State private var workbenchRulesExpanded = true
+    @State private var rulesFirst: Bool
+    private let startAdvanced: Bool
+    init(model: AppModel, rulesFirst: Bool = false, startAdvanced: Bool = false) {
+        self.model = model; self.startAdvanced = startAdvanced
+        _rulesFirst = State(initialValue: rulesFirst)
+    }
     var palette: Palette { Palette(model.settings.theme, systemDark: scheme == .dark) }
+    private var awaitingInput: Bool { model.roots.isEmpty && model.entries.isEmpty }
+    private var conflicts: Int { model.counts["ConflictCaption"] ?? 0 }
+    private var filtering: Bool { !model.query.isEmpty || model.filter != "All" || model.settings.hideNormal }
     var body: some View {
         GeometryReader { proxy in
             let width = max(280, proxy.size.width)
             ScrollView(.horizontal) {
                 Group {
-                    if model.isWorkbench {
-                        workbenchContent(width: width, height: proxy.size.height)
-                    } else if WindowLayout.wide(width: width) {
-                        if proxy.size.height >= 620 { wideContent }
-                        else { ScrollView { wideContent.frame(height: 740) } }
-                    } else {
-                        compactContent(width: width, height: proxy.size.height)
-                    }
+                    if model.isWorkbench { workbench(width: width, height: proxy.size.height) }
+                    else { quick(width: width, height: proxy.size.height) }
                 }.frame(width: width).frame(maxHeight: .infinity)
             }
             .background(palette.canvas).foregroundStyle(contrast == .increased ? Color.primary : palette.text)
             .font(L10n.font(model.settings.language)).tint(palette.accent)
-            .overlay { if model.dragActive { RoundedRectangle(cornerRadius: 18).stroke(palette.accent, lineWidth: 3).padding(4).allowsHitTesting(false) } }
+            .overlay { if model.dragActive { RoundedRectangle(cornerRadius: 12).stroke(palette.accent, lineWidth: 3).padding(4).allowsHitTesting(false) } }
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if let message = model.message {
                     ScrollView {
@@ -53,267 +59,269 @@ struct MainView: View {
         }
         .onChange(of: model.searchFocus) { _, value in if value { searchFocused = true; model.searchFocus = false } }
     }
-    @ViewBuilder private func workbenchContent(width: CGFloat, height: CGFloat) -> some View {
-        if width >= 900 && height >= 620 {
-            VStack(alignment: .leading, spacing: 12) {
-                header
-                DisclosureGroup(model.t("InputCount", model.n(model.roots.count))) {
-                    inputHeading
-                    ScrollView { inputLocations }.frame(maxHeight: 120)
-                }.disabled(model.busy || model.plan != nil)
-                HSplitView {
-                    RuleEditor(model: model, palette: palette).padding(12).frame(minWidth: 340, idealWidth: 380, maxWidth: 500)
-                    VStack(spacing: 12) {
-                        statistics(columns: 4)
-                        previewState
-                        search
-                        results
-                        footer
-                    }.padding(12).frame(minWidth: 420)
+
+    // MARK: Screens
+
+    @ViewBuilder private func quick(width: CGFloat, height: CGFloat) -> some View {
+        if awaitingInput { inputState(title: "EmptyTitle", icon: "character.cursor.ibeam", height: height) }
+        else if WindowLayout.wide(width: width) && height >= 420 { resultColumn.padding(16) }
+        else { compactResults(height: height) { EmptyView() } }
+    }
+    @ViewBuilder private func workbench(width: CGFloat, height: CGFloat) -> some View {
+        if awaitingInput && !rulesFirst { inputState(title: "BatchEmptyTitle", icon: "pencil.line", height: height) }
+        else if WindowLayout.wide(width: width) && height >= 520 {
+            HSplitView {
+                RuleEditor(model: model, palette: palette, startAdvanced: startAdvanced).padding(16).frame(minWidth: 300, idealWidth: 340, maxWidth: 380)
+                resultColumn.padding(16).frame(minWidth: 440)
+            }
+        } else {
+            compactResults(height: height) {
+                DisclosureGroup(model.t("Rules"), isExpanded: $workbenchRulesExpanded) {
+                    RuleEditor(model: model, palette: palette, startAdvanced: startAdvanced, embedded: true).padding(.top, 8)
                 }
-            }.padding(12)
-        } else {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    header
-                    locationsDisclosure
-                    DisclosureGroup(model.t("Rules"), isExpanded: $workbenchRulesExpanded) {
-                        RuleEditor(model: model, palette: palette).frame(height: max(280, height * 0.55))
-                    }
-                    previewState
-                    statistics(columns: WindowLayout.cardColumns(width: width - 24))
-                    search
-                    if model.busy { activity }
-                    if model.visible.isEmpty { emptyState.frame(minHeight: 170) }
-                    else { LazyVStack { ForEach(model.visible) { entry in CompactResultRow(model: model, entry: entry, palette: palette).id(entry.id) } } }
-                    footer
-                }.padding(12)
             }
         }
     }
-    private var previewState: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Label(model.t(model.hasUnappliedRules ? "UnappliedRules" : "FilePreviewCurrent"), systemImage: model.hasUnappliedRules ? "arrow.triangle.2.circlepath" : "checkmark.circle")
-                .font(.caption).foregroundStyle(model.hasUnappliedRules ? palette.warning : palette.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-            if model.hasUnappliedRules {
-                Button(model.t("UpdateFilePreview")) { model.usePipeline(model.workbenchDraft) }.disabled(model.busy || model.plan != nil)
-            }
-        }.frame(maxWidth: .infinity, alignment: .leading)
-    }
-    private var wideContent: some View {
-        HStack(spacing: 16) {
-            VStack(spacing: 16) {
-                header
-                locationsDisclosure
-                statistics(columns: 4)
-                search
-                notice
-                results
-                footer
-            }
-        }.padding(12)
-    }
-    @ViewBuilder private func compactContent(width: CGFloat, height: CGFloat) -> some View {
-        if height < 300 {
-            ScrollView { compactSections(width: width); footer.padding(12) }
-        } else {
-            ScrollView { compactSections(width: width) }
-                .safeAreaInset(edge: .bottom, spacing: 0) { footer.padding(12).background(palette.canvas) }
+    private var resultColumn: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            inputHeader
+            unappliedNotice
+            summary
+            filterRow
+            results
+            footer
         }
     }
-    private func compactSections(width: CGFloat) -> some View {
-        LazyVStack(alignment: .leading, spacing: 16) {
-            header
-            locationsDisclosure
-            statistics(columns: WindowLayout.cardColumns(width: width - 24))
-            search
-            notice
+    @ViewBuilder private func compactResults<Rules: View>(height: CGFloat, @ViewBuilder rules: () -> Rules) -> some View {
+        let sections = LazyVStack(alignment: .leading, spacing: 14) {
+            inputHeader
+            rules()
+            unappliedNotice
+            summary
+            filterRow
             if model.busy { activity }
-            if model.visible.isEmpty { emptyState.frame(minHeight: 170) }
+            if model.visible.isEmpty { noResults.frame(minHeight: 150) }
             else { ForEach(model.visible) { entry in CompactResultRow(model: model, entry: entry, palette: palette).id(entry.id) } }
         }.padding(12)
+        if height < 300 {
+            ScrollView { sections; footer.padding(12) }
+        } else {
+            ScrollView { sections }.safeAreaInset(edge: .bottom, spacing: 0) { footer.padding(12).background(palette.canvas) }
+        }
     }
-    private var notice: some View {
-        Text(model.t(model.isWorkbench ? "NormalizationNotice" : "QuickCleanupHelp")).font(.caption).foregroundStyle(palette.secondary)
-            .frame(maxWidth: .infinity, alignment: .leading).fixedSize(horizontal: false, vertical: true)
+
+    // MARK: Empty state — the only input surface until something is added
+
+    private func inputState(title: String, icon: String, height: CGFloat) -> some View {
+        ScrollView {
+            VStack(spacing: 12) {
+                Image(systemName: icon).font(.system(size: 34, weight: .light)).foregroundStyle(palette.accent).accessibilityHidden(true)
+                Text(model.t(title)).font(L10n.font(model.settings.language, size: 20, weight: .semibold)).accessibilityAddTraits(.isHeader)
+                Text(model.t("EmptyDrop"))
+                Text(model.t("EmptySafety")).font(.callout).foregroundStyle(palette.secondary)
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 10) { chooseFiles; chooseFolders }
+                    VStack(spacing: 8) { chooseFiles; chooseFolders }
+                }.controlSize(.large).padding(.top, 8)
+                recursiveToggle.padding(.top, 2)
+                if model.settings.rememberRecentFolders, !model.settings.recentFolders.isEmpty {
+                    Menu(model.t("RecentFolders")) { recentFolderItems }.menuStyle(.borderlessButton).fixedSize()
+                }
+                if model.isWorkbench { Button(model.t("RulesFirst")) { rulesFirst = true }.buttonStyle(.link) }
+            }
+            .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, 28).padding(.vertical, 32).frame(maxWidth: 480)
+            .background(RoundedRectangle(cornerRadius: 14).strokeBorder(palette.border, style: StrokeStyle(lineWidth: 1.5, dash: [6, 5])))
+            .padding(16).frame(maxWidth: .infinity, minHeight: max(220, height))
+        }
+        .disabled(model.busy || model.plan != nil).accessibilityIdentifier("emptyState")
     }
-    private var locationsDisclosure: some View {
-        DisclosureGroup(model.t("InputCount", model.n(model.roots.count))) {
-            inputHeading
-            ScrollView { inputLocations }.frame(height: 110)
-        }.disabled(model.busy || model.plan != nil)
+    private var chooseFiles: some View {
+        Button { pick(folders: false) } label: { Label(model.t("ChooseFiles"), systemImage: "doc.badge.plus") }.accessibilityIdentifier("addFiles")
     }
-    private var addFiles: some View {
-        Button { pick(folders: false) } label: { Label(model.t("AddFiles"), systemImage: "doc.badge.plus").frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 5) }.accessibilityIdentifier("addFiles")
-    }
-    private var addFolders: some View {
-        Button { pick(folders: true) } label: { Label(model.t("AddFolders"), systemImage: "folder.badge.plus").frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 5) }.accessibilityIdentifier("addFolders")
+    private var chooseFolders: some View {
+        Button { pick(folders: true) } label: { Label(model.t("ChooseFolders"), systemImage: "folder.badge.plus") }.accessibilityIdentifier("addFolders")
     }
     private var recursiveToggle: some View {
         Toggle(model.t("Recursive"), isOn: Binding(get: { model.settings.recursive }, set: { value in model.changeSettings { $0.recursive = value } })).disabled(model.busy)
     }
-    private var inputHeading: some View {
-        HStack {
-            Text(model.t("InputCount", model.n(model.roots.count))).fontWeight(.semibold)
-            Spacer()
-            Button(model.t("ResetInputs")) { model.remove(nil) }.disabled(model.busy || model.roots.isEmpty)
+    @ViewBuilder private var recentFolderItems: some View {
+        ForEach(model.settings.recentFolders, id: \.self) { path in
+            Button(URL(fileURLWithPath: path).lastPathComponent) { model.add([URL(fileURLWithPath: path)]) }.help(path)
         }
     }
-    private var inputLocations: some View {
-        LazyVStack(alignment: .leading, spacing: 8) {
-            ForEach(model.roots, id: \.self) { root in
-                HStack {
-                    Image(systemName: "folder").accessibilityHidden(true)
-                    Text(String(data: root.leaf, encoding: .utf8) ?? root.display).lineLimit(2).frame(maxWidth: .infinity, alignment: .leading).help(root.display)
-                    Button { model.remove(root) } label: { Image(systemName: "minus.circle") }.buttonStyle(.plain).disabled(model.busy).help(model.t("RemoveInput")).accessibilityLabel(model.t("RemoveInput"))
-                }.padding(.vertical, 5)
+
+    // MARK: Result state
+
+    private var inputHeader: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 10) {
+                Button { locationsExpanded.toggle() } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chevron.right").font(.caption).rotationEffect(.degrees(locationsExpanded ? 90 : 0)).accessibilityHidden(true)
+                        Text(model.t("InputSummary", model.n(model.roots.count))).fontWeight(.medium)
+                    }.contentShape(Rectangle())
+                }.buttonStyle(.plain).accessibilityAddTraits(locationsExpanded ? .isSelected : []).accessibilityIdentifier("locations")
+                Spacer(minLength: 8)
+                Button { model.scan() } label: { Image(systemName: "arrow.clockwise") }
+                    .buttonStyle(.borderless).help(model.t("Rescan")).accessibilityLabel(model.t("Rescan"))
+                    .disabled(model.roots.isEmpty).accessibilityIdentifier("rescan")
+                Menu {
+                    Button(model.t("ChooseFiles")) { pick(folders: false) }
+                    Button(model.t("ChooseFolders")) { pick(folders: true) }
+                    if model.settings.rememberRecentFolders, !model.settings.recentFolders.isEmpty {
+                        Divider()
+                        Section(model.t("RecentFolders")) { recentFolderItems }
+                    }
+                } label: { Label(model.t("AddMore"), systemImage: "plus") }.menuStyle(.borderlessButton).fixedSize().accessibilityIdentifier("addMore")
             }
-            if model.settings.rememberRecentFolders {
-                Divider()
-                Text(model.t("RecentFolders")).fontWeight(.medium)
-                ForEach(model.settings.recentFolders, id: \.self) { path in
-                    Button { model.add([URL(fileURLWithPath: path)]) } label: { Text(URL(fileURLWithPath: path).lastPathComponent).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading) }.buttonStyle(.plain).help(path)
+            if locationsExpanded { locations }
+        }.disabled(model.busy || model.plan != nil)
+    }
+    private var locations: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 4) {
+                    ForEach(model.roots, id: \.self) { root in
+                        HStack {
+                            Image(systemName: "folder").foregroundStyle(palette.secondary).accessibilityHidden(true)
+                            Text(String(data: root.leaf, encoding: .utf8) ?? root.display).lineLimit(1).truncationMode(.middle).frame(maxWidth: .infinity, alignment: .leading).help(root.display)
+                            Button { model.remove(root) } label: { Image(systemName: "minus.circle") }.buttonStyle(.plain).help(model.t("RemoveInput")).accessibilityLabel(model.t("RemoveInput"))
+                        }.padding(.vertical, 3)
+                    }
                 }
-                if model.settings.recentFolders.isEmpty { Text(model.t("NoRecentFolders")).foregroundStyle(palette.secondary).font(.caption) }
+            }.frame(maxHeight: 110)
+            ViewThatFits(in: .horizontal) {
+                HStack { recursiveToggle; Spacer(); resetInputs }
+                VStack(alignment: .leading, spacing: 6) { recursiveToggle; resetInputs }
             }
+        }.padding(10).background(palette.surface, in: RoundedRectangle(cornerRadius: 8))
+    }
+    private var resetInputs: some View {
+        Button(model.t("ResetInputs")) { model.remove(nil); locationsExpanded = false }.disabled(model.roots.isEmpty)
+    }
+    @ViewBuilder private var unappliedNotice: some View {
+        if model.hasUnappliedRules {
+            Label(model.t("UnappliedRules"), systemImage: "arrow.triangle.2.circlepath").font(.callout).foregroundStyle(palette.warning)
+                .fixedSize(horizontal: false, vertical: true).frame(maxWidth: .infinity, alignment: .leading)
         }
     }
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if model.isWorkbench {
-                Text(model.t("BatchWorkspace")).font(.title2).fontWeight(.semibold).accessibilityAddTraits(.isHeader)
-                Text(model.t("BatchPurpose")).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
-            }
-            ViewThatFits(in: .horizontal) {
-                HStack { addFiles; addFolders; recursiveToggle; formatHelp }
-                VStack(alignment: .leading, spacing: 8) { addFiles; addFolders; recursiveToggle; formatHelp }
-            }.disabled(model.busy || model.plan != nil)
-        }.frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 6)
-    }
-    private var formatHelp: some View {
-        Button { model.sheet = "formatHelp" } label: { Image(systemName: "info.circle") }
-            .buttonStyle(.borderless).help(model.t("FormatGuide")).accessibilityLabel(model.t("FormatGuide"))
-    }
-    private func statistics(columns: Int) -> some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: columns), alignment: .leading, spacing: 16) {
-            statistic("TotalCaption", model.counts["TotalCaption"] ?? 0, "All", palette.heroText)
-            statistic("NeededCaption", model.counts["NeededCaption"] ?? 0, "NeedsNormalization", palette.heroPreview)
-            statistic("ConflictCaption", model.counts["ConflictCaption"] ?? 0, "Conflict", palette.heroWarning)
-            statistic("SelectedCaption", model.selected.count, "SelectedOnly", palette.heroText)
-        }
-        .padding(.vertical, 17).background(LinearGradient(colors: [palette.heroStart, palette.heroEnd], startPoint: .leading, endPoint: .trailing), in: RoundedRectangle(cornerRadius: 18))
-    }
-    private func statistic(_ key: String, _ count: Int, _ filter: String, _ color: Color) -> some View {
-        Button { model.filter = filter } label: {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(model.t(key)).font(L10n.font(model.settings.language, size: 11)).foregroundStyle(palette.heroCaption)
-                Text(model.n(count)).font(L10n.font(model.settings.language, size: 22, weight: .semibold)).monospacedDigit().foregroundStyle(color)
-            }.frame(maxWidth: .infinity, alignment: .leading).padding(.leading, 22).contentShape(Rectangle())
-        }.buttonStyle(.plain).accessibilityLabel(model.t(key) + " " + model.n(count))
-    }
-    private var search: some View {
-        VStack(spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack { searchField.frame(minWidth: 160); filters }
-                VStack { searchField; filters }
-            }
-            ViewThatFits(in: .horizontal) {
-                HStack { hideNormal; scopeCaption; Spacer(); resetFilters }
-                VStack(alignment: .leading, spacing: 8) {
-                    ViewThatFits(in: .horizontal) { HStack { hideNormal; Spacer(); resetFilters }; VStack(alignment: .leading) { hideNormal; resetFilters } }
-                    scopeCaption
-                }
-            }
+    /// Flat summary: each item is also the filter for that group.
+    private var summary: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) { summaryItems; Spacer(minLength: 8); scopeCaption }
+            VStack(alignment: .leading, spacing: 6) { HStack(spacing: 8) { summaryItems }; scopeCaption }
         }
     }
-    private var searchField: some View {
-        TextField(model.t("Search"), text: $model.query).textFieldStyle(.roundedBorder).focused($searchFocused).accessibilityIdentifier("search")
+    @ViewBuilder private var summaryItems: some View {
+        summaryItem(model.isWorkbench ? "NeededBatch" : "NeededCaption", model.counts["NeededCaption"] ?? 0, "NeedsNormalization", palette.preview)
+        if conflicts > 0 { summaryItem("ConflictCaption", conflicts, "Conflict", palette.warning) }
+        summaryItem("SummarySelected", model.selected.count, "SelectedOnly", palette.text)
     }
-    private var filters: some View {
-        ViewThatFits(in: .horizontal) { HStack { filterPicker; sortPicker }; VStack(alignment: .leading) { filterPicker; sortPicker } }
-    }
-    private var filterPicker: some View {
-        Picker(model.t("Filter"), selection: $model.filter) { ForEach(["All", "NeedsNormalization", "Normal", "Conflict", "Errors", "SelectedOnly"], id: \.self) { Text(model.t($0 == "NeedsNormalization" ? "NeededCaption" : $0)).tag($0) } }.labelsHidden().frame(minWidth: 145).fixedSize()
-    }
-    private var sortPicker: some View {
-        Picker(model.t("Sort"), selection: $model.sort) { ForEach(["Name", "Status", "Path"], id: \.self) { Text(model.t($0)).tag($0) } }.labelsHidden().frame(minWidth: 145).fixedSize()
-    }
-    private var hideNormal: some View {
-        Toggle(model.t("HideNormal"), isOn: Binding(get: { model.settings.hideNormal }, set: { value in model.changeSettings { $0.hideNormal = value } })).fixedSize()
+    private func summaryItem(_ key: String, _ count: Int, _ filter: String, _ color: Color) -> some View {
+        let active = model.filter == filter
+        return Button { model.filter = active ? "All" : filter } label: {
+            HStack(spacing: 5) {
+                Text(model.t(key)).foregroundStyle(palette.secondary)
+                Text(model.n(count)).fontWeight(.semibold).monospacedDigit().foregroundStyle(color)
+            }.padding(.horizontal, 10).padding(.vertical, 4)
+                .background(RoundedRectangle(cornerRadius: 7).fill(active ? palette.accent.opacity(0.16) : palette.control))
+                .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(active ? palette.accent : palette.border, lineWidth: 1))
+                .contentShape(Rectangle())
+        }.buttonStyle(.plain).fixedSize().accessibilityLabel(model.t(key) + " " + model.n(count)).accessibilityAddTraits(active ? .isSelected : [])
     }
     private var scopeCaption: some View {
-        Text(model.t("SelectionScope", model.n(model.visible.count), model.n(model.entries.count), model.n(model.hiddenSelected))).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
+        let shown = model.t("ShownCount", model.n(model.visible.count), model.n(model.entries.count))
+        return Text(model.hiddenSelected > 0 ? shown + " · " + model.t("HiddenSelected", model.n(model.hiddenSelected)) : shown)
+            .font(.caption).foregroundStyle(model.hiddenSelected > 0 ? palette.warning : palette.secondary).fixedSize(horizontal: false, vertical: true)
     }
-    private var resetFilters: some View {
-        Button(model.t("ResetFilters")) { model.query = ""; model.filter = "All"; model.changeSettings { $0.hideNormal = false } }.buttonStyle(.borderless).fixedSize()
+    private var filterRow: some View {
+        HStack(spacing: 8) {
+            TextField(model.t("Search"), text: $model.query).textFieldStyle(.roundedBorder).focused($searchFocused).accessibilityIdentifier("search")
+            Menu {
+                Picker(model.t("Filter"), selection: $model.filter) {
+                    ForEach(["All", "NeedsNormalization", "Normal", "Conflict", "Errors", "SelectedOnly"], id: \.self) {
+                        Text(model.t($0 == "NeedsNormalization" ? (model.isWorkbench ? "NeededBatch" : "NeededCaption") : $0)).tag($0)
+                    }
+                }.pickerStyle(.inline)
+                Picker(model.t("Sort"), selection: $model.sort) { ForEach(["Name", "Status", "Path"], id: \.self) { Text(model.t($0)).tag($0) } }.pickerStyle(.inline)
+                Divider()
+                Toggle(model.t("HideNormal"), isOn: Binding(get: { model.settings.hideNormal }, set: { value in model.changeSettings { $0.hideNormal = value } }))
+                Button(model.t("ResetFilters")) { model.query = ""; model.filter = "All"; model.changeSettings { $0.hideNormal = false } }.disabled(!filtering)
+            } label: {
+                Label(model.t("ViewOptions"), systemImage: filtering ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+            }.menuStyle(.borderlessButton).fixedSize().accessibilityIdentifier("viewOptions")
+        }
     }
     private var results: some View {
         VStack(spacing: 0) {
             if model.busy { activity; Divider() }
-            if model.visible.isEmpty {
-                emptyState
-            } else {
-                ResultTable(model: model, palette: palette)
-            }
+            if model.visible.isEmpty { noResults } else { ResultTable(model: model, palette: palette) }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(palette.surface, in: RoundedRectangle(cornerRadius: 18))
-        .clipShape(RoundedRectangle(cornerRadius: 18))
-        .overlay(RoundedRectangle(cornerRadius: 18).stroke(palette.border, lineWidth: 1))
+        .background(palette.surface, in: RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(palette.border, lineWidth: 1))
     }
     private var activity: some View {
         ScrollView(.horizontal) {
-                HStack {
-                    if model.mutating { ProgressView(value: Double(model.completed), total: Double(max(1, model.total))).frame(width: 100) } else { ProgressView().controlSize(.small) }
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(model.cancelled ? model.t("ActivityCancel") : model.phaseLabel)
-                        if model.mutating { Text(model.t("ActivityCount", model.n(model.completed), model.n(model.total), model.n(model.total == 0 ? 0 : model.completed * 100 / model.total))).font(.caption); Text(model.current).font(.caption).lineLimit(1).truncationMode(.middle).help(model.current) }
-                        else if model.phase == "ActivityScan" { Text(model.t("Scanning", model.n(model.scanned))).font(.caption) }
-                    }
-                    Spacer()
-                    TimelineView(.periodic(from: model.started, by: 1)) { context in Text(model.t("Elapsed", model.n(Int(context.date.timeIntervalSince(model.started))))).font(.caption) }
-                    Button(model.t("Cancel")) { model.cancel() }.disabled(model.cancelled || model.phase == "ActivityPreview")
-                }.padding(12)
+            HStack {
+                if model.mutating { ProgressView(value: Double(model.completed), total: Double(max(1, model.total))).frame(width: 100) } else { ProgressView().controlSize(.small) }
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(model.cancelled ? model.t("ActivityCancel") : model.phaseLabel)
+                    if model.mutating { Text(model.t("ActivityCount", model.n(model.completed), model.n(model.total), model.n(model.total == 0 ? 0 : model.completed * 100 / model.total))).font(.caption); Text(model.current).font(.caption).lineLimit(1).truncationMode(.middle).help(model.current) }
+                    else if model.phase == "ActivityScan" { Text(model.t("Scanning", model.n(model.scanned))).font(.caption) }
+                }
+                Spacer()
+                TimelineView(.periodic(from: model.started, by: 1)) { context in Text(model.t("Elapsed", model.n(Int(context.date.timeIntervalSince(model.started))))).font(.caption) }
+                Button(model.t("Cancel")) { model.cancel() }.disabled(model.cancelled || model.phase == "ActivityPreview")
+            }.padding(12)
         }.frame(height: model.mutating ? 90 : 64)
     }
-    private var emptyState: some View {
-                VStack(spacing: 16) {
-                    Image(systemName: model.entries.isEmpty ? "folder" : "magnifyingglass").font(.system(size: 32, weight: .light)).foregroundStyle(palette.accent).frame(width: 76, height: 76).background(palette.control, in: RoundedRectangle(cornerRadius: 24))
-                    Text(model.t(model.entries.isEmpty ? (model.isWorkbench ? "BatchEmptyTitle" : "EmptyTitle") : "NoResultsTitle")).font(L10n.font(model.settings.language, size: 18, weight: .semibold))
-                    Text(model.t(model.entries.isEmpty ? (model.isWorkbench ? "BatchEmptyDescription" : "EmptyDescription") : "NoResultsDescription")).foregroundStyle(palette.secondary)
-                }.frame(maxWidth: .infinity, maxHeight: .infinity).accessibilityIdentifier("emptyState")
+    /// Shown inside the result area only: nothing matched, or rules were opened before any file.
+    @ViewBuilder private var noResults: some View {
+        if !model.busy {
+            VStack(spacing: 8) {
+                if model.entries.isEmpty {
+                    Text(model.t("NoFilesYet")).foregroundStyle(palette.secondary)
+                } else {
+                    Text(model.t("NoResultsTitle")).fontWeight(.medium)
+                    Text(model.t("NoResultsDescription")).font(.callout).foregroundStyle(palette.secondary)
+                }
+            }.multilineTextAlignment(.center).padding(20).frame(maxWidth: .infinity, maxHeight: .infinity).accessibilityIdentifier("noResults")
+        } else { Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity) }
     }
     private var footer: some View {
         ViewThatFits(in: .horizontal) {
-            HStack { selectionActions; Spacer(); renameButton }
-            VStack(alignment: .leading, spacing: 10) { selectionActions; HStack { Spacer(); renameButton } }
-        }.buttonStyle(.borderless).disabled(model.busy).padding(.horizontal, 4)
+            HStack(spacing: 12) { selectionMenu; moreMenu; Spacer(); primaryAction }
+            VStack(alignment: .leading, spacing: 10) { HStack(spacing: 12) { selectionMenu; moreMenu }; HStack { Spacer(); primaryAction } }
+        }.disabled(model.busy)
     }
-    private var selectionActions: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack { selectionButtons }
-            VStack(alignment: .leading, spacing: 8) { selectionButtons }
-        }
-    }
-    @ViewBuilder private var selectionButtons: some View {
+    private var selectionMenu: some View {
+        Menu(model.t("SelectMenu")) {
             Button(model.t("SelectVisible")) { model.select("visible") }
             Button(model.t("ClearVisible")) { model.select("clearVisible") }
-            Button(model.t("InspectShort")) { model.sheet = "inspector" }.disabled(model.focused == nil)
-            Menu {
-                Button(model.t("SelectAllSafe")) { model.select("all") }
-                Button(model.t("ClearAll")) { model.select("none") }
-                Button(model.t("InvertVisible")) { model.select("invert") }
-                Divider()
-                Button(model.t("NumberConflicts")) { model.numberConflicts() }.disabled((model.counts["ConflictCaption"] ?? 0) == 0)
-                Button(model.t("ClipboardInspect")) { model.inspectClipboard() }
-                Button(model.t("ExportDiagnostics")) { model.diagnostics(); model.sheet = "diagnostics" }
-                Button(model.t("UndoLatest")) { if let h = model.history.first(where: { $0.mode == "rename" && $0.succeeded > 0 }) { model.prepare(mode: "undo", historyID: h.id) } }.disabled(model.history.isEmpty)
-            } label: { Image(systemName: "ellipsis") }.accessibilityLabel(model.t("MoreActions")).menuStyle(.borderlessButton).frame(width: 24)
+            Divider()
+            Button(model.t("SelectAllSafe")) { model.select("all") }
+            Button(model.t("ClearAll")) { model.select("none") }
+            Button(model.t("InvertVisible")) { model.select("invert") }
+        }.menuStyle(.borderlessButton).fixedSize().accessibilityIdentifier("selectMenu")
     }
-    private var renameButton: some View {
-            Button { model.prepare() } label: { Text(model.t(model.isWorkbench ? "RenameCount" : "CombineCount", model.n(model.selected.count))).fontWeight(.semibold).padding(.horizontal, 12).padding(.vertical, 6) }
-                .buttonStyle(PrimaryButtonStyle(palette: palette)).disabled(model.selected.isEmpty || model.busy || !model.ready || model.hasUnappliedRules).accessibilityIdentifier("rename")
+    private var moreMenu: some View {
+        Menu {
+            Button(model.t("InspectShort")) { model.sheet = "inspector" }.disabled(model.focused == nil)
+            Button(model.t("NumberConflicts")) { model.numberConflicts() }.disabled(conflicts == 0)
+            Button(model.t("UndoLatest")) { if let h = model.history.first(where: { $0.mode == "rename" && $0.succeeded > 0 }) { model.prepare(mode: "undo", historyID: h.id) } }.disabled(model.history.isEmpty)
+            Divider()
+            Button(model.t("FormatGuide")) { model.sheet = "formatHelp" }
+            Button(model.t("ClipboardInspect")) { model.inspectClipboard() }
+            Button(model.t("ExportDiagnostics")) { model.diagnostics(); model.sheet = "diagnostics" }
+        } label: { Image(systemName: "ellipsis.circle") }.menuStyle(.borderlessButton).fixedSize().accessibilityLabel(model.t("MoreActions")).help(model.t("MoreActions"))
+    }
+    /// The single primary action of the screen.
+    private var primaryAction: some View {
+        Button { model.prepare() } label: { Text(model.t(model.isWorkbench ? "RenameCount" : "CombineCount", model.n(model.selected.count))).fontWeight(.semibold).padding(.horizontal, 12).padding(.vertical, 6) }
+            .buttonStyle(PrimaryButtonStyle(palette: palette)).disabled(model.selected.isEmpty || model.busy || !model.ready || model.hasUnappliedRules).accessibilityIdentifier("rename")
     }
     private func pick(folders: Bool) { AppDelegate.shared?.pick(folders: folders) }
     func resultView(_ result: TransactionSummary, available: CGSize) -> some View {
@@ -348,8 +356,12 @@ struct ResultTable: View {
             TableColumn("") { entry in
                 Toggle(model.t("SelectedCaption"), isOn: Binding(get: { model.selected.contains(entry.id) }, set: { _ in model.toggle(entry) })).labelsHidden().disabled(!entry.status.fixable || model.busy).accessibilityLabel(model.t("SelectedCaption") + " " + entry.name)
             }.width(28)
-            TableColumn(model.t("Type")) { entry in Image(systemName: entry.isDirectory ? "folder" : "doc").foregroundStyle(palette.secondary).help(model.t(entry.isDirectory ? "Directory" : "File")).accessibilityLabel(model.t(entry.isDirectory ? "Directory" : "File")) }.width(46)
-            TableColumn(model.t("Name")) { entry in NameCompositionCell(entry: entry, preview: false, compact: model.settings.compactRows, palette: palette, language: model.settings.language) }.width(min: 110, ideal: CGFloat(model.settings.nameColumnRatio * 3), max: .infinity)
+            TableColumn(model.t("Name")) { entry in
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Image(systemName: entry.isDirectory ? "folder" : "doc").foregroundStyle(palette.secondary).frame(width: 16).help(model.t(entry.isDirectory ? "Directory" : "File")).accessibilityLabel(model.t(entry.isDirectory ? "Directory" : "File"))
+                    NameCompositionCell(entry: entry, preview: false, compact: model.settings.compactRows, palette: palette, language: model.settings.language)
+                }
+            }.width(min: 110, ideal: CGFloat(model.settings.nameColumnRatio * 3), max: .infinity)
             TableColumn(model.t("Preview")) { entry in NameCompositionCell(entry: entry, preview: true, compact: model.settings.compactRows, palette: palette, language: model.settings.language) }.width(min: 110, ideal: CGFloat((100 - model.settings.nameColumnRatio) * 3), max: .infinity)
             TableColumn(model.t("Status")) { entry in Text(model.t(CharacterPresentation.statusKey(entry.status, name: entry.name, reason: entry.reason))).font(.caption).foregroundStyle(entry.status.isError || entry.status == .conflict ? palette.warning : palette.secondary).help(model.t(entry.reason)) }.width(min: 90, ideal: 125, max: 170)
         }

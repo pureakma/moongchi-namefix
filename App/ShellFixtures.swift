@@ -26,21 +26,12 @@ import NameFixCore
                 window.contentView = host
                 let chrome = WindowChrome(model: model); chrome.install(on: window); window.setContentSize(size)
                 RunLoop.main.run(until: Date().addingTimeInterval(0.15))
-                let actions = chrome.toolbar.items.filter { ["NameFix.rescan", "NameFix.history", "NameFix.settings"].contains($0.itemIdentifier.rawValue) }
-                guard actions.count == 3, window.titleVisibility == .hidden, actions.first?.isEnabled == false else { throw NSError(domain: "ToolbarContract", code: 1) }
-                model.roots = [RawPath("/fixture")]; chrome.refresh()
-                guard actions.first?.isEnabled == true else { throw NSError(domain: "ToolbarContract", code: 2) }
-                model.phase = "ActivityScan"; chrome.refresh()
-                guard actions.first?.isEnabled == false else { throw NSError(domain: "ToolbarContract", code: 3) }
-                model.phase = ""; model.roots = []; chrome.refresh()
+                // The toolbar carries only the sidebar toggle; navigation and Rescan live in the content.
+                let extra = chrome.toolbar.items.filter { !["NameFix.sidebar", "NameFix.separator"].contains($0.itemIdentifier.rawValue) && $0.itemIdentifier != .flexibleSpace }
+                guard extra.isEmpty, window.titleVisibility == .hidden else { throw NSError(domain: "ToolbarContract", code: 1) }
                 guard let frame = window.contentView?.superview else { throw NSError(domain: "ShellRender", code: 3) }
                 try capture(frame, "\(lang)-window-\(Int(size.width))")
                 print("Native titlebar height: \(window.frame.height - window.contentLayoutRect.height)pt at \(Int(size.width))pt width")
-                // Dispatch a button on this unshown fixture only; never a user window.
-                window.contentView = NSView(frame: CGRect(origin: .zero, size: size))
-                (actions.last?.view as? NSButton)?.performClick(nil)
-                guard model.sheet == "settings" else { throw NSError(domain: "ToolbarContract", code: 4) }
-                model.sheet = nil
                 window.close()
             }
             for theme in ["olive", "system", "dark", "light"] {
@@ -80,6 +71,6 @@ import NameFixCore
                 }
             }
         }
-        print("PASS: \(count) shell/settings renders; native toolbar actions, disabled states, hidden title and Olive default verified")
+        print("PASS: \(count) shell/settings renders; sidebar-only toolbar, hidden title and Olive default verified")
     }
 }

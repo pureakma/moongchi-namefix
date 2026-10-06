@@ -10,6 +10,10 @@ import NameFixCore
             do { try ExpansionFixtures.run(output: URL(fileURLWithPath: CommandLine.arguments[flag + 1])); exit(0) }
             catch { print("Expansion render failed:", error); exit(1) }
         }
+        if let flag = CommandLine.arguments.firstIndex(of: "--render-ux"), CommandLine.arguments.count > flag + 1 {
+            do { try UXFixtures.run(output: URL(fileURLWithPath: CommandLine.arguments[flag + 1])); exit(0) }
+            catch { print("UX render failed:", error); exit(1) }
+        }
         if let flag = CommandLine.arguments.firstIndex(of: "--render-shell"), CommandLine.arguments.count > flag + 1 {
             do { try ShellFixtures.run(output: URL(fileURLWithPath: CommandLine.arguments[flag + 1])); exit(0) }
             catch { print("Shell render failed:", error); exit(1) }
