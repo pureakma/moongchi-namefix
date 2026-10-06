@@ -2,11 +2,11 @@
 
 <!-- HOT:START -->
 ## 지금
-- 단계: 출시 전 코드 정리·성능 최적화 완료(OPTIMIZATION_COMPLETE) · 사용자 최종 확인 5개 대기
-- 현재 Task: T-004 (verificationPending), T-003 (verificationPending), T-002 (verificationPending)
-- 다음: 사용자가 docs/QA.md의 Q1~Q5를 확인 → 지적 사항은 bug Task, 통과하면 배포 준비 단계(T-001 재개: 배포 채널·bundle ID·공증 입력 확정)
+- 단계: 출시 전 코드 정리·성능 최적화 완료, 사용자 확인 Q1~Q5 통과 · 배포 준비 단계 진입 가능(사용자 입력 대기)
+- 현재 Task: T-003 (verificationPending), T-002 (verificationPending)
+- 다음: 배포 준비 단계(T-001 재개). 사용자가 배포 채널·출시용 bundle ID·공증 방법을 정하면 Release Task를 만든다. 남은 User QA(docs/QA.md S1~S5, U01~U18)는 그 전에 한 번에 진행
 - 위험·막힘: D-003의 비협조 writer source-race 알려진 제한, 출시 입력(배포 채널·bundle ID·공증) 미확정
-- 검증 대기: docs/QA.md의 Q1~Q5(아이콘 전용 control의 hover 이름, 대량 목록 체감, 아이콘·소개), 그 뒤 U01~U18, 새 Release Task의 서명·공증·패키지
+- 검증 대기: docs/QA.md의 화면 S1~S5와 User QA U01~U18, 새 Release Task의 서명·공증·패키지
 - 마지막 갱신: 2026-10-06
 <!-- HOT:END -->
 
@@ -14,11 +14,11 @@
 
 출시 전 제품 완성도 고도화와 그 뒤 사용자가 지적한 first-use 화면 구조 단순화. 구현과 Engineering Verification은 끝났고 사용자 확인만 남았다. 화면 구조는 사용자가 아직 승인하지 않았다. 그 밖의 제품 코드를 자동으로 이어서 개발하지 않는다.
 
-### T-004 출시 전 코드 정리·성능 최적화 [verificationPending]
+### T-004 출시 전 코드 정리·성능 최적화 [completed]
 - 근원: R-008
 - 범위: 아이콘 전용 control의 이름 표시(시스템 tooltip 대신 앱이 그리는 label), 쓰지 않는 코드·문자열·상태 정리, render fixture의 Debug 전용화, 대량 목록 갱신 최적화, 통합 Engineering Gate. Core/Application/Infrastructure와 파일 안전 계약은 바꾸지 않음.
 - 완료기준: 확인된 정리 완료, 측정된 병목 개선 또는 추가 최적화가 필요 없다는 근거, P0/P1 없음, 통합 Gate PASS, 사용자 확인 Q1~Q5
-- 대기: 사용자의 Q1~Q5 확인(docs/QA.md). 사용자 확인 결과: 레일 hover label PASS, 적용 예시 PASS, band drag PASS, ⊗와 band 버튼의 시스템 tooltip FAIL → label 방식으로 수정했고 재확인 대기.
+- 근거: 통합 Engineering Gate PASS(MAC-OPTIMIZATION-GATE-20261006, docs/QA.md), 사용자가 2026-10-06에 Q1~Q5와 sheet 닫힘을 모두 확인했다고 알림
 - 검증: docs/QA.md의 현재 Engineering Verification 표
 
 ### T-003 First-use UX와 화면 구조 단순화 [verificationPending]
@@ -49,6 +49,6 @@
 - 사용자 결정 대기: 일괄 변경 규칙이 추가한 폴더 자체·하위 폴더·숨김 파일도 기본 대상으로 삼는 현재 동작을 유지할지, 즐겨찾기 폴더 기능을 넣을지(PROJECT.md 백로그 후보).
 - 유료 등급: 없음. 모든 기능을 무료로 제공한다(D-014).
 - Release: 현재 source의 Release 구성 build는 성공했다(render fixture 제외 확인). 배포 후보 생성·서명·공증·패키징은 새 Release Task에서 수행한다.
-- User QA: QA.md의 Q1~Q5가 먼저이고, 화면 S1~S5와 U01~U18이 그 뒤에 대기 중이다.
+- User QA: QA.md의 Q1~Q5는 사용자가 확인했다. 화면 S1~S5와 U01~U18이 대기 중이다.
 
 과거 완료 Task와 날짜별 개발 기록은 이 파일에 누적하지 않는다. 필요하면 Git 이력과 .ai/validation-cache.json의 evidence path를 확인한다.
