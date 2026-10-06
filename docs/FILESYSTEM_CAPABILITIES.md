@@ -1,45 +1,61 @@
-# 파일시스템 지원과 안전 계약
+# 파일시스템 안전·권한 계약
 
-개발 환경: artifacts/evidence/environment-current.txt. 실제 arm64 macOS에서 실행했다. 과거 evidence의 /var fixture 실패는 no-follow 정책과 임시 경로 symlink 충돌이며 현재 테스트는 /private/tmp를 사용한다.
+## 지원 범위
 
-## 확인된 계약
-- APFS는 NFD 생성 시 raw spelling을 보존했다. NFC lookup도 같은 identity를 가리킨다.
-- 두 단계 source → unique temporary → NFC final 후 readdir raw bytes와 identity가 일치한다. 과거 spelling의 lookup이 계속 성공하는 것은 APFS 정상 동작이다.
-- renameatx_np(RENAME_EXCL)는 기존 destination을 덮어쓰지 않는다. 확인 뒤 destination이 생긴 100개 interleaving fixture도 원본/기존 대상 identity를 보존했다.
-- Swift String canonical equality와 raw Data equality는 구분한다. EILSEQ(92)로 APFS가 invalid UTF-8 생성 자체를 거부했으며 invalid 모델 fixture는 별도로 검증했다.
-- F_GETPATH로 열린 부모 descriptor의 실제 raw 경로를 보존한다. NFC/NFD 부모 경로로 중복 입력해도 동일 entry를 한 번만 등록하고 입력 root를 현재 경로로 갱신한다. 이 API를 파일 hardlink identity로 사용하지 않는다.
-- Finder alias는 directory-FD 기준 getattrlistat(ATTR_CMN_FNDRINFO)의 alias flag로 검사하며 실제 bookmark alias fixture와 대조했다. SF_DATALESS placeholder는 변경 대상에서 제외한다.
-- openat(O_NOFOLLOW | O_DIRECTORY)로 모든 조상 component를 확인한다. symlink와 alias, 앱/package, .git, 알려진 FileProvider/iCloud 위치는 제외한다. 정상 파일 내용은 열지 않는다.
-- local APFS, writable capability만 mutation 허용한다. 다른 볼륨은 fail closed. 이름 길이는 fpathconf(_PC_NAME_MAX)로 확인하고 NUL, '/', '.', '..'를 차단한다.
-- journal write/fsync/fullsync 실패는 mutation을 중단한다. 임시 원본을 삭제하거나 copy-delete/overwrite fallback을 하지 않는다.
+실제 이름 mutation 지원 범위는 검증된 local writable APFS다. 기본 scan은 사용자가 명시적으로 선택한 로컬/마운트 파일 URL을 대상으로 하며, mutation 지원 여부와 단순 읽기/분석 가능 여부를 구분한다.
 
-## 원본 교체 경합의 플랫폼 한계 — RELEASE BLOCKER
-Darwin에는 expected inode 조건부 atomic rename 계약이 없다. directory FD와 변경 직전 lstat 검증 사이에도 외부 프로세스가 leaf를 교체할 수 있다. testSourceRaceCannotBeAtomicExpectedInodeRename가 이 interleaving을 재현했다. post-move 검증은 mismatch를 감지해 더 진행하지 않지만, 교체된 항목이 임시 이름으로 옮겨지는 순간까지 예방하지 못한다. 완전한 source-race 방지나 임의의 외부 writer와의 원자성을 주장하지 않는다.
+보수적으로 보호하거나 mutation을 차단하는 대상:
+- symlink와 Finder alias
+- 앱/package와 보호된 특수 경로
+- 알려진 cloud/FileProvider 위치
+- HFS+, exFAT, SMB/NAS, 외장 등 현재 mutation 계약을 검증하지 않은 파일시스템
+- 접근 권한을 얻지 못했거나 identity를 안전하게 확인할 수 없는 항목
 
-로컬 QA는 다른 프로그램이 같은 경로를 이동/교체하지 않는 통제된 fixture에서만 검증됐다. 실제 사용자 동시 writer 환경의 무조건적 안전성은 출시 통과가 아니다. 모호한 상태는 파일/기록을 보존하고 수동 검토한다.
+미지원 대상을 자동으로 우회하기 위해 root나 Full Disk Access를 요구하지 않는다.
 
-## 별도 검증 경계
-- APFS case-sensitive 디스크 이미지: 실행 결과는 QA 보고서에 기록.
-- HFS+는 NFC raw 유지 보장을 제공하지 않아 변경 차단. exFAT/SMB/NAS/외장/클라우드는 실기 검증 전 차단.
-- TCC 허용/거절 및 외장 제거는 실제 사용자 세션의 수동 QA 필요. Full Disk Access/root를 요구하거나 우회하지 않는다.
-- 최소 macOS 14 실행은 실제 해당 OS 장비 미검증이다. 배포 target 14.0 컴파일과 최신 개발 장비 실행은 별도 증거이다.
-- RENAME_EXCL/파일 durability는 crash/전원 차단의 모든 하드웨어 동작까지 보장하지 않는다. 테스트는 각 intent/move gap의 replay 복구를 검증한다.
+## 비협상 안전 규칙
 
+- 사용자 파일 내용을 이름 변경을 위해 변환·덮어쓰기·삭제하지 않는다.
+- 기존 destination을 덮어쓰지 않는다.
+- 실행 전에 fresh Plan, 충돌/제외 검사, 명시 확인을 거친다.
+- mutation 전에 durable intent를 기록한다.
+- source → unique temporary → final의 no-replace 흐름을 사용한다.
+- 실제 directory entry raw 이름과 identity를 기준으로 확인한다.
+- 실패/취소/경합 시 성공을 추정하지 않고 실제 위치와 journal을 보존한다.
+- identity가 불명확한 파일을 이름만 보고 자동 복원하지 않는다.
+- 테스트 mutation은 전용 disposable fixture에서 수행하고 사용자 실데이터를 자동 fixture로 사용하지 않는다.
 
-## 확장 실행 근거 (2026-10-04)
+## APFS와 Unicode
 
-APFS getattrlistat `ATTR_CMN_NAME` fixture에서 NFC/NFD·case alias로 조회해도 readdir의 실제 raw leaf가 반환됨을 확인했다. FS.verify는 직접 storedName과 identity를 비교하여 매 파일마다 디렉터리를 전체 재열거하던 비용을 줄였다. 메타데이터 이전/이후 size/mtime와 Plan 실행 전 contentVersion을 확인한다. Read session은 32개 descriptor로 제한한다. 이 방식도 expected-inode 원자 rename은 아니다.
+APFS의 lookup 동등성과 실제 저장된 raw spelling을 같은 것으로 취급하지 않는다. Swift String의 canonical equality 역시 파일 이름의 raw bytes 동일성을 뜻하지 않는다.
 
-source와 destination이 기존 계획의 다른 항목인 swap/cycle은 같은 부모 그룹을 전부 temporary로 옮긴 뒤 final을 적용한다. 모든 Prepared를 먼저 durable 기록한다. cancel 후 일부 final과 나머지 temporary가 섞인 fixture, 3-cycle, nested directory swap, Undo, hardlink partial Undo를 통과했다. Graph 또는 파일 쌍 전체의 원자성은 보장하지 않으며 부분 실패는 실제 journal 상태를 보존한다.
+Scanner와 transaction 경로는 실제 directory entry의 raw name과 identity를 보존하고, 정규화만 다른 이름을 Preview/검증에서 놓치지 않도록 한다.
 
-현재 실제 파일 변경 지원은 로컬 writable APFS이다. 여전히 OS/외부 writer의 마지막 확인 이후 source 교체를 원자적으로 막을 수 없으며 SOURCE_RACE 재현은 제한을 입증하는 테스트다. 이 결과를 안전 결함 해결 PASS라고 표현하지 않는다.
+## 동시 변경과 알려진 제한
 
-## v1.0 파일 조정과 지원 계약 (2026-10-04 후속)
+NSFileCoordinator를 사용해 조정에 참여하는 프로그램과 이동을 협의하고, 접근을 얻은 뒤 source/parent raw path·identity·일반 파일의 version 정보를 다시 확인한다. 실제 이동 직후에도 결과를 확인하며 mismatch가 나오면 후속 작업을 중단한다.
 
-최신 결과는 [V1_RELEASE_STATUS.md](V1_RELEASE_STATUS.md)가 기준이다. NSFileCoordinator의 source `.forMoving`, destination `.forReplacing`를 이용한다. Darwin `RENAME_EXCL`은 계속 사용하므로 조정 옵션이 실제 덮어쓰기를 허용하는 것은 아니다. 접근 획득 뒤 raw parent path/identity·source identity·size/mtime를 검증하고, 실제 syscall 후에도 확인한다. regular file만 contentVersion을 저장해 자체 하위 변경으로 인한 directory mtime 오탐을 피한다.
+그러나 macOS에서 사용하는 현재 rename 계약은 비협조 외부 writer에 대해 expected inode를 원자 조건으로 걸어 source 교체 자체를 완전히 막는 보장을 제공하지 않는다. 마지막 확인 뒤 다른 프로세스가 source leaf를 교체하면 다른 identity가 temporary 위치로 이동할 수 있다.
 
-FileCoordination 대기는 cancellation token callback과 15초 timeout으로 취소 가능하다. 취소/timeout과 accessor 진입은 잠금으로 순서를 정한다. accessor 진입 후 timeout은 적용하지 않고 실행 단계의 cancellation checkpoint를 사용한다. worker actor에서 동기로 수행하므로 MainActor를 대기시키지 않는다. 재진입/다중 실행은 기존 transaction actor/flock으로 제한한다.
+현재 대응은 감지·즉시 중단·journal/관찰 위치 보존·Finder에서 확인 가능한 Recovery 안내다. 이 한계를 원자 예방 PASS라고 표현하지 않는다. 작업 중 같은 항목을 다른 앱에서 동시에 저장·이동하지 않는 것이 지원 조건이다.
 
-DEBUG에만 실제 syscall 직전 외부 교체를 주입하는 테스트 initializer가 있다. Release에는 포함되지 않는다. 8개 source 교체 조합(Rename/Undo × 정상/graph × 임시/최종)과 2개 destination 생성 조합을 실제 executor로 검증했다. 정체 불명 항목은 History에서 위치를 보여 주되 자동 복원하지 않는다. NSFileCoordinator 미참여 writer에 대한 expected-inode 원자 rename은 여전히 제공되지 않는다. 이것을 원자 예방 PASS로 바꾸지 않는다.
+## 권한과 개인정보
 
-근거: 설치 SDK Foundation/NSFileCoordinator.h의 동기 coordination·forMoving/forReplacing·cancel 계약, Apple File System Programming Guide의 File Coordinators 절, 실제 fixture. API만으로 전체 writer의 원자 배타성을 주장하지 않는다.
+- Desktop/Documents/Downloads 등 TCC 보호 위치는 macOS의 사용자 허용을 따른다.
+- 권한 거절은 항목 오류로 격리하고 권한을 우회하지 않는다.
+- 기본 scan은 사용자 파일 내용을 열어 hash하지 않는다.
+- 사용자가 metadata 규칙을 선택했을 때만 지원 형식의 제한된 metadata를 읽기 전용으로 추출한다.
+- 진단 정보에는 경로, clipboard 원문, 파일 내용을 기본값으로 기록하지 않는다.
+- 핵심 기능에 원격 업로드나 텔레메트리가 없다.
+
+## 별도 실기 검증
+
+자동 fixture가 대체하지 못하는 항목:
+- 실제 TCC 허용/거절
+- Finder Services/Dock/Open With
+- 실제 process kill/전원 차단의 모든 timing
+- macOS 14 실제 하한 OS
+- 외장/SMB/cloud 환경
+- 깨끗한 Mac에서 서명·공증 패키지
+
+현재 대기 항목은 QA.md가 원본이다.

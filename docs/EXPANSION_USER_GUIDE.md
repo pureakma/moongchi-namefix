@@ -10,7 +10,7 @@
 
 왼쪽 사이드바에서 **텍스트 변환**(붙여 넣은 글자 변환/복사), **폴더 감시**(새 파일 후보 수집), **검사 결과 CSV 저장**을 각각 열 수 있습니다. 신호등 옆 사이드바 버튼으로 메뉴를 접고 펼칩니다. 설정은 사이드바 또는 ⌘,에서 엽니다. 아래 설명의 이전 ‘규칙 팝업’은 이제 작업실을 기준으로 읽어 주세요.
 
-macOS 14+ / Apple Silicon 전용. 현재 로컬 출시 후보는 Release 1.0.0(3)이며 무료 기능을 사용할 수 있다. 실제 판매 권한이 연결되지 않아 이 후보에서 Pro 구매·활성화는 제공하지 않는다. 별도의 Debug 개발본에서는 개발용 Pro 검토가 가능하다. 기존 앱 설정·Olive 기본 테마·네 테마·창 크기 복원·통계 카드·선택·검사·기록은 유지한다.
+macOS 14+ / Apple Silicon 전용이다. 현재 source는 기존 build3 Release 후보 이후 UI·설정 보완이 추가됐으므로 build3를 현재 source의 출시 승인본으로 취급하지 않는다. 실제 판매 권한은 아직 연결되지 않았고 Release는 공급자 검증 전까지 Free로 닫힌다. Debug 개발본의 개발용 Pro는 실제 구매 권한이 아니다. 기존 앱 설정·Olive 기본 테마·네 테마·창 크기 복원·통계 카드·선택·검사·기록은 유지한다.
 
 ## 동시 변경과 복구 위치
 
@@ -73,12 +73,12 @@ CSV/TSV는 UTF-8만 읽고 BOM·따옴표·개행을 지원한다. 원본 열은
 
 ## CLI
 
-개발 executable: `artifacts/development/expansion/namefix`. `--help`에 기본 문법을 제공한다.
+개발 빌드 또는 패키지에 포함된 `namefix` executable은 `--help`에 기본 문법을 제공한다.
 
 ```sh
-artifacts/development/expansion/namefix --prefix 'Project_' --number 1 --json /absolute/path
-artifacts/development/expansion/namefix --nfd --execute /absolute/path
-artifacts/development/expansion/namefix --undo TRANSACTION-UUID --execute
+./namefix --prefix 'Project_' --number 1 --json /absolute/path
+./namefix --nfd --execute /absolute/path
+./namefix --undo TRANSACTION-UUID --execute
 ```
 
 기본 dry-run, 실제 실행은 터미널에서 `RENAME` 입력이 필요하다. non-TTY 실행/무확인 force는 차단한다. 앱과 History 및 process lock을 공유한다. exit 0 성공/미리보기, 1 오류, 2 제외/부분 실패, 3 취소다. JSON 출력은 raw bytes base64를 포함한다. Free는 `--rules-json`으로 무료 조합을 전달할 수 있다. Pro 규칙·프리셋·CSV·메타데이터는 같은 capability 검사를 거친다. Debug의 `--development-pro`는 개발 검증에만 사용한다.

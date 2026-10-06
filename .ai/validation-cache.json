@@ -361,8 +361,8 @@
         "fixtureVersion": 2
       },
       "timestamp": "2026-10-03T15:00:45.842042+00:00",
-      "evidencePath": "docs/MANUAL_QA_CHECKLIST.md",
-      "evidenceSHA256": "58171e006d25424755a6e576215162e1441249d4a4d93bb381be9efa2b39709f"
+      "evidencePath": "docs/QA.md",
+      "evidenceSHA256": null
     },
     {
       "validationId": "MAC-RELEASE-SIGNING",

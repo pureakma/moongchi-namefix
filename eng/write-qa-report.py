@@ -102,7 +102,7 @@ APFS가 invalid UTF-8 생성 자체를 EILSEQ(92)로 거부한 결과를 기록�
 
 ## 남은 Gate
 
-MANUAL_QA_CHECKLIST.md의 실제 Finder/Dock/Services, native titlebar/OS theme, VoiceOver/키보드/큰글자, TCC, sleep/quit, 실제100k UI, macOS14/외장/클라우드 실기. 외부 source 교체 race의 지원 계약과 Developer ID/공증도 출시 blocker로 유지한다. 인증서/profile을 임의 사용하거나 Gatekeeper/SIP/검역을 해제하지 않았다.
+docs/QA.md의 실제 Finder/Dock/Services, native titlebar/OS theme, VoiceOver/키보드/큰글자, TCC, sleep/quit, 실제100k UI, macOS14/외장/클라우드 실기. 외부 source 교체 race의 지원 계약과 Developer ID/공증도 출시 blocker로 유지한다. 인증서/profile을 임의 사용하거나 Gatekeeper/SIP/검역을 해제하지 않았다.
 '''
-(root/'docs/AUTOMATED_QA_REPORT.md').write_text(report)
-print('QA report written:',len(passed)+len(corepassed),'tests; artifact manifests updated')
+(ev/'generated-qa-report.md').write_text(report)
+print('QA evidence report written:',len(passed)+len(corepassed),'tests; artifact manifests updated')

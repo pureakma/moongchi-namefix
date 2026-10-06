@@ -27,7 +27,7 @@ entry('MAC-RESOURCES', ['Resources/**/*','eng/resources.py','eng/validate-resour
 entry('MAC-RELEASE-BUILD',ui+['project.yml'],[], 'artifacts/evidence/final-release.txt','eng/build.sh --configuration Release --arch arm64',configuration='Release'),
 entry('MAC-RENDER',ui,[], 'artifacts/evidence/render.txt','QA app --render-fixtures artifacts/evidence/rendered',configuration='Release'),
 entry('MAC-PACKAGE',ui+['eng/package.sh','eng/detach-created-image.py'],[], 'artifacts/evidence/final-package-check.txt','eng/verify-release.sh + ZIP/DMG mount/hash verification',configuration='Release'),
-entry('MAC-FINDER-REAL-GESTURE',ui,['Tests/UITests/**/*.swift'],'docs/MANUAL_QA_CHECKLIST.md',None,status='NEEDS_MANUAL_QA'),
+entry('MAC-FINDER-REAL-GESTURE',ui,['Tests/UITests/**/*.swift'],'docs/QA.md',None,status='NEEDS_MANUAL_QA'),
 entry('MAC-RELEASE-SIGNING',ui,[], 'docs/RELEASE.md',None,status='BLOCKED_RELEASE_SIGNING',configuration='Release')]
 for e in entries:
     if e['status']=='PASS' and not (root/e['evidencePath']).exists():
