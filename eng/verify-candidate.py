@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Read-only check of a candidate directory against its manifest and the release policy.
-Mounts only the candidate's own disk image, when it has one."""
+
+Understands the three stages: a pre-sign candidate, a Developer ID signed candidate, and the
+notarized release artifact with its packages. Mounts only the candidate's own disk image."""
 from pathlib import Path
 import hashlib, json, plistlib, subprocess, sys, tempfile
 
@@ -17,14 +19,23 @@ def check(name, condition):
     checks.append(name)
 
 # Manifest: the facts of this candidate, and nothing from the old paid model.
-check('manifest states', manifest['publicRelease'] is False and manifest['notarization'] == 'NOT_RUN'
-      and (manifest['signing'], manifest['developerID']) in [('PRE_SIGN', 'NOT_RUN'), ('Developer ID', 'SIGNED')])
+stage = (manifest['signing'], manifest['developerID'], manifest['notarization'])
+check('manifest states', manifest['publicRelease'] is False and stage in [('PRE_SIGN', 'NOT_RUN', 'NOT_RUN'), ('Developer ID', 'SIGNED', 'NOT_RUN'), ('Developer ID', 'SIGNED', 'ACCEPTED')])
 check('manifest product', manifest['bundleID'] == RELEASE_BUNDLE_ID and manifest['architecture'] == 'arm64' and manifest['configuration'] == 'Release'
       and manifest['minimumOS'] == MINIMUM_OS and manifest['pricing'] == 'free' and manifest['distribution'] == 'direct'
       and manifest['developer'] == 'AILO WORKS' and manifest['support'] == 'ailo@ailoworks.com' and len(manifest['sourceCommit']) == 40)
 check('no paid-model fields', not any('paid' in key.lower() or 'provider' in key.lower() for key in manifest))
-pre_sign = manifest['signing'] == 'PRE_SIGN'
-check('pre-sign candidate carries no distributable package', bool(manifest['packages']) != pre_sign)
+pre_sign, notarized = manifest['signing'] == 'PRE_SIGN', manifest['notarization'] == 'ACCEPTED'
+check('only a notarized artifact carries distributable packages', bool(manifest['packages']) == notarized)
+if not pre_sign:
+    # The product is the one the pre-sign candidate was made from, whatever commit the tooling is at.
+    origin = json.loads((root/manifest['provenance']['preSignCandidate']/'ARTIFACT_MANIFEST.json').read_text())
+    check('source commit carried over from the pre-sign candidate', origin['sourceCommit'] == manifest['sourceCommit']
+          and sha(root/manifest['provenance']['preSignCandidate']/'ARTIFACT_MANIFEST.json') == manifest['provenance']['preSignManifestSHA256']
+          and all(origin[key] == manifest[key] for key in ['version', 'build', 'bundleID', 'minimumOS', 'architecture']))
+if notarized:
+    check('notarization recorded with accepted submissions', manifest['stapled'] is True and manifest['gatekeeper'] == 'PASS'
+          and all(manifest['notarizationSubmissions'][kind]['status'] == 'Accepted' and len(manifest['notarizationSubmissions'][kind]['id']) == 36 for kind in ['app', 'dmg']))
 
 def verify_app(base):
     app = base/'Moongchi NameFix.app'
@@ -44,6 +55,15 @@ def verify_app(base):
     signature = text('codesign', '-dvv', app).stderr
     assert 'runtime' in signature, 'Hardened Runtime is off'
     assert ('Signature=adhoc' in signature) == pre_sign and ('Authority=Developer ID Application:' in signature) != pre_sign
+    if not pre_sign:
+        assert f"Authority={manifest['signingIdentity']}" in signature and f"TeamIdentifier={manifest['teamID']}" in signature and 'Timestamp=' in signature
+        cli_signature = text('codesign', '-dvv', base/'namefix').stderr
+        assert f"TeamIdentifier={manifest['teamID']}" in cli_signature and 'Timestamp=' in cli_signature and 'runtime' in cli_signature
+    if notarized:
+        # The ticket is attached and Gatekeeper accepts the app as notarized, checked here and now.
+        run('xcrun', 'stapler', 'validate', app)
+        assessment = subprocess.run(['spctl', '--assess', '--type', 'execute', '--verbose=2', str(app)], capture_output=True, text=True)
+        assert assessment.returncode == 0 and 'Notarized Developer ID' in assessment.stderr, assessment.stderr
     entitlements = subprocess.run(['codesign', '-d', '--entitlements', '-', '--xml', str(app)], capture_output=True, text=True).stdout
     assert 'com.apple.security.app-sandbox' not in entitlements and 'get-task-allow' not in entitlements
     # Development fixtures, diagnosis flags and switches must not be in what ships.
@@ -71,11 +91,18 @@ check('documents name the product', all(word in readme for word in [manifest['ve
 for word in ['Pro 조건', 'Pro 기능', 'paid provider', 'paidProvider', 'UNCONFIGURED', 'development identifier', 'Notarization is not configured', 'not an approved public distribution']:
     assert word not in readme and word not in guide and word not in json.dumps(build_info), word
 check('documents carry no paid-model or earlier-candidate wording', True)
-check('BUILD_INFO agrees with the manifest', all(build_info[key] == manifest[key] for key in ['version', 'build', 'bundleID', 'signing', 'developerID', 'notarization', 'publicRelease', 'sourceCommit']))
-if pre_sign: check('candidate status note', 'NOT RUN' in (out/'CANDIDATE_STATUS.txt').read_text())
+check('BUILD_INFO agrees with the manifest', all(build_info[key] == manifest[key] for key in ['version', 'build', 'bundleID', 'signing', 'notarization', 'sourceCommit']))
+status = (out/'CANDIDATE_STATUS.txt').read_text()
+check('candidate status note', ('Notarization: ACCEPTED' in status) == notarized and ('Developer ID signing: NOT RUN' in status) == pre_sign and 'Public release: NO' in status)
 
 for name, expected in manifest['packages'].items():
     assert sha(out/name) == expected['sha256']
+    if name.endswith('.dmg'):
+        run('hdiutil', 'verify', out/name)
+        run('xcrun', 'stapler', 'validate', out/name)
+        assessment = subprocess.run(['spctl', '--assess', '--type', 'open', '--context', 'context:primary-signature', '--verbose=2', str(out/name)], capture_output=True, text=True)
+        assert assessment.returncode == 0 and 'Notarized Developer ID' in assessment.stderr, assessment.stderr
+        checks.append('disk image: integrity, staple, Gatekeeper')
     with tempfile.TemporaryDirectory(prefix='namefix-package-check-', dir='/private/tmp') as temporary:
         destination = Path(temporary)
         if name.endswith('.zip'):
@@ -90,9 +117,10 @@ for name, expected in manifest['packages'].items():
             try:
                 assert (mount/'Applications').is_symlink()
                 assert (mount/'Applications').readlink() == Path('/Applications')
+                assert sorted(p.name for p in mount.iterdir() if not p.name.startswith('.')) == sorted(['Applications', 'Moongchi NameFix.app', 'namefix', *manifest['documents']]), 'Unexpected content in the disk image'
                 verify_app(mount)
             finally:
                 run('hdiutil', 'detach', devices[0])
     checks.append('package round trip: ' + name)
-print(f"PASS: {manifest['version']} build {manifest['build']} {manifest['bundleID']} signing={manifest['signing']} developerID={manifest['developerID']} notarization={manifest['notarization']} publicRelease={manifest['publicRelease']} commit={manifest['sourceCommit'][:7]}")
+print(f"PASS: {manifest['version']} build {manifest['build']} {manifest['bundleID']} signing={manifest['signing']} developerID={manifest['developerID']} notarization={manifest['notarization']} stapled={manifest.get('stapled', False)} publicRelease={manifest['publicRelease']} sourceCommit={manifest['sourceCommit'][:7]}")
 for item in checks: print(' -', item)
