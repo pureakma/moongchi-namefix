@@ -1833,12 +1833,12 @@
         "eng/test-expansion-cli.py",
         "eng/test-release-cli.py"
       ],
-      "sourceFingerprint": "3abf81b50684584172defdb6dc960b5c2cd40a77aa2b7b203af41a87eff1be99",
+      "sourceFingerprint": "9b988f47b8dba413e0e1bc8b416f2a124587f12fa5a835a3c97ac786965da827",
       "testFingerprint": "45f6cebc4cd068aaeecbe594882d5b5a67b7195bf23a768214514a19d0065790",
-      "timestamp": "2026-10-06T10:23:06.327036+00:00",
+      "timestamp": "2026-10-06T10:32:53.756376+00:00",
       "command": "swift test --filter UIModelTests; eng/build.sh Debug; eng/resources.py; eng/validate-resources.py; --render-ux/--render-shell/--render-expansion/--render-expansion --native-sidebar/--render-responsive; --diagnose-window; --live-sidebar-check (Debug). Reused from the previous receipt without re-running: runtime/core/CLI tests and the UI test bundle build (no Core/Application/Infrastructure/CLI/UITests change)",
-      "evidencePath": "artifacts/development/ui-structure-5",
-      "notes": "Fourth follow-up (repair screen on launch, starter Replace Text rule, one control line with the update chip, short notices): 38 UI model tests, 0 failures; 579 keys x 3 locales; headless window diagnosis and Debug-only live window check PASS; 43 representative screens plus 195 existing fixture renders. Runtime/core/CLI tests and the UI test bundle build were not re-run (no Core/Application/Infrastructure/CLI change). User checks: docs/QA.md S1-S5, U16-U18."
+      "evidencePath": "artifacts/development/ui-structure-6",
+      "notes": "Fifth follow-up (example shows only a name the rules change; rail icons show their name beside them on hover): 38 UI model tests, 0 failures; 580 keys x 3 locales; headless window diagnosis and Debug-only live window check PASS; 47 representative screens plus 195 existing fixture renders. Hover itself and system tooltips elsewhere are user checks. Runtime/core/CLI tests and the UI test bundle build were not re-run."
     }
   ]
 }

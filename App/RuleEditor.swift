@@ -43,9 +43,12 @@ struct RuleEditor: View {
     @State private var adding = false
     @State private var selected: UUID?
     @State private var option: AdvancedOption?
-    @State private var sampleSteps: [RuleStep] = []
+    /// The example is the first added name the rules actually change; `nil` when none does.
+    @State private var example: (before: String, after: String)?
+    @State private var exampleChecked = false
     @State private var sampleError: String?
-    @State private var sample = "photo  001.jpg"
+    @State private var samples = ["photo  001.jpg"]
+    @State private var samplesFromList = false
     init(model: AppModel, palette: Palette, embedded: Bool = false, selecting: UUID? = nil) {
         self.model = model; self.palette = palette; self.embedded = embedded
         _selected = State(initialValue: selecting)
@@ -60,16 +63,26 @@ struct RuleEditor: View {
     }
     var body: some View {
         Group { if embedded { content } else { ScrollView { content } } }
-        .disabled(model.busy || model.plan != nil).task(id: SampleRequest(target: draft.target, rules: draft.rules, name: sample)) {
-            let snapshot = AppModel.applicable(RulePipeline(target: draft.target, rules: draft.rules)), name = String(sample.prefix(1024)), token = CancellationToken()
-            let work = Task.detached { try snapshot.evaluate(name, access: .pro, cancelled: { token.cancelled }) }
+        .disabled(model.busy || model.plan != nil).task(id: SampleRequest(target: draft.target, rules: draft.rules, names: samples)) {
+            let snapshot = AppModel.applicable(RulePipeline(target: draft.target, rules: draft.rules)), names = samples.map { String($0.prefix(1024)) }, token = CancellationToken()
+            let active = snapshot.rules.contains(where: \.enabled)
+            // A name the rules leave as it is shows nothing, so look for one they change.
+            let work = Task.detached { () throws -> (before: String, after: String)? in
+                guard active else { return nil }
+                for name in names {
+                    let steps = try snapshot.evaluate(name, access: .pro, cancelled: { token.cancelled })
+                    if let first = steps.first, let last = steps.last, last.after != first.after { return (first.after, last.after) }
+                }
+                return nil
+            }
             do {
-                let steps = try await withTaskCancellationHandler(operation: { try await work.value }, onCancel: { token.cancel(); work.cancel() })
-                if !Task.isCancelled { sampleSteps = steps; sampleError = nil }
-            } catch { if !Task.isCancelled { sampleSteps = []; sampleError = (error as? RuleFailure)?.rawValue ?? "RuleInvalid" } }
+                let found = try await withTaskCancellationHandler(operation: { try await work.value }, onCancel: { token.cancel(); work.cancel() })
+                if !Task.isCancelled { example = found; exampleChecked = active; sampleError = nil }
+            } catch { if !Task.isCancelled { example = nil; exampleChecked = false; sampleError = (error as? RuleFailure)?.rawValue ?? "RuleInvalid" } }
         }
+        .onChange(of: model.entries.count) { _, _ in loadSamples() }
         .onAppear {
-            if let name = model.entries.first(where: { !$0.isDirectory && !$0.status.isError })?.name { sample = name }
+            loadSamples()
             // Start with Replace Text open, so the first thing to do is visible.
             // (A resized window builds this pane again; the rule is then already there, still unfilled.)
             if selected == nil {
@@ -185,17 +198,25 @@ struct RuleEditor: View {
     /// What the rules do to one real name, before the list preview is refreshed.
     @ViewBuilder private var sampleLine: some View {
         if let sampleError { Text(model.t(sampleError)).font(.caption).foregroundStyle(palette.warning).fixedSize(horizontal: false, vertical: true) }
-        else if let last = sampleSteps.last {
+        else if let example {
             VStack(alignment: .leading, spacing: 2) {
                 Text(model.t("SampleLabel")).font(.caption).foregroundStyle(palette.secondary)
-                Text(sample).font(.caption).lineLimit(1).truncationMode(.middle)
-                Label(last.after, systemImage: "arrow.turn.down.right").font(.callout).foregroundStyle(palette.preview).lineLimit(2).textSelection(.enabled)
+                Text(example.before).font(.caption).lineLimit(1).truncationMode(.middle)
+                Label(example.after, systemImage: "arrow.turn.down.right").font(.callout).foregroundStyle(palette.preview).lineLimit(2).textSelection(.enabled)
             }.padding(.horizontal, 8).accessibilityElement(children: .combine)
+        } else if exampleChecked, samplesFromList {
+            // Rules that change none of the added names: say so instead of showing a name unchanged.
+            Text(model.t("SampleUnchanged")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true).padding(.horizontal, 8)
         }
     }
+    private func loadSamples() {
+        let names = model.entries.lazy.filter { !$0.isDirectory && !$0.status.isError }.prefix(200).map(\.name)
+        samplesFromList = !names.isEmpty
+        samples = names.isEmpty ? ["photo  001.jpg"] : Array(names)
+    }
     private struct SampleRequest: Equatable {
-        var target: NormalizationTarget; var rules: [RenameRule]; var name: String
-        static func == (a: Self, b: Self) -> Bool { a.target == b.target && a.rules == b.rules && Data(a.name.utf8) == Data(b.name.utf8) }
+        var target: NormalizationTarget; var rules: [RenameRule]; var names: [String]
+        static func == (a: Self, b: Self) -> Bool { a.target == b.target && a.rules == b.rules && a.names.map { Data($0.utf8) } == b.names.map { Data($0.utf8) } }
     }
 }
 

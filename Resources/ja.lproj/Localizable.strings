@@ -450,9 +450,10 @@
 "SafetyHint" = "ファイルの内容は変更しません。実行前に名前を確認してください。";
 "SafetyTitle" = "名前だけを安全に修正";
 "SameAppearanceDifferentUnicode" = "見た目は同じですが、文字の構成が異なります。";
-"SampleLabel" = "サンプル";
+"SampleLabel" = "適用例";
 "SampleName" = "サンプル名";
 "SampleResult" = "サンプルの結果";
+"SampleUnchanged" = "追加した名前の中に、このルールで変わるものはまだありません。";
 "Save" = "保存";
 "SaveRecipe" = "プリセット保存";
 "ScanLimit" = "安全上の上限20万件に達しました。フォルダを分けて検査してください。";

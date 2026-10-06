@@ -450,9 +450,10 @@
 "SafetyHint" = "File contents stay unchanged. Preview names before applying changes.";
 "SafetyTitle" = "Only names change";
 "SameAppearanceDifferentUnicode" = "These names look the same but store their characters differently.";
-"SampleLabel" = "Sample";
+"SampleLabel" = "Example";
 "SampleName" = "Sample filename";
 "SampleResult" = "Sample result";
+"SampleUnchanged" = "None of the added names change with these rules yet.";
 "Save" = "Save";
 "SaveRecipe" = "Save preset";
 "ScanLimit" = "The 200,000 item safety limit was reached. Scan smaller folders separately.";

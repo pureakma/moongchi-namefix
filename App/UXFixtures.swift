@@ -108,6 +108,19 @@ import NameFixRuntime
             try renderPart("M-help-\(language)", theme: theme, size: CGSize(width: 680, height: 1180), dressed(AnyView(HelpView(model: model, palette: palette).frame(height: 1136))))
             try renderPart("N-settings-\(language)", theme: theme, size: CGSize(width: 680, height: 1320), dressed(AnyView(SettingsView(model: model, palette: palette).frame(height: 1276))))
         }
+        // The rail with the pointer on an icon, and the rule pane's example states.
+        for (language, theme) in [("ko-KR", "olive"), ("en-US", "dark")] {
+            let model = makeModel(language: language, theme: theme, workbench: true, entries: rows(conflict: false), rules: [], applied: true)
+            let palette = Palette(theme, systemDark: theme == "dark")
+            try renderPart("O-rail-hover-\(language)", theme: theme, size: CGSize(width: 300, height: 360), SidebarNavigation(model: model, hovering: "BatchWorkspace").frame(height: 360).background(palette.sidebar).environment(\.colorScheme, theme == "dark" ? .dark : .light))
+        }
+        do {
+            var missing = RenameRule(.replace); missing.text = "없는 글자"; missing.replacement = "x"
+            for (name, rules) in [("P-example-changes", [prefix]), ("P-example-none", [missing])] {
+                let model = makeModel(language: "ko-KR", theme: "olive", workbench: true, entries: rows(conflict: false), rules: rules, applied: true)
+                try renderPart(name + "-ko-KR", theme: "olive", size: CGSize(width: 360, height: 300), RuleEditor(model: model, palette: Palette("olive", systemDark: false)).padding(Metrics.page))
+            }
+        }
         try render("I-narrow-quick-empty-ko-KR", language: "ko-KR", theme: "olive", size: narrow)
         try render("I-narrow-quick-results-ko-KR", language: "ko-KR", theme: "olive", size: narrow, entries: rows(conflict: true))
         try render("I-narrow-batch-ja-JP", language: "ja-JP", theme: "olive", size: narrow, workbench: true, entries: renamed(rows(conflict: false)), rules: [prefix])

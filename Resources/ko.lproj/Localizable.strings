@@ -450,9 +450,10 @@
 "SafetyHint" = "파일 내용은 수정하지 않습니다. 변경 전 이름을 미리 확인하세요.";
 "SafetyTitle" = "안심하고 이름만 수정";
 "SameAppearanceDifferentUnicode" = "겉모양은 같지만 저장된 글자 구성이 다릅니다.";
-"SampleLabel" = "예시";
+"SampleLabel" = "적용 예시";
 "SampleName" = "예시 파일 이름";
 "SampleResult" = "예시 결과";
+"SampleUnchanged" = "추가한 이름 중에 이 규칙으로 바뀌는 것이 아직 없습니다.";
 "Save" = "저장";
 "SaveRecipe" = "프리셋 저장";
 "ScanLimit" = "안전 한도인 200,000개에 도달했습니다. 폴더를 나누어 검사하세요.";

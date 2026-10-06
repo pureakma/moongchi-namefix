@@ -168,6 +168,9 @@ struct SidebarNavigation: View {
     @Environment(\.colorScheme) private var scheme
     private var palette: Palette { Palette(model.settings.theme, systemDark: scheme == .dark) }
     private var locked: Bool { model.busy || model.plan != nil || model.result != nil }
+    /// Rail icon under the pointer: its name shows beside it at once.
+    @State private var hovered: String?
+    init(model: AppModel, hovering: String? = nil) { self.model = model; _hovered = State(initialValue: hovering) }
     private struct Destination: Identifiable { let id: String; let tip: String?; let icon: String }
     private let primary = [
         Destination(id: "RestoreNames", tip: "RestoreNamesDetail", icon: "character.cursor.ibeam"),
@@ -183,7 +186,7 @@ struct SidebarNavigation: View {
     var body: some View {
         Group {
             if model.roots.isEmpty { navigation(expanded: true) }
-            else { HStack(spacing: 0) { navigation(expanded: false).frame(width: WindowLayout.railWidth); tree } }
+            else { HStack(spacing: 0) { navigation(expanded: false).frame(width: WindowLayout.railWidth).zIndex(1); tree } }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .foregroundStyle(palette.text).font(L10n.font(model.settings.language)).tint(palette.accent)
@@ -213,7 +216,21 @@ struct SidebarNavigation: View {
             .background(selected ? palette.accent.opacity(0.15) : .clear, in: RoundedRectangle(cornerRadius: 7)).contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(item.tip.map { model.t(item.id) + " — " + model.t($0) } ?? model.t(item.id))
+        // With names showing, the system tooltip adds the description. On the rail the name itself
+        // is what is missing, so it appears beside the icon without the tooltip delay.
+        .help(expanded ? (item.tip.map { model.t(item.id) + " — " + model.t($0) } ?? model.t(item.id)) : "")
+        .onHover { inside in if expanded { hovered = nil } else if inside { hovered = item.id } else if hovered == item.id { hovered = nil } }
+        .overlay(alignment: .leading) {
+            if !expanded, hovered == item.id {
+                Text(model.t(item.id)).font(.callout).fontWeight(.medium).foregroundStyle(palette.canvas).lineLimit(1).fixedSize()
+                    .padding(.horizontal, 9).padding(.vertical, 5)
+                    .background(palette.text.opacity(0.94), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+                    .shadow(color: .black.opacity(0.18), radius: 5, y: 2)
+                    .offset(x: WindowLayout.railWidth - 6).allowsHitTesting(false).accessibilityHidden(true)
+                    .transition(.opacity)
+            }
+        }
+        .zIndex(hovered == item.id ? 1 : 0)
         .accessibilityLabel(model.t(item.id)).accessibilityAddTraits(selected ? .isSelected : [])
         .accessibilityIdentifier(["HistoryShort": "history", "Settings": "settings", "HelpMenu": "help"][item.id] ?? item.id)
     }

@@ -11760,19 +11760,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "예시"
+            "value": "적용 예시"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sample"
+            "value": "Example"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "サンプル"
+            "value": "適用例"
           }
         }
       }
@@ -13314,6 +13314,29 @@
           "stringUnit": {
             "state": "translated",
             "value": "ルールの処理上限を超過"
+          }
+        }
+      }
+    },
+    "SampleUnchanged": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추가한 이름 중에 이 규칙으로 바뀌는 것이 아직 없습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None of the added names change with these rules yet."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "追加した名前の中に、このルールで変わるものはまだありません。"
           }
         }
       }
