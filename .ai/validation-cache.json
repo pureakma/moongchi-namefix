@@ -1,0 +1,1775 @@
+{
+  "schemaVersion": 1,
+  "invalidationPolicy": "Content fingerprints, dependencies, tests, toolchain and environment. FS changes invalidate scan/execute/undo/recovery/UI orchestration; no commit-only reuse.",
+  "entries": [
+    {
+      "validationId": "MAC-CORE-UNICODE",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/test.sh --level 3",
+      "sourceFingerprint": "22f758f06735d117fc2361b0cb3431098dbc737f869aee831eb2bc34dc8c6e73",
+      "testFingerprint": "1337acfe004fc42ccd506bcd8c727795d3c21faa0cb672faa0b2660732a1593b",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false,
+        "signing": "ad-hoc / no Developer ID",
+        "fixtureVersion": 2
+      },
+      "timestamp": "2026-10-03T15:03:16.376054+00:00",
+      "evidencePath": "artifacts/evidence/full-tests.txt",
+      "evidenceSHA256": "844bbd0dcd3708cfc1a308dddb3bd84f8ca2729bd5e1997f6c3ec91b9c262027",
+      "previousStatus": "PASS",
+      "invalidationReason": "2026-10-04 expansion changed content/dependencies; original evidence retained as historical."
+    },
+    {
+      "validationId": "MAC-FS-SCAN-EXECUTE-UNDO-RECOVERY",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "NAMEFIX_PERFORMANCE=1 eng/test.sh --level 2 --scope all",
+      "sourceFingerprint": "1c33ff17c2e6ee0cd38442411fb67c2494344c5207df7de7282fc41ae8a733ac",
+      "testFingerprint": "fb0e8fa65172b3cc96a1d7e25aef2c5dbb11cc8e10a54d2312861d5630ab62aa",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false,
+        "signing": "ad-hoc / no Developer ID",
+        "fixtureVersion": 2
+      },
+      "timestamp": "2026-10-03T15:32:56.402280+00:00",
+      "evidencePath": "artifacts/evidence/fs-final-regression.txt",
+      "evidenceSHA256": "d53ddb77fde1511500b8bb0324c3566d029b2c9d7f27959b35b461095b8e1582",
+      "invalidationReason": "2026-10-04 commercial development changes; old evidence retained, not a current PASS"
+    },
+    {
+      "validationId": "MAC-UI-STATE",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "App/Info.plist"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/test.sh --scope ui-model",
+      "sourceFingerprint": "1cd28bef357e84e729c6d6994689e8f77c1dbe33f100188a53b047a7d7366541",
+      "testFingerprint": "d1564289e5dab76cfaa1a5877af86a1bc569d9de80d6afe242747b573e89f8dc",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false,
+        "signing": "ad-hoc / no Developer ID",
+        "fixtureVersion": 2
+      },
+      "timestamp": "2026-10-03T15:32:56.402280+00:00",
+      "evidencePath": "artifacts/evidence/fs-final-regression.txt",
+      "evidenceSHA256": "d53ddb77fde1511500b8bb0324c3566d029b2c9d7f27959b35b461095b8e1582",
+      "invalidationReason": "2026-10-04 commercial development changes; old evidence retained, not a current PASS"
+    },
+    {
+      "validationId": "MAC-APFS-CASE-SENSITIVE",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "NAMEFIX_FIXTURE_ROOT=/private/tmp/namefix-case-qa-mount eng/test.sh --scope all",
+      "sourceFingerprint": "1c33ff17c2e6ee0cd38442411fb67c2494344c5207df7de7282fc41ae8a733ac",
+      "testFingerprint": "fb0e8fa65172b3cc96a1d7e25aef2c5dbb11cc8e10a54d2312861d5630ab62aa",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": true,
+        "signing": "ad-hoc / no Developer ID",
+        "fixtureVersion": 2
+      },
+      "timestamp": "2026-10-03T15:33:08.642889+00:00",
+      "evidencePath": "artifacts/evidence/case-final.txt",
+      "evidenceSHA256": "1cf214bebc06eb2091043c00c9bb08c0d9f3f7a3a8ab14809ab9965407a57079",
+      "invalidationReason": "2026-10-04 commercial development changes; old evidence retained, not a current PASS"
+    },
+    {
+      "validationId": "MAC-PERFORMANCE",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "NAMEFIX_PERFORMANCE=1 eng/test.sh --level 2 --scope all",
+      "sourceFingerprint": "1c33ff17c2e6ee0cd38442411fb67c2494344c5207df7de7282fc41ae8a733ac",
+      "testFingerprint": "1a628fd5bf777e113310ec389bd41351513c77a13498dc4233c91cb3e56768e1",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false,
+        "signing": "ad-hoc / no Developer ID",
+        "fixtureVersion": 2
+      },
+      "timestamp": "2026-10-03T15:32:56.402280+00:00",
+      "evidencePath": "artifacts/evidence/fs-final-regression.txt",
+      "evidenceSHA256": "d53ddb77fde1511500b8bb0324c3566d029b2c9d7f27959b35b461095b8e1582",
+      "invalidationReason": "2026-10-04 commercial development changes; old evidence retained, not a current PASS"
+    },
+    {
+      "validationId": "MAC-UI-TEST-BUILD",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "App/Info.plist"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "xcodebuild build-for-testing",
+      "sourceFingerprint": "1cd28bef357e84e729c6d6994689e8f77c1dbe33f100188a53b047a7d7366541",
+      "testFingerprint": "3be51e58c9bfd0b2c6b5b2715c46022e7a1c0d6e51a5de4c4598dddd384445d3",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false,
+        "signing": "ad-hoc / no Developer ID",
+        "fixtureVersion": 2
+      },
+      "timestamp": "2026-10-03T15:31:05.729028+00:00",
+      "evidencePath": "artifacts/evidence/ui-tests-build.txt",
+      "evidenceSHA256": "3de3fc866a9634150a4129e24c9eb5a4a0cf748b1aa9b6d48d2f229630da7467",
+      "invalidationReason": "2026-10-04 commercial development changes; old evidence retained, not a current PASS"
+    },
+    {
+      "validationId": "MAC-RELEASE-SOURCE-RACE",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift"
+      ],
+      "status": "SUPERSEDED",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": null,
+      "sourceFingerprint": "1c33ff17c2e6ee0cd38442411fb67c2494344c5207df7de7282fc41ae8a733ac",
+      "testFingerprint": "1a628fd5bf777e113310ec389bd41351513c77a13498dc4233c91cb3e56768e1",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false,
+        "signing": "ad-hoc / no Developer ID",
+        "fixtureVersion": 2
+      },
+      "timestamp": "2026-10-03T15:20:51.079577+00:00",
+      "evidencePath": "docs/FILESYSTEM_CAPABILITIES.md",
+      "evidenceSHA256": "d74ab2b16e65bf4da4e26f504f78df3b3f7550e65dac0b645d5c53365f7d58c3",
+      "previousStatus": "BLOCKED_RELEASE_SOURCE_RACE",
+      "supersededBy": "MAC-V1-SOURCE-RACE-LIMITATION"
+    },
+    {
+      "validationId": "MAC-RESOURCES",
+      "scope": [
+        "Resources/**/*",
+        "eng/resources.py",
+        "eng/validate-resources.py"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "python3 eng/validate-resources.py",
+      "sourceFingerprint": "0e977372412be86c002b6a25d07a87a3c1aba01edcea3eb438ff7625d08c5fac",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false,
+        "signing": "ad-hoc / no Developer ID",
+        "fixtureVersion": 2
+      },
+      "timestamp": "2026-10-03T15:36:37.105450+00:00",
+      "evidencePath": "artifacts/evidence/resources.txt",
+      "evidenceSHA256": "973b61142f752605f4cf18db133c78963a8f92b03723db11824d1a2dcd1e52ce",
+      "invalidationReason": "2026-10-04 commercial development changes; old evidence retained, not a current PASS"
+    },
+    {
+      "validationId": "MAC-RELEASE-BUILD",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "App/Info.plist",
+        "project.yml"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Release",
+      "command": "eng/build.sh --configuration Release --arch arm64",
+      "sourceFingerprint": "939323dbd0b3ea82bf9cbe41ff22ad3dd46ead2e5501eab581472e25fa211371",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false,
+        "signing": "ad-hoc / no Developer ID",
+        "fixtureVersion": 2
+      },
+      "timestamp": "2026-10-03T15:31:02.918738+00:00",
+      "evidencePath": "artifacts/evidence/final-release.txt",
+      "evidenceSHA256": "0635865d914a11ed6764fffb3cf67156046e27d5377b83166d00ef3d2095dc8f",
+      "invalidationReason": "2026-10-04 commercial development changes; old evidence retained, not a current PASS"
+    },
+    {
+      "validationId": "MAC-RENDER",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "App/Info.plist"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Release",
+      "command": "QA app --render-fixtures artifacts/evidence/rendered",
+      "sourceFingerprint": "1cd28bef357e84e729c6d6994689e8f77c1dbe33f100188a53b047a7d7366541",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false,
+        "signing": "ad-hoc / no Developer ID",
+        "fixtureVersion": 2
+      },
+      "timestamp": "2026-10-03T15:33:16.165320+00:00",
+      "evidencePath": "artifacts/evidence/render.txt",
+      "evidenceSHA256": "88ccdd7240a0b197e55722ca2959d38f211a1026fa3dc4d5c09cc70f03ce4d24",
+      "invalidationReason": "2026-10-04 commercial development changes; old evidence retained, not a current PASS"
+    },
+    {
+      "validationId": "MAC-PACKAGE",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "App/Info.plist",
+        "eng/package.sh",
+        "eng/detach-created-image.py"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Release",
+      "command": "eng/verify-release.sh + ZIP/DMG mount/hash verification",
+      "sourceFingerprint": "8d86f79e067805e9ce1c5910dcaeadf41f6f6636134947dc54f9bdf8435ada5a",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false,
+        "signing": "ad-hoc / no Developer ID",
+        "fixtureVersion": 2
+      },
+      "timestamp": "2026-10-03T15:33:10.421769+00:00",
+      "evidencePath": "artifacts/evidence/final-package-check.txt",
+      "evidenceSHA256": "c60dc7972956cff65db14a95e7794562bb1bdae6965b682ebcda9f75dae7f289",
+      "invalidationReason": "2026-10-04 commercial development changes; old evidence retained, not a current PASS"
+    },
+    {
+      "validationId": "MAC-FINDER-REAL-GESTURE",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "App/Info.plist"
+      ],
+      "status": "NEEDS_MANUAL_QA",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": null,
+      "sourceFingerprint": "1cd28bef357e84e729c6d6994689e8f77c1dbe33f100188a53b047a7d7366541",
+      "testFingerprint": "3be51e58c9bfd0b2c6b5b2715c46022e7a1c0d6e51a5de4c4598dddd384445d3",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false,
+        "signing": "ad-hoc / no Developer ID",
+        "fixtureVersion": 2
+      },
+      "timestamp": "2026-10-03T15:00:45.842042+00:00",
+      "evidencePath": "docs/MANUAL_QA_CHECKLIST.md",
+      "evidenceSHA256": "58171e006d25424755a6e576215162e1441249d4a4d93bb381be9efa2b39709f"
+    },
+    {
+      "validationId": "MAC-RELEASE-SIGNING",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "App/Info.plist"
+      ],
+      "status": "SUPERSEDED",
+      "architecture": "arm64",
+      "configuration": "Release",
+      "command": null,
+      "sourceFingerprint": "1cd28bef357e84e729c6d6994689e8f77c1dbe33f100188a53b047a7d7366541",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false,
+        "signing": "ad-hoc / no Developer ID",
+        "fixtureVersion": 2
+      },
+      "timestamp": "2026-10-03T15:00:45.847860+00:00",
+      "evidencePath": "docs/RELEASE.md",
+      "evidenceSHA256": "7d807708db744db67cbf853f3963dc42d9c9535c2d62855846933974cdfd8436",
+      "previousStatus": "BLOCKED_RELEASE_SIGNING",
+      "supersededBy": "MAC-V1-DEVELOPER-ID"
+    },
+    {
+      "validationId": "COMMERCIAL-UI-MODEL",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/test.sh --scope ui-model",
+      "sourceFingerprint": "a44c7c464ff30c96ec4ea12e69a18f429a8a3aa3ac3ea409c29c5ea3da902a50",
+      "testFingerprint": "7f645cb9c7623108dc7bcdf81a9485db4974bc15355890fe34fd823debdfdc47",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "filesystem": "APFS"
+      },
+      "timestamp": "2026-10-03T21:54:25.222637+00:00",
+      "evidencePath": "artifacts/development/commercial-review/ui-model.txt",
+      "evidenceSHA256": "fed674db2c3681fbb4736378ed7d951f465a5a15f3828ca2e7aea746c3508d9f",
+      "invalidationReason": "2026-10-04 character explanation UI change; previous evidence preserved"
+    },
+    {
+      "validationId": "COMMERCIAL-SAFETY",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/test.sh --scope safety",
+      "sourceFingerprint": "6a8e310e875194736ef09a2fbb2c5e16f1e0558e6c1ee67a881ce9137c935171",
+      "testFingerprint": "96e3eebd37725634d4e794d57592de19663366be1e1e56d7c9353ecbf767c5b7",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "filesystem": "APFS"
+      },
+      "timestamp": "2026-10-03T21:51:27.199454+00:00",
+      "evidencePath": "artifacts/development/commercial-review/safety.txt",
+      "evidenceSHA256": "6dcbad47b0c28a3ae76558846ee8c12b9a3974ffb494a5756c44ea26e17ee005",
+      "invalidationReason": "2026-10-04 native toolbar/settings/default-theme changes; historical evidence retained"
+    },
+    {
+      "validationId": "COMMERCIAL-TRANSACTION",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/test.sh --scope transaction",
+      "sourceFingerprint": "6a8e310e875194736ef09a2fbb2c5e16f1e0558e6c1ee67a881ce9137c935171",
+      "testFingerprint": "5c3e45a66fc1ca34e9987d58e643809675dc904b00057f4150cd921329fb26ff",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "filesystem": "APFS"
+      },
+      "timestamp": "2026-10-03T21:52:12.180096+00:00",
+      "evidencePath": "artifacts/development/commercial-review/transaction.txt",
+      "evidenceSHA256": "2c60285635a6e007f6ac973bdc8dd38197fafc41a58be4f451705ca63d5f1760",
+      "invalidationReason": "2026-10-04 native toolbar/settings/default-theme changes; historical evidence retained"
+    },
+    {
+      "validationId": "COMMERCIAL-DEBUG",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*",
+        "project.yml"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/build.sh --configuration Debug --arch arm64",
+      "sourceFingerprint": "e1c196f78b5aa20d63ef6f99aac7b08f5bb4b85492467fe397bf0d1e242c0501",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "filesystem": "APFS"
+      },
+      "timestamp": "2026-10-03T21:54:28.255651+00:00",
+      "evidencePath": "artifacts/development/commercial-review/debug-build.txt",
+      "evidenceSHA256": "2d03c170a8d8928b939cbae145ea83dff8347ab4344a9d46124e4180a90e1596",
+      "invalidationReason": "2026-10-04 character explanation UI change; previous evidence preserved"
+    },
+    {
+      "validationId": "COMMERCIAL-RESOURCES",
+      "scope": [
+        "Resources/**/*",
+        "eng/resources.py",
+        "eng/validate-resources.py"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "python3 eng/validate-resources.py",
+      "sourceFingerprint": "aff5465b2196986de68f28682557d1fe33b2ce26deee27ee26351a056b8b4a19",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "filesystem": "APFS"
+      },
+      "timestamp": "2026-10-03T21:53:43.373193+00:00",
+      "evidencePath": "artifacts/development/commercial-review/resources.txt",
+      "evidenceSHA256": "c73c943cfe3cb8dd380e8b11b4cf579367386ca4f4a41e29d16599a7e18c69d1",
+      "invalidationReason": "2026-10-04 character explanation UI change; previous evidence preserved"
+    },
+    {
+      "validationId": "COMMERCIAL-RENDER",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "Debug app --render-review artifacts/development/commercial-review/rendered",
+      "sourceFingerprint": "a44c7c464ff30c96ec4ea12e69a18f429a8a3aa3ac3ea409c29c5ea3da902a50",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "2b7149328cc69acc6cce8aa1cce89aef7bb94693055ddf85c844c12a3ba1fc46",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "filesystem": "APFS"
+      },
+      "timestamp": "2026-10-03T21:55:26.743059+00:00",
+      "evidencePath": "artifacts/development/commercial-review/render.txt",
+      "evidenceSHA256": "b0402762ab511852e49eb76fdd70f1edc1fb2eee9a592778e657d1106dee3cfb",
+      "invalidationReason": "2026-10-04 character explanation UI change; previous evidence preserved"
+    },
+    {
+      "validationId": "CHARACTERS-MODEL",
+      "scope": [
+        "App/CharacterPresentation.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/test.sh --filter CharacterPresentationTests",
+      "sourceFingerprint": "0597d30538520155aa345af26565c773a88ddb925720deef0de54076881e1626",
+      "testFingerprint": "3ade2f7921e773b35e4916ba270ef0d1d6117a1cd7c6ed77c384c0a55b585573",
+      "dependencyFingerprint": "49e809be49958c2b394d22382cc62efd1997224eccbc46f16356b427ea6a5503",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "filesystem": "APFS"
+      },
+      "timestamp": "2026-10-03T23:38:14.644082+00:00",
+      "evidencePath": "artifacts/development/character-explanation/tests.txt",
+      "evidenceSHA256": "2184fb814c1d6b47c780b4833cf757f1df185180389be6f85ea2ce252394c661",
+      "previousStatus": "PASS",
+      "invalidationReason": "2026-10-04 expansion changed content/dependencies; original evidence retained as historical."
+    },
+    {
+      "validationId": "CHARACTERS-DEBUG",
+      "scope": [
+        "App/**/*.swift",
+        "Resources/**/*",
+        "Package.swift",
+        "Packages/NameFixCore/Package.swift",
+        "project.yml"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/build.sh --configuration Debug --arch arm64",
+      "sourceFingerprint": "6cbc9ca03281d1f06390988a0aeda197220f2703945faf99c8518ca4626e7bfb",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "49e809be49958c2b394d22382cc62efd1997224eccbc46f16356b427ea6a5503",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "filesystem": "APFS"
+      },
+      "timestamp": "2026-10-03T23:38:17.586775+00:00",
+      "evidencePath": "artifacts/development/character-explanation/debug-build.txt",
+      "evidenceSHA256": "d0eed0854295200714713ad6e18eea47cd054a117d4428b72ed02225b18e1c06",
+      "invalidationReason": "2026-10-04 responsive layout changes; historical evidence retained"
+    },
+    {
+      "validationId": "CHARACTERS-RESOURCES",
+      "scope": [
+        "Resources/**/*",
+        "eng/resources.py",
+        "eng/validate-resources.py"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "python3 eng/validate-resources.py",
+      "sourceFingerprint": "8d3e2aec598c2ccb0528d53b06a2564aa15ab563cbec3c13049b0d577f518fb2",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "49e809be49958c2b394d22382cc62efd1997224eccbc46f16356b427ea6a5503",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "filesystem": "APFS"
+      },
+      "timestamp": "2026-10-03T23:35:10.133163+00:00",
+      "evidencePath": "artifacts/development/character-explanation/resources.txt",
+      "evidenceSHA256": "2df8d12cae7c1b765b469831e7b34ebb53cac7d489eee7a1b12914284a445b18",
+      "invalidationReason": "2026-10-04 native toolbar/settings/default-theme changes; historical evidence retained"
+    },
+    {
+      "validationId": "CHARACTERS-RENDER",
+      "scope": [
+        "App/**/*.swift",
+        "Resources/**/*"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "Debug app --render-characters artifacts/development/character-explanation/rendered",
+      "sourceFingerprint": "11bd2ebfa03b486b7efd5d85dd469c0d9b7d163fb3eaf6e1e7e1a5a236d9f245",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "49e809be49958c2b394d22382cc62efd1997224eccbc46f16356b427ea6a5503",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "filesystem": "APFS"
+      },
+      "timestamp": "2026-10-03T23:39:36.864520+00:00",
+      "evidencePath": "artifacts/development/character-explanation/render.txt",
+      "evidenceSHA256": "aa531233fe875e5c707efa7ecb280a95d6c7c0eef56d54bacec30ee231471873",
+      "invalidationReason": "2026-10-04 responsive layout changes; historical evidence retained"
+    },
+    {
+      "validationId": "RESPONSIVE-WINDOW",
+      "scope": [
+        "App/WindowLayout.swift"
+      ],
+      "testScope": [
+        "Tests/UIModelTests/WindowLayoutTests.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/test.sh --filter WindowLayoutTests",
+      "sourceFingerprint": "1b384c09d11f10bc84cf853251202b12ac82b3a17210ed268d8a7223381e4e5d",
+      "testFingerprint": "e65680a0369fd1994c84a7ee9092c9da97a4a58917427b4390e928c0e4ae0091",
+      "dependencyFingerprint": "09030836f26e844082a5851444ccbba8b38f4f29976d0a4101e69f0a52b3451d",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T00:37:13.735785+00:00",
+      "evidencePath": "artifacts/development/responsive/window-tests.txt",
+      "evidenceSHA256": "714351e4d96b95d46a71a70a28a8e01d833eb02954df1a6ffd1a00889d953a62",
+      "invalidationReason": "2026-10-04 settings/tool UI and locale update; previous artifact evidence preserved"
+    },
+    {
+      "validationId": "RESPONSIVE-UI-STATE",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/AppModel.swift",
+        "App/Localization.swift",
+        "App/CharacterPresentation.swift",
+        "App/WindowLayout.swift"
+      ],
+      "testScope": [
+        "Tests/UIModelTests/AppModelTests.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/test.sh --scope ui-model",
+      "sourceFingerprint": "82dc9522099ae3f0df5943973a29b97e8ba2a9048bc61d3a0110146fc1bb114f",
+      "testFingerprint": "7f645cb9c7623108dc7bcdf81a9485db4974bc15355890fe34fd823debdfdc47",
+      "dependencyFingerprint": "09030836f26e844082a5851444ccbba8b38f4f29976d0a4101e69f0a52b3451d",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T00:36:08.342043+00:00",
+      "evidencePath": "artifacts/development/responsive/tests.txt",
+      "evidenceSHA256": "754ab7299b0d096ea6e22fc25dfbeadaa598341f23cd15b0c54d7250c8ddf83f",
+      "invalidationReason": "2026-10-04 native toolbar/settings/default-theme changes; historical evidence retained"
+    },
+    {
+      "validationId": "RESPONSIVE-DEBUG",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*",
+        "Package.swift",
+        "project.yml"
+      ],
+      "testScope": [],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/build.sh --configuration Debug --arch arm64",
+      "sourceFingerprint": "7ca11c9cdf44f528f7fbcadf6acc910819a0273e26e3f4ce4bfbac7af5277c1a",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "09030836f26e844082a5851444ccbba8b38f4f29976d0a4101e69f0a52b3451d",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T00:46:40.567260+00:00",
+      "evidencePath": "artifacts/development/responsive/debug-build.txt",
+      "evidenceSHA256": "0ef78bdd6314958d498d02c7cc0ef4282997cfb0c9cedfe403f26f0f0fb25d33",
+      "invalidationReason": "2026-10-04 native toolbar/settings/default-theme changes; historical evidence retained"
+    },
+    {
+      "validationId": "RESPONSIVE-RESOURCES",
+      "scope": [
+        "Resources/**/*",
+        "eng/resources.py",
+        "eng/validate-resources.py"
+      ],
+      "testScope": [],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "python3 eng/validate-resources.py",
+      "sourceFingerprint": "8d3e2aec598c2ccb0528d53b06a2564aa15ab563cbec3c13049b0d577f518fb2",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "09030836f26e844082a5851444ccbba8b38f4f29976d0a4101e69f0a52b3451d",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T00:44:54.521033+00:00",
+      "evidencePath": "artifacts/development/responsive/resources.txt",
+      "evidenceSHA256": "2df8d12cae7c1b765b469831e7b34ebb53cac7d489eee7a1b12914284a445b18",
+      "invalidationReason": "2026-10-04 native toolbar/settings/default-theme changes; historical evidence retained"
+    },
+    {
+      "validationId": "RESPONSIVE-RENDER",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*",
+        "Package.swift",
+        "project.yml"
+      ],
+      "testScope": [
+        "App/ResponsiveFixtures.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "Debug app --render-responsive artifacts/development/responsive/rendered",
+      "sourceFingerprint": "7ca11c9cdf44f528f7fbcadf6acc910819a0273e26e3f4ce4bfbac7af5277c1a",
+      "testFingerprint": "4b3d8614214adfb64e25cbfaca416a2bbf14a407b72ff98ed378b37d5dfaa869",
+      "dependencyFingerprint": "09030836f26e844082a5851444ccbba8b38f4f29976d0a4101e69f0a52b3451d",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T00:48:22.009039+00:00",
+      "evidencePath": "artifacts/development/responsive/render.txt",
+      "evidenceSHA256": "5be9e02f71063e54a9d900fe89b7e3f711cd437c3ba3366a813d6b8c398d4b2d",
+      "invalidationReason": "2026-10-04 native toolbar/settings/default-theme changes; historical evidence retained"
+    },
+    {
+      "validationId": "SHELL-UI-MODEL",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/AppModel.swift",
+        "App/Localization.swift",
+        "App/CharacterPresentation.swift",
+        "App/WindowLayout.swift"
+      ],
+      "testScope": [
+        "Tests/UIModelTests/AppModelTests.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/test.sh --scope ui-model",
+      "sourceFingerprint": "ee6db29134a0e17ab1163fe79970311a320f1afa6f2c8d9e8a827bc508d51ecc",
+      "testFingerprint": "695f7d60cd8e606f9081681c637d9aeda79bf57c253fb893490e5bfbdb7d3876",
+      "dependencyFingerprint": "1efb0a9d1136dd46547e370eca444863c0fcf104cdc5813bccc1e89bd1549389",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T01:31:41.027369+00:00",
+      "evidencePath": "artifacts/development/shell-refinement/ui-model.txt",
+      "evidenceSHA256": "e3e98446f2bb891922ce18d19f9204c1c9e60aa6ed55df45e07a57f7090f8419",
+      "previousStatus": "PASS",
+      "invalidationReason": "2026-10-04 expansion changed content/dependencies; original evidence retained as historical."
+    },
+    {
+      "validationId": "SHELL-SOURCE-RACE",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift"
+      ],
+      "testScope": [
+        "Tests/IntegrationTests/SafetyTests.swift"
+      ],
+      "status": "SUPERSEDED",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/test.sh --filter SafetyTests.testSourceRaceCannotBeAtomicExpectedInodeRename",
+      "sourceFingerprint": "1879d48488f7bb60576ec8ff6b98181bab48bad42bf55a55e4ad865015f58209",
+      "testFingerprint": "96e3eebd37725634d4e794d57592de19663366be1e1e56d7c9353ecbf767c5b7",
+      "dependencyFingerprint": "1efb0a9d1136dd46547e370eca444863c0fcf104cdc5813bccc1e89bd1549389",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T01:29:58.459601+00:00",
+      "evidencePath": "artifacts/development/shell-refinement/source-race.txt",
+      "evidenceSHA256": "d92adc4c2c959f286806eefc85ae2fe5c7a574c63e5964f43d42ef9b18e6c156",
+      "previousStatus": "KNOWN_LIMITATION_REPRODUCED",
+      "supersededBy": "MAC-V1-SOURCE-RACE-LIMITATION"
+    },
+    {
+      "validationId": "SHELL-DEBUG",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*",
+        "Package.swift",
+        "project.yml"
+      ],
+      "testScope": [],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/build.sh --configuration Debug --arch arm64",
+      "sourceFingerprint": "53fad1d504ade5d0ca7831411018519df7a750ad9ef8884d98490ed7c2349700",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "1efb0a9d1136dd46547e370eca444863c0fcf104cdc5813bccc1e89bd1549389",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T01:38:50.503595+00:00",
+      "evidencePath": "artifacts/development/shell-refinement/debug-build.txt",
+      "evidenceSHA256": "04678c429e4b4b8d5d45d8f69861c7b6753c7578f7b918fe0da088ef34759139",
+      "previousStatus": "PASS",
+      "invalidationReason": "2026-10-04 expansion changed content/dependencies; original evidence retained as historical."
+    },
+    {
+      "validationId": "SHELL-RESOURCES",
+      "scope": [
+        "Resources/**/*",
+        "eng/resources.py",
+        "eng/validate-resources.py"
+      ],
+      "testScope": [],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "python3 eng/validate-resources.py",
+      "sourceFingerprint": "2a9cfab0412817c0569ef836144a68e709859c5c73a4dbb0f5f28c7e82f14db7",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "1efb0a9d1136dd46547e370eca444863c0fcf104cdc5813bccc1e89bd1549389",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T01:32:10.635013+00:00",
+      "evidencePath": "artifacts/development/shell-refinement/resources.txt",
+      "evidenceSHA256": "b5fc0b31fd19d7dfed34fe03ca7c0f0bec10f9bf0261db5bcbb8d6f444b94f06",
+      "previousStatus": "PASS",
+      "invalidationReason": "2026-10-04 expansion changed content/dependencies; original evidence retained as historical."
+    },
+    {
+      "validationId": "SHELL-RENDER",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*",
+        "Package.swift",
+        "project.yml"
+      ],
+      "testScope": [
+        "App/ShellFixtures.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "Debug app --render-shell artifacts/development/shell-refinement/rendered",
+      "sourceFingerprint": "53fad1d504ade5d0ca7831411018519df7a750ad9ef8884d98490ed7c2349700",
+      "testFingerprint": "d70fa0678338d4de2622a4fc01112b972a5afc3c590caf97d1cac21d7faf5610",
+      "dependencyFingerprint": "1efb0a9d1136dd46547e370eca444863c0fcf104cdc5813bccc1e89bd1549389",
+      "toolchainFingerprint": "6cae0c017829e5ba4eb33572645609711bfef3c86cb0d72873c65253b2aff71e",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T01:39:34.617743+00:00",
+      "evidencePath": "artifacts/development/shell-refinement/render.txt",
+      "evidenceSHA256": "e94733ad99d111c92c1ba02a23d96fa1dafeb3a0e0b7b24f11d3a6653e55f520",
+      "previousStatus": "PASS",
+      "invalidationReason": "2026-10-04 expansion changed content/dependencies; original evidence retained as historical."
+    },
+    {
+      "validationId": "MAC-EXPANSION-CORE",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift"
+      ],
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/test.sh --scope core + changed model/journal integration regression",
+      "sourceFingerprint": "e9c6082dd06cdd265371973f23ba3dd483dc8bde070eb8d6a0f64a633f2c2c9c",
+      "testFingerprint": "6e2898e76a300f342ddb9ff9c842b1cc2c2faaa113e0030e3257c494096e0afd",
+      "dependencyFingerprint": "b00dd6c4b4ec2ba31138c05acbadaed0b44116cba349a29f13279e7fc321d513",
+      "toolchainFingerprint": "677801b4acefb15041ebf49bb56449d0b820926357b87ee09eae504f6b600f27",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T03:39:33.797416+00:00",
+      "evidencePath": "artifacts/development/expansion/evidence/core.txt",
+      "evidenceSHA256": "d2946d22aab15f9cb1ade40758f81726c32aae9880057f91e02a66d11d0a7f17",
+      "supportingEvidence": [
+        "artifacts/development/expansion/evidence/core.txt",
+        "artifacts/development/expansion/evidence/final-safety-pairs.txt"
+      ]
+    },
+    {
+      "validationId": "MAC-EXPANSION-FILESYSTEM",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/test.sh --filter ExpansionTests|TransactionTests|SafetyTests + prior unchanged filesystem checks",
+      "sourceFingerprint": "8dfe6ca4a6f344483653ea0bb3b538b3301f7def5133586fbefa0a3dbd2bf066",
+      "testFingerprint": "8b877136f48752fe4172b67b8ded99d1859e3b72a07da97e4c1511f4c3a6e504",
+      "dependencyFingerprint": "b00dd6c4b4ec2ba31138c05acbadaed0b44116cba349a29f13279e7fc321d513",
+      "toolchainFingerprint": "677801b4acefb15041ebf49bb56449d0b820926357b87ee09eae504f6b600f27",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T03:39:33.797416+00:00",
+      "evidencePath": "artifacts/development/expansion/evidence/final-safety-pairs.txt",
+      "evidenceSHA256": "9211eaaa7b9b9c0f14448327f03810a84515b211b9c24337a08c8d0e91238560",
+      "supportingEvidence": [
+        "artifacts/development/expansion/evidence/final-safety-pairs.txt",
+        "artifacts/development/expansion/evidence/runtime-checkpoint.txt",
+        "artifacts/development/expansion/evidence/watch-persistence.txt"
+      ],
+      "previousStatus": "PASS",
+      "invalidationReason": "v1 coordination/freshness/UI/CLI changes; old evidence preserved; see MAC-V1 entries"
+    },
+    {
+      "validationId": "MAC-EXPANSION-MODEL-UI",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "AppModel/CharacterPresentation/WindowLayout targeted tests + 33 isolated SwiftUI renders + Debug build",
+      "sourceFingerprint": "5d784bc25f35e3a8a5bf1ec7fc13fc53edb8e1deff900f89d9f94f781a90527f",
+      "testFingerprint": "3fb32c769c5812ff3053d29610eefd448f3f583c33b3c07f37037bbc99c32af3",
+      "dependencyFingerprint": "b00dd6c4b4ec2ba31138c05acbadaed0b44116cba349a29f13279e7fc321d513",
+      "toolchainFingerprint": "677801b4acefb15041ebf49bb56449d0b820926357b87ee09eae504f6b600f27",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T03:39:33.797416+00:00",
+      "evidencePath": "artifacts/development/expansion/evidence/runtime-checkpoint.txt",
+      "evidenceSHA256": "4eb62c528bd337c52b00822a00b1c7e6773a1f2b410bca2497ec6515d4af94c9",
+      "supportingEvidence": [
+        "artifacts/development/expansion/evidence/runtime-checkpoint.txt",
+        "artifacts/development/expansion/evidence/ui-storage.txt",
+        "artifacts/development/expansion/evidence/watch-persistence.txt",
+        "artifacts/development/expansion/evidence/render.txt",
+        "artifacts/development/expansion/evidence/debug-build.txt"
+      ],
+      "previousStatus": "PASS",
+      "invalidationReason": "v1 coordination/freshness/UI/CLI changes; old evidence preserved; see MAC-V1 entries"
+    },
+    {
+      "validationId": "MAC-EXPANSION-CLI",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "CLI/**/*.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "python3 eng/test-expansion-cli.py artifacts/development/expansion/namefix",
+      "sourceFingerprint": "38ef4a601fa8419b98b964dcc5b756abf7ec7110dfb085c084cc8baa9f243a20",
+      "testFingerprint": "8577d763ca0eb4f1c6497ee3f470a59c7b0da48e6c720256ebdd4d8f8fcc9bb1",
+      "dependencyFingerprint": "b00dd6c4b4ec2ba31138c05acbadaed0b44116cba349a29f13279e7fc321d513",
+      "toolchainFingerprint": "677801b4acefb15041ebf49bb56449d0b820926357b87ee09eae504f6b600f27",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T03:39:33.797416+00:00",
+      "evidencePath": "artifacts/development/expansion/evidence/cli.txt",
+      "evidenceSHA256": "3184350a43b88a1b6b24e6a7de286917529c135025632b700c1443d33021b91e",
+      "supportingEvidence": [
+        "artifacts/development/expansion/evidence/cli.txt"
+      ],
+      "previousStatus": "PASS",
+      "invalidationReason": "v1 coordination/freshness/UI/CLI changes; old evidence preserved; see MAC-V1 entries"
+    },
+    {
+      "validationId": "MAC-EXPANSION-PERFORMANCE",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/FileSystem.swift",
+        "Infrastructure/Scanner.swift",
+        "Application/RulePreview.swift",
+        "Application/Planning.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "NAMEFIX_EXPANSION_PERF=1 eng/test.sh --filter ExpansionPerformanceTests",
+      "sourceFingerprint": "6a76e81fb0de763dc4c0755af6d3d3463c7e1df498aef7dd41faf5f232e5c962",
+      "testFingerprint": "86f318b036c65d791d8cbadec73d15c5e1098518627982dc83bb90e73a3e3491",
+      "dependencyFingerprint": "b00dd6c4b4ec2ba31138c05acbadaed0b44116cba349a29f13279e7fc321d513",
+      "toolchainFingerprint": "677801b4acefb15041ebf49bb56449d0b820926357b87ee09eae504f6b600f27",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T03:39:33.797416+00:00",
+      "evidencePath": "artifacts/development/expansion/evidence/performance.txt",
+      "evidenceSHA256": "0ba1f8b1a343309813fcb443d345f53550d197e893935edcba3e8c6e3c164ce1",
+      "supportingEvidence": [
+        "artifacts/development/expansion/evidence/performance.txt"
+      ],
+      "note": "Debug worker 10k five runs; preview p95 0.727s exceeds aspirational 0.300s. Includes current equivalent scope after unrelated journal-only change; GUI latency unmeasured.",
+      "previousStatus": "PASS",
+      "invalidationReason": "v1 coordination/freshness/UI/CLI changes; old evidence preserved; see MAC-V1 entries"
+    },
+    {
+      "validationId": "MAC-EXPANSION-RESOURCES",
+      "scope": [
+        "Resources/**/*",
+        "eng/expansion-localizations.json",
+        "eng/update-expansion-resources.py",
+        "eng/validate-resources.py"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "python3 eng/validate-resources.py",
+      "sourceFingerprint": "9c2c2e5d578bd914942385b44294ed5e4d617488769c414c4df68384c393bbeb",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "b00dd6c4b4ec2ba31138c05acbadaed0b44116cba349a29f13279e7fc321d513",
+      "toolchainFingerprint": "677801b4acefb15041ebf49bb56449d0b820926357b87ee09eae504f6b600f27",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T03:39:33.797416+00:00",
+      "evidencePath": "artifacts/development/expansion/evidence/resources.txt",
+      "evidenceSHA256": "198025735f6aace8d0d5e4075530fc9d24267661f77618fd8602efa44e6dd282",
+      "supportingEvidence": [
+        "artifacts/development/expansion/evidence/resources.txt"
+      ],
+      "previousStatus": "PASS",
+      "invalidationReason": "v1 coordination/freshness/UI/CLI changes; old evidence preserved; see MAC-V1 entries"
+    },
+    {
+      "validationId": "MAC-EXPANSION-DEBUG-BUILD",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "CLI/**/*.swift",
+        "Resources/**/*",
+        "Package.swift",
+        "Packages/NameFixCore/Package.swift",
+        "project.yml"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/build.sh --configuration Debug --arch arm64",
+      "sourceFingerprint": "ba8b47b22270f3026e6b6d9fb706ca5c5f393573ca4d3e055faa9a87da4e46f5",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "b00dd6c4b4ec2ba31138c05acbadaed0b44116cba349a29f13279e7fc321d513",
+      "toolchainFingerprint": "677801b4acefb15041ebf49bb56449d0b820926357b87ee09eae504f6b600f27",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T03:39:33.797416+00:00",
+      "evidencePath": "artifacts/development/expansion/evidence/debug-build.txt",
+      "evidenceSHA256": "6e40440efacf997924afed78d38049ac7c4184953c002d6e49d70bafe884e3bb",
+      "supportingEvidence": [
+        "artifacts/development/expansion/evidence/debug-build.txt"
+      ],
+      "previousStatus": "PASS",
+      "invalidationReason": "v1 coordination/freshness/UI/CLI changes; old evidence preserved; see MAC-V1 entries"
+    },
+    {
+      "validationId": "MAC-EXPANSION-SOURCE-RACE",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift"
+      ],
+      "status": "SUPERSEDED",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "SourceRaceCannotBeAtomicExpectedInodeRename fixture",
+      "sourceFingerprint": "8dfe6ca4a6f344483653ea0bb3b538b3301f7def5133586fbefa0a3dbd2bf066",
+      "testFingerprint": "96e3eebd37725634d4e794d57592de19663366be1e1e56d7c9353ecbf767c5b7",
+      "dependencyFingerprint": "b00dd6c4b4ec2ba31138c05acbadaed0b44116cba349a29f13279e7fc321d513",
+      "toolchainFingerprint": "677801b4acefb15041ebf49bb56449d0b820926357b87ee09eae504f6b600f27",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T03:39:33.797416+00:00",
+      "evidencePath": "artifacts/development/expansion/evidence/final-safety-pairs.txt",
+      "evidenceSHA256": "9211eaaa7b9b9c0f14448327f03810a84515b211b9c24337a08c8d0e91238560",
+      "supportingEvidence": [
+        "artifacts/development/expansion/evidence/final-safety-pairs.txt"
+      ],
+      "note": "PASS test reproduces/detects the remaining source replacement limitation; not a defect resolution.",
+      "previousStatus": "BLOCKED_CONTRACT",
+      "supersededBy": "MAC-V1-SOURCE-RACE-LIMITATION"
+    },
+    {
+      "validationId": "MAC-EXPANSION-PAID-PROVIDER",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "App/AppModel.swift",
+        "CLI/main.swift"
+      ],
+      "status": "BLOCKED_EXTERNAL",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": null,
+      "sourceFingerprint": "7e5008b007c5fbb02cf787724feb2939352f10b10a05ba1f406b75710b0d0dae",
+      "testFingerprint": "dcd3962785f3d167f218aaa513108c9f06388220856dbecd8f45cfb1d463588a",
+      "dependencyFingerprint": "b00dd6c4b4ec2ba31138c05acbadaed0b44116cba349a29f13279e7fc321d513",
+      "toolchainFingerprint": "677801b4acefb15041ebf49bb56449d0b820926357b87ee09eae504f6b600f27",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T03:39:33.797416+00:00",
+      "evidencePath": "artifacts/development/expansion/evidence/core.txt",
+      "evidenceSHA256": "d2946d22aab15f9cb1ade40758f81726c32aae9880057f91e02a66d11d0a7f17",
+      "supportingEvidence": [
+        "artifacts/development/expansion/evidence/core.txt"
+      ],
+      "note": "Internal capability/expiry paths verified; real purchase provider and product identifiers are not supplied."
+    },
+    {
+      "validationId": "MAC-V1-CORE",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift"
+      ],
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/test.sh --core",
+      "sourceFingerprint": "e9c6082dd06cdd265371973f23ba3dd483dc8bde070eb8d6a0f64a633f2c2c9c",
+      "testFingerprint": "6e2898e76a300f342ddb9ff9c842b1cc2c2faaa113e0030e3257c494096e0afd",
+      "dependencyFingerprint": "d55538fde4a858ed89a1f01f351c2007899eb12296552dff531b3f1f8d8b7579",
+      "toolchainFingerprint": "1009f87cd0ee421c476c6c4d9f62570823048d3dacf34550e260fe08c8ba0643",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T04:20:22.213609+00:00",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence/full-core.txt",
+      "evidenceSHA256": "ea5b5ff9f3bc1fa7bec0efbba372c4d5a34417f8833fcb81b61ca1dae92164e2"
+    },
+    {
+      "validationId": "MAC-V1-RUNTIME",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift"
+      ],
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/test.sh --scope all; affected coordination/performance/recovery regressions",
+      "sourceFingerprint": "6bb7d081dd49a68bec2506e760b6558646ad727d3d2540a23fdc6971536ae6d4",
+      "testFingerprint": "b3acca23428f8171db3f99480c6c872e898313e2b47c6996516e8be15c877ae5",
+      "dependencyFingerprint": "d55538fde4a858ed89a1f01f351c2007899eb12296552dff531b3f1f8d8b7579",
+      "toolchainFingerprint": "1009f87cd0ee421c476c6c4d9f62570823048d3dacf34550e260fe08c8ba0643",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T04:56:43.248582+00:00",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence/test-index.json",
+      "evidenceSHA256": "2e9ad4ceb687e35c527041e09b711ad24dce49499a6b3b6b55897edebf873535"
+    },
+    {
+      "validationId": "MAC-V1-MODEL",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "eng/test.sh --filter AppModelTests (with related recovery regressions)",
+      "sourceFingerprint": "9763022e9ea0d998979b4b8c281c8ce44b4d48eb497bd3e74c035d116381d926",
+      "testFingerprint": "3fb32c769c5812ff3053d29610eefd448f3f583c33b3c07f37037bbc99c32af3",
+      "dependencyFingerprint": "d55538fde4a858ed89a1f01f351c2007899eb12296552dff531b3f1f8d8b7579",
+      "toolchainFingerprint": "1009f87cd0ee421c476c6c4d9f62570823048d3dacf34550e260fe08c8ba0643",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T04:34:01.046795+00:00",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence/ui-recovery-final.txt",
+      "evidenceSHA256": "77636f8c216cff5b1f40f3daf8d6f8934bd90e060e24e6e01aa4fb9831672b28",
+      "invalidationReason": "2026-10-04 settings/tool UI and locale update; previous artifact evidence preserved"
+    },
+    {
+      "validationId": "MAC-V1-APFS-CASE-SENSITIVE",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift"
+      ],
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "python3 eng/test-case-sensitive.py",
+      "sourceFingerprint": "6bb7d081dd49a68bec2506e760b6558646ad727d3d2540a23fdc6971536ae6d4",
+      "testFingerprint": "b3acca23428f8171db3f99480c6c872e898313e2b47c6996516e8be15c877ae5",
+      "dependencyFingerprint": "d55538fde4a858ed89a1f01f351c2007899eb12296552dff531b3f1f8d8b7579",
+      "toolchainFingerprint": "1009f87cd0ee421c476c6c4d9f62570823048d3dacf34550e260fe08c8ba0643",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": true
+      },
+      "timestamp": "2026-10-04T04:31:14.172180+00:00",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence/case-sensitive-final.txt",
+      "evidenceSHA256": "39661dbc599efdf3e587f5ae212bb05de83aa28bc143c21b1812f52a989f9b7b"
+    },
+    {
+      "validationId": "MAC-V1-RELEASE-TRANSACTIONS",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift"
+      ],
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "Release",
+      "command": "NAMEFIX_MUTATION_PERF=1 eng/test.sh -c release --filter TransactionTests|CoordinatedTransactionTests",
+      "sourceFingerprint": "6bb7d081dd49a68bec2506e760b6558646ad727d3d2540a23fdc6971536ae6d4",
+      "testFingerprint": "b3acca23428f8171db3f99480c6c872e898313e2b47c6996516e8be15c877ae5",
+      "dependencyFingerprint": "d55538fde4a858ed89a1f01f351c2007899eb12296552dff531b3f1f8d8b7579",
+      "toolchainFingerprint": "1009f87cd0ee421c476c6c4d9f62570823048d3dacf34550e260fe08c8ba0643",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T04:28:12.732940+00:00",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence/release-transaction-tests.txt",
+      "evidenceSHA256": "ca5dc86434c9a4f23dc78f33eba0d5c7428887d701e9ff6c3f196aa57a0919bd"
+    },
+    {
+      "validationId": "MAC-V1-PERFORMANCE",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift"
+      ],
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "NAMEFIX_MUTATION_PERF=1 NAMEFIX_EXPANSION_PERF=1 NAMEFIX_PERFORMANCE=1 eng/test.sh --filter CoordinatedTransactionTests|ExpansionPerformanceTests|SafetyTests.testScanPerformanceProfile",
+      "sourceFingerprint": "6bb7d081dd49a68bec2506e760b6558646ad727d3d2540a23fdc6971536ae6d4",
+      "testFingerprint": "b3acca23428f8171db3f99480c6c872e898313e2b47c6996516e8be15c877ae5",
+      "dependencyFingerprint": "d55538fde4a858ed89a1f01f351c2007899eb12296552dff531b3f1f8d8b7579",
+      "toolchainFingerprint": "1009f87cd0ee421c476c6c4d9f62570823048d3dacf34550e260fe08c8ba0643",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T04:26:21.006179+00:00",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence/performance-and-races.txt",
+      "evidenceSHA256": "8a3706163a48eb65367c847ef67a0b79244a751a4bcda57d32942a4dc868cd07"
+    },
+    {
+      "validationId": "MAC-V1-CLI",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "CLI/**/*.swift"
+      ],
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "Release",
+      "command": "python3 eng/test-release-cli.py .build/out/Products/Release/namefix",
+      "sourceFingerprint": "d876603570097982162e7605146ed8dbc30e1bb958bb5a799f785180bdb2bf39",
+      "testFingerprint": "69778e36a16f4ede1311f2ddd5d9b2e5bc55e7d57e8c2f2bc7d4f8e558686e15",
+      "dependencyFingerprint": "d55538fde4a858ed89a1f01f351c2007899eb12296552dff531b3f1f8d8b7579",
+      "toolchainFingerprint": "1009f87cd0ee421c476c6c4d9f62570823048d3dacf34550e260fe08c8ba0643",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T04:34:34.476390+00:00",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence/cli-release-final.txt",
+      "evidenceSHA256": "4de18456e268e2d9c73910638bc7eac721cf7047b1c00ed80924a8c4cfacec64"
+    },
+    {
+      "validationId": "MAC-V1-RESOURCES",
+      "scope": [
+        "Resources/**/*",
+        "eng/expansion-localizations.json"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "python3 eng/validate-resources.py",
+      "sourceFingerprint": "69a05485c9a98503d1173765f83891a3a1b65a71c9ad720da607e0b136809427",
+      "testFingerprint": "2ffeb3f94d2141cac3ff9ece3cf7e9d581e03ba14476ed1ab058f4bce55f243b",
+      "dependencyFingerprint": "d55538fde4a858ed89a1f01f351c2007899eb12296552dff531b3f1f8d8b7579",
+      "toolchainFingerprint": "1009f87cd0ee421c476c6c4d9f62570823048d3dacf34550e260fe08c8ba0643",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T04:32:22.389318+00:00",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence/resources.txt",
+      "evidenceSHA256": "0732783cf7aefd7930466298288c02488d6c7733984a761b69eb9439704d668e",
+      "invalidationReason": "2026-10-04 settings/tool UI and locale update; previous artifact evidence preserved"
+    },
+    {
+      "validationId": "MAC-V1-RENDER",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Release",
+      "command": "Release --render-responsive; final affected --history-only (6 renders after 75 baseline)",
+      "sourceFingerprint": "9763022e9ea0d998979b4b8c281c8ce44b4d48eb497bd3e74c035d116381d926",
+      "testFingerprint": "0c36923d009c2b1318de18b9147b068d4903c2552adc4ba0cf3f031f4cfcd71c",
+      "dependencyFingerprint": "d55538fde4a858ed89a1f01f351c2007899eb12296552dff531b3f1f8d8b7579",
+      "toolchainFingerprint": "1009f87cd0ee421c476c6c4d9f62570823048d3dacf34550e260fe08c8ba0643",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T04:51:18.446014+00:00",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence/render-history-build3.txt",
+      "evidenceSHA256": "bccd2798c231b06364bd8637b72872fe1d6dea865f3ab764a4ab0fa74639fe04",
+      "invalidationReason": "2026-10-04 settings/tool UI and locale update; previous artifact evidence preserved"
+    },
+    {
+      "validationId": "MAC-V1-BUILD",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*",
+        "Package.swift",
+        "Packages/NameFixCore/Package.swift",
+        "project.yml"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Release",
+      "command": "eng/build.sh --configuration Release --arch arm64",
+      "sourceFingerprint": "e03849b3ef457178b6ca0eb2ca833e779f735e5fe756561aeac7a6a84a6f5544",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "d55538fde4a858ed89a1f01f351c2007899eb12296552dff531b3f1f8d8b7579",
+      "toolchainFingerprint": "1009f87cd0ee421c476c6c4d9f62570823048d3dacf34550e260fe08c8ba0643",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T04:51:15.177853+00:00",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence/release-build3.txt",
+      "evidenceSHA256": "5150b9cef9349646d29bbcff5014c9524bd55bd7e831ff72229d8b0662f84c28",
+      "invalidationReason": "2026-10-04 settings/tool UI and locale update; previous artifact evidence preserved"
+    },
+    {
+      "validationId": "MAC-V1-DEVELOPER-ID",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*",
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "CLI/**/*.swift"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Release",
+      "command": "python3 eng/sign-candidate.py (existing Developer ID, new copy only)",
+      "sourceFingerprint": "00ba219afe7f2b626f33e8fe303bd29a62309f5fbe170001919ae0d01940e828",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "d55538fde4a858ed89a1f01f351c2007899eb12296552dff531b3f1f8d8b7579",
+      "toolchainFingerprint": "1009f87cd0ee421c476c6c4d9f62570823048d3dacf34550e260fe08c8ba0643",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T04:53:15.416339+00:00",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence/signing-build3.txt",
+      "evidenceSHA256": "69581cb7951f9d9ba31e245c5c97a09d7edafddaaaebcb1bf61cb8a7154cfe3a",
+      "invalidationReason": "2026-10-04 settings/tool UI and locale update; previous artifact evidence preserved"
+    },
+    {
+      "validationId": "MAC-V1-PACKAGES",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*",
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "CLI/**/*.swift",
+        "eng/package-candidate.py",
+        "eng/verify-candidate.py"
+      ],
+      "status": "STALE",
+      "architecture": "arm64",
+      "configuration": "Release",
+      "command": "python3 eng/verify-candidate.py artifacts/release-candidate/1.0.0/build3",
+      "sourceFingerprint": "06bf9146192a75a5adc5701aa783438b96b2da8ae3a3bd4ac4f6abe7339acbb8",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "d55538fde4a858ed89a1f01f351c2007899eb12296552dff531b3f1f8d8b7579",
+      "toolchainFingerprint": "1009f87cd0ee421c476c6c4d9f62570823048d3dacf34550e260fe08c8ba0643",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T04:53:27.581248+00:00",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence/package-build3-verification.txt",
+      "evidenceSHA256": "f2dddeedbfc67884ce975df4358473264bd1e52d3301fbef00ffb529bf600724",
+      "invalidationReason": "2026-10-04 settings/tool UI and locale update; previous artifact evidence preserved"
+    },
+    {
+      "validationId": "MAC-V1-SOURCE-RACE-LIMITATION",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift"
+      ],
+      "status": "KNOWN_LIMITATION",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "command": "Real executor adversarial interleaving; detection/stop PASS, atomic prevention NOT claimed",
+      "sourceFingerprint": "6bb7d081dd49a68bec2506e760b6558646ad727d3d2540a23fdc6971536ae6d4",
+      "testFingerprint": "ff9b24f4436149c03c8a2c8fd648bddfe9f86873be2bc5784cb8c42685bcb973",
+      "dependencyFingerprint": "d55538fde4a858ed89a1f01f351c2007899eb12296552dff531b3f1f8d8b7579",
+      "toolchainFingerprint": "1009f87cd0ee421c476c6c4d9f62570823048d3dacf34550e260fe08c8ba0643",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T04:26:21.006179+00:00",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence/performance-and-races.txt",
+      "evidenceSHA256": "8a3706163a48eb65367c847ef67a0b79244a751a4bcda57d32942a4dc868cd07"
+    },
+    {
+      "validationId": "MAC-V1-NOTARIZATION",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*"
+      ],
+      "status": "BLOCKED_EXTERNAL",
+      "architecture": "arm64",
+      "configuration": "Release",
+      "command": "spctl --assess (unnotarized Developer ID); missing notary profile",
+      "sourceFingerprint": "9763022e9ea0d998979b4b8c281c8ce44b4d48eb497bd3e74c035d116381d926",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "d55538fde4a858ed89a1f01f351c2007899eb12296552dff531b3f1f8d8b7579",
+      "toolchainFingerprint": "1009f87cd0ee421c476c6c4d9f62570823048d3dacf34550e260fe08c8ba0643",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T04:55:32.355622+00:00",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence/gatekeeper-build3.txt",
+      "evidenceSHA256": "e82b960bda1a1f91171d536bd8cefe605ab9241470e84318ca55abdd8f2b71c4"
+    },
+    {
+      "validationId": "MAC-V1-PAID-PROVIDER",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "App/AppModel.swift",
+        "CLI/main.swift"
+      ],
+      "status": "BLOCKED_EXTERNAL",
+      "architecture": "arm64",
+      "configuration": "Release",
+      "command": "Verified fail-closed Free behavior; actual purchase provider unconfigured",
+      "sourceFingerprint": "8d8a2d6d273caa63989c3250e55fc862cc8210389a88e6c49823be5a56ce8904",
+      "testFingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dependencyFingerprint": "d55538fde4a858ed89a1f01f351c2007899eb12296552dff531b3f1f8d8b7579",
+      "toolchainFingerprint": "1009f87cd0ee421c476c6c4d9f62570823048d3dacf34550e260fe08c8ba0643",
+      "environment": {
+        "os": "macOS 27.0.1 (26A434)",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-04T04:34:34.476390+00:00",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence/cli-release-final.txt",
+      "evidenceSHA256": "4de18456e268e2d9c73910638bc7eac721cf7047b1c00ed80924a8c4cfacec64"
+    },
+    {
+      "validationId": "MAC-UI-SETTINGS-TOOLS-20261004",
+      "status": "STALE",
+      "scope": [
+        "App/MainView.swift",
+        "App/Sheets.swift",
+        "App/RuleEditor.swift",
+        "App/ToolPanels.swift",
+        "App/ResponsiveFixtures.swift",
+        "Package.swift",
+        "Resources/Localizable.xcstrings",
+        "Resources/ko.lproj/Localizable.strings",
+        "Resources/en.lproj/Localizable.strings",
+        "Resources/ja.lproj/Localizable.strings"
+      ],
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "sourceFingerprint": "8689450d2b7d320d3a25f2c62eba317cfcd9d2961dcfa564b011545884421b91",
+      "command": "eng/build.sh; eng/test.sh --filter WindowLayoutTests|CharacterPresentationTests; eng/validate-resources.py; --render-responsive --tools-only; --render-expansion",
+      "timestamp": "2026-10-04T05:25:48.020033+00:00",
+      "evidencePath": "artifacts/development/ui-polish",
+      "limitations": "12 focused tests; 177 renders generated; representative images inspected; no user GUI automation or Release",
+      "invalidationReason": "Quick cleanup and batch workspace UI/state changed; previous evidence retained"
+    },
+    {
+      "validationId": "MAC-DEDICATED-APP-ICON-20261004",
+      "status": "STALE",
+      "configuration": "Debug",
+      "architecture": "arm64",
+      "scope": [
+        "Resources/Assets.xcassets/AppIcon.appiconset/*",
+        "assets/branding/NameFix-Original.png",
+        "eng/icon.swift"
+      ],
+      "command": "swift eng/icon.swift; eng/build.sh; PNG dimensions and built ICNS/Info.plist verification",
+      "timestamp": "2026-10-04T05:30:17.764650+00:00",
+      "evidencePath": "artifacts/development/icon-update",
+      "sourceFingerprint": "81e52ef35aa461d79d46773fa07b97a74a3cc5f660666ccc44ccc364e1912bd5"
+    },
+    {
+      "validationId": "MAC-TRANSPARENT-APP-ICON-20261004",
+      "status": "STALE",
+      "configuration": "Debug",
+      "architecture": "arm64",
+      "scope": [
+        "Resources/Assets.xcassets/AppIcon.appiconset/*",
+        "assets/branding/NameFix-Original.png",
+        "eng/icon.swift"
+      ],
+      "sourceFingerprint": "6e543be46c5275b552a911b6d6fc3e37e1d072119917d1d9a3ce6285a389c03d",
+      "evidencePath": "artifacts/development/icon-transparent",
+      "timestamp": "2026-10-04T05:42:53.665817+00:00",
+      "command": "eng/icon.swift; eng/build.sh; 10-slot corner alpha check; bundle icns check"
+    },
+    {
+      "validationId": "MAC-APP-ICON-1aa97856",
+      "status": "PASS",
+      "configuration": "Debug",
+      "architecture": "arm64",
+      "scope": [
+        "Resources/Assets.xcassets/AppIcon.appiconset/*",
+        "assets/branding/NameFix-Original.png",
+        "eng/icon.swift"
+      ],
+      "sourceFingerprint": "1aa97856609e170b2f7679d5c9206ce6c7300d503324afe4b2248a77424dd40a",
+      "evidencePath": "artifacts/development/icon-1aa97856",
+      "timestamp": "2026-10-04T05:56:17.639147+00:00",
+      "command": "eng/icon.swift; eng/build.sh; 10-slot dimensions/alpha and bundle ICNS checks"
+    },
+    {
+      "validationId": "MAC-QUICK-BATCH-WORKSPACE-20261004",
+      "status": "STALE",
+      "configuration": "Debug",
+      "architecture": "arm64",
+      "scope": [
+        "App/MainView.swift",
+        "App/AppModel.swift",
+        "App/Main.swift",
+        "App/RuleEditor.swift",
+        "App/ExpansionFixtures.swift",
+        "Infrastructure/Settings.swift",
+        "Tests/UIModelTests/WorkspaceTests.swift",
+        "Resources/Localizable.xcstrings",
+        "eng/expansion-localizations.json"
+      ],
+      "sourceFingerprint": "99fe4a0b2a468cacf2490baa2fb33b95ae8ed44b42ebf4595cf07a3c055e3f96",
+      "testFingerprint": "2e478afe2f887db9bc1463e40e7774bb9219df65f086d5ba02d88f589c0609de",
+      "timestamp": "2026-10-04T06:24:23.712736+00:00",
+      "command": "eng/build.sh; filtered AppModel/Workspace/WindowLayout/CharacterPresentation/settings regression; validate-resources; workspace-only render",
+      "evidencePath": "artifacts/development/workspace-upgrade",
+      "notes": "31 unique related tests; final layout render evidence in render-layout.txt; no Release or user GUI operation",
+      "invalidationReason": "Sidebar and workspace UI changed; focused follow-up evidence in MAC-NATIVE-SIDEBAR-20261004. Prior test results remain historical."
+    },
+    {
+      "validationId": "MAC-NATIVE-SIDEBAR-20261004",
+      "status": "PASS",
+      "configuration": "Debug",
+      "architecture": "arm64",
+      "scope": [
+        "App/SidebarNavigation.swift",
+        "App/Main.swift",
+        "App/MainView.swift",
+        "App/WindowChrome.swift",
+        "App/RuleEditor.swift",
+        "App/ToolPanels.swift",
+        "App/Sheets.swift",
+        "App/WatchView.swift",
+        "App/ExpansionFixtures.swift",
+        "Resources/Localizable.xcstrings",
+        "eng/expansion-localizations.json",
+        "Package.swift"
+      ],
+      "sourceFingerprint": "74b1a29491751e45ae8467c69b1cf8de9b59d644502926dc056dd15fe549dd40",
+      "timestamp": "2026-10-04T07:10:21.572620+00:00",
+      "command": "eng/build.sh; eng/test.sh --filter WorkspaceTests|WindowLayoutTests; validate-resources.py; --render-expansion --native-sidebar",
+      "evidencePath": "artifacts/development/native-sidebar",
+      "notes": "12 related tests; 36 native renders and collapse assertions; 426 keys x 3 locales; selected images visually inspected. No Release/user GUI control."
+    }
+  ]
+}

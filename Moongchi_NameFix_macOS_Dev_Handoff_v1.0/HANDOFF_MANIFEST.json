@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "title": "Moongchi NameFix macOS Development Handoff",
+  "version": "1.0",
+  "createdDate": "2026-10-03",
+  "status": "DOCUMENTATION_ONLY_MACOS_NOT_BUILT_OR_TESTED",
+  "localeKeysPerLanguage": 157,
+  "locales": [
+    "ko-KR",
+    "en-US",
+    "ja-JP"
+  ],
+  "sourceFingerprints": [
+    {
+      "path": "Moongchi_NameFix_Project_Master_v2.0_FINAL.md",
+      "sha256": "77abae15cea4048d225bdb60ab1c5b233dcba1da5af979612393a985191b37db"
+    },
+    {
+      "path": "Moongchi_NameFix_DevAI_StartPrompt_v2.0_FINAL.md",
+      "sha256": "38f98efaceb77b7ffdf65f127d50ef4e8c409526c1b6b68bd92482cf69f4dcd5"
+    },
+    {
+      "path": "src/Moongchi.NameFix.App/App.xaml",
+      "sha256": "a4170c2f5fb71e71c673d5cb6ad12c22e19343303785507bdf0e2994021f6528"
+    },
+    {
+      "path": "src/Moongchi.NameFix.App/MainWindow.xaml",
+      "sha256": "572432c2f0306830cd28c3cc1720fef72438faf0ac37f1f6990bd11c9a942ce7"
+    },
+    {
+      "path": "src/Moongchi.NameFix.App/ThemePalette.cs",
+      "sha256": "9fa18d28ed0ad896fb725182fa75c8ba9d37e898b47619c96ee255c4198d8e79"
+    },
+    {
+      "path": "src/Moongchi.NameFix.App/MainWindow.Theme.cs",
+      "sha256": "20bbc84056b693b144c71684f38c1214b868b793cb9230e4985370ff5bd1239f"
+    },
+    {
+      "path": "src/Moongchi.NameFix.App/MainWindow.Workspace.cs",
+      "sha256": "2a840920401c796352dd8f2bf276b5e3201b09f7ae5ae2d1a511659cc28bd14d"
+    },
+    {
+      "path": "src/Moongchi.NameFix.App/MainWindow.Presentation.cs",
+      "sha256": "d334580fba131b80261fbe221ef8dc1f49c3b4057f83c59814c9ee38bc0411fe"
+    },
+    {
+      "path": "src/Moongchi.NameFix.Infrastructure/SettingsStore.cs",
+      "sha256": "c62d066fb2f8989c6fbc7359e9e9d1bc7de5d826c19361ad3506c16f752fbbbd"
+    },
+    {
+      "path": "src/Moongchi.NameFix.App/Strings/ko-KR/Resources.resw",
+      "sha256": "e0d0fedcd06ca3a7d0cc6b20c29b01dd552d4db7b9f6c3ef490d278a50f12581"
+    },
+    {
+      "path": "src/Moongchi.NameFix.App/Strings/en-US/Resources.resw",
+      "sha256": "3e31d5dddc971777cb1f487b424526dbdfed0901aea5424d27c9eba3fdbe0a59"
+    },
+    {
+      "path": "src/Moongchi.NameFix.App/Strings/ja-JP/Resources.resw",
+      "sha256": "d37a060596acc63dbd2a5531ef8363df95792a49efcd1ade7aa10b0c25b77e00"
+    },
+    {
+      "path": "docs/RELEASE_READINESS_REVIEW.md",
+      "sha256": "3490853d5ee091b026da8448c7554574da38370e1c448ae8d39d86c1f4b412f7"
+    }
+  ],
+  "files": [
+    {
+      "path": "assets/fonts/PretendardJPVariable-LICENSE.txt",
+      "bytes": 4422,
+      "sha256": "6cb2adce04090e5e321168d5b47e12d1cb703da64929a4f34dba9162eb55eb98"
+    },
+    {
+      "path": "assets/fonts/PretendardJPVariable.ttf",
+      "bytes": 13087888,
+      "sha256": "bc1d77db0f3cb9c20986b8939aa8a28d5216552d777d082955da22f420535cbb"
+    },
+    {
+      "path": "assets/fonts/PretendardVariable-LICENSE.txt",
+      "bytes": 4419,
+      "sha256": "b04538c9abec39a3db75108cf0af0fd9c77032fe8aa2cf38345b4d250e98e38e"
+    },
+    {
+      "path": "assets/fonts/PretendardVariable.ttf",
+      "bytes": 6739336,
+      "sha256": "3090ccde0442bb347aa7685d9ba8b17436a60682df6e8f92a9a670de14056e22"
+    },
+    {
+      "path": "HANDOFF_VALIDATION.md",
+      "bytes": 1030,
+      "sha256": "cc6553772c79f1882875dd043702f4a29cd9f0fe1860999c9b5c2b7f71e50b9b"
+    },
+    {
+      "path": "LOCALIZATION_CATALOG.md",
+      "bytes": 29600,
+      "sha256": "e47f04c6cf4db9263bcde086cdc8b16e57eb7d2970c14076dbb21689b67e8474"
+    },
+    {
+      "path": "Moongchi_NameFix_macOS_DevAI_StartPrompt_v1.0.md",
+      "bytes": 10808,
+      "sha256": "70e5f8e38fc0ab2b0d09ac70e5ff6f8f2adce16290616f124bb465b8d5457455"
+    },
+    {
+      "path": "Moongchi_NameFix_macOS_Project_Master_v1.0.md",
+      "bytes": 54320,
+      "sha256": "6f37f54a8dd149c8329b4572c9f1d22bb84650f97675604ef893e5e8aecf2e49"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3300,
+      "sha256": "892439b948fb58fa58c8d985a20c68e85b2ca1b97c885ca12d4f81734b2827ca"
+    }
+  ],
+  "note": "Manifest excludes itself. Source files are provenance references and are not required to use this handoff."
+}

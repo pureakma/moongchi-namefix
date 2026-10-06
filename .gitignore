@@ -1,0 +1,20 @@
+# Local build output and development artifacts
+.build/
+artifacts/
+.swiftpm/
+DerivedData/
+
+# Local test fixtures
+/테스트자료/
+
+# macOS and Xcode user state
+.DS_Store
+**/xcuserdata/
+*.xcuserstate
+
+# Local credentials
+.env
+.env.*
+*.p12
+*.p8
+*.mobileprovision
