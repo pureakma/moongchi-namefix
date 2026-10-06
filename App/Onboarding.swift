@@ -258,7 +258,7 @@ struct HelpView: View {
     }
 }
 
-/// The AILO wordmark, drawn from its vector outline (ailo-long.svg) so it stays sharp at any size.
+/// The wordmark of AILO WORKS, the developer, drawn from its vector outline (ailo-long.svg) so it stays sharp at any size.
 struct AiloLogo: View {
     var body: some View {
         Canvas { context, size in
@@ -276,7 +276,7 @@ struct AiloLogo: View {
             context.stroke(letters.applying(place), with: .color(Color(hex: "3F51F7")), style: StrokeStyle(lineWidth: 18 * scale, lineCap: .round, lineJoin: .round))
             context.stroke(caret.applying(place), with: .color(Color(hex: "2DD4BF")), style: StrokeStyle(lineWidth: 13 * scale, lineCap: .round, lineJoin: .round))
         }
-        .aspectRatio(280 / 158, contentMode: .fit).accessibilityLabel("AILO")
+        .aspectRatio(280 / 158, contentMode: .fit).accessibilityLabel("AILO WORKS")
     }
 }
 

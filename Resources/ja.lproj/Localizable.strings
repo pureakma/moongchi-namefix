@@ -79,7 +79,7 @@
 "DateFormat" = "日付形式 (例: yyyy-MM-dd)";
 "DecomposeHelp" = "ほかのツールが分離形式を必要とする場合にだけ使います。文字を分けて保存しますが、見た目は変わらない場合があります。";
 "DestinationColumn" = "新しい名前の列";
-"DeveloperAbout" = "Moongchi NameFixは、AILOが設計・開発するMoongchiシリーズのMacアプリです。";
+"DeveloperAbout" = "Moongchi NameFixは、AILO WORKSが設計・開発するMoongchiシリーズのMacアプリです。";
 "DeveloperCaption" = "企画・設計・開発";
 "Diagnostics" = "ローカル診断ログを有効にする";
 "DiagnosticsError" = "診断情報を保存できませんでした。";

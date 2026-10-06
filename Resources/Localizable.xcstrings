@@ -11231,19 +11231,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moongchi NameFix는 AILO가 설계하고 개발한 뭉치(Moongchi) 제품군의 Mac 앱입니다."
+            "value": "Moongchi NameFix는 AILO WORKS가 설계하고 개발한 뭉치(Moongchi) 제품군의 Mac 앱입니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moongchi NameFix is a Mac app in the Moongchi family, designed and engineered by AILO."
+            "value": "Moongchi NameFix is a Mac app in the Moongchi family, designed and engineered by AILO WORKS."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moongchi NameFixは、AILOが設計・開発するMoongchiシリーズのMacアプリです。"
+            "value": "Moongchi NameFixは、AILO WORKSが設計・開発するMoongchiシリーズのMacアプリです。"
           }
         }
       }
