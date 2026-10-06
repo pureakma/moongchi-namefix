@@ -289,7 +289,6 @@ struct DeveloperCard: View {
             HStack(alignment: .center, spacing: 18) {
                 AiloLogo().frame(width: 104)
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(model.t("DeveloperCaption")).font(.caption).fontWeight(.semibold).tracking(0.6).foregroundStyle(palette.secondary)
                     Text(model.t("DeveloperAbout")).fixedSize(horizontal: false, vertical: true)
                     Text("Moongchi NameFix · " + model.t("VersionLine", AppInfo.version, AppInfo.build)).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
                 }

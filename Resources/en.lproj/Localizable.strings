@@ -80,7 +80,6 @@
 "DecomposeHelp" = "Use only when another tool requires the separated form. Characters are stored as separate parts and may still look identical.";
 "DestinationColumn" = "Destination column";
 "DeveloperAbout" = "Moongchi NameFix is a Mac app in the Moongchi family, designed and engineered by AILO WORKS.";
-"DeveloperCaption" = "DESIGN & ENGINEERING";
 "Diagnostics" = "Enable local diagnostic logs";
 "DiagnosticsError" = "Could not save diagnostics.";
 "DiagnosticsErrorShort" = "Couldn’t save diagnostics";

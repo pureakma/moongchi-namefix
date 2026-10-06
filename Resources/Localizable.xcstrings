@@ -11202,29 +11202,6 @@
         }
       }
     },
-    "DeveloperCaption": {
-      "extractionState": "manual",
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "기획 · 설계 · 개발"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DESIGN & ENGINEERING"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "企画・設計・開発"
-          }
-        }
-      }
-    },
     "DeveloperAbout": {
       "extractionState": "manual",
       "localizations": {

@@ -80,7 +80,6 @@
 "DecomposeHelp" = "ほかのツールが分離形式を必要とする場合にだけ使います。文字を分けて保存しますが、見た目は変わらない場合があります。";
 "DestinationColumn" = "新しい名前の列";
 "DeveloperAbout" = "Moongchi NameFixは、AILO WORKSが設計・開発するMoongchiシリーズのMacアプリです。";
-"DeveloperCaption" = "企画・設計・開発";
 "Diagnostics" = "ローカル診断ログを有効にする";
 "DiagnosticsError" = "診断情報を保存できませんでした。";
 "DiagnosticsErrorShort" = "診断情報の保存に失敗";
