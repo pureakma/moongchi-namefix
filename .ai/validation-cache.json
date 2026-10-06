@@ -1833,12 +1833,12 @@
         "eng/test-expansion-cli.py",
         "eng/test-release-cli.py"
       ],
-      "sourceFingerprint": "9ae7a96e9c07c02ad14e8a9def2f083277dcb471a745eb1f341f4864f1c0f444",
-      "testFingerprint": "0da12d7944b5a50bb14c6c52ce181e2787ccbc97835f96e56922a9898e1cf615",
-      "timestamp": "2026-10-06T07:57:10.880488+00:00",
+      "sourceFingerprint": "05e7ca54b0f75c25f5950d1d77b69ee1c3495fd770e700c1b7f3d66507f1365f",
+      "testFingerprint": "8ef5d9c84531e1bffd1e1d7a0e6b1d8ddeda49c9c0f2a83ff5e725e0e5bd56bc",
+      "timestamp": "2026-10-06T08:29:33.444201+00:00",
       "command": "eng/test.sh --level 3 --scope all; eng/build-cli.sh debug; eng/test-expansion-cli.py; eng/build.sh Debug; xcodebuild build-for-testing; eng/resources.py; eng/validate-resources.py; --render-ux/--render-shell/--render-expansion/--render-expansion --native-sidebar/--render-responsive; --diagnose-window; --live-sidebar-check (Debug)",
-      "evidencePath": "artifacts/development/first-use-ux",
-      "notes": "108 tests, 0 failures (53 integration with 3 opt-in profiles skipped, 35 UI model, 20 core); CLI contract PASS without a paid tier; UI test bundle compiles (not run); 490 keys x 3 locales; 25 representative first-use screens plus 195 existing fixture renders, representative screens visually inspected by the AI. Free-only policy, icon rail + folder tree sidebar, title/contextual toolbar. No Application/Infrastructure change. No Release build or Release CLI run, no user GUI control; screen structure is not user-approved. After the user reported a vanishing sidebar and unreliable title bar dragging: drag strip over the sidebar band, divider collapse blocked, fixtures no longer write the saved sidebar width; headless and live window checks PASS. The vanishing sidebar was not reproduced and needs user re-check. UI model tests were not rerun for this last change (view-layer only)."
+      "evidencePath": "artifacts/development/ui-structure-2",
+      "notes": "UI structure pass 2 (input-driven sidebar, window chrome, whole-band dragging, two-pane batch rename): 37 UI model tests, 0 failures; UI test bundle compiles (not run); 521 keys x 3 locales; headless window diagnosis and Debug-only live window check PASS (state transitions, sidebar widths, band hit targets left/middle/right); 31 representative screens plus 195 existing fixture renders, representative screens visually inspected by the AI. Runtime, core and CLI tests were last run before this pass (108 tests, CLI PASS) and those sources are unchanged since. No real mouse drag, no Release build, no user GUI control; screen structure is not user-approved."
     }
   ]
 }

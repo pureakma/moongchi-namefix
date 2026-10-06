@@ -16,8 +16,8 @@
 
 ### T-003 First-use UX와 화면 구조 단순화 [verificationPending]
 - 근원: R-008
-- 범위: 빈 상태를 유일한 입력 화면으로, 결과 control은 입력 뒤에만, 일괄 변경의 작업 선택 우선 흐름과 고급 규칙 접기. 사용자 첫 확인 뒤 추가: 전 기능 무료(D-014), sidebar를 아이콘 레일 + 추가 항목 트리로(D-015), 상단 band에 화면 제목과 상황별 동작, 목록 아래 잡동사니 메뉴 제거, sidebar 접기 버튼 제거와 앱 이름 표시. 기능 삭제 없음. Core는 전체 access provider 추가뿐이고 Application/Infrastructure 변경 없음.
-- 완료기준: 빈 화면에 결과용 control 없음, 입력 UI 중복 없음, sidebar가 레일과 트리로 읽힘, 일괄 변경 첫 화면에 규칙 편집 전체가 노출되지 않음, Pro 표시 없음, 관련 자동 검증 PASS, 사용자 화면 승인
+- 범위: 빈 상태를 유일한 입력 화면으로, 결과 control은 입력 뒤에만. 사용자 확인 뒤 추가: 전 기능 무료(D-014), 왼쪽 영역을 입력 상태 기반으로(D-016: 입력 없음 → 펼친 navigation, 입력 있음 → 아이콘 레일 + 폴더 트리), 창 chrome 연결과 앱 이름, band 전체 drag, 일괄 변경을 ‘변경 규칙’/‘미리보기’ 2-pane과 ‘+ 규칙 추가’ popover로 재설계, stale 미리보기를 header 상태로 표시. 기능 삭제 없음. Core는 전체 access provider 추가뿐이고 Application/Infrastructure 변경 없음.
+- 완료기준: 빈 화면에 결과용 control 없음, 입력 UI 중복 없음, 왼쪽 영역이 입력 상태를 따라 자동 전환, band 전체 drag, 일괄 변경 두 pane의 시작선 일치와 stale 상태가 layout을 밀지 않음, Pro 표시 없음, 관련 자동 검증 PASS, 사용자 화면 승인
 - 대기: 사용자의 화면 확인(docs/QA.md S1~S5). AI가 본 렌더는 Engineering Verification이며 화면 승인이 아니다.
 - 검증: docs/QA.md의 First-use UX 구조 단순화 검증 표
 

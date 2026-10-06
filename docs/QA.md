@@ -38,24 +38,26 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 ## First-use UX 구조 단순화 검증 (T-003)
 
-2026-10-06 화면 구조를 다시 설계하고, 사용자의 첫 확인 뒤 지시(전 기능 무료, 아이콘 레일 + 트리 sidebar, 상단 band 활용, 하단 메뉴 제거)를 반영한 뒤의 Engineering Verification이다. 영수증은 MAC-FIRST-USE-UX-20261006, 로컬 evidence는 artifacts/development/first-use-ux다.
+2026-10-06 화면 구조 재설계와 그 뒤 사용자 지시(전 기능 무료, UI 구조 재설계 2차: 입력 상태를 따르는 왼쪽 영역, 창 chrome과 앱 이름, 전체 band drag, 일괄 변경 2-pane)를 반영한 뒤의 Engineering Verification이다. 영수증은 MAC-FIRST-USE-UX-20261006, 로컬 evidence는 artifacts/development/ui-structure-2다.
 
 | 항목 | 명령 | 결과 |
 |---|---|---|
-| Runtime·UI model·Core test | eng/test.sh --level 3 --scope all | 108개 실행, 실패 0 (통합 53 중 성능 프로파일 3개 skip, UI model 35, Core 20) |
-| CLI | eng/build-cli.sh debug; eng/test-expansion-cli.py | PASS. 유료 등급 없이 프리셋·CSV 사용 가능 확인 |
+| UI model test | swift test --filter UIModelTests | 37개, 실패 0 (sidebar 상태 규칙과 폭 규칙 test 포함) |
 | Debug build | eng/build.sh --configuration Debug --arch arm64 | BUILD SUCCEEDED |
 | UI test bundle | xcodebuild build-for-testing | TEST BUILD SUCCEEDED (실행은 하지 않음) |
-| 리소스 | eng/resources.py; eng/validate-resources.py | 490 keys × ko/en/ja, 재생성 diff 0 PASS |
-| 창 동작 진단 | --diagnose-window (보이지 않는 창), Debug 전용 --live-sidebar-check (실제 창, 키 입력 합성 없음) | 폴더 추가·트리 폴더 선택·일괄 변경 전환 뒤에도 sidebar 유지, 구분선으로 접히지 않음, 좁은 창에서 숨었다가 넓히면 복귀, sidebar 위 band의 클릭이 drag strip으로 감 PASS |
-| 대표 화면 | --render-ux | 25장: 빈 상태, 결과, 충돌, 일괄 변경 빈 상태·작업 선택·값 입력·미적용·고급 펼침, 좁은 창, ko/en/ja, Olive·Dark·Light |
-| 기존 render fixture | --render-shell, --render-expansion(±--native-sidebar), --render-responsive | 195장, assertion PASS |
+| 리소스 | eng/resources.py; eng/validate-resources.py | 521 keys × ko/en/ja, 재생성 diff 0 PASS |
+| 창 동작 진단 | --diagnose-window (보이지 않는 창) | 입력 없음 → navigation 208pt, 폴더 추가 → 레일 + 트리 268pt, 모두 제거 → navigation 복귀, 좁은 창 → 숨김, 다시 넓히면 복귀. band의 왼쪽·가운데·오른쪽 표본이 모두 drag 대상이고 hosting view가 받는 지점 없음 PASS |
+| 실제 창 확인 | Debug 전용 --live-sidebar-check (키·마우스 입력 합성 없음) | 실제 화면의 창에서 같은 상태 전이와 band 판정 PASS. 폴더 선택 창을 연 상태 포함 |
+| 대표 화면 | --render-ux | 31장: 입력 없음, 결과, 충돌, 일괄 변경(파일 없음·규칙 없음·규칙 1개·규칙 편집·stale), 규칙 추가 popover, 고급 sheet, 좁은 창, ko/en/ja, Olive·Dark·Light |
+| 기존 render fixture | --render-shell, --render-expansion(±--native-sidebar), --render-responsive | 195장 생성, assertion PASS |
 
-이번에 추가한 test: sidebar 트리 구성과 폴더별 변경 가능 개수, 폴더 선택이 목록만 좁히고 선택 집합은 유지하는지, 기본 앱이 유료 등급 없이 모든 기능을 허용하는지. Core는 FullAccessEntitlementProvider 추가뿐이고 Application/Infrastructure는 바꾸지 않았다. Release 구성 build와 Release CLI test(eng/test-release-cli.py는 새 정책에 맞게 고쳤음)는 다시 실행하지 않았다.
+이번 2차 변경은 App UI와 문구에 한정된다. Core/Application/Infrastructure/CLI는 바꾸지 않았으므로 runtime·transaction·filesystem·CLI test는 다시 실행하지 않았고, 직전 실행(108개 중 runtime 53·core 20 통과, CLI PASS)을 그대로 쓴다.
 
-AI가 직접 본 화면 평가(User QA가 아니다): 빈 상태에는 입력 요소만 있고 결과용 control이 없다. 상단 band에는 화면 제목이, 항목을 추가한 뒤에는 결과 저장·다시 검사·추가 버튼이 나온다. sidebar는 아이콘 레일과 트리로 나뉘고 폴더별 변경 가능 개수가 보인다. 일괄 변경은 파일이 없으면 빈 상태, 파일이 있으면 작업 여섯 가지가 먼저 보이고 규칙 편집 전체는 고급 규칙을 펼쳐야 나온다. 아이콘 tooltip, hover, drag 중 표시, 메뉴 동작, 트리 펼침·선택의 실제 조작은 렌더로 확인할 수 없어 아래 화면 확인에 넣었다.
+AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름이 있는 navigation과 빈 상태만 보인다. 추가하면 레일과 트리로 바뀌고 표가 중심이 된다. 일괄 변경은 ‘변경 규칙’과 ‘미리보기’ header가 같은 선에서 시작하고, stale 상태에서도 표 위치가 변하지 않는다. popover와 sheet는 별도 창이라 내용만 따로 렌더해 확인했다.
 
-사용자 보고(2026-10-06): “폴더를 선택하니 사이드 패널이 사라짐”, “상단 드래그가 되다 말다 함”. 두 번째는 sidebar 위 band에서 hosting view가 클릭을 받는 것을 실제 창에서 측정해 원인을 확인하고 drag strip으로 고쳤다. 첫 번째는 폴더 선택 창을 거친 추가와 트리 선택을 실제 창에서 재현했으나 다시 나타나지 않았다. 구분선 드래그로 접힌 뒤 되돌릴 방법이 없던 점과 render fixture가 저장된 sidebar 상태를 덮어쓰던 점을 가능한 원인으로 보고 둘 다 막았으며, 넓은 창에서는 sidebar가 항상 복귀하도록 했다. 사용자의 재확인이 필요하다.
+확인하지 못한 것: 실제 마우스로 band를 끌었을 때 창이 움직이는지(클릭이 drag 대상 view에 도달하는지까지만 측정), tooltip 표시, popover가 버튼에 붙어 열리는 모습, 트리 폭 드래그와 기억, 상태 전환 시의 깜빡임 여부. 아래 화면 확인에 넣었다.
+
+사용자 보고(2026-10-06) 처리: “상단 드래그가 되다 말다 함”은 content view가 클릭을 받는 구간 전체에 drag strip을 두어 해결했다. “폴더를 선택하니 사이드 패널이 사라짐”은 재현하지 못했으며, 구분선으로 접히지 않게 하고 render fixture가 저장 상태를 쓰지 않게 한 뒤 왼쪽 영역을 입력 상태 기반으로 다시 만들었다. 사용자의 재확인이 필요하다.
 
 ## User QA — 한 번에 확인할 목록
 
@@ -65,18 +67,18 @@ AI가 직접 본 화면 평가(User QA가 아니다): 빈 상태에는 입력 �
 
 | 화면 | 볼 것 |
 |---|---|
-| S1 자소 분리 해결 — 처음 연 상태 | 무엇을 하는 앱인지, 파일을 어디에 넣는지 바로 알 수 있는가. 상단 band와 sidebar 첫 폭이 어색하지 않은가 |
-| S2 자소 분리 해결 — 폴더를 넣은 뒤 | 요약·검색·목록·‘선택한 N개 이름 합치기’의 위계가 분명한가. ‘필터·정렬’과 ‘선택’ 메뉴로 충분한가 |
-| S3 파일 이름 일괄 변경 — 처음 연 상태와 파일을 넣은 뒤 | “이름을 어떻게 바꿀까요?”에서 바로 시작할 수 있는가 |
-| S4 파일 이름 일괄 변경 — 작업 하나 선택 후 | 값 입력 → 미리보기 갱신 → 이름 바꾸기 순서가 자연스러운가. 고급 규칙을 펼쳤을 때 과하지 않은가 |
-| S5 사이드바와 좁힌 창 | 아이콘 레일이 tooltip만으로 충분히 이해되는가. 트리에서 폴더를 눌러 목록을 좁히는 동작이 자연스러운가. 창을 좁히면 사이드바가 숨고 넓히면 돌아오는가 |
+| S1 입력 없는 첫 화면 | 왼쪽 메뉴가 이름과 함께 읽히는가. 앱 이름 NameFix의 존재감과 화면 제목 배치가 자연스러운가. band 왼쪽·가운데·오른쪽 어디를 잡아도 창이 움직이는가 |
+| S2 폴더를 넣은 뒤 | 메뉴가 아이콘 레일로 줄고 트리가 나오는가. 모두 제거하면 메뉴가 돌아오는가. 왼쪽 경계선이 title bar 아래 선과 둥글게 이어져 보이는가 |
+| S3 파일 이름 일괄 변경 — 규칙 없음 | ‘변경 규칙’과 ‘미리보기’가 같은 선에서 시작하는가. ‘+ 규칙 추가’ popover에서 기본·고급을 고르기 쉬운가 |
+| S4 규칙 추가·수정 후 | 규칙 줄 요약과 펼친 편집이 충분한가. ‘업데이트 필요’ 상태가 표를 밀지 않고 눈에 띄는가 |
+| S5 고급 설정 sheet와 좁힌 창 | 글자 저장 형식·CSV 목록·프리셋 sheet가 과하지 않은가. 창을 좁혔을 때 정보가 과밀하지 않은가 |
 
 | ID | 확인 항목 | 현재 상태 |
 |---|---|---|
 | U01 | 기본 흐름: 파일·폴더 추가(선택 창, 창 전체 drag & drop) → 검사 → 변경 전후 이름 확인 → 확인 시트 → 이름 바꾸기 → 결과 → 작업 기록 → 되돌리기 | PENDING |
 | U02 | 처음 보는 사용자 기준으로 화면 문구가 설명 없이 이해되는지: 상태(글자 분리됨 등), 확인 시트, 사용 방법, 오류 안내 | PENDING |
 | U03 | 테마 4종과 ko/en/ja 전환이 즉시 적용·저장되고 재실행 후 유지되는지, 주요 화면에서 글자가 잘리지 않는지 | PENDING |
-| U04 | 창 크기 조절(좁게/넓게/낮게), 사이드바 자동 숨김과 폭 조절, 전체 화면, 재실행 후 창 위치 복원 | PENDING |
+| U04 | 창 크기 조절(좁게/넓게/낮게), 좁은 창에서 왼쪽 영역 자동 숨김, 트리 폭 조절과 기억, 전체 화면, 재실행 후 창 위치 복원 | PENDING |
 | U05 | 키보드만으로 조작: Tab 이동, Space 선택, ⌘O/⇧⌘O/⌘F/⌘R/⌘1/⌘2/⌘,/⌘W/⌘M/⌘H, 확인 시트의 Return/Esc | PENDING |
 | U06 | VoiceOver로 목록·버튼·상태 읽기, 대비 증가·큰 글자 설정에서 가독성 | PENDING |
 | U07 | 글자 구성 자세히 보기, 복사한 글자 변환(자동 감시 없음) | PENDING |

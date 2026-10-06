@@ -23,13 +23,13 @@ Moongchi NameFix는 파일과 폴더 이름의 Unicode 정규화 차이와 이�
 
 ## 현재 확정 범위
 
-현재 소스에는 Unicode 정리, 기본/고급 일괄 이름 변경, 프리셋/CSV/파일 정보/묶음 파일/감시/CLI, 안전한 Rename·Undo·Recovery, ko/en/ja, 네 테마, 반응형 창, 자소 분리 해결 화면과 파일 이름 일괄 변경 화면, 아이콘 레일과 추가 항목 트리로 이뤄진 native sidebar가 구현돼 있다. 모든 기능은 무료다.
+현재 소스에는 Unicode 정리, 기본/고급 일괄 이름 변경, 프리셋/CSV/파일 정보/묶음 파일/감시/CLI, 안전한 Rename·Undo·Recovery, ko/en/ja, 네 테마, 반응형 창, 자소 분리 해결 화면과 파일 이름 일괄 변경 화면, 입력 상태를 따라 펼친 navigation 또는 아이콘 레일 + 폴더 트리로 바뀌는 왼쪽 영역이 구현돼 있다. 모든 기능은 무료다.
 
 현재 지원/구현 사실과 세부 책임은 ARCHITECTURE.md, DESIGN.md, FILESYSTEM_CAPABILITIES.md가 원본이다. 제품 완성과 공개 출시 완료는 같은 상태가 아니다.
 
 범위 밖 또는 아직 승인되지 않은 후보:
 - 유료 등급 재도입(현재는 전 기능 무료)
-- 즐겨찾기 폴더(자주 쓰는 폴더를 고정해 바로 검사)
+- 즐겨찾기 폴더(자주 쓰는 폴더를 고정해 바로 검사). 정책은 D-016으로 확정: 감시와 결합하지 않는 shortcut
 - App Store 또는 직접 배포 채널의 최종 선택과 그에 따른 sandbox/entitlement 조정
 - AI/Apple Foundation Models/OCR/RAG 기반 내용 이름 제안
 - Windows/Intel 지원
@@ -45,7 +45,7 @@ Moongchi NameFix는 파일과 폴더 이름의 Unicode 정규화 차이와 이�
 
 2026-10-06 사용자가 ‘출시 전 제품 완성도 고도화’ Phase를 승인했다. 범위는 UI/UX·사용자 용어·ko/en/ja·접근성·코드·안정성 리뷰와 확인된 문제의 수정, 영향 검증, 앱 자체 기준 Release Candidate Ready 판정, User QA 목록 정리다(T-002). 실제 판매 연결·공증·Store 제출·공개 배포는 이 Phase에 포함하지 않으며 R-010의 사용자 Gate에서 보류한다. 별도 PLAN.md는 만들지 않는다.
 
-T-002의 구현과 Engineering Verification은 끝났고 User QA만 남았다. 같은 날 사용자가 실제 화면을 보고 first-use 복잡도를 지적해 ‘First-use UX 및 전체 UI 구조 단순화’(T-003)를 추가 승인했다. 범위는 화면의 정보 노출 시점·navigation·hierarchy 재설계이며 기능 추가와 안전 엔진 변경은 포함하지 않는다. 사용자가 첫 화면 확인 뒤 추가로 지시한 내용도 T-003에 포함했다: 전 기능 무료(유료 등급 제거), sidebar를 아이콘 레일 + 추가 항목 트리로 변경, 상단 band에 화면 제목과 상황별 동작 배치, 하단 잡동사니 메뉴 제거. T-003은 구현과 Engineering Verification이 끝났고 사용자의 화면 승인만 남았다. 그 뒤 승인된 다음 제품 구현 Phase는 없다.
+T-002의 구현과 Engineering Verification은 끝났고 User QA만 남았다. 같은 날 사용자가 실제 화면을 보고 first-use 복잡도를 지적해 ‘First-use UX 및 전체 UI 구조 단순화’(T-003)를 추가 승인했다. 범위는 화면의 정보 노출 시점·navigation·hierarchy 재설계이며 기능 추가와 안전 엔진 변경은 포함하지 않는다. 사용자가 화면 확인 뒤 추가로 지시한 내용도 T-003에 포함했다: 전 기능 무료(유료 등급 제거), 왼쪽 영역을 입력 상태 기반으로 전환(입력 없음 → 펼친 navigation, 입력 있음 → 아이콘 레일 + 폴더 트리), 창 chrome·앱 이름·band drag 정리, 일괄 변경의 2-pane 재설계. T-003은 구현과 Engineering Verification이 끝났고 사용자의 화면 승인만 남았다. 그 뒤 승인된 다음 제품 구현 Phase는 없다.
 
 다음 개발은 사용자가 새 범위를 승인하면 그 범위의 Milestone/Task를 STATUS에 만들고 진행한다. Release를 승인할 경우 첫 순서는 현재 소스에 대한 영향 검증 → 현재 source 기준 새 Release 후보 → 출시 식별자/공증 입력 연결 → User QA/깨끗한 Mac Gate다.
 
