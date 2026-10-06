@@ -31,7 +31,7 @@ Moongchi NameFix는 파일과 폴더 이름의 Unicode 정규화 차이와 이�
 
 범위 밖 또는 아직 승인되지 않은 후보:
 - 유료 등급 재도입(현재는 전 기능 무료)
-- App Store 또는 직접 배포 채널의 최종 선택과 그에 따른 sandbox/entitlement 조정
+- Mac App Store 배포와 그에 따른 sandbox/entitlement 조정(v1.0은 직접 배포로 확정, D-023)
 - AI/Apple Foundation Models/OCR/RAG 기반 내용 이름 제안
 - Windows/Intel 지원
 - 확인되지 않은 외장·SMB·NAS·cloud volume mutation 확대
@@ -49,6 +49,8 @@ T-002의 구현과 Engineering Verification은 끝났고 User QA만 남았다. �
 
 2026-10-06 사용자가 제품 결정 두 가지를 추가로 승인했다: 즐겨찾기 폴더를 v1.0에 포함(D-021, R-013), 파일 이름 일괄 변경의 기본 대상 정책(D-022, R-014). 구현과 영향 검증은 T-005에 있다.
 
+2026-10-06 사용자가 ‘Release Preparation 1차’를 승인했다: 직접 배포 정책과 출시 식별자 확정(D-023), 현재 source의 build 4 서명 전 후보 준비까지. 실제 Developer ID 서명·공증·DMG·공개 배포는 포함하지 않으며 사용자가 2차를 따로 승인한 뒤 진행한다(T-006).
+
 다음 개발은 사용자가 새 범위를 승인하면 그 범위의 Milestone/Task를 STATUS에 만들고 진행한다. Release를 승인할 경우 첫 순서는 현재 소스에 대한 영향 검증 → 현재 source 기준 새 Release 후보 → 출시 식별자/공증 입력 연결 → User QA/깨끗한 Mac Gate다.
 
 ## 환경과 의존성
@@ -58,7 +60,7 @@ T-002의 구현과 Engineering Verification은 끝났고 User QA만 남았다. �
 - language: Swift 6, strict concurrency complete
 - UI: SwiftUI + AppKit
 - build project: project.yml → MoongchiNameFix.xcodeproj
-- current development bundle ID: com.moongchi.namefix.dev
+- bundle ID: Release 구성 com.ailoworks.namefix, Debug 구성 com.moongchi.namefix.dev (D-023)
 - app sandbox: 현재 설정 OFF
 - hardened runtime: 프로젝트 설정 ON
 - local packages: NameFixCore / NameFixRuntime / NameFixApplication

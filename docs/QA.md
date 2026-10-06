@@ -54,11 +54,33 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 재사용한 기존 근거와 한계:
 - MAC-V1-APFS-CASE-SENSITIVE(대소문자 구분 APFS 볼륨)는 다시 실행하지 않았다. Infrastructure/Application/Core source는 이번에 바뀌지 않았다.
 - UI test bundle(xcodebuild build-for-testing)은 다시 build하지 않았다. 직전 변경은 실행 인자 한 줄이다.
-- MAC-V1-SOURCE-RACE-LIMITATION은 KNOWN_LIMITATION, MAC-V1-NOTARIZATION과 MAC-V1-PAID-PROVIDER는 BLOCKED_EXTERNAL로 유지한다.
+- MAC-V1-SOURCE-RACE-LIMITATION은 KNOWN_LIMITATION이다. MAC-V1-NOTARIZATION은 build3의 기록이며 현재 후보의 공증은 T-006에서 새로 한다. 유료 공급자 관련 영수증(MAC-V1-PAID-PROVIDER 등)은 전 기능 무료 결정(D-014)으로 SUPERSEDED다.
 - macOS 14 실기의 대량 목록 성능과 실제 scroll 체감은 User QA U10/U11에서 확인한다.
 - Core의 DevelopmentEntitlementProvider는 쓰이지 않지만 Core 계약 파일이라 이번 정리에서 건드리지 않았다. eng/build-cli.sh는 실행 권한이 없어 bash로 실행했다.
 
 과거 build3 Release 후보의 서명·패키지 검증은 현재 source의 근거가 아니다. 경쟁 제품 대비 속도로 확대하지 않는다.
+
+## Release Preparation 1차 검증
+
+2026-10-06. 영수증은 MAC-RELEASE-PREP1-BUILD4-20261006, evidence는 artifacts/release-candidate/1.0.0/evidence-build4, 후보는 artifacts/release-candidate/1.0.0/build4-pre-sign(source commit bd64b03)이다. 이번에 바뀐 것은 Release metadata·bundle ID·build 번호·패키징 도구·문구이며 Core/Application/Infrastructure는 바뀌지 않았다.
+
+| 항목 | 명령 | 결과 |
+|---|---|---|
+| project 생성 | xcodegen generate | Release = com.ailoworks.namefix, Debug = com.moongchi.namefix.dev, build 4, Release에 디버깅 entitlement 주입 없음 |
+| Debug build | eng/build.sh --configuration Debug --arch arm64 | BUILD SUCCEEDED, com.moongchi.namefix.dev, 1.0.0 (4) |
+| Release build | eng/build.sh --clean --configuration Release --arch arm64 | BUILD SUCCEEDED, com.ailoworks.namefix, 1.0.0 (4), arm64, 최소 14.0, Hardened Runtime(flags adhoc,runtime), entitlement 없음(sandbox 없음), self-test PASS |
+| Release binary | strings 검사 | render·진단 fixture flag, 개발 전용 switch, test 환경 변수, 네트워크 API 이름 없음 |
+| 리소스 | eng/resources.py; eng/validate-resources.py | 516 keys × ko/en/ja PASS |
+| CLI (Release) | bash eng/build-cli.sh release; eng/test-release-cli.py | arm64, dry-run 기본, non-TTY 실행 거부, 개발 flag 없음, source hash 불변 PASS |
+| 후보 생성 | eng/package-candidate.py | 새 경로에 앱·CLI·README·USER_GUIDE·ThirdPartyNotices·BUILD_INFO·manifest. ZIP/DMG 없음. build3 후보는 그대로 |
+| 후보 검증 | eng/verify-candidate.py | manifest와 파일 hash 일치, Info.plist(식별자·버전·build·최소 OS), 아이콘·세 언어·폰트 리소스, 서명 상태 PRE_SIGN / Developer ID NOT_RUN / 공증 NOT_RUN / publicRelease false, 무료·직접 배포·AILO WORKS·문의 주소, 유료 모델 필드 없음, 사용자 안내에 옛 문구 없음 PASS |
+| 서명 도구 | eng/sign-candidate.py --dry-run | 입력 후보가 manifest와 일치함을 확인하고 아무것도 서명하지 않음 |
+
+실행하지 않은 것: Developer ID 서명, 공증 제출, staple, 최종 DMG, 공개 업로드. 서명·공증 스크립트의 실제 서명 경로는 실행해 보지 않았다.
+
+재사용한 근거: Core/통합/UI model test 116개와 Debug CLI 계약(MAC-FAVORITES-TARGETS-20261006), 성능·시작·유휴 측정(T-004). 이번 변경은 문자열 값 하나와 metadata·도구라서 다시 돌리지 않았다.
+
+알려진 차이: 후보의 namefix --help에 --include-folders, --include-hidden 설명이 없다(옵션은 동작한다). 다음 후보에서 고친다.
 
 ## 즐겨찾기와 일괄 변경 대상 정책 검증 (T-005)
 
@@ -175,11 +197,12 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 | U11 | 실제 macOS 14 Apple Silicon에서 U01과 U10 | PENDING |
 | U12 | Finder 서비스, Dock/다음으로 열기, 메뉴바 아이콘 drop·메뉴, 로그인 시 실행, 완료 알림의 실제 OS 승인·거절 | PENDING |
 | U13 | 고급 기능 흐름: 패턴·조건 규칙, 프리셋 저장·불러오기, CSV 목록, 파일 정보(실제 사진/음악/영상), 묶음 파일, 폴더 자동 감시(잠자기·재시작·권한 철회 포함) | PENDING |
-| U14 | 새 current-source 서명·공증 패키지를 깨끗한 Mac에 설치·실행 | BLOCKED_BY_RELEASE |
+| U14 | 서명·공증된 앱을 깨끗한 Mac에 DMG로 설치·실행(Gatekeeper 경고 없음), Finder 서비스·다음으로 열기·권한 요청, 기본 이름 바꾸기 → 되돌리기 | BLOCKED_BY_RELEASE |
 | U15 | 화면 어디에도 Pro·구매 표시가 없고 모든 기능이 바로 동작하는지 | PENDING |
 | U16 | Dock·Finder·앱 전환기(⌘Tab)에서 앱 아이콘이 회색 판 없이 다른 앱과 같은 크기로 보이는지 | PENDING |
 | U17 | 첫 실행 소개: 4쪽 내용과 그림, 어두운 테마에서도 밝게 보이는지, ‘다시 보지 않기’ 후 다시 실행하면 안 나오는지, 설정·도움말 메뉴에서 다시 열리는지 | PENDING |
 | U18 | 사용 방법 화면과 설정(제목 없는 첫 묶음, 오른쪽 정렬 switch, 맨 아래 개발자 카드)의 모양 | PENDING |
+| U19 | 설정의 ‘버그 신고 및 문의’ 버튼이 메일 앱에서 ailo@ailoworks.com으로 새 메일을 여는지 | PENDING |
 
 ## 문서/도구 검증
 

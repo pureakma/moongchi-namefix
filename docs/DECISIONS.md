@@ -30,7 +30,7 @@
 - 결정: 첫 화면은 자소 분리 해결 중심, 고급 규칙은 별도 이름 일괄 변경 작업실로 제공한다. native sidebar와 목적별 도구 메뉴, Olive 기본 + System/Dark/Light, ko/en/ja, 반응형 창을 유지한다.
 - 이유: 기존 기능을 숨기지 않으면서 첫 사용 복잡도를 낮춘다.
 
-### D-007 배포 채널은 아직 확정하지 않음 [accepted]
+### D-007 배포 채널은 아직 확정하지 않음 [superseded by D-023]
 - 날짜: 2026-10-06
 - 결정: 현재 source의 App Sandbox는 OFF이고 직접 배포용 Developer ID 흐름이 준비돼 있지만, 최종 판매/배포 채널을 직접 배포 또는 Mac App Store 중 하나로 아직 확정하지 않는다.
 - 이유: App Store 선택은 sandbox/entitlement와 판매 공급자 설계에 영향을 주므로 Release Task에서 사용자 결정과 최신 공식 정책 확인이 필요하다.
@@ -109,3 +109,8 @@
 - 날짜: 2026-10-06
 - 결정: 파일 이름 일괄 변경은 기본으로 보이는 일반 파일의 이름만 바꾼다(하위 폴더 검사가 켜져 있으면 그 안의 파일 포함). 추가한 폴더 자체·하위 폴더의 이름과 숨김 항목(이름이 점으로 시작하는 항목과 그런 폴더 안의 항목)은 바꾸지 않는다. 고급 설정 ‘대상 범위’의 ‘폴더 이름도 변경’·‘숨김 파일 포함’을 켠 경우에만 대상이 되며 둘 다 기본은 꺼짐이다. ‘폴더 이름도 변경’은 추가한 폴더 자체도 포함한다. Finder 관리 파일(.DS_Store, .localized)은 옵션과 무관하게 제외한다. 대상이 아닌 항목은 번호를 차지하지 않고, 이름 목록(CSV)이 대상이 아닌 항목을 가리키면 일부만 적용하지 않고 전체를 거부한다. 자소 분리 해결 화면(규칙 없는 글자 합치기)은 이 정책의 대상이 아니며 이전처럼 폴더 이름도 합친다. Preview·충돌 검사·Undo·Recovery 계약은 바꾸지 않는다. CLI는 --include-folders, --include-hidden으로 같은 옵션을 준다.
 - 이유: 사용자가 결정했다. 폴더를 통째로 넣고 규칙을 걸었을 때 넣은 폴더 자체나 숨김 파일의 이름까지 바뀌는 것은 대부분의 사용자가 기대하지 않는 결과다.
+
+### D-023 v1.0은 직접 배포, 출시 bundle ID는 com.ailoworks.namefix [accepted]
+- 날짜: 2026-10-06
+- 결정: v1.0은 Mac App Store가 아니라 직접 배포한다(Developer ID Application 서명 + Apple 공증 + DMG). Release 구성의 bundle ID는 com.ailoworks.namefix, Debug 구성은 com.moongchi.namefix.dev로 분리하고 원본은 project.yml 하나다. 서명·공증 도구는 앱의 식별자를 바꾸지 않고 기대값과 다르면 멈춘다. 버전은 1.0.0, 이번 후보의 build는 4이며 후보를 다시 만들면 5 이상을 쓴다. App Sandbox는 OFF, Hardened Runtime은 ON, arm64 전용을 유지한다. 개발사는 AILO WORKS, 문의는 ailo@ailoworks.com이다. 설정·작업 기록 폴더(Application Support/Moongchi/NameFix)는 식별자와 무관하게 그대로 쓰므로 데이터 이전은 없다. UserDefaults는 식별자별로 따로 저장되어 출시 앱은 창 위치·소개 표시 여부 같은 개인 설정을 처음 상태로 시작한다.
+- 이유: 사용자가 배포 채널과 출시 식별자를 결정했다. 개발용 앱과 공개 앱이 같은 식별자를 쓰지 않아야 하고, 식별자를 build 뒤에 고쳐 넣는 방식은 서명 대상과 build 결과가 달라지는 길을 연다.

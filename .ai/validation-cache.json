@@ -1229,7 +1229,7 @@
         "App/AppModel.swift",
         "CLI/main.swift"
       ],
-      "status": "BLOCKED_EXTERNAL",
+      "status": "SUPERSEDED",
       "architecture": "arm64",
       "configuration": "Debug",
       "command": null,
@@ -1249,7 +1249,8 @@
       "supportingEvidence": [
         "artifacts/development/expansion/evidence/core.txt"
       ],
-      "note": "Internal capability/expiry paths verified; real purchase provider and product identifiers are not supplied."
+      "note": "Internal capability/expiry paths verified; real purchase provider and product identifiers are not supplied.",
+      "notes": "Superseded by D-014: every feature is free, so no purchase provider exists to configure."
     },
     {
       "validationId": "MAC-V1-CORE",
@@ -1640,7 +1641,8 @@
       },
       "timestamp": "2026-10-04T04:55:32.355622+00:00",
       "evidencePath": "artifacts/release-candidate/1.0.0/evidence/gatekeeper-build3.txt",
-      "evidenceSHA256": "e82b960bda1a1f91171d536bd8cefe605ab9241470e84318ca55abdd8f2b71c4"
+      "evidenceSHA256": "e82b960bda1a1f91171d536bd8cefe605ab9241470e84318ca55abdd8f2b71c4",
+      "notes": "Recorded for the build 3 candidate. Notarization of the build 4 candidate is T-006 and has not been attempted."
     },
     {
       "validationId": "MAC-V1-PAID-PROVIDER",
@@ -1649,7 +1651,7 @@
         "App/AppModel.swift",
         "CLI/main.swift"
       ],
-      "status": "BLOCKED_EXTERNAL",
+      "status": "SUPERSEDED",
       "architecture": "arm64",
       "configuration": "Release",
       "command": "Verified fail-closed Free behavior; actual purchase provider unconfigured",
@@ -1665,7 +1667,8 @@
       },
       "timestamp": "2026-10-04T04:34:34.476390+00:00",
       "evidencePath": "artifacts/release-candidate/1.0.0/evidence/cli-release-final.txt",
-      "evidenceSHA256": "4de18456e268e2d9c73910638bc7eac721cf7047b1c00ed80924a8c4cfacec64"
+      "evidenceSHA256": "4de18456e268e2d9c73910638bc7eac721cf7047b1c00ed80924a8c4cfacec64",
+      "notes": "Superseded by D-014: every feature is free, so no purchase provider exists to configure."
     },
     {
       "validationId": "MAC-UI-SETTINGS-TOOLS-20261004",
@@ -1869,7 +1872,7 @@
     },
     {
       "validationId": "MAC-FAVORITES-TARGETS-20261006",
-      "status": "PASS",
+      "status": "SUPERSEDED",
       "configuration": "Debug + Release build",
       "architecture": "arm64",
       "scope": [
@@ -1892,7 +1895,40 @@
       "timestamp": "2026-10-06T12:42:51.390440+00:00",
       "command": "eng/test.sh --level 3 --scope all; eng/resources.py; eng/validate-resources.py; bash eng/build-cli.sh debug + eng/test-expansion-cli.py; bash eng/build-cli.sh release + eng/test-release-cli.py; eng/build.sh Debug; eng/build.sh Release + --self-test; --render-ux/--render-shell/--render-expansion/--render-expansion --native-sidebar/--render-responsive; --diagnose-window",
       "evidencePath": "artifacts/development/favorites-targets",
-      "notes": "Favourite folders (D-021) and the batch rename target policy (D-022): 116 tests, 0 failures (54 integration, 42 UI model, 20 core; performance profiles skipped); 516 keys x 3 locales; Debug and Release CLI contracts PASS; Debug and Release arm64 builds; 249 fixture renders. Not re-run: performance profiles, startup/idle measurement, case-sensitive APFS volume profile, UI test bundle build. User checks F1-F5 in docs/QA.md are pending. Then the support address (ailo@ailoworks.com) was added to the Settings card: re-verified with a Debug build and --render-ux; tests were not re-run."
+      "notes": "Favourite folders (D-021) and the batch rename target policy (D-022): 116 tests, 0 failures (54 integration, 42 UI model, 20 core; performance profiles skipped); 516 keys x 3 locales; Debug and Release CLI contracts PASS; Debug and Release arm64 builds; 249 fixture renders. Not re-run: performance profiles, startup/idle measurement, case-sensitive APFS volume profile, UI test bundle build. User checks F1-F5 in docs/QA.md are pending. Then the support address (ailo@ailoworks.com) was added to the Settings card: re-verified with a Debug build and --render-ux; tests were not re-run. Superseded by MAC-RELEASE-PREP1-BUILD4-20261006 after release metadata, one string value and tooling changed; its test results are reused there."
+    },
+    {
+      "validationId": "MAC-RELEASE-PREP1-BUILD4-20261006",
+      "status": "PASS",
+      "configuration": "Release (Debug build also checked)",
+      "architecture": "arm64",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "CLI/**/*.swift",
+        "App/**/*.swift",
+        "App/Info.plist",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "Resources/AppIcon.icon/**/*",
+        "Package.swift",
+        "project.yml",
+        "eng/build.sh",
+        "eng/package-candidate.py",
+        "eng/verify-candidate.py",
+        "eng/sign-candidate.py",
+        "eng/sign-notarize.sh",
+        "eng/test-release-cli.py",
+        "docs/PACKAGE_README.txt",
+        "docs/EXPANSION_USER_GUIDE.md"
+      ],
+      "sourceFingerprint": "9ff961320cde717ad2cbf2354619cc28c23edad1ce0ea7ebd8335b387f12e6f3",
+      "testFingerprint": "bb17f70518986aaaa1b27c2e199dfce0c00357840282dddffe5d4beaa0784c3e",
+      "timestamp": "2026-10-06T12:57:33.409606+00:00",
+      "command": "xcodegen generate; eng/build.sh --configuration Debug; eng/build.sh --clean --configuration Release; eng/resources.py; eng/validate-resources.py; bash eng/build-cli.sh release + eng/test-release-cli.py; eng/package-candidate.py --output artifacts/release-candidate/1.0.0/build4-pre-sign; eng/verify-candidate.py; eng/sign-candidate.py --dry-run",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence-build4",
+      "notes": "Release Preparation 1: 1.0.0 build 4 pre-sign candidate from source commit bd64b03bce51555bcff333186a88069d0402ff0d, bundle ID com.ailoworks.namefix (Debug com.moongchi.namefix.dev), arm64, minimum 14.0, Hardened Runtime on, no entitlements, no development fixtures in the Release binaries, free/direct-distribution metadata, no paid-model fields. Developer ID signing NOT RUN, notarization NOT RUN, no ZIP/DMG, not public. Reused without re-running: the 116 tests and Debug CLI contract of MAC-FAVORITES-TARGETS-20261006 and the T-004 performance measurements (no Core/Application/Infrastructure change since)."
     }
   ]
 }

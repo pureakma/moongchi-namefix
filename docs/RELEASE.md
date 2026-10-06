@@ -1,65 +1,62 @@
 # 빌드·서명·배포
 
-## 현재 대상
+## 출시 정책 (D-023)
 
-- macOS 14 이상
-- Apple Silicon arm64
-- MARKETING_VERSION 1.0.0
-- CURRENT_PROJECT_VERSION 3
-- development bundle ID com.moongchi.namefix.dev
-- App Sandbox OFF
-- Hardened Runtime ON
-
-현재 source는 마지막 build3 Release 후보 뒤에 UI/설정/리소스 변경과 2026-10-06 출시 전 완성도 고도화(문구·메뉴·접근성·transaction 취소 동작 등)가 추가됐다. 따라서 기존 artifacts/release-candidate/1.0.0/build3의 Release build, Developer ID, ZIP/DMG 검증은 과거 source snapshot 근거이며 현재 source 배포 승인이 아니다.
+- 배포: 직접 배포. Developer ID Application 서명 + Apple 공증 + DMG. Mac App Store는 대상이 아니다.
+- 버전: MARKETING_VERSION 1.0.0, CURRENT_PROJECT_VERSION 4
+- bundle ID: Release 구성 com.ailoworks.namefix, Debug 구성 com.moongchi.namefix.dev. 원본은 project.yml 하나이며 build 명령이나 서명 도구가 바꾸지 않는다.
+- 개발사 AILO WORKS, 문의 ailo@ailoworks.com
+- 모든 기능 무료. 유료 등급·구매·계정·광고 없음.
+- macOS 14 이상, Apple Silicon arm64 전용
+- App Sandbox OFF, Hardened Runtime ON. Release 구성은 디버깅 entitlement를 넣지 않는다.
 
 ## 현재 Release 상태
 
-- 제품 기능 개발: 현재 승인 범위에서 완료 상태. 앱 자체 기준 Release Candidate Ready(2026-10-06, 근거는 QA.md).
-- 현재 source의 Release 구성 build: 성공(arm64, 1.0.0 build 3). 컴파일 확인용이며 배포 후보가 아니다.
-- 새 current-source Release 후보: 아직 만들지 않음. build 번호는 새 후보를 만들 때 올린다.
-- 판매 공급자: 필요 없음. 전 기능 무료(D-014).
-- 출시용 bundle ID: 미확정, development ID 유지.
-- Developer ID: 과거 후보에서 유효 identity 사용 기록이 있으나 현재 source에 대한 새 signing evidence는 STALE.
-- notarization: 과거 후보에서 notary profile 미제공으로 미실행. 현재 성공 티켓 없음.
-- 실제 macOS 14/Finder/TCC/접근성/깨끗한 Mac User QA: 대기(QA.md U01~U15).
-- 공개 업로드/판매 게시/App Store 제출: 수행하지 않음.
+- Release Preparation 1차: 완료(2026-10-06). 근거는 QA.md의 ‘Release Preparation 1차 검증’.
+- 서명 전 후보: artifacts/release-candidate/1.0.0/build4-pre-sign (1.0.0 build 4, source commit bd64b03). 앱·CLI·사용자 안내·manifest만 있고 ZIP/DMG는 없다. 배포하지 않는다.
+- Developer ID 서명: 미실행.
+- 공증·staple: 미실행.
+- 최종 DMG, 깨끗한 Mac 확인, 공개 배포: 미실행.
+- 과거 build3 후보(artifacts/release-candidate/1.0.0/build3)는 예전 source와 개발용 bundle ID의 기록이며 현재 source의 근거가 아니다. 덮어쓰지 않고 그대로 둔다.
 
-## 배포 채널 Gate
+후보를 다시 만들어야 하면 build 번호를 5 이상으로 올리고 새 output 경로를 쓴다.
 
-최종 채널은 아직 결정하지 않았다.
+## 2차(서명·공증)에 필요한 외부 입력
 
-현재 App Sandbox OFF 구성은 직접 배포 흐름과 맞지만, Mac App Store를 선택하면 sandbox/entitlement, 상품/영수증 검증, Store 요구사항을 별도 Task에서 최신 공식 정책으로 다시 확인해야 한다. 문서의 과거 정보만으로 App Store 적합성을 가정하지 않는다.
+1. 서명에 쓸 Developer ID Application identity의 확정(로컬 Keychain에 유효한 identity 1개가 있음을 읽기 전용으로 확인했다. 인증서 이름은 개인 명의다)
+2. Apple Team 확인
+3. notarytool Keychain profile 이름(현재 프로필 존재 여부는 확인할 수 없다)
+4. com.ailoworks.namefix를 이 팀에서 쓸 수 있는지(직접 배포는 App ID 등록이 필수는 아니지만 식별자 소유는 사용자가 확인한다)
 
-직접 배포를 선택하더라도 current-source Developer ID signing, notarization, staple/validate, Gatekeeper, 깨끗한 Mac 설치/실행을 새 evidence로 확인해야 한다.
+비밀번호, app-specific password, 인증서 private key, API key는 저장소 문서·스크립트·로그에 기록하지 않는다. Gatekeeper/SIP/검역 해제로 미완료 서명·공증을 우회하지 않는다.
 
-## 새 Release Task 순서
+## 순서
 
-사용자가 Release 단계를 승인한 뒤 다음 순서를 사용한다.
+1차(완료)
+1. 현재 source를 commit하고 Release 구성으로 앱과 CLI를 build한다.
+2. package-candidate.py로 서명 전 후보를 새 경로에 만든다.
+3. verify-candidate.py로 manifest·Info.plist·arm64·리소스·Hardened Runtime·sandbox 없음·개발 fixture 없음·CLI 계약·사용자 안내 문구를 확인한다.
 
-1. 현재 branch/HEAD와 제품 source fingerprint 확정.
-2. 현재 source에 영향받은 test/build/resource/render 범위 검증.
-3. 배포 채널 확정(무료 제품이므로 상품 ID·구매 공급자는 없음).
-4. 팀 소유 release bundle ID 확정.
-5. 새 고유 output 경로로 Release app/CLI 생성. 기존 후보 덮어쓰기 금지.
-6. Developer ID 또는 선택한 채널에 맞는 signing.
-7. notarization이 필요한 채널이면 실제 notary profile로 제출·성공 확인.
-8. 새 source 기준 ZIP/DMG 또는 Store artifact 검증.
-9. QA.md의 User QA와 깨끗한 Mac Gate.
-10. 그 뒤에만 공개 배포/판매 가능 판정을 기록.
+2차(사용자 승인과 외부 입력 뒤)
+4. sign-candidate.py로 후보의 사본을 새 경로에서 Developer ID로 서명한다(입력 후보가 manifest와 일치하는지 먼저 확인).
+5. 공증 제출·성공 확인, staple, validate, Gatekeeper 평가.
+6. 서명된 앱으로 ZIP/DMG를 만들고 DMG도 공증·staple한다.
+7. 깨끗한 Mac 설치·실행과 QA.md의 User QA.
+8. 그 뒤에만 공개 배포 가능 판정을 기록한다.
 
-비밀번호, 인증서 private key, API key를 저장소 문서나 스크립트에 기록하지 않는다. Gatekeeper/SIP/검역 해제로 미완료 signing/notarization을 우회하지 않는다.
-
-## 현재 helper
+## helper
 
 ~~~sh
 eng/build.sh --configuration Release --arch arm64
 bash eng/build-cli.sh release
-python3 eng/sign-candidate.py
-python3 eng/package-candidate.py
-python3 eng/verify-candidate.py
+python3 eng/package-candidate.py --output artifacts/release-candidate/1.0.0/<새 경로> --cli .build/release/namefix
+python3 eng/verify-candidate.py artifacts/release-candidate/1.0.0/<경로>
+python3 eng/sign-candidate.py --input <서명 전 후보> --dry-run
+python3 eng/sign-candidate.py --input <서명 전 후보> --identity "<Developer ID>" --output <새 경로>
+python3 eng/package-candidate.py --developer-id --app <서명된 앱> --cli <서명된 CLI> --output <새 경로>
 eng/sign-notarize.sh
 ~~~
 
-실제 옵션과 환경 변수는 helper 자체가 원본이다. 기존 candidate 경로를 그대로 재사용하지 않고 항상 새 output을 사용한다. helper 실행 자체를 성공 근거로 쓰지 않고 결과와 hash/evidence를 확인한다.
+실제 옵션과 환경 변수는 helper 자체가 원본이다. 서명 도구는 앱의 bundle ID가 com.ailoworks.namefix가 아니면 멈추며 앱을 고치지 않는다. helper 실행 자체를 성공 근거로 쓰지 않고 결과와 hash/evidence를 확인한다.
 
-패키징용 사용자 문구는 V1_CANDIDATE_README.txt와 EXPANSION_USER_GUIDE.md를 사용한다.
+패키지에 넣는 사용자 안내는 PACKAGE_README.txt(패키지의 README.txt)와 EXPANSION_USER_GUIDE.md(USER_GUIDE.md)다. 후보 자체의 상태(서명·공증 여부)는 도구가 만드는 CANDIDATE_STATUS.txt, BUILD_INFO.json, ARTIFACT_MANIFEST.json에만 적는다.
