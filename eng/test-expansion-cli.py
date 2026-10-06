@@ -41,7 +41,6 @@ with tempfile.TemporaryDirectory(prefix='namefix-cli-', dir='/private/tmp') as t
     assert source.exists() and not renamed.exists() and hashlib.sha256(source.read_bytes()).hexdigest()==digest
     recipe={'id':'80E55D52-8AFC-4E5B-945D-9BF2A66F52A4','name':'fixture','pipeline':{'schemaVersion':1,'target':'NFC','rules':[]}}
     path=root/'preset.json'; path.write_text(json.dumps(recipe))
-    assert run('--recipe',path,'--json',source).returncode==1
-    assert run('--development-pro','--recipe',path,'--json',source).returncode==0
+    assert run('--recipe',path,'--json',source).returncode==0
     invalid=run('--insert','-1','x','--json',source); assert invalid.returncode==1
-    print('PASS: CLI dry-run/raw JSON, non-TTY refusal, explicit TTY rename/undo, content hash, free/Pro preset boundary, invalid input; isolated temporary support')
+    print('PASS: CLI dry-run/raw JSON, non-TTY refusal, explicit TTY rename/undo, content hash, preset load without a paid tier, invalid input; isolated temporary support')

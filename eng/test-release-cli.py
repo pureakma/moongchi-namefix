@@ -17,8 +17,9 @@ with tempfile.TemporaryDirectory(prefix='namefix-release-cli-', dir='/private/tm
     refused = run('--prefix', 'new_', '--execute', source)
     assert refused.returncode == 1 and 'InteractiveConfirmationRequired' in refused.stderr
     csv = root/'mapping.csv'; csv.write_text('source,destination\na.txt,b.txt\n')
-    pro = run('--csv', csv, '--json', source)
-    assert pro.returncode == 1 and 'ProRequired' in pro.stderr
+    mapped = run('--csv', csv, '--json', source)
+    assert mapped.returncode == 0, mapped.stderr
+    assert base64.b64decode(json.loads(mapped.stdout)['operations'][0]['destination']) == b'b.txt'
     assert hashlib.sha256(source.read_bytes()).hexdigest() == before
     assert not (root/'new_a.txt').exists()
-print('PASS: Release raw JSON/dry-run/freshness, non-TTY refusal, development Pro flag excluded, unlicensed Pro denied, source hash unchanged')
+print('PASS: Release raw JSON/dry-run/freshness, non-TTY refusal, development flag excluded, CSV list available without a paid tier, source hash unchanged')

@@ -107,9 +107,9 @@ struct SheetRouter: View {
             VStack(alignment: .leading, spacing: 20) {
                 Label(model.t("EmptyDescription"), systemImage: "checkmark.shield").font(.headline).fixedSize(horizontal: false, vertical: true)
                 ToolSection(title: model.t("HelpSteps"), icon: "list.number", palette: palette) { helpText("HelpBody") }
-                ToolSection(title: model.t("HelpSeparation"), icon: "character.cursor.ibeam", palette: palette) { helpText("NormalizationNotice"); helpText("CompositionLegend") }
+                ToolSection(title: model.t("HelpSeparation"), icon: "character.cursor.ibeam", palette: palette) { helpText("NormalizationNotice"); helpText("HelpAuto"); helpText("CompositionLegend") }
                 ToolSection(title: model.t("SafetyTitle"), icon: "checkmark.shield", palette: palette) { helpText("FilesystemHelp"); helpText("ConflictHelp"); helpText("ConcurrentChangeHelp"); helpText("HelpRecovery") }
-                ToolSection(title: model.t("HelpEditions"), icon: "checkmark.seal", palette: palette) { helpText("ExpansionHelp") }
+                ToolSection(title: model.t("BatchWorkspace"), icon: "pencil.line", palette: palette) { helpText("HelpBatch") }
                 Text(model.t("LocalOnly")).foregroundStyle(palette.secondary)
             }.frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -208,12 +208,6 @@ struct SettingsView: View {
                 settingToggle("ClearAfterRun", \.clearSelectionAfterRun)
             }
             settingsSection("MacIntegration", icon: "menubar.rectangle") { IntegrationSettingsView(model: model) }
-            settingsSection("CurrentEdition", icon: "checkmark.seal") {
-                Text(model.productAccess == .pro ? "Pro" : model.t("FreeEdition")).fontWeight(.medium)
-                if model.purchaseAccessUnavailable {
-                    Text(model.t("PurchaseUnavailableBuild")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
-                }
-            }
             settingsSection("Privacy", icon: "hand.raised") {
                 settingToggle("RememberFolders", \.rememberRecentFolders)
                 Text(model.t("RecentPrivacy")).font(.caption).foregroundStyle(palette.secondary)

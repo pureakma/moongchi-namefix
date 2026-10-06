@@ -26,9 +26,15 @@ import NameFixCore
                 window.contentView = host
                 let chrome = WindowChrome(model: model); chrome.install(on: window); window.setContentSize(size)
                 RunLoop.main.run(until: Date().addingTimeInterval(0.15))
-                // The toolbar carries only the sidebar toggle; navigation and Rescan live in the content.
-                let extra = chrome.toolbar.items.filter { !["NameFix.sidebar", "NameFix.separator"].contains($0.itemIdentifier.rawValue) && $0.itemIdentifier != .flexibleSpace }
-                guard extra.isEmpty, window.titleVisibility == .hidden else { throw NSError(domain: "ToolbarContract", code: 1) }
+                // Contextual toolbar actions exist only once something has been added.
+                func actions() -> [NSToolbarItem] { chrome.toolbar.items.filter { ["NameFix.export", "NameFix.rescan", "NameFix.add"].contains($0.itemIdentifier.rawValue) } }
+                guard actions().isEmpty, window.titleVisibility == .visible, !window.title.isEmpty else { throw NSError(domain: "ToolbarContract", code: 1) }
+                model.roots = [RawPath("/fixture")]; chrome.refresh()
+                guard actions().count == 3, actions()[0].isEnabled == false, actions()[1].isEnabled else { throw NSError(domain: "ToolbarContract", code: 2) }
+                model.phase = "ActivityScan"; chrome.refresh()
+                guard actions().allSatisfy({ !$0.isEnabled }) else { throw NSError(domain: "ToolbarContract", code: 3) }
+                model.phase = ""; model.roots = []; chrome.refresh()
+                guard actions().isEmpty else { throw NSError(domain: "ToolbarContract", code: 4) }
                 guard let frame = window.contentView?.superview else { throw NSError(domain: "ShellRender", code: 3) }
                 try capture(frame, "\(lang)-window-\(Int(size.width))")
                 print("Native titlebar height: \(window.frame.height - window.contentLayoutRect.height)pt at \(Int(size.width))pt width")
@@ -71,6 +77,6 @@ import NameFixCore
                 }
             }
         }
-        print("PASS: \(count) shell/settings renders; sidebar-only toolbar, hidden title and Olive default verified")
+        print("PASS: \(count) shell/settings renders; screen title, contextual toolbar actions and Olive default verified")
     }
 }

@@ -17,15 +17,15 @@ import NameFixApplication
             Dry-run is the default. Files are never changed without interactive confirmation.
             --nfd / --keep-form           Output NFD / preserve form (default NFC)
             --no-recurse                 Scan selected folders and immediate children
-            --prefix TEXT --suffix TEXT  Free basic rules (may repeat)
+            --prefix TEXT --suffix TEXT  Basic rules (may repeat)
             --upper / --lower / --title / --spaces
             --insert POSITION TEXT       Grapheme-safe insertion
             --remove-first N / --remove-last N / --keep-first N / --keep-last N
             --name TEXT / --extension TEXT
-            --rules-json FILE.json       Free rule pipeline; Pro rules require entitlement
-            --replace FROM TO            Free literal replacement
+            --rules-json FILE.json       Rule pipeline
+            --replace FROM TO            Literal replacement
             --number START               Append a padded sequential number
-            --recipe FILE.json           Load a Pro preset
+            --recipe FILE.json           Load a saved preset
             --csv FILE.csv               Two columns: source,new name; includes header
             --execute                    Preview then ask for terminal confirmation
             --json                       Emit machine-readable preview only
@@ -33,7 +33,7 @@ import NameFixApplication
             Exit 0: preview/success; 1: error; 2: excluded/partial; 3: cancelled.
             """); return
         }
-        var pipeline = RulePipeline(), paths: [RawPath] = [], recursive = true, execute = false, json = false, access = try await UnconfiguredEntitlementProvider().verifiedEntitlement().access(), undoID: UUID?
+        var pipeline = RulePipeline(), paths: [RawPath] = [], recursive = true, execute = false, json = false, access = try await FullAccessEntitlementProvider().verifiedEntitlement().access(), undoID: UUID?
         func take() throws -> String { guard !args.isEmpty else { throw RuleFailure.invalid }; return args.removeFirst() }
         while !args.isEmpty {
             let arg = args.removeFirst()
@@ -61,12 +61,6 @@ import NameFixApplication
             case "--recipe":
                 let url = URL(fileURLWithPath: try take()); let data = try boundedRead(url)
                 pipeline = try JSONDecoder().decode(Recipe.self, from: data).pipeline
-                // Named preset execution is Pro even when it contains only free rules.
-                #if DEBUG
-                guard CommandLine.arguments.contains("--development-pro") else { throw RuleFailure.proRequired }
-                #else
-                throw RuleFailure.proRequired
-                #endif
             case "--csv":
                 let rows = try DelimitedText.parse(boundedRead(URL(fileURLWithPath: take())))
                 pipeline.mapping = NameMapping(rows: try rows.dropFirst().map { row in guard row.count == 2 else { throw RuleFailure.invalid }; return .init(source: row[0], destination: row[1]) })

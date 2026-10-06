@@ -16,6 +16,12 @@ public struct UnconfiguredEntitlementProvider: EntitlementProvider {
     public init() {}
     public func verifiedEntitlement() async throws -> Entitlement { Entitlement(state: .unavailable) }
 }
+/// The shipped product has no paid tier: every capability is available to everyone.
+/// The capability checks stay in place so a rule set is still validated against an access level.
+public struct FullAccessEntitlementProvider: EntitlementProvider {
+    public init() {}
+    public func verifiedEntitlement() async throws -> Entitlement { Entitlement(state: .active) }
+}
 #if DEBUG
 public struct DevelopmentEntitlementProvider: EntitlementProvider {
     public var enabled: Bool

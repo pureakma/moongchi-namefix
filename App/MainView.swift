@@ -84,9 +84,8 @@ struct MainView: View {
     }
     private var resultColumn: some View {
         VStack(alignment: .leading, spacing: 12) {
-            inputHeader
+            overview
             unappliedNotice
-            summary
             filterRow
             results
             footer
@@ -94,10 +93,9 @@ struct MainView: View {
     }
     @ViewBuilder private func compactResults<Rules: View>(height: CGFloat, @ViewBuilder rules: () -> Rules) -> some View {
         let sections = LazyVStack(alignment: .leading, spacing: 14) {
-            inputHeader
+            overview
             rules()
             unappliedNotice
-            summary
             filterRow
             if model.busy { activity }
             if model.visible.isEmpty { noResults.frame(minHeight: 150) }
@@ -153,30 +151,35 @@ struct MainView: View {
 
     // MARK: Result state
 
-    private var inputHeader: some View {
+    /// One row: what was added (expandable), the summary that doubles as filters, and how much is shown.
+    private var overview: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 10) {
-                Button { locationsExpanded.toggle() } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "chevron.right").font(.caption).rotationEffect(.degrees(locationsExpanded ? 90 : 0)).accessibilityHidden(true)
-                        Text(model.t("InputSummary", model.n(model.roots.count))).fontWeight(.medium)
-                    }.contentShape(Rectangle())
-                }.buttonStyle(.plain).accessibilityAddTraits(locationsExpanded ? .isSelected : []).accessibilityIdentifier("locations")
-                Spacer(minLength: 8)
-                Button { model.scan() } label: { Image(systemName: "arrow.clockwise") }
-                    .buttonStyle(.borderless).help(model.t("Rescan")).accessibilityLabel(model.t("Rescan"))
-                    .disabled(model.roots.isEmpty).accessibilityIdentifier("rescan")
-                Menu {
-                    Button(model.t("ChooseFiles")) { pick(folders: false) }
-                    Button(model.t("ChooseFolders")) { pick(folders: true) }
-                    if model.settings.rememberRecentFolders, !model.settings.recentFolders.isEmpty {
-                        Divider()
-                        Section(model.t("RecentFolders")) { recentFolderItems }
-                    }
-                } label: { Label(model.t("AddMore"), systemImage: "plus") }.menuStyle(.borderlessButton).fixedSize().accessibilityIdentifier("addMore")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) { if model.sidebarCollapsed { locationsToggle }; summaryItems; conflictAction; Spacer(minLength: 8); scopeCaption }
+                VStack(alignment: .leading, spacing: 8) { if model.sidebarCollapsed { locationsToggle }; HStack(spacing: 8) { summaryItems; conflictAction }; scopeCaption }
             }
-            if locationsExpanded { locations }
-        }.disabled(model.busy || model.plan != nil)
+            // The sidebar tree owns the added locations; this fallback exists only while the sidebar is hidden.
+            if model.sidebarCollapsed, locationsExpanded { locations }
+            if let folder = model.folderFilter {
+                HStack(spacing: 6) {
+                    Image(systemName: "folder").foregroundStyle(palette.secondary).accessibilityHidden(true)
+                    Text(model.t("TreeFiltered", String(data: folder.leaf, encoding: .utf8) ?? folder.display)).font(.callout).lineLimit(1).truncationMode(.middle)
+                    Button(model.t("TreeAll")) { model.folderFilter = nil }.buttonStyle(.link)
+                }
+            }
+        }.disabled(model.plan != nil)
+    }
+    private var locationsToggle: some View {
+        Button { locationsExpanded.toggle() } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "chevron.right").font(.caption).rotationEffect(.degrees(locationsExpanded ? 90 : 0)).accessibilityHidden(true)
+                Text(model.t("InputSummary", model.n(model.roots.count))).fontWeight(.medium)
+            }.contentShape(Rectangle())
+        }.buttonStyle(.plain).fixedSize().accessibilityAddTraits(locationsExpanded ? .isSelected : []).accessibilityIdentifier("locations").disabled(model.busy)
+    }
+    /// Appears only when there is a conflict to resolve.
+    @ViewBuilder private var conflictAction: some View {
+        if conflicts > 0 { Button(model.t("NumberConflicts")) { model.numberConflicts() }.buttonStyle(.borderless).fixedSize().disabled(model.busy) }
     }
     private var locations: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -207,12 +210,6 @@ struct MainView: View {
         }
     }
     /// Flat summary: each item is also the filter for that group.
-    private var summary: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 8) { summaryItems; Spacer(minLength: 8); scopeCaption }
-            VStack(alignment: .leading, spacing: 6) { HStack(spacing: 8) { summaryItems }; scopeCaption }
-        }
-    }
     @ViewBuilder private var summaryItems: some View {
         summaryItem(model.isWorkbench ? "NeededBatch" : "NeededCaption", model.counts["NeededCaption"] ?? 0, "NeedsNormalization", palette.preview)
         if conflicts > 0 { summaryItem("ConflictCaption", conflicts, "Conflict", palette.warning) }
@@ -284,6 +281,7 @@ struct MainView: View {
             VStack(spacing: 8) {
                 if model.entries.isEmpty {
                     Text(model.t("NoFilesYet")).foregroundStyle(palette.secondary)
+                    if model.roots.isEmpty { HStack(spacing: 10) { chooseFiles; chooseFolders }.padding(.top, 4) }
                 } else {
                     Text(model.t("NoResultsTitle")).fontWeight(.medium)
                     Text(model.t("NoResultsDescription")).font(.callout).foregroundStyle(palette.secondary)
@@ -293,8 +291,8 @@ struct MainView: View {
     }
     private var footer: some View {
         ViewThatFits(in: .horizontal) {
-            HStack(spacing: 12) { selectionMenu; moreMenu; Spacer(); primaryAction }
-            VStack(alignment: .leading, spacing: 10) { HStack(spacing: 12) { selectionMenu; moreMenu }; HStack { Spacer(); primaryAction } }
+            HStack(spacing: 12) { selectionMenu; Spacer(); primaryAction }
+            VStack(alignment: .leading, spacing: 10) { selectionMenu; HStack { Spacer(); primaryAction } }
         }.disabled(model.busy)
     }
     private var selectionMenu: some View {
@@ -306,17 +304,6 @@ struct MainView: View {
             Button(model.t("ClearAll")) { model.select("none") }
             Button(model.t("InvertVisible")) { model.select("invert") }
         }.menuStyle(.borderlessButton).fixedSize().accessibilityIdentifier("selectMenu")
-    }
-    private var moreMenu: some View {
-        Menu {
-            Button(model.t("InspectShort")) { model.sheet = "inspector" }.disabled(model.focused == nil)
-            Button(model.t("NumberConflicts")) { model.numberConflicts() }.disabled(conflicts == 0)
-            Button(model.t("UndoLatest")) { if let h = model.history.first(where: { $0.mode == "rename" && $0.succeeded > 0 }) { model.prepare(mode: "undo", historyID: h.id) } }.disabled(model.history.isEmpty)
-            Divider()
-            Button(model.t("FormatGuide")) { model.sheet = "formatHelp" }
-            Button(model.t("ClipboardInspect")) { model.inspectClipboard() }
-            Button(model.t("ExportDiagnostics")) { model.diagnostics(); model.sheet = "diagnostics" }
-        } label: { Image(systemName: "ellipsis.circle") }.menuStyle(.borderlessButton).fixedSize().accessibilityLabel(model.t("MoreActions")).help(model.t("MoreActions"))
     }
     /// The single primary action of the screen.
     private var primaryAction: some View {

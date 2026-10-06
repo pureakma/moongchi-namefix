@@ -39,12 +39,16 @@ import NameFixApplication
     @Published var recipes = RecipeLibrary()
     @Published private(set) var productAccess: ProductAccess = .free
     private var entitlement = Entitlement(state: .unavailable)
-    var purchaseAccessUnavailable: Bool { entitlement.state == .unavailable }
-    private let entitlementProvider: any EntitlementProvider = UnconfiguredEntitlementProvider()
+    private let entitlementProvider: any EntitlementProvider
     var transactionFinished: ((TransactionSummary) -> Void)?
     private var recipeStore: RecipeStore?
     private var recipeTask: Task<Void, Never>?
     @Published var roots: [RawPath] = []
+    /// Sidebar tree of what was added. `folderFilter` narrows the list to one node; nil shows everything.
+    @Published private(set) var folderTree: [FolderNode] = []
+    @Published var folderFilter: RawPath? { didSet { if oldValue != folderFilter { refreshVisible() } } }
+    @Published var sidebarCollapsed = false
+    func rebuildFolderTree() { folderTree = FolderTree.build(roots: roots, entries: entries) }
     @Published var entries: [FileEntry] = []
     @Published var visible: [FileEntry] = []
     @Published var selected: Set<UUID> = []
@@ -97,10 +101,13 @@ import NameFixApplication
     private var saveRevision = 0
     private let diagnosticLog: DiagnosticLog
     let dataRoot: URL
-    init(dataRoot override: URL? = nil) {
+    /// The app grants every capability. Tests pass another provider to exercise the access checks.
+    init(dataRoot override: URL? = nil, entitlementProvider: any EntitlementProvider = FullAccessEntitlementProvider()) {
+        self.entitlementProvider = entitlementProvider
         dataRoot = override ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Moongchi/NameFix", isDirectory: true)
         diagnosticLog = DiagnosticLog(root: override?.appendingPathComponent("Logs") ?? FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask)[0].appendingPathComponent("Logs/Moongchi/NameFix"))
         settingsStore = SettingsStore(url: dataRoot.appendingPathComponent("settings.json"))
+        if entitlementProvider is FullAccessEntitlementProvider { entitlement = Entitlement(state: .active); productAccess = .pro }
     }
     var busy: Bool { !phase.isEmpty }
     /// "Recovery" also names the confirmation step, so the running phase needs its own wording.
@@ -209,11 +216,13 @@ import NameFixApplication
                     }
                     if scan.entries[i].status == .conflict { conflicts += 1 }
                 }
-                return (scan, selection, ["TotalCaption": scan.entries.count, "NeededCaption": needed, "ConflictCaption": conflicts])
+                return (scan, selection, ["TotalCaption": scan.entries.count, "NeededCaption": needed, "ConflictCaption": conflicts], FolderTree.build(roots: scan.roots, entries: scan.entries))
             }.value
             guard let self, generation == id else { return }
             let scan = presentation.0
             entries = scan.entries; roots = scan.roots; selected = presentation.1
+            folderTree = presentation.3
+            if let folder = folderFilter, !FolderTree.paths(folderTree).contains(folder) { folderFilter = nil }
             if let watchID {
                 var updated = false
                 for entry in entries where entry.status == .normal { if let identity = entry.identity, let version = entry.contentVersion { watchBaselines[watchID, default: [:]][WatchSnapshot.key(entry.path)] = WatchedFile(identity: identity, version: version); updated = true } }
@@ -234,7 +243,7 @@ import NameFixApplication
     }
     func refreshVisible(debounce: Bool = false) {
         searchTask?.cancel(); filterWorker?.cancel(); viewGeneration = UUID()
-        let id = viewGeneration, items = entries, selected = selected, query = query, filter = filter, sort = sort, hide = settings.hideNormal
+        let id = viewGeneration, items = entries, selected = selected, query = query, filter = filter, sort = sort, hide = settings.hideNormal, folder = folderFilter
         searchTask = Task { [weak self] in
             if debounce { do { try await Task.sleep(for: .milliseconds(180)) } catch { return } }
             guard !Task.isCancelled else { return }
@@ -243,6 +252,7 @@ import NameFixApplication
             let work = Task.detached(priority: .userInitiated) { () throws -> [FileEntry] in
                 let filtered = try items.filter { e in
                     try Task.checkCancellation()
+                    if let folder, !FolderTree.contains(folder, e.path) { return false }
                     if hide && e.status == .normal { return false }
                     if filter == "NeedsNormalization" && !e.status.fixable { return false }
                     if filter == "Normal" && e.status != .normal { return false }
@@ -349,7 +359,7 @@ import NameFixApplication
                 let updated = try await Task.detached { try Planning.numbered(items) }.value
                 guard let self else { return }
                 let resolved = Set(zip(items, updated).compactMap { old, new in old.status == .conflict && new.status.fixable ? new.id : nil })
-                entries = updated; selected.formUnion(resolved); phase = ""; refreshVisible()
+                entries = updated; selected.formUnion(resolved); phase = ""; rebuildFolderTree(); refreshVisible()
                 counts["NeededCaption"] = updated.filter { $0.status.fixable }.count; counts["ConflictCaption"] = updated.filter { $0.status == .conflict }.count
             } catch { self?.phase = ""; self?.message = (error as? FSError)?.code ?? "OperationError" }
         }

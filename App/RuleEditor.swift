@@ -3,15 +3,6 @@ import AppKit
 import NameFixCore
 import NameFixRuntime
 
-/// Small, consistent marker for paid capabilities; never part of a title string.
-struct ProBadge: View {
-    let palette: Palette
-    var body: some View {
-        Text("Pro").font(.system(size: 9, weight: .semibold)).padding(.horizontal, 5).padding(.vertical, 1)
-            .foregroundStyle(palette.accent).overlay(Capsule().stroke(palette.accent.opacity(0.7), lineWidth: 1)).fixedSize()
-    }
-}
-
 /// Task-first rule editor: choose one everyday action, fill in its value, preview.
 /// Everything beyond that lives under Advanced rules and appears only on request.
 struct RuleEditor: View {
@@ -104,7 +95,6 @@ struct RuleEditor: View {
                     VStack(alignment: .leading, spacing: 10) {
                         HStack(spacing: 8) {
                             Toggle(isOn: $model.workbenchDraft.rules[index].enabled) { Text(model.t(title(rule.kind))).fontWeight(.medium) }
-                            if rule.requiresPro { ProBadge(palette: palette) }
                             Spacer(minLength: 4)
                             if draft.rules.count > 1 {
                                 Button { if index > 0 { draft.rules.swapAt(index, index - 1) } } label: { Image(systemName: "arrow.up") }.disabled(index == 0).accessibilityLabel(model.t("MoveUp")).help(model.t("MoveUp"))
@@ -140,9 +130,7 @@ struct RuleEditor: View {
             ForEach(basicActions) { action in Button(model.t(action.title)) { add(action.kind) } }
             Divider()
             Menu(model.t("OtherRules")) {
-                ForEach(RuleKind.allCases.filter { kind in !kind.pro && !basicActions.contains { $0.kind == kind } && ![.lowercase, .titlecase].contains(kind) }, id: \.self) { kind in Button(model.t(kind.rawValue)) { add(kind) } }
-                Divider()
-                ForEach(RuleKind.allCases.filter(\.pro), id: \.self) { kind in Button(model.t(kind.rawValue) + " · Pro") { add(kind) } }
+                ForEach(RuleKind.allCases.filter { kind in !basicActions.contains { $0.kind == kind } && ![.lowercase, .titlecase].contains(kind) }, id: \.self) { kind in Button(model.t(kind.rawValue)) { add(kind) } }
             }
         } label: { Label(model.t("AddAction"), systemImage: "plus") }.menuStyle(.borderlessButton).fixedSize().accessibilityIdentifier("addAction")
     }
@@ -197,10 +185,9 @@ struct RuleEditor: View {
                     TextField(model.t("PairExtensions"), text: Binding(get: { (draft.pairExtensions ?? []).joined(separator: ",") }, set: { draft.pairExtensions = $0.lowercased().split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty } }))
                     Text(model.t("PairHelp")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
                 }.padding(.top, 6)
-            } label: { HStack(spacing: 6) { Text(model.t("PairSection")); ProBadge(palette: palette) } }
-            MappingView(model: model, pipeline: draftBinding, palette: palette)
+            } label: { Text(model.t("PairSection")) }
+            MappingView(model: model, pipeline: draftBinding)
             DisclosureGroup(model.t("RecipeSection")) { presets.padding(.top, 6) }
-            Text(model.t("FreeRulesHelp")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
         }
     }
     private var presets: some View {
@@ -225,9 +212,9 @@ struct RuleEditor: View {
             Divider()
             HStack {
                 TextField(model.t("RecipeName"), text: $recipeName)
-                Button { model.saveRecipe(name: recipeName, pipeline: draft) } label: { HStack(spacing: 6) { Text(model.t("SaveRecipe")); ProBadge(palette: palette) } }
+                Button(model.t("SaveRecipe")) { model.saveRecipe(name: recipeName, pipeline: draft) }
             }
-            Button { importRecipe() } label: { HStack(spacing: 6) { Text(model.t("ImportRecipe")); ProBadge(palette: palette) } }
+            Button(model.t("ImportRecipe")) { importRecipe() }
             ForEach(model.recipes.recipes) { recipe in
                 HStack {
                     TextField(model.t("RecipeName"), text: Binding(get: { recipe.name }, set: { model.editRecipe(recipe.id, name: $0) })).lineLimit(2)
@@ -318,12 +305,12 @@ struct RuleFields: View {
                     }
                     if rule.kind == .numbering {
                         LabeledContent(model.t("NumberStep")) { TextField("", value: $rule.step, format: .number).frame(maxWidth: 110).accessibilityLabel(model.t("NumberStep")) }
-                        HStack(spacing: 6) { Text(model.t("ProNumbering")).font(.caption).foregroundStyle(palette.secondary); ProBadge(palette: palette) }
+                        Text(model.t("ProNumbering")).font(.caption).foregroundStyle(palette.secondary)
                         Toggle(model.t("PerFolder"), isOn: $rule.perFolder)
                         Stepper(model.t("NumberRepeat", String(rule.repeatCount)), value: $rule.repeatCount, in: 1...10000)
                         Stepper(model.t("NumberRestart", String(rule.restartCount)), value: $rule.restartCount, in: 0...10000)
                     }
-                    HStack(spacing: 6) { Text(model.t("RuleCondition")).font(.caption).foregroundStyle(palette.secondary); ProBadge(palette: palette) }
+                    Text(model.t("RuleCondition")).font(.caption).foregroundStyle(palette.secondary)
                     TextField(model.t("ExtensionCondition"), text: $rule.conditionExtension)
                 }.padding(.top, 6)
             }.font(.callout)

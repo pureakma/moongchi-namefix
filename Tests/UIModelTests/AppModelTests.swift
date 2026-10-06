@@ -154,12 +154,13 @@ import NameFixRuntime
     }
     func testFreePipelineRestoresWithoutPersistingInputPathsAndProRejects() async throws {
         let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
-        let model = AppModel(dataRoot: root); await model.start()
+        // The shipped app grants everything; this exercises the access checks that remain underneath.
+        let model = AppModel(dataRoot: root, entitlementProvider: UnconfiguredEntitlementProvider()); await model.start()
         var prefix = RenameRule(.prefix); prefix.text = "Free_"
         var pipeline = RulePipeline(target: .nfd, rules: [prefix]); pipeline.order = .manual; pipeline.manualPaths = [Data("/private/user/secret.txt".utf8)]
         model.usePipeline(pipeline); try await settled(model)
         await model.shutdown()
-        let restored = AppModel(dataRoot: root); await restored.start()
+        let restored = AppModel(dataRoot: root, entitlementProvider: UnconfiguredEntitlementProvider()); await restored.start()
         XCTAssertEqual(restored.pipeline.target, .nfd); XCTAssertEqual(restored.pipeline.rules.first?.text, "Free_")
         XCTAssertNil(restored.pipeline.manualPaths); XCTAssertEqual(restored.pipeline.order, .path)
         var pro = RenameRule(.regex); pro.text = "."; pro.replacement = "x"
@@ -185,7 +186,7 @@ import NameFixRuntime
     func testWatchFreeBoundaryAndApprovalSnapshot() async throws {
         let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
         let input = root.appendingPathComponent("inputs"); try FileManager.default.createDirectory(at: input, withIntermediateDirectories: true)
-        let model = AppModel(dataRoot: root.appendingPathComponent("support")); await model.start()
+        let model = AppModel(dataRoot: root.appendingPathComponent("support"), entitlementProvider: UnconfiguredEntitlementProvider()); await model.start()
         model.addWatch(input); XCTAssertEqual(model.message, "ProRequired"); XCTAssertTrue(model.watches.folders.isEmpty)
         model.changeAccess(.pro); try await settled(model)
         // Test queue/approval state without starting OS watches in this model fixture.
@@ -200,5 +201,16 @@ import NameFixRuntime
         XCTAssertEqual(model.plan?.id, original.id); XCTAssertFalse(model.plan!.operations.contains { $0.source.leaf == Data("b.txt".utf8) })
         model.cancelPreview(); await model.shutdown()
     }
-
+    func testShippedAppGrantsEveryCapabilityWithoutAPaidTier() async throws {
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        let model = AppModel(dataRoot: root)
+        XCTAssertEqual(model.productAccess, .pro)
+        await model.start(); XCTAssertEqual(model.productAccess, .pro)
+        var rule = RenameRule(.regex); rule.text = "a"; rule.replacement = "b"
+        model.usePipeline(RulePipeline(rules: [rule])); try await settled(model)
+        XCTAssertNil(model.message); XCTAssertEqual(model.pipeline.rules.first?.kind, .regex)
+        model.saveRecipe(name: "Everyone", pipeline: model.pipeline)
+        try await settled(model, condition: { !model.recipes.recipes.isEmpty })
+        await model.shutdown()
+    }
 }

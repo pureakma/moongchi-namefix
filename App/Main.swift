@@ -172,6 +172,12 @@ import NameFixCore
         file.addItem(ActionItem(model.t("AddFiles"), key: "o") { [weak self] in self?.pick(folders: false) })
         let folder = ActionItem(model.t("AddFolders"), key: "O") { [weak self] in self?.pick(folders: true) }; folder.keyEquivalentModifierMask = [.command, .shift]; file.addItem(folder)
         file.addItem(ActionItem(model.t("Rescan"), key: "r") { [weak self] in self?.model.scan() })
+        file.addItem(.separator())
+        let save = ActionItem(model.t("ExportShort") + "…", key: "e") { [weak self] in guard self?.model.entries.isEmpty == false else { return }; self?.model.present("tools") }; save.keyEquivalentModifierMask = [.command, .shift]; file.addItem(save)
+        file.addItem(ActionItem(model.t("UndoLatest")) { [weak self] in
+            guard let model = self?.model, let latest = model.history.first(where: { $0.mode == "rename" && $0.succeeded > 0 }) else { return }
+            model.prepare(mode: "undo", historyID: latest.id)
+        })
         file.addItem(.separator()); file.addItem(NSMenuItem(title: model.t("MenuCloseWindow"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w"))
         let edit = menu(model.t("EditMenu"))
         for (title, key, action) in [("MenuUndo", "z", "undo:"), ("MenuRedo", "Z", "redo:"), ("MenuCut", "x", "cut:"), ("MenuCopy", "c", "copy:"), ("MenuPaste", "v", "paste:"), ("MenuSelectAll", "a", "selectAll:")] { edit.addItem(NSMenuItem(title: model.t(title), action: Selector(action), keyEquivalent: key)) }
@@ -181,7 +187,6 @@ import NameFixCore
         view.addItem(.separator())
         view.addItem(ActionItem(model.t("Search"), key: "f") { [weak self] in self?.model.searchFocus = true })
         view.addItem(ActionItem(model.t("Inspector")) { [weak self] in self?.model.present("inspector") })
-        view.addItem(ActionItem(model.t("ToggleSidebar")) { [weak self] in self?.sidebarController?.toggleSidebar(nil) })
         view.addItem(ActionItem(model.t("HistoryShort")) { [weak self] in self?.model.present("history"); Task { await self?.model.reloadHistory() } })
         view.addItem(ActionItem(model.t("ClipboardInspect")) { [weak self] in self?.model.inspectClipboard() })
         view.addItem(ActionItem(model.t("FolderWatch")) { [weak self] in guard self?.model.busy == false else { return }; self?.model.present("watch") })
@@ -194,6 +199,9 @@ import NameFixCore
         windows.addItem(NSMenuItem(title: model.t("MenuBringAllToFront"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: ""))
         NSApp.windowsMenu = windows
         let help = menu(model.t("HelpMenu")); help.addItem(ActionItem(model.t("HelpTitle")) { [weak self] in self?.model.present("help") })
+        help.addItem(ActionItem(model.t("FormatGuide")) { [weak self] in self?.model.present("formatHelp") })
+        help.addItem(.separator())
+        help.addItem(ActionItem(model.t("ExportDiagnostics") + "…") { [weak self] in self?.model.diagnostics(); self?.model.present("diagnostics") })
         NSApp.mainMenu = main
     }
 }

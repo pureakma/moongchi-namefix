@@ -95,11 +95,6 @@ struct IntegrationSettingsView: View {
             }
             if !status.isEmpty { Text(model.t(status)).font(.caption) }
             if SMAppService.mainApp.status == .requiresApproval { Button(model.t("OpenLoginSettings")) { SMAppService.openSystemSettingsLoginItems() } }
-            #if DEBUG
-            Divider()
-            Toggle(model.t("DevelopmentPro"), isOn: Binding(get: { model.productAccess == .pro }, set: { model.changeAccess($0 ? .pro : .free) })).disabled(model.busy || model.plan != nil)
-            Text(model.t("DevelopmentProHelp")).font(.caption)
-            #endif
         }.onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in login = SMAppService.mainApp.status == .enabled }
     }
     private func setLogin(_ enabled: Bool) {

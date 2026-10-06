@@ -1,49 +1,85 @@
 import AppKit
 import Combine
 
-/// Native toolbar keeps window controls and overflow behavior owned by macOS.
-/// It holds only the sidebar toggle: History, Settings and Help live in the sidebar
-/// and menu bar, and Rescan appears next to the results it refreshes.
-@MainActor final class WindowChrome: NSObject, NSToolbarDelegate {
+/// Native toolbar: the screen name as the window title, plus the actions that only
+/// make sense once something has been added (save results, rescan, add more).
+/// Navigation lives in the sidebar and menu bar and is not repeated here.
+@MainActor final class WindowChrome: NSObject, NSToolbarDelegate, NSMenuDelegate {
     private weak var splitController: MainSidebarController?
+    private weak var window: NSWindow?
     private let model: AppModel
     private var observation: AnyCancellable?
-    private var language = ""
-    let toolbar = NSToolbar(identifier: "NameFix.MainToolbar")
+    // Toolbars sharing an identifier mirror each other's item changes; items here follow one window's state.
+    let toolbar = NSToolbar(identifier: "NameFix.MainToolbar." + UUID().uuidString)
+    private let separator = NSToolbarItem.Identifier("NameFix.separator")
+    private let actions = ["export", "rescan", "add"].map { NSToolbarItem.Identifier("NameFix." + $0) }
+    private let addMenu = NSMenu()
     init(model: AppModel) {
         self.model = model
         super.init()
         toolbar.delegate = self; toolbar.displayMode = .iconOnly; toolbar.sizeMode = .regular
         toolbar.allowsUserCustomization = false; toolbar.autosavesConfiguration = false
         toolbar.showsBaselineSeparator = false
+        addMenu.delegate = self
         observation = model.objectWillChange.sink { [weak self] _ in
             Task { @MainActor [weak self] in self?.refresh() }
         }
     }
     func install(on window: NSWindow, split: MainSidebarController? = nil) {
-        splitController = split
-        window.titleVisibility = .hidden
+        splitController = split; self.window = window
+        window.titleVisibility = .visible
         window.toolbarStyle = .unified
         window.toolbar = toolbar
         refresh()
     }
-    func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] { [NSToolbarItem.Identifier("NameFix.sidebar"), NSToolbarItem.Identifier("NameFix.separator"), .flexibleSpace] }
-    func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] { toolbarDefaultItemIdentifiers(toolbar) }
+    func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] { [separator, .flexibleSpace] }
+    func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] { [separator, .flexibleSpace] + actions }
     func toolbar(_ toolbar: NSToolbar, itemForItemIdentifier identifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
-        if identifier.rawValue == "NameFix.separator", let splitController {
+        if identifier == separator {
+            guard let splitController else { return nil }
             return NSTrackingSeparatorToolbarItem(identifier: identifier, splitView: splitController.splitView, dividerIndex: 0)
         }
-        guard identifier.rawValue == "NameFix.sidebar" else { return nil }
-        let item = NSToolbarItem(itemIdentifier: identifier)
-        item.image = NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: model.t("ToggleSidebar"))
-        item.label = model.t("ToggleSidebar"); item.toolTip = item.label
-        item.target = self; item.action = #selector(toggleSidebar)
+        guard let index = actions.firstIndex(of: identifier) else { return nil }
+        let symbol = ["square.and.arrow.up", "arrow.clockwise", "plus"][index]
+        let item: NSToolbarItem
+        if index == 2 {
+            let menuItem = NSMenuToolbarItem(itemIdentifier: identifier); menuItem.menu = addMenu; menuItem.showsIndicator = true; item = menuItem
+        } else {
+            item = NSToolbarItem(itemIdentifier: identifier); item.target = self; item.action = index == 0 ? #selector(export) : #selector(rescan)
+        }
+        item.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil); item.isBordered = true; item.autovalidates = false
+        configure(item, index: index)
         return item
     }
-    func refresh() {
-        guard language != model.settings.language else { return }
-        language = model.settings.language
-        for item in toolbar.items where item.itemIdentifier.rawValue == "NameFix.sidebar" { item.label = model.t("ToggleSidebar"); item.toolTip = item.label }
+    private func configure(_ item: NSToolbarItem, index: Int) {
+        let title = model.t(["ExportShort", "Rescan", "AddMore"][index])
+        item.label = title; item.paletteLabel = title; item.toolTip = title
+        item.isEnabled = enabled(index)
     }
-    @objc private func toggleSidebar() { splitController?.toggleSidebar(nil) }
+    private func enabled(_ index: Int) -> Bool {
+        guard model.plan == nil, model.result == nil, !model.busy else { return false }
+        return index == 0 ? !model.entries.isEmpty : model.canInput
+    }
+    /// The action items exist only while there is something to act on.
+    func refresh() {
+        window?.title = model.t(model.isWorkbench ? "BatchWorkspace" : "RestoreNames")
+        let wanted = !model.roots.isEmpty
+        let present = toolbar.items.contains { actions.contains($0.itemIdentifier) }
+        if wanted && !present { for identifier in actions { toolbar.insertItem(withItemIdentifier: identifier, at: toolbar.items.count) } }
+        if !wanted && present { for index in toolbar.items.indices.reversed() where actions.contains(toolbar.items[index].itemIdentifier) { toolbar.removeItem(at: index) } }
+        for item in toolbar.items { if let index = actions.firstIndex(of: item.itemIdentifier) { configure(item, index: index) } }
+    }
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        menu.removeAllItems()
+        menu.addItem(ActionItem(model.t("ChooseFiles")) { AppDelegate.shared?.pick(folders: false) })
+        menu.addItem(ActionItem(model.t("ChooseFolders")) { AppDelegate.shared?.pick(folders: true) })
+        guard model.settings.rememberRecentFolders, !model.settings.recentFolders.isEmpty else { return }
+        menu.addItem(.separator())
+        let header = NSMenuItem(title: model.t("RecentFolders"), action: nil, keyEquivalent: ""); header.isEnabled = false; menu.addItem(header)
+        for path in model.settings.recentFolders {
+            menu.addItem(ActionItem(URL(fileURLWithPath: path).lastPathComponent) { [weak self] in self?.model.add([URL(fileURLWithPath: path)]) })
+        }
+    }
+    @objc private func export() { guard !model.entries.isEmpty else { return }; model.present("tools") }
+    @objc private func rescan() { guard model.canInput, !model.busy, !model.roots.isEmpty else { return }; model.scan() }
 }

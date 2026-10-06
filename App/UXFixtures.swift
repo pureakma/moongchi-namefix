@@ -16,6 +16,10 @@ import NameFixRuntime
                 return FileEntry(path: RawPath("/Users/me/Documents/Trip/" + name), identity: identity, parentIdentity: identity, status: analysis.status, reason: analysis.status == .normal ? "NormalHelp" : "ChangeHelp", proposed: analysis.nfc)
             }
             if conflict { result[1].status = .conflict; result[1].reason = "ConflictHelp" }
+            // The added folder and one subfolder, as a real scan reports them.
+            let extra = FileEntry(path: RawPath("/Users/me/Documents/Trip/Day 2/" + "저녁 식사.jpg".decomposedStringWithCanonicalMapping), identity: identity, parentIdentity: identity, status: .needsNormalization, reason: "ChangeHelp", proposed: Data("저녁 식사.jpg".utf8))
+            let folders = ["/Users/me/Documents/Trip", "/Users/me/Documents/Trip/Day 1", "/Users/me/Documents/Trip/Day 2"].map { FileEntry(path: RawPath($0), identity: identity, parentIdentity: identity, isDirectory: true, status: .normal, reason: "NormalHelp", proposed: RawPath($0).leaf) }
+            result = folders + result + [extra]
             return result
         }
         var count = 0
@@ -24,7 +28,7 @@ import NameFixRuntime
             model.settings.language = language; model.settings.theme = theme; model.settings.workbenchEnabled = workbench
             model.entries = entries; model.visible = entries; model.selected = Set(entries.filter { $0.status.fixable }.map(\.id)); model.focused = nil
             model.counts = ["TotalCaption": entries.count, "NeededCaption": entries.filter { $0.status.fixable }.count, "ConflictCaption": entries.filter { $0.status == .conflict }.count]
-            if !entries.isEmpty { model.roots = [RawPath("/Users/me/Documents/Trip")] }
+            if !entries.isEmpty { model.roots = [RawPath("/Users/me/Documents/Trip")]; model.rebuildFolderTree() }
             model.workbenchDraft = RulePipeline(rules: rules)
             if applied { model.pipeline = model.workbenchDraft; model.markWorkbenchPreviewApplied() }
             let dark = theme == "dark"
@@ -36,7 +40,7 @@ import NameFixRuntime
             window.contentViewController = controller
             let chrome = WindowChrome(model: model); chrome.install(on: window, split: controller)
             window.setContentSize(size)
-            controller.navigationItem.isCollapsed = size.width < 760
+            controller.fit(width: size.width)
             RunLoop.main.run(until: Date().addingTimeInterval(0.3))
             let view = window.contentView!.superview!
             view.layoutSubtreeIfNeeded()
@@ -50,7 +54,7 @@ import NameFixRuntime
         var prefix = RenameRule(.prefix); prefix.text = "Trip_"
         var number = RenameRule(.numbering); number.text = "_"
         func renamed(_ source: [FileEntry]) -> [FileEntry] {
-            source.map { entry in var e = entry; e.proposed = Data(("Trip_" + entry.name).precomposedStringWithCanonicalMapping.utf8); e.status = .needsNormalization; e.reason = "RuleChangeHelp"; return e }
+            source.map { entry in guard !entry.isDirectory else { return entry }; var e = entry; e.proposed = Data(("Trip_" + entry.name).precomposedStringWithCanonicalMapping.utf8); e.status = .needsNormalization; e.reason = "RuleChangeHelp"; return e }
         }
         for language in ["ko-KR", "en-US", "ja-JP"] {
             try render("A-quick-empty-\(language)", language: language, theme: "olive", size: wide)

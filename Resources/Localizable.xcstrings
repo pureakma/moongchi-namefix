@@ -2054,19 +2054,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "비우기"
+            "value": "모두 제거"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Clear"
+            "value": "Remove All"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "クリア"
+            "value": "すべて削除"
           }
         }
       }
@@ -2215,19 +2215,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "선택 위치 제거"
+            "value": "목록에서 제거"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove selected location"
+            "value": "Remove from List"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "選択した場所を除外"
+            "value": "リストから削除"
           }
         }
       }
@@ -2376,19 +2376,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파일·폴더 추가 → 변경 전후 이름 확인 → 이름 바꾸기 순서로 진행합니다. 목록 위의 요약(정리할 이름·충돌·선택)을 누르면 해당 항목만 볼 수 있습니다. 바꾼 이름은 작업 기록에서 되돌릴 수 있습니다.\n⌘O 파일 추가 · ⇧⌘O 폴더 추가 · ⌘F 검색 · ⌘R 다시 검사 · ⌘1 자소 분리 해결 · ⌘2 이름 일괄 변경 · ⌘, 설정. 목록에서 ⌘A는 표시 항목을 선택합니다."
+            "value": "파일·폴더 추가 → 변경 전후 이름 확인 → 이름 바꾸기 순서로 진행합니다. 목록 위의 요약(정리할 이름·충돌·선택)을 누르면 해당 항목만 볼 수 있습니다. 바꾼 이름은 작업 기록에서 되돌릴 수 있습니다.\n⌘O 파일 추가 · ⇧⌘O 폴더 추가 · ⌘F 검색 · ⌘R 다시 검사 · ⌘1 자소 분리 해결 · ⌘2 파일 이름 일괄 변경 · ⌘, 설정. 목록에서 ⌘A는 표시 항목을 선택합니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Add files or folders → review the current and new names → rename. Click a summary item above the list (names to fix, conflicts, selected) to show only those items. Renamed items can be undone from History.\n⌘O add files · ⇧⌘O add folders · ⌘F search · ⌘R rescan · ⌘1 repair separated characters · ⌘2 batch rename · ⌘, settings. In the list, ⌘A selects the items shown."
+            "value": "Add files or folders → review the current and new names → rename. Click a summary item above the list (names to fix, conflicts, selected) to show only those items. Renamed items can be undone from History.\n⌘O add files · ⇧⌘O add folders · ⌘F search · ⌘R rescan · ⌘1 repair separated characters · ⌘2 batch rename files · ⌘, settings. In the list, ⌘A selects the items shown."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイル・フォルダを追加 → 変更前後の名前を確認 → 名前を変更、の順に進めます。一覧の上の集計（整理する名前・競合・選択）を押すと該当する項目だけを表示します。変更した名前は履歴から元に戻せます。\n⌘O ファイル追加 · ⇧⌘O フォルダ追加 · ⌘F 検索 · ⌘R 再検査 · ⌘1 分離した文字を修復 · ⌘2 名前を一括変更 · ⌘, 設定。一覧では⌘Aで表示中の項目を選択します。"
+            "value": "ファイル・フォルダを追加 → 変更前後の名前を確認 → 名前を変更、の順に進めます。一覧の上の集計（整理する名前・競合・選択）を押すと該当する項目だけを表示します。変更した名前は履歴から元に戻せます。\n⌘O ファイル追加 · ⇧⌘O フォルダ追加 · ⌘F 検索 · ⌘R 再検査 · ⌘1 分離した文字を修復 · ⌘2 ファイル名を一括変更 · ⌘, 設定。一覧では⌘Aで表示中の項目を選択します。"
           }
         }
       }
@@ -3486,13 +3486,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suggest numbered names for conflicts"
+            "value": "Suggest numbered names"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "重複名に連番を提案"
+            "value": "番号付きの名前を提案"
           }
         }
       }
@@ -5389,19 +5389,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 작업은 Pro 기능입니다. 무료 규칙과 기존 작업의 복구는 계속 사용할 수 있습니다."
+            "value": "이 기능을 사용할 수 없습니다. 앱을 다시 실행해 보세요."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This action requires Pro. Free rules and recovery remain available."
+            "value": "This feature is unavailable. Try restarting the app."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "この操作にはProが必要です。無料ルールと復旧は引き続き利用できます。"
+            "value": "この機能は利用できません。アプリを再起動してみてください。"
           }
         }
       }
@@ -5550,19 +5550,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "텍스트 변환"
+            "value": "복사한 글자 변환"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Text conversion"
+            "value": "Convert Copied Text"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "テキスト変換"
+            "value": "コピーした文字を変換"
           }
         }
       }
@@ -5734,19 +5734,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "무료 예제"
+            "value": "기본 예제"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Free example"
+            "value": "Basic example"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "無料の例"
+            "value": "基本の例"
           }
         }
       }
@@ -7758,19 +7758,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "폴더 감시"
+            "value": "폴더 자동 감시"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Watch folders"
+            "value": "Watch a Folder"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フォルダ監視"
+            "value": "フォルダを自動監視"
           }
         }
       }
@@ -8770,19 +8770,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pro 작업 예제"
+            "value": "다른 예제"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pro examples"
+            "value": "More examples"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pro作業例"
+            "value": "その他の例"
           }
         }
       }
@@ -9299,19 +9299,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이름 일괄 변경"
+            "value": "파일 이름 일괄 변경"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Batch rename"
+            "value": "Batch Rename Files"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "名前を一括変更"
+            "value": "ファイル名を一括変更"
           }
         }
       }
@@ -9506,19 +9506,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "글자 바꾸기, 번호 붙이기 등 여러 이름을 한 번에 바꿉니다."
+            "value": "글자 바꾸기, 번호 붙이기 등으로 여러 파일 이름을 한 번에 바꿉니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Replace text, add numbers and more across many names."
+            "value": "Replace text, add numbers and more across many file names."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "文字の置換や連番など、複数の名前をまとめて変更します。"
+            "value": "文字の置換や連番などで、複数のファイル名をまとめて変更します。"
           }
         }
       }
@@ -9529,19 +9529,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "도구"
+            "value": "텍스트"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tools"
+            "value": "Text"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ツール"
+            "value": "テキスト"
           }
         }
       }
@@ -9552,19 +9552,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "붙여 넣은 글자를 변환해 복사합니다."
+            "value": "복사한 글자를 붙여 넣어 자소 분리를 합치거나 분리한 뒤 다시 복사합니다. 파일은 바꾸지 않습니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Convert pasted text and copy it."
+            "value": "Paste copied text, combine or separate its characters, and copy the result. No files are changed."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "貼り付けた文字を変換してコピーします。"
+            "value": "コピーした文字を貼り付けて合成または分離し、結果をコピーします。ファイルは変更しません。"
           }
         }
       }
@@ -9575,19 +9575,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "폴더에 새로 생긴 파일을 찾아 검토 목록에 모읍니다."
+            "value": "지정한 폴더에 새로 생긴 파일을 모아 두었다가 확인 후 이름을 바꿉니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Collect new files in a folder for review."
+            "value": "Collect new files in a chosen folder and rename them after you review them."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フォルダに追加されたファイルを確認リストに集めます。"
+            "value": "指定したフォルダに追加されたファイルを集め、確認してから名前を変更します。"
           }
         }
       }
@@ -10587,19 +10587,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "결과 저장"
+            "value": "결과를 CSV로 저장"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Save Results"
+            "value": "Save Results as CSV"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "結果を保存"
+            "value": "結果をCSVで保存"
           }
         }
       }
@@ -11083,6 +11083,190 @@
           "stringUnit": {
             "state": "translated",
             "value": "その他の操作"
+          }
+        }
+      }
+    },
+    "HelpBatch": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파일 이름 일괄 변경에서는 작업을 고르고 값을 입력한 뒤 미리보기를 갱신합니다. 규칙은 먼저 목록의 ‘변경 후 이름’에만 반영되며, 확인한 뒤에만 실제 이름을 바꿉니다. 확장자를 편집해도 파일 형식은 변환되지 않습니다. 모든 기능을 무료로 쓸 수 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Batch Rename Files, choose a step, enter its value and update the preview. Rules only change the New name column first; real names change only after you confirm. Editing an extension does not convert the file format. Every feature is free."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「ファイル名を一括変更」では、操作を選んで値を入力し、プレビューを更新します。ルールはまず一覧の「変更後の名前」にだけ反映され、確認した後にだけ実際の名前を変更します。拡張子を編集してもファイル形式は変換されません。すべての機能を無料で利用できます。"
+          }
+        }
+      }
+    },
+    "HelpAuto": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자소 분리 해결은 분리 저장된 글자를 항상 하나로 합칩니다(NFC). 따로 형식을 고를 필요가 없습니다. 반대로 분리해 저장해야 하는 드문 경우에는 파일 이름 일괄 변경의 고급 규칙에서 글자 저장 형식을 바꿉니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair separated characters always combines them into one form (NFC), so there is nothing to choose. In the rare case you need the separated form, change the character form under Advanced Rules in Batch Rename Files."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「分離した文字を修復」は、分離して保存された文字を常に合成します（NFC）。形式を選ぶ必要はありません。まれに分離形式が必要な場合は、「ファイル名を一括変更」の高度なルールで文字の保存形式を変更します。"
+          }
+        }
+      }
+    },
+    "TreeTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추가한 파일·폴더"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Added Files and Folders"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "追加したファイル・フォルダ"
+          }
+        }
+      }
+    },
+    "TreeAll": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전체 보기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show All"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべて表示"
+          }
+        }
+      }
+    },
+    "TreeEmpty": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파일이나 폴더를 추가하면 여기에 폴더 구조가 표시됩니다. 폴더를 누르면 그 안의 항목만 볼 수 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add files or folders to see their folder structure here. Click a folder to show only what is inside it."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルやフォルダを追加すると、ここにフォルダ構成が表示されます。フォルダを押すと、その中の項目だけを表示します。"
+          }
+        }
+      }
+    },
+    "TreeOptions": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "목록 옵션"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List Options"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リストのオプション"
+          }
+        }
+      }
+    },
+    "TreePending": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정리할 이름 {0}개"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{0} names to change"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "変更する名前 {0}件"
+          }
+        }
+      }
+    },
+    "TreeFiltered": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{0} 안의 항목만 표시 중"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Showing only items in {0}"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{0} 内の項目だけを表示中"
           }
         }
       }
