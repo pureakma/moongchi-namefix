@@ -66,6 +66,13 @@ assert info["NSServices"]
 
 assert "DDD8C5" in (root / "App/Theme.swift").read_text()
 
+# A bitmap-only app icon is drawn shrunk on a gray plate by macOS 26 and later.
+icon = json.loads((resources / "AppIcon.icon" / "icon.json").read_text())
+for group in icon["groups"]:
+    for layer in group["layers"]:
+        assert (resources / "AppIcon.icon" / "Assets" / layer["image-name"]).is_file(), layer
+assert not list(resources.glob("**/*.appiconset")), "bitmap-only app icon set"
+
 assert not any(
     re.search(r"URLSession|NWConnection|NSURLConnection", path.read_text())
     for folder in ["App", "Application", "Infrastructure"]
