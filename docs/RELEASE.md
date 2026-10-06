@@ -10,17 +10,18 @@
 - App Sandbox OFF
 - Hardened Runtime ON
 
-현재 source는 마지막 build3 Release 후보 뒤에 UI/설정/리소스 변경이 추가됐다. 따라서 기존 artifacts/release-candidate/1.0.0/build3의 Release build, Developer ID, ZIP/DMG 검증은 과거 source snapshot 근거이며 현재 source 배포 승인이 아니다.
+현재 source는 마지막 build3 Release 후보 뒤에 UI/설정/리소스 변경과 2026-10-06 출시 전 완성도 고도화(문구·메뉴·접근성·transaction 취소 동작 등)가 추가됐다. 따라서 기존 artifacts/release-candidate/1.0.0/build3의 Release build, Developer ID, ZIP/DMG 검증은 과거 source snapshot 근거이며 현재 source 배포 승인이 아니다.
 
 ## 현재 Release 상태
 
-- 제품 기능 개발: 현재 승인 범위에서 완료 상태.
-- 새 current-source Release 후보: 아직 만들지 않음.
+- 제품 기능 개발: 현재 승인 범위에서 완료 상태. 앱 자체 기준 Release Candidate Ready(2026-10-06, 근거는 QA.md).
+- 현재 source의 Release 구성 build: 성공(arm64, 1.0.0 build 3). 컴파일 확인용이며 배포 후보가 아니다.
+- 새 current-source Release 후보: 아직 만들지 않음. build 번호는 새 후보를 만들 때 올린다.
 - 실제 Pro 판매/복원 공급자: 미연결.
 - 출시용 bundle ID: 미확정, development ID 유지.
 - Developer ID: 과거 후보에서 유효 identity 사용 기록이 있으나 현재 source에 대한 새 signing evidence는 STALE.
 - notarization: 과거 후보에서 notary profile 미제공으로 미실행. 현재 성공 티켓 없음.
-- 실제 macOS 14/Finder/TCC/접근성/깨끗한 Mac User QA: 대기.
+- 실제 macOS 14/Finder/TCC/접근성/깨끗한 Mac User QA: 대기(QA.md U01~U15).
 - 공개 업로드/판매 게시/App Store 제출: 수행하지 않음.
 
 ## 배포 채널 Gate

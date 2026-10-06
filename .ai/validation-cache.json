@@ -968,7 +968,7 @@
       "scope": [
         "Packages/NameFixCore/Sources/**/*.swift"
       ],
-      "status": "PASS",
+      "status": "STALE",
       "architecture": "arm64",
       "configuration": "Debug",
       "command": "eng/test.sh --scope core + changed model/journal integration regression",
@@ -988,7 +988,9 @@
       "supportingEvidence": [
         "artifacts/development/expansion/evidence/core.txt",
         "artifacts/development/expansion/evidence/final-safety-pairs.txt"
-      ]
+      ],
+      "previousStatus": "PASS",
+      "invalidationReason": "2026-10-06 release-readiness pass changed App/Application/Infrastructure/Core/CLI sources; superseded by MAC-RELEASE-READINESS-20261006 for Debug scope, rerun in the next Release Task."
     },
     {
       "validationId": "MAC-EXPANSION-FILESYSTEM",
@@ -1254,7 +1256,7 @@
       "scope": [
         "Packages/NameFixCore/Sources/**/*.swift"
       ],
-      "status": "PASS",
+      "status": "STALE",
       "architecture": "arm64",
       "configuration": "Debug",
       "command": "eng/test.sh --core",
@@ -1270,7 +1272,9 @@
       },
       "timestamp": "2026-10-04T04:20:22.213609+00:00",
       "evidencePath": "artifacts/release-candidate/1.0.0/evidence/full-core.txt",
-      "evidenceSHA256": "ea5b5ff9f3bc1fa7bec0efbba372c4d5a34417f8833fcb81b61ca1dae92164e2"
+      "evidenceSHA256": "ea5b5ff9f3bc1fa7bec0efbba372c4d5a34417f8833fcb81b61ca1dae92164e2",
+      "previousStatus": "PASS",
+      "invalidationReason": "2026-10-06 release-readiness pass changed App/Application/Infrastructure/Core/CLI sources; superseded by MAC-RELEASE-READINESS-20261006 for Debug scope, rerun in the next Release Task."
     },
     {
       "validationId": "MAC-V1-RUNTIME",
@@ -1279,7 +1283,7 @@
         "Infrastructure/**/*.swift",
         "Application/**/*.swift"
       ],
-      "status": "PASS",
+      "status": "STALE",
       "architecture": "arm64",
       "configuration": "Debug",
       "command": "eng/test.sh --scope all; affected coordination/performance/recovery regressions",
@@ -1295,7 +1299,9 @@
       },
       "timestamp": "2026-10-04T04:56:43.248582+00:00",
       "evidencePath": "artifacts/release-candidate/1.0.0/evidence/test-index.json",
-      "evidenceSHA256": "2e9ad4ceb687e35c527041e09b711ad24dce49499a6b3b6b55897edebf873535"
+      "evidenceSHA256": "2e9ad4ceb687e35c527041e09b711ad24dce49499a6b3b6b55897edebf873535",
+      "previousStatus": "PASS",
+      "invalidationReason": "2026-10-06 release-readiness pass changed App/Application/Infrastructure/Core/CLI sources; superseded by MAC-RELEASE-READINESS-20261006 for Debug scope, rerun in the next Release Task."
     },
     {
       "validationId": "MAC-V1-MODEL",
@@ -1332,7 +1338,7 @@
         "Infrastructure/**/*.swift",
         "Application/**/*.swift"
       ],
-      "status": "PASS",
+      "status": "STALE",
       "architecture": "arm64",
       "configuration": "Debug",
       "command": "python3 eng/test-case-sensitive.py",
@@ -1348,7 +1354,9 @@
       },
       "timestamp": "2026-10-04T04:31:14.172180+00:00",
       "evidencePath": "artifacts/release-candidate/1.0.0/evidence/case-sensitive-final.txt",
-      "evidenceSHA256": "39661dbc599efdf3e587f5ae212bb05de83aa28bc143c21b1812f52a989f9b7b"
+      "evidenceSHA256": "39661dbc599efdf3e587f5ae212bb05de83aa28bc143c21b1812f52a989f9b7b",
+      "previousStatus": "PASS",
+      "invalidationReason": "2026-10-06 release-readiness pass changed App/Application/Infrastructure/Core/CLI sources; superseded by MAC-RELEASE-READINESS-20261006 for Debug scope, rerun in the next Release Task."
     },
     {
       "validationId": "MAC-V1-RELEASE-TRANSACTIONS",
@@ -1357,7 +1365,7 @@
         "Infrastructure/**/*.swift",
         "Application/**/*.swift"
       ],
-      "status": "PASS",
+      "status": "STALE",
       "architecture": "arm64",
       "configuration": "Release",
       "command": "NAMEFIX_MUTATION_PERF=1 eng/test.sh -c release --filter TransactionTests|CoordinatedTransactionTests",
@@ -1373,7 +1381,9 @@
       },
       "timestamp": "2026-10-04T04:28:12.732940+00:00",
       "evidencePath": "artifacts/release-candidate/1.0.0/evidence/release-transaction-tests.txt",
-      "evidenceSHA256": "ca5dc86434c9a4f23dc78f33eba0d5c7428887d701e9ff6c3f196aa57a0919bd"
+      "evidenceSHA256": "ca5dc86434c9a4f23dc78f33eba0d5c7428887d701e9ff6c3f196aa57a0919bd",
+      "previousStatus": "PASS",
+      "invalidationReason": "2026-10-06 release-readiness pass changed App/Application/Infrastructure/Core/CLI sources; superseded by MAC-RELEASE-READINESS-20261006 for Debug scope, rerun in the next Release Task."
     },
     {
       "validationId": "MAC-V1-PERFORMANCE",
@@ -1382,7 +1392,7 @@
         "Infrastructure/**/*.swift",
         "Application/**/*.swift"
       ],
-      "status": "PASS",
+      "status": "STALE",
       "architecture": "arm64",
       "configuration": "Debug",
       "command": "NAMEFIX_MUTATION_PERF=1 NAMEFIX_EXPANSION_PERF=1 NAMEFIX_PERFORMANCE=1 eng/test.sh --filter CoordinatedTransactionTests|ExpansionPerformanceTests|SafetyTests.testScanPerformanceProfile",
@@ -1398,7 +1408,9 @@
       },
       "timestamp": "2026-10-04T04:26:21.006179+00:00",
       "evidencePath": "artifacts/release-candidate/1.0.0/evidence/performance-and-races.txt",
-      "evidenceSHA256": "8a3706163a48eb65367c847ef67a0b79244a751a4bcda57d32942a4dc868cd07"
+      "evidenceSHA256": "8a3706163a48eb65367c847ef67a0b79244a751a4bcda57d32942a4dc868cd07",
+      "previousStatus": "PASS",
+      "invalidationReason": "2026-10-06 release-readiness pass changed App/Application/Infrastructure/Core/CLI sources; superseded by MAC-RELEASE-READINESS-20261006 for Debug scope, rerun in the next Release Task."
     },
     {
       "validationId": "MAC-V1-CLI",
@@ -1408,7 +1420,7 @@
         "Application/**/*.swift",
         "CLI/**/*.swift"
       ],
-      "status": "PASS",
+      "status": "STALE",
       "architecture": "arm64",
       "configuration": "Release",
       "command": "python3 eng/test-release-cli.py .build/out/Products/Release/namefix",
@@ -1424,7 +1436,9 @@
       },
       "timestamp": "2026-10-04T04:34:34.476390+00:00",
       "evidencePath": "artifacts/release-candidate/1.0.0/evidence/cli-release-final.txt",
-      "evidenceSHA256": "4de18456e268e2d9c73910638bc7eac721cf7047b1c00ed80924a8c4cfacec64"
+      "evidenceSHA256": "4de18456e268e2d9c73910638bc7eac721cf7047b1c00ed80924a8c4cfacec64",
+      "previousStatus": "PASS",
+      "invalidationReason": "2026-10-06 release-readiness pass changed App/Application/Infrastructure/Core/CLI sources; superseded by MAC-RELEASE-READINESS-20261006 for Debug scope, rerun in the next Release Task."
     },
     {
       "validationId": "MAC-V1-RESOURCES",
@@ -1774,6 +1788,32 @@
       "notes": "12 related tests; 36 native renders and collapse assertions; 426 keys x 3 locales; selected images visually inspected. No Release/user GUI control.",
       "previousStatus": "PASS",
       "invalidationReason": "2026-10-06 resource SSOT cleanup removed Windows-to-macOS handoff/generator inputs; rerun affected resource/UI verification after sync."
+    },
+    {
+      "validationId": "MAC-RELEASE-READINESS-20261006",
+      "status": "PASS",
+      "configuration": "Debug + Release build",
+      "architecture": "arm64",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "CLI/**/*.swift",
+        "App/**/*.swift",
+        "App/Info.plist",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "eng/resources.py",
+        "eng/validate-resources.py",
+        "Package.swift",
+        "project.yml"
+      ],
+      "sourceFingerprint": "fe1e9008d6dcacc5a3df8d5cdf25800aaddd36edbd5db157dabcbaf5dbd954c9",
+      "testFingerprint": "72822ae2c9ab950d75d5b3f8cc3c9359c8f481a3412898b439e8c7d572d2e390",
+      "timestamp": "2026-10-06T06:07:29.914660+00:00",
+      "command": "eng/test.sh --level 3 --scope all; eng/resources.py; eng/validate-resources.py; eng/build-cli.sh debug; eng/test-expansion-cli.py; eng/build.sh Debug; eng/build.sh Release; --render-shell/--render-expansion/--render-expansion --native-sidebar/--render-responsive; NAMEFIX_PERFORMANCE=1 NAMEFIX_EXPANSION_PERF=1 profiles",
+      "evidencePath": "artifacts/development/release-readiness",
+      "notes": "103 tests, 0 failures (53 integration with 3 opt-in profiles skipped, 30 UI model, 20 core); 446 keys x 3 locales; 219 off-screen renders with representative ko/en/ja x theme x size screens visually inspected; 10k scan+preview+plan median 2.221s, 100k scan 3.104s (Debug); Release configuration compiles and passes resource self-test. No signing, packaging, notarization, case-sensitive volume run, 1,000-item mutation profile or user GUI control."
     }
   ]
 }

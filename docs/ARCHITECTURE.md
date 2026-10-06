@@ -9,7 +9,7 @@
 - SwiftUI + AppKit
 - Foundation/Darwin 파일시스템 API
 - 현재 App Sandbox OFF, Hardened Runtime ON
-- 제품 version 설정 1.0.0 build 3, development bundle ID com.moongchi.namefix.dev
+- 제품 version 설정 1.0.0 build 3, development bundle ID com.moongchi.namefix.dev. 앱 정보 화면과 진단 보고서는 번들의 version/build 값을 읽는다.
 
 ## 책임 경계
 
@@ -34,6 +34,10 @@ Clipboard는 사용자가 붙여넣기/분석을 명시했을 때만 읽고 자�
 
 Scanner는 실제 디렉터리 entry의 raw 이름과 identity를 보존한다. Swift String의 canonical equality만으로 NFC/NFD 차이를 판단하지 않는다. 규칙/필터/정렬/대형 parse는 가능한 한 background worker에서 수행하고 generation/cancellation으로 늦은 결과를 버린다.
 
+경로를 키로 쓰는 집합·사전은 RawPath의 전체 바이트 해시를 사용한다. 같은 폴더의 형제 경로는 앞부분이 같으므로 앞쪽 일부만 해시하는 키를 쓰지 않는다.
+
+규칙 Preview는 Finder 관리 파일(.DS_Store, .localized)을 변경 대상에서 빼고 순번도 배정하지 않는다. 폴더는 하위 항목 이름이 바뀌면 수정 시각이 달라지므로 scan과 규칙 Preview 모두 일반 파일에만 content version을 기록한다.
+
 일반 이름 검사에는 사용자 파일 내용이 필요하지 않다. 메타데이터 규칙을 명시적으로 선택했을 때만 MetadataReader가 지원 형식의 제한된 metadata를 읽기 전용으로 추출한다.
 
 ## Mutation
@@ -49,7 +53,9 @@ Scanner는 실제 디렉터리 entry의 raw 이름과 identity를 보존한다. 
 6. 이동 뒤 identity/raw 결과 확인
 7. verified 결과를 journal에 기록
 
-swap/cycle과 파일 쌍은 GraphTransaction이 그룹 전체 intent를 먼저 기록하고 staging 후 final을 적용한다. 전체 그룹의 원자 성공을 보장하지 않으며 부분 실패는 실제 위치와 journal을 보존해 Recovery 대상으로 넘긴다.
+취소는 항목 경계에서 적용한다. 기본 이동에서 source → temporary가 끝난 항목은 취소 요청이 와도 final까지 마친 뒤 다음 항목 전에 멈추므로, 취소만으로 임시 이름에 항목이 남지 않는다. 조정 대기 시간 초과나 외부 변경 감지는 종전대로 중단하고 Recovery로 넘긴다.
+
+swap/cycle과 파일 쌍은 GraphTransaction이 그룹 전체 intent를 먼저 기록하고 staging 후 final을 적용한다. 전체 그룹의 원자 성공을 보장하지 않으며 부분 실패는 실제 위치와 journal을 보존해 Recovery 대상으로 넘긴다. 그룹 staging 도중의 취소도 같은 경로를 따른다. 아무것도 옮기기 전에 그룹이 실패하면 종료 이벤트를 journal에 남겨 앞서 완료된 그룹이 미완료로 보이지 않게 한다.
 
 FileCoordination은 협조 writer와 이동을 조정하며 대기 취소/timeout을 지원한다. 비협조 writer 원자 차단 한계는 FILESYSTEM_CAPABILITIES.md가 원본이다.
 
@@ -63,7 +69,7 @@ Journal schema 2는 swap/group 이벤트를 표현한다. schema 1은 읽기 호
 
 - 설정: serialized atomic save, 손상 원본 보존, 새 schema 안전 처리
 - 창 배치: 별도 versioned key로 일반 window frame/screen을 저장
-- 프리셋/감시: actor 기반 atomic store, size/schema 제한, 손상 원본 보존
+- 프리셋/감시: actor 기반 atomic store, size/schema 제한, 손상 원본 보존. 저장 시에도 읽기와 같은 크기 한도를 적용하고, 저장하는 규칙에서 현재 세션의 수동 순서 경로는 제거한다.
 - watch: FSEvents는 발견/대기열 역할이며 이벤트만으로 rename하지 않는다. 사용자 review snapshot 이후 mutation한다.
 - 진단 로그와 mutation journal은 별개다. 기본 진단에 경로/clipboard/파일 내용을 넣지 않는다.
 
@@ -75,6 +81,6 @@ CLI는 기본 dry-run이며 실제 변경은 execute 요청과 터미널 최종 
 
 ## 리소스 생성
 
-Resources/Localizable.xcstrings가 번역의 단일 SSOT다. eng/resources.py는 이 catalog에서 ko/en/ja runtime .strings와 Finder Services InfoPlist.strings만 재생성한다.
+Resources/Localizable.xcstrings가 번역의 단일 SSOT다. eng/resources.py는 이 catalog에서 ko/en/ja runtime .strings와 InfoPlist.strings(Finder 서비스 이름, 데스크탑·문서·다운로드 폴더 접근 권한 안내)를 재생성한다.
 
 Pretendard Variable과 Pretendard JP Variable의 실제 앱 자산·라이선스는 Resources/ 한 곳만 유지한다. Windows→macOS 초기 handoff, 별도 localization JSON, 중복 폰트 사본에 빌드나 검증이 의존하지 않는다.

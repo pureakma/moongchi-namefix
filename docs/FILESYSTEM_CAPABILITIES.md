@@ -37,11 +37,17 @@ NSFileCoordinator를 사용해 조정에 참여하는 프로그램과 이동을 
 
 그러나 macOS에서 사용하는 현재 rename 계약은 비협조 외부 writer에 대해 expected inode를 원자 조건으로 걸어 source 교체 자체를 완전히 막는 보장을 제공하지 않는다. 마지막 확인 뒤 다른 프로세스가 source leaf를 교체하면 다른 identity가 temporary 위치로 이동할 수 있다.
 
+사용자 취소는 처리 중인 항목을 마친 뒤 적용한다. 단일 항목 이동은 취소 때문에 임시 이름에 남지 않는다. swap/cycle/묶음 파일 그룹은 그룹 도중 취소하면 일부가 임시 이름에 남을 수 있으며 Recovery로 확인·복원한다.
+
 현재 대응은 감지·즉시 중단·journal/관찰 위치 보존·Finder에서 확인 가능한 Recovery 안내다. 이 한계를 원자 예방 PASS라고 표현하지 않는다. 작업 중 같은 항목을 다른 앱에서 동시에 저장·이동하지 않는 것이 지원 조건이다.
+
+## 기록 손상 시 동작
+
+Undo와 Recovery는 전체 작업 기록으로 현재 경로를 추적한다. 읽을 수 없는 journal(쓰기 도중 전원 차단, 더 새 버전의 기록 등)이 하나라도 있으면 원본을 보존하고 Undo/Recovery 계획 생성을 막는다. 잘못된 경로 추적으로 다른 항목을 건드리지 않기 위한 보수적 차단이며, 손상 기록을 건너뛰는 부분 복구는 현재 제공하지 않는다.
 
 ## 권한과 개인정보
 
-- Desktop/Documents/Downloads 등 TCC 보호 위치는 macOS의 사용자 허용을 따른다.
+- Desktop/Documents/Downloads 등 TCC 보호 위치는 macOS의 사용자 허용을 따른다. 권한 안내 문구는 ko/en/ja로 제공한다.
 - 권한 거절은 항목 오류로 격리하고 권한을 우회하지 않는다.
 - 기본 scan은 사용자 파일 내용을 열어 hash하지 않는다.
 - 사용자가 metadata 규칙을 선택했을 때만 지원 형식의 제한된 metadata를 읽기 전용으로 추출한다.
