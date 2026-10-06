@@ -84,7 +84,6 @@ struct RuleEditor: View {
                 ForEach(configured) { optionRow($0) }
             }
             if !draft.rules.isEmpty || !configured.isEmpty { sampleLine }
-            if let message = model.message { Text(model.t(message)).font(.callout).foregroundStyle(palette.warning).fixedSize(horizontal: false, vertical: true) }
         }.textFieldStyle(.roundedBorder).frame(maxWidth: .infinity, alignment: .leading)
     }
     private var header: some View {

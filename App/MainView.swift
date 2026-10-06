@@ -32,24 +32,13 @@ struct MainView: View {
                     else { quick(width: width, height: proxy.size.height) }
                 }.frame(width: width).frame(maxHeight: .infinity)
             }
+            .scrollIndicators(.hidden, axes: .horizontal)
             // The panel starts below the title bar band; the band itself keeps the window chrome colour.
             .background { ChromePanel(palette: palette, leading: panelEdge) }
             .foregroundStyle(contrast == .increased ? Color.primary : palette.text)
             .font(L10n.font(model.settings.language)).tint(palette.accent)
             .overlay { if model.dragActive { RoundedRectangle(cornerRadius: Metrics.corner).stroke(palette.accent, lineWidth: 3).padding(4).allowsHitTesting(false) } }
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                if let message = model.message {
-                    ScrollView {
-                        HStack(alignment: .top) {
-                            let notice = ["Exported", "RecipeSaved", "QueuedInputs", "CancelBeforeClose"].contains(message)
-                            Image(systemName: notice ? "info.circle" : "exclamationmark.circle").foregroundStyle(notice ? palette.secondary : palette.warning).accessibilityHidden(true)
-                            Text(model.t(message)).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
-                            Spacer(minLength: 4)
-                            Button { model.message = nil } label: { Image(systemName: "xmark") }.buttonStyle(.plain).help(model.t("Close")).accessibilityLabel(model.t("Close"))
-                        }.padding(12)
-                    }.frame(maxHeight: min(90, proxy.size.height * 0.3)).background(palette.surface)
-                }
-            }
+            .safeAreaInset(edge: .bottom, spacing: 0) { StatusBar(model: model, palette: palette) }
             .sheet(isPresented: Binding(get: { model.plan != nil }, set: { if !$0 { model.cancelPreview() } })) {
                 if let plan = model.plan { ConfirmationView(model: model, plan: plan, palette: palette, availableSize: proxy.size) }
             }
@@ -99,7 +88,6 @@ struct MainView: View {
             if model.isWorkbench { previewHeader }
             overview
             filterRow
-            if model.busy { activity }
             if model.visible.isEmpty { noResults.frame(minHeight: 150) }
             else { ForEach(model.visible) { entry in CompactResultRow(model: model, entry: entry, palette: palette).id(entry.id) } }
         }.padding(Metrics.gap)
@@ -238,11 +226,6 @@ struct MainView: View {
                 .contentShape(Rectangle())
         }.buttonStyle(.plain).fixedSize().accessibilityLabel(model.t(key) + " " + model.n(count)).accessibilityAddTraits(active ? .isSelected : [])
     }
-    private var scopeCaption: some View {
-        let shown = model.t("ShownCount", model.n(model.visible.count), model.n(model.entries.count))
-        return Text(model.hiddenSelected > 0 ? shown + " · " + model.t("HiddenSelected", model.n(model.hiddenSelected)) : shown)
-            .font(.caption).foregroundStyle(model.hiddenSelected > 0 ? palette.warning : palette.secondary).fixedSize(horizontal: false, vertical: true)
-    }
     private var filterRow: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: Metrics.control) { searchField; viewOptions; selectionMenu }
@@ -280,29 +263,12 @@ struct MainView: View {
             .menuStyle(.borderlessButton).fixedSize().disabled(model.busy).accessibilityIdentifier("selectMenu")
     }
     private var results: some View {
-        VStack(spacing: 0) {
-            if model.busy { activity; Divider() }
-            if model.visible.isEmpty { noResults } else { ResultTable(model: model, palette: palette) }
-        }
+        // Progress and notices live in the status bar, so nothing here ever pushes the table down.
+        Group { if model.visible.isEmpty { noResults } else { ResultTable(model: model, palette: palette) } }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(palette.surface, in: RoundedRectangle(cornerRadius: 8))
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(palette.border, lineWidth: 1))
-    }
-    private var activity: some View {
-        ScrollView(.horizontal) {
-            HStack {
-                if model.mutating { ProgressView(value: Double(model.completed), total: Double(max(1, model.total))).frame(width: 100) } else { ProgressView().controlSize(.small) }
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(model.cancelled ? model.t("ActivityCancel") : model.phaseLabel)
-                    if model.mutating { Text(model.t("ActivityCount", model.n(model.completed), model.n(model.total), model.n(model.total == 0 ? 0 : model.completed * 100 / model.total))).font(.caption); Text(model.current).font(.caption).lineLimit(1).truncationMode(.middle).help(model.current) }
-                    else if model.phase == "ActivityScan" { Text(model.t("Scanning", model.n(model.scanned))).font(.caption) }
-                }
-                Spacer()
-                TimelineView(.periodic(from: model.started, by: 1)) { context in Text(model.t("Elapsed", model.n(Int(context.date.timeIntervalSince(model.started))))).font(.caption) }
-                Button(model.t("Cancel")) { model.cancel() }.disabled(model.cancelled || model.phase == "ActivityPreview")
-            }.padding(12)
-        }.frame(height: model.mutating ? 90 : 64)
     }
     /// Shown inside the result area only: nothing matched, or rules were opened before any file.
     @ViewBuilder private var noResults: some View {
@@ -316,15 +282,14 @@ struct MainView: View {
                     Text(model.t("NoResultsDescription")).font(.callout).foregroundStyle(palette.secondary)
                 }
             }.multilineTextAlignment(.center).padding(20).frame(maxWidth: .infinity, maxHeight: .infinity).accessibilityIdentifier("noResults")
-        } else { Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity) }
-    }
-    /// The bottom holds the one primary action; the count beside it is secondary information.
-    private var footer: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: Metrics.gap) { scopeCaption; Spacer(minLength: Metrics.control); primaryAction }
-            VStack(alignment: .trailing, spacing: Metrics.control) { scopeCaption; primaryAction }.frame(maxWidth: .infinity, alignment: .trailing)
+        } else {
+            // Nothing to show yet: say what is happening where the list will appear.
+            VStack(spacing: 8) { ProgressView().controlSize(.small); Text(model.phaseLabel).foregroundStyle(palette.secondary) }
+                .frame(maxWidth: .infinity, maxHeight: .infinity).accessibilityElement(children: .combine)
         }
     }
+    /// The bottom of the pane holds the one primary action; counts and notices are in the status bar.
+    private var footer: some View { HStack { Spacer(minLength: 0); primaryAction } }
     private var primaryAction: some View {
         Button { model.prepare() } label: { Text(model.t(model.isWorkbench ? "RenameCount" : "CombineCount", model.n(model.selected.count))).fontWeight(.semibold).padding(.horizontal, 12).padding(.vertical, 6) }
             .buttonStyle(PrimaryButtonStyle(palette: palette)).disabled(model.selected.isEmpty || model.busy || !model.ready || model.hasUnappliedRules)
@@ -356,6 +321,74 @@ extension MainView {
     }
 }
 
+/// Bottom status bar: the one place for item counts, what the app is doing now, and notices.
+/// It is always there, so messages and progress never move the content above it.
+struct StatusBar: View {
+    @ObservedObject var model: AppModel
+    let palette: Palette
+    @State private var showsNotice = false
+    private static let informational: Set<String> = ["Exported", "RecipeSaved", "QueuedInputs", "CancelBeforeClose"]
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: Metrics.gap) { counts; Spacer(minLength: Metrics.control); notice; activity }.frame(height: Metrics.statusBar)
+            VStack(alignment: .leading, spacing: 0) {
+                if model.message != nil { HStack { notice; Spacer(minLength: 0) }.frame(height: Metrics.statusBar) }
+                HStack(spacing: Metrics.gap) { counts; Spacer(minLength: Metrics.control); activity }.frame(height: Metrics.statusBar)
+            }
+            VStack(alignment: .leading, spacing: 0) {
+                if model.message != nil { HStack { notice; Spacer(minLength: 0) }.frame(height: Metrics.statusBar) }
+                if model.busy { HStack { activity; Spacer(minLength: 0) }.frame(height: Metrics.statusBar) }
+                HStack { counts.lineLimit(2).minimumScaleFactor(0.85); Spacer(minLength: 0) }.frame(minHeight: Metrics.statusBar)
+            }
+        }
+        .font(.callout).padding(.horizontal, Metrics.page)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(palette.canvas)
+        .overlay(alignment: .top) { Rectangle().fill(palette.border).frame(height: 1).accessibilityHidden(true) }
+        .accessibilityElement(children: .contain).accessibilityLabel(model.t("StatusBar")).accessibilityIdentifier("statusBar")
+    }
+    private var counts: some View {
+        let empty = model.roots.isEmpty && model.entries.isEmpty
+        let shown = empty ? model.t("StatusNoInput") : model.t("ShownCount", model.n(model.visible.count), model.n(model.entries.count))
+        return Text(model.hiddenSelected > 0 ? shown + " · " + model.t("HiddenSelected", model.n(model.hiddenSelected)) : shown)
+            .foregroundStyle(model.hiddenSelected > 0 ? palette.warning : palette.secondary).lineLimit(1)
+    }
+    @ViewBuilder private var notice: some View {
+        if let message = model.message {
+            let info = Self.informational.contains(message)
+            HStack(spacing: 6) {
+                Image(systemName: info ? "info.circle" : "exclamationmark.triangle.fill").foregroundStyle(info ? palette.secondary : palette.warning).accessibilityHidden(true)
+                // One line here; the whole text, selectable, on click.
+                Button { showsNotice = true } label: { Text(model.t(message)).lineLimit(1).truncationMode(.tail).contentShape(Rectangle()) }
+                    .buttonStyle(.plain).help(model.t(message))
+                    .popover(isPresented: $showsNotice, arrowEdge: .top) {
+                        Text(model.t(message)).textSelection(.enabled).fixedSize(horizontal: false, vertical: true).padding(14).frame(width: 340, alignment: .leading)
+                    }
+                Button { model.message = nil } label: { Image(systemName: "xmark").font(.caption) }.buttonStyle(.plain).foregroundStyle(palette.secondary)
+                    .help(model.t("Close")).accessibilityLabel(model.t("Close"))
+            }
+        }
+    }
+    @ViewBuilder private var activity: some View {
+        if model.busy {
+            HStack(spacing: Metrics.control) {
+                if model.mutating { ProgressView(value: Double(model.completed), total: Double(max(1, model.total))).frame(width: 90).help(model.current) }
+                else { ProgressView().controlSize(.small) }
+                Text(activityText).lineLimit(1).foregroundStyle(palette.text)
+                TimelineView(.periodic(from: model.started, by: 1)) { context in
+                    Text(model.t("Elapsed", model.n(Int(context.date.timeIntervalSince(model.started))))).foregroundStyle(palette.secondary).monospacedDigit().lineLimit(1)
+                }
+                Button(model.t("Cancel")) { model.cancel() }.controlSize(.small).disabled(model.cancelled || model.phase == "ActivityPreview")
+            }.accessibilityIdentifier("activity")
+        }
+    }
+    private var activityText: String {
+        if model.cancelled { return model.t("ActivityCancel") }
+        if model.mutating { return model.phaseLabel + " · " + model.t("ActivityCount", model.n(model.completed), model.n(model.total), model.n(model.total == 0 ? 0 : model.completed * 100 / model.total)) }
+        return model.phase == "ActivityScan" ? model.t("Scanning", model.n(model.scanned)) : model.phaseLabel
+    }
+}
+
 struct ResultTable: View {
     @ObservedObject var model: AppModel
     let palette: Palette
@@ -375,6 +408,8 @@ struct ResultTable: View {
         }
         .alternatingRowBackgrounds(.disabled)
         .scrollContentBackground(.hidden)
+        // Columns share the available width; a horizontal scroller would only add a bar under the list.
+        .background(NoHorizontalScroller())
         .background(palette.surface)
         .contextMenu(forSelectionType: UUID.self) { ids in
             Button(model.t("InspectShort")) { model.focused = ids.first; model.sheet = "inspector" }
@@ -388,4 +423,30 @@ struct ResultTable: View {
         .onKeyPress(keys: ["z"]) { event in if event.modifiers.contains(.command), let h = model.history.first(where: { $0.mode == "rename" && $0.succeeded > 0 }) { model.prepare(mode: "undo", historyID: h.id); return .handled }; return .ignored }
         .accessibilityIdentifier("resultsTable")
     }
+}
+
+/// Table keeps its AppKit horizontal scroller whatever `scrollIndicators` says, and with
+/// "always show scroll bars" that is a permanent bar under the list. This turns it off.
+private struct NoHorizontalScroller: NSViewRepresentable {
+    final class Probe: NSView {
+        override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); DispatchQueue.main.async { [weak self] in self?.apply() } }
+        override func layout() { super.layout(); apply() }
+        func apply() {
+            var ancestor = superview
+            while let view = ancestor {
+                if let scroll = Self.listScroll(in: view) {
+                    if scroll.hasHorizontalScroller { scroll.hasHorizontalScroller = false; scroll.horizontalScrollElasticity = .none }
+                    return
+                }
+                ancestor = view.superview
+            }
+        }
+        private static func listScroll(in view: NSView) -> NSScrollView? {
+            if let scroll = view as? NSScrollView, scroll.documentView is NSTableView { return scroll }
+            for child in view.subviews { if let found = listScroll(in: child) { return found } }
+            return nil
+        }
+    }
+    func makeNSView(context: Context) -> Probe { Probe() }
+    func updateNSView(_ view: Probe, context: Context) { view.apply() }
 }

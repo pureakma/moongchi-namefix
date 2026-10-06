@@ -2054,19 +2054,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모두 제거"
+            "value": "모두 닫기"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove All"
+            "value": "Close All"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "すべて削除"
+            "value": "すべて閉じる"
           }
         }
       }
@@ -2215,19 +2215,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "목록에서 제거"
+            "value": "이 항목 닫기"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove from List"
+            "value": "Close This Item"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "リストから削除"
+            "value": "この項目を閉じる"
           }
         }
       }
@@ -11980,6 +11980,75 @@
           "stringUnit": {
             "state": "translated",
             "value": "メニュー"
+          }
+        }
+      }
+    },
+    "CloseAllHelp": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추가한 파일·폴더를 모두 닫고 처음 화면으로 돌아갑니다. 파일은 바뀌지 않습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closes everything you added and returns to the first screen. Your files are not changed."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "追加したファイル・フォルダをすべて閉じて最初の画面に戻ります。ファイルは変更されません。"
+          }
+        }
+      }
+    },
+    "StatusNoInput": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추가한 항목 없음"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing added"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "追加した項目なし"
+          }
+        }
+      }
+    },
+    "StatusBar": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "상태 표시줄"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status Bar"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ステータスバー"
           }
         }
       }

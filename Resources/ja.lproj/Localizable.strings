@@ -65,6 +65,7 @@
 "ClipboardInspect" = "コピーした文字を分析";
 "ClipboardTruncated" = "解析できる長さを超えているため、一部のみ表示しています。";
 "Close" = "閉じる";
+"CloseAllHelp" = "追加したファイル・フォルダをすべて閉じて最初の画面に戻ります。ファイルは変更されません。";
 "CloudWarning" = "同期フォルダでの変更は他のデバイスにも反映される場合があります。";
 "ColumnWidth" = "現在の名前の列幅";
 "ColumnWidthHelp" = "広いウインドウの結果表に適用されます。狭い場合は2つの名前を縦に表示します。";
@@ -345,14 +346,14 @@
 "RegexInvalid" = "パターン（正規表現）の構文を確認してください。";
 "RememberFolders" = "このデバイスに最近のフォルダを保存";
 "Remove" = "削除";
-"RemoveInput" = "リストから削除";
+"RemoveInput" = "この項目を閉じる";
 "RemoveRule" = "ルールを削除";
 "Rename" = "名前を変更";
 "RenameCount" = "{0}件の名前を変更";
 "ReplacementText" = "置換文字 / 区切り";
 "Rescan" = "再検査";
 "ResetFilters" = "絞り込み解除";
-"ResetInputs" = "すべて削除";
+"ResetInputs" = "すべて閉じる";
 "ResetRules" = "すべてのルールを削除";
 "RestoreNames" = "分離した文字を修復";
 "RestoreNamesDetail" = "ファイル名の分離した文字を合成します。";
@@ -437,6 +438,8 @@
 "SourceColumn" = "元の名前の列";
 "StaleHelp" = "ルールが変更されました。プレビューを更新してから名前を変更できます。";
 "Status" = "状態";
+"StatusBar" = "ステータスバー";
+"StatusNoInput" = "追加した項目なし";
 "Stem" = "拡張子を除く名前";
 "SumCount" = "{0}文字";
 "SumInsert" = "{0}文字の後に「{1}」";

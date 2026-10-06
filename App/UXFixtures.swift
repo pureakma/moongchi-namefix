@@ -136,6 +136,14 @@ import NameFixRuntime
         settle(0.5); report("B folder added")
         try expect(controller.mode == .railWithTree && abs(sidebarWidth() - (WindowLayout.railWidth + WindowLayout.defaultTreeWidth)) < 1 && !model.folderTree.isEmpty, 2)
         try bandDrags(window, "B")
+        // The result list never shows a horizontal scroller, whatever the system scroll bar setting is.
+        func tables(_ view: NSView) -> [NSTableView] { (view as? NSTableView).map { [$0] } ?? view.subviews.flatMap(tables) }
+        let lists = window.contentView.map(tables) ?? []
+        for table in lists {
+            let scroll = table.enclosingScrollView
+            print("result list: columns=\(table.tableColumns.map { Int($0.width) }) table=\(Int(table.frame.width)) clip=\(Int(scroll?.contentSize.width ?? -1)) horizontalScroller=\(scroll?.hasHorizontalScroller ?? false) vertical=\(scroll?.hasVerticalScroller ?? false)")
+        }
+        try expect(!lists.isEmpty && lists.allSatisfy { $0.enclosingScrollView?.hasHorizontalScroller == false }, 7)
         model.folderFilter = model.folderTree.first?.children?.first?.id
         settle(0.4); try expect(controller.mode == .railWithTree && !controller.navigationItem.isCollapsed, 3)
         model.remove(nil)
@@ -167,6 +175,22 @@ import NameFixRuntime
             }
         }
         print("band \(label): draggable samples left/middle/right = \(thirds), blocked = \(blocked.prefix(6))")
+        // AppKit counts a SwiftUI hosting view's whole frame as blocking window moves. One under the
+        // band empties the window's drag region, and then only parts of the band move the window.
+        let band = NSRect(x: 0, y: frame.bounds.height - 30, width: width, height: 30)
+        var under: [String] = []
+        func walk(_ view: NSView) {
+            let name = String(describing: type(of: view))
+            if name.contains("HostingView<"), !name.hasPrefix("_NS"), !view.isHidden, view.convert(view.bounds, to: frame).intersects(band) { under.append(String(name.prefix(40))) }
+            view.subviews.forEach(walk)
+        }
+        window.contentView.map(walk)
+        #if DEBUG
+        let region = window.perform(NSSelectorFromString("_lastDragRegionData"))?.takeUnretainedValue() as? Data
+        print("band \(label): hosting views under the band = \(under), system drag region = \(region.map { $0.count > 12 ? "set" : "EMPTY" } ?? "not computed")")
+        if let region, region.count <= 12 { throw NSError(domain: "DragContract", code: 4) }
+        #endif
+        guard under.isEmpty else { throw NSError(domain: "DragContract", code: 3) }
         guard blocked.isEmpty, thirds.allSatisfy({ $0 > 0 }) else { throw NSError(domain: "DragContract", code: 2) }
     }
 }

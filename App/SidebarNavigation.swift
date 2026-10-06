@@ -13,28 +13,22 @@ import Combine
     private var applying = false
     private(set) var mode: SidebarMode = .navigation
     private let brand = TitleBrandView()
+    private let backdrop: TintedView, surface: TintedView
     private var themeObservation: AnyCancellable?
     private static let treeWidthKey = "NameFix.TreeWidth.v1"
     init(model: AppModel, rulesFirst: Bool = false) {
         self.model = model
         let navigation = NSViewController()
         let sidebar = DropHostingView(rootView: SidebarNavigation(model: model)); sidebar.model = model; sidebar.sizingOptions = []
-        let container = NSView()
+        // No SwiftUI hosting view may lie under the title bar band: AppKit counts a hosting view's
+        // whole frame as blocking window moves, which empties the window's drag region and leaves
+        // dragging to whichever view happens to get the press. The band is plain AppKit views.
+        let container = TintedView(), surface = TintedView(); backdrop = container; self.surface = surface
         navigation.view = container
         sidebar.translatesAutoresizingMaskIntoConstraints = false
-        let backdrop = NSHostingView(rootView: SidebarBackdrop(model: model))
-        backdrop.translatesAutoresizingMaskIntoConstraints = false
-        container.addSubview(backdrop)
-        NSLayoutConstraint.activate([
-            backdrop.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            backdrop.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-            backdrop.topAnchor.constraint(equalTo: container.topAnchor),
-            backdrop.bottomAnchor.constraint(equalTo: container.bottomAnchor)
-        ])
-        // Content views receive clicks in the title bar band of a full-height sidebar, and a SwiftUI
-        // hosting view does not move the window. This strip keeps the whole band a drag handle.
         let band = NSLayoutGuide(); container.addLayoutGuide(band)
         let handle = WindowDragView(); handle.translatesAutoresizingMaskIntoConstraints = false
+        handle.dropTarget = sidebar
         container.addSubview(handle)
         NSLayoutConstraint.activate([
             band.topAnchor.constraint(equalTo: container.topAnchor),
@@ -48,7 +42,7 @@ import Combine
         container.addSubview(brand); brand.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             brand.centerYAnchor.constraint(equalTo: band.centerYAnchor),
-            brand.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 86)
+            brand.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: WindowLayout.brandLeading)
         ])
         container.addSubview(sidebar)
         NSLayoutConstraint.activate([
@@ -69,37 +63,39 @@ import Combine
         navigationItem.canCollapseFromWindowResize = false
         let detail = NSViewController()
         let host = DropHostingView(rootView: MainView(model: model, rulesFirst: rulesFirst)); host.model = model; host.sizingOptions = []
-        // Same drag strip over the content's band: toolbar buttons sit above it and keep their clicks,
-        // every other point of the band moves the window.
-        let surface = NSView(), contentHandle = WindowDragView()
+        // The content starts below the band for the same reason; the strip above it still takes
+        // presses the system title bar passes through, and file drops.
+        let contentHandle = WindowDragView(); contentHandle.dropTarget = host
         host.translatesAutoresizingMaskIntoConstraints = false; contentHandle.translatesAutoresizingMaskIntoConstraints = false
         surface.addSubview(host); surface.addSubview(contentHandle)
         NSLayoutConstraint.activate([
             host.leadingAnchor.constraint(equalTo: surface.leadingAnchor), host.trailingAnchor.constraint(equalTo: surface.trailingAnchor),
-            host.topAnchor.constraint(equalTo: surface.topAnchor), host.bottomAnchor.constraint(equalTo: surface.bottomAnchor),
+            host.topAnchor.constraint(equalTo: surface.safeAreaLayoutGuide.topAnchor), host.bottomAnchor.constraint(equalTo: surface.bottomAnchor),
             contentHandle.leadingAnchor.constraint(equalTo: surface.leadingAnchor), contentHandle.trailingAnchor.constraint(equalTo: surface.trailingAnchor),
             contentHandle.topAnchor.constraint(equalTo: surface.topAnchor), contentHandle.bottomAnchor.constraint(equalTo: surface.safeAreaLayoutGuide.topAnchor)
         ])
         detail.view = surface
         let content = NSSplitViewItem(viewController: detail); content.titlebarSeparatorStyle = .none
         addSplitViewItem(navigationItem); addSplitViewItem(content)
-        apply(); tintBrand()
-        themeObservation = model.objectWillChange.sink { [weak self] _ in Task { @MainActor [weak self] in self?.tintBrand() } }
+        apply(); tint()
+        themeObservation = model.objectWillChange.sink { [weak self] _ in Task { @MainActor [weak self] in self?.tint() } }
         // @Published emits before the change lands, so read the model on the next main-actor turn.
         observation = model.$roots.map(\.isEmpty).removeDuplicates().sink { [weak self] _ in
             Task { @MainActor [weak self] in self?.apply() }
         }
     }
     required init?(coder: NSCoder) { nil }
-    private func tintBrand() {
+    private func tint() {
         let dark = (view.window?.effectiveAppearance ?? NSApp.effectiveAppearance).bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-        brand.update(text: NSColor(Palette(model.settings.theme, systemDark: dark).text))
+        let palette = Palette(model.settings.theme, systemDark: dark)
+        brand.update(text: NSColor(palette.text))
+        backdrop.fill = NSColor(palette.sidebar); surface.fill = NSColor(palette.sidebar)
     }
     /// Only the real window remembers the tree width. Render fixtures run the same binary and
     /// must not write their throwaway layouts into the user's saved state.
     func rememberWidth() { remembersTreeWidth = true; apply() }
     func fit(width: CGFloat) { windowWidth = width; apply() }
-    override func viewDidAppear() { super.viewDidAppear(); apply(); tintBrand() }
+    override func viewDidAppear() { super.viewDidAppear(); apply(); tint() }
     private var storedTreeWidth: CGFloat? {
         remembersTreeWidth ? (UserDefaults.standard.object(forKey: Self.treeWidthKey) as? Double).map { CGFloat($0) } : nil
     }
@@ -242,10 +238,11 @@ struct SidebarNavigation: View {
                 Spacer(minLength: 0)
                 Menu {
                     Toggle(model.t("Recursive"), isOn: Binding(get: { model.settings.recursive }, set: { value in model.changeSettings { $0.recursive = value } }))
-                    Divider()
-                    Button(model.t("ResetInputs")) { model.remove(nil) }
                 } label: { Image(systemName: "ellipsis.circle") }.menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
                     .help(model.t("TreeOptions")).accessibilityLabel(model.t("TreeOptions"))
+                // The way back to the first screen is always in sight.
+                Button { model.remove(nil) } label: { Image(systemName: "xmark.circle") }.buttonStyle(.plain).foregroundStyle(palette.secondary)
+                    .help(model.t("ResetInputs") + " — " + model.t("CloseAllHelp")).accessibilityLabel(model.t("ResetInputs")).accessibilityIdentifier("closeAll")
             }.frame(height: Metrics.paneHeader).padding(.horizontal, 6)
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 1) {
@@ -279,7 +276,8 @@ private struct FolderBranch: View {
         VStack(alignment: .leading, spacing: 1) {
             FolderRow(palette: palette, icon: node.isDirectory ? "folder" : "doc", name: node.name, pending: node.pending, depth: depth,
                       selected: model.folderFilter == node.id, expanded: node.children == nil ? nil : $expanded,
-                      pendingLabel: model.t("TreePending", model.n(node.pending))) {
+                      pendingLabel: model.t("TreePending", model.n(node.pending)),
+                      closeLabel: node.isRoot ? model.t("RemoveInput") : nil, close: { model.remove(node.id) }) {
                 model.folderFilter = model.folderFilter == node.id ? nil : node.id
             }
             .help(node.id.display)
@@ -303,7 +301,10 @@ private struct FolderRow: View {
     let selected: Bool
     let expanded: Binding<Bool>?
     let pendingLabel: String
+    var closeLabel: String? = nil
+    var close: () -> Void = {}
     let action: () -> Void
+    @State private var hovering = false
     var body: some View {
         HStack(spacing: 4) {
             if let expanded {
@@ -319,7 +320,13 @@ private struct FolderRow: View {
                     if pending > 0 { Text(String(pending)).font(.caption).monospacedDigit().foregroundStyle(palette.preview).accessibilityLabel(pendingLabel) }
                 }.frame(maxWidth: .infinity, minHeight: 22, alignment: .leading).contentShape(Rectangle())
             }.buttonStyle(.plain).accessibilityAddTraits(selected ? .isSelected : [])
+            // Added items can be closed one by one; the button shows while the pointer is on the row.
+            if let closeLabel, hovering || selected {
+                Button(action: close) { Image(systemName: "xmark").font(.system(size: 9, weight: .semibold)).frame(width: 16, height: 22).contentShape(Rectangle()) }
+                    .buttonStyle(.plain).foregroundStyle(palette.secondary).help(closeLabel).accessibilityLabel(closeLabel + " " + name)
+            }
         }
+        .onHover { hovering = $0 }
         .padding(.leading, CGFloat(depth) * 12).padding(.trailing, 6).padding(.vertical, 2)
         .background(selected ? palette.accent.opacity(0.14) : .clear, in: RoundedRectangle(cornerRadius: 6))
     }
@@ -330,8 +337,16 @@ final class ClearDividerSplitView: NSSplitView {
 }
 
 /// Transparent strip for a title bar band: drag to move, double-click as the system setting says.
+/// Files dropped on it go to the view below the band.
 class WindowDragView: NSView {
+    weak var dropTarget: NSView? { didSet { registerForDraggedTypes([.fileURL]) } }
     override var mouseDownCanMoveWindow: Bool { true }
+    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation { dropTarget?.draggingEntered(sender) ?? [] }
+    override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation { dropTarget?.draggingUpdated(sender) ?? [] }
+    override func draggingExited(_ sender: NSDraggingInfo?) { dropTarget?.draggingExited(sender) }
+    override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool { dropTarget?.prepareForDragOperation(sender) ?? false }
+    override func performDragOperation(_ sender: NSDraggingInfo) -> Bool { dropTarget?.performDragOperation(sender) ?? false }
+    override func concludeDragOperation(_ sender: NSDraggingInfo?) { dropTarget?.concludeDragOperation(sender) }
     override func mouseDown(with event: NSEvent) {
         guard let window else { return }
         if event.clickCount == 2 {
@@ -344,8 +359,8 @@ class WindowDragView: NSView {
     }
 }
 
-private struct SidebarBackdrop: View {
-    @ObservedObject var model: AppModel
-    @Environment(\.colorScheme) private var scheme
-    var body: some View { Palette(model.settings.theme, systemDark: scheme == .dark).sidebar.ignoresSafeArea() }
+/// Window chrome colour behind the navigation and the title bar band, drawn without SwiftUI.
+final class TintedView: NSView {
+    var fill: NSColor = .clear { didSet { wantsLayer = true; layer?.backgroundColor = fill.cgColor } }
+    override var mouseDownCanMoveWindow: Bool { true }
 }

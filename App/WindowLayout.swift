@@ -58,6 +58,8 @@ enum SidebarMode: Equatable, Sendable {
 extension WindowLayout {
     static let navigationWidth: CGFloat = 208
     static let railWidth: CGFloat = 48
+    /// Leading edge of the app icon and name: the window buttons end at 79pt.
+    static let brandLeading: CGFloat = 96
     static let treeWidthRange: ClosedRange<CGFloat> = 170...380
     static let defaultTreeWidth: CGFloat = 220
     static let sidebarHiddenBelow: CGFloat = 760
@@ -83,6 +85,7 @@ enum Metrics {
     static let gap: CGFloat = 12
     static let control: CGFloat = 8
     static let corner: CGFloat = 10
+    static let statusBar: CGFloat = 28
 }
 @MainActor final class WindowPlacementStore {
     private let defaults: UserDefaults

@@ -65,6 +65,7 @@
 "ClipboardInspect" = "Analyze copied text";
 "ClipboardTruncated" = "Only part of the text is shown because it exceeds the analysis limit.";
 "Close" = "Close";
+"CloseAllHelp" = "Closes everything you added and returns to the first screen. Your files are not changed.";
 "CloudWarning" = "Renaming inside a synced folder may also change the name on your other devices.";
 "ColumnWidth" = "Current name column width";
 "ColumnWidthHelp" = "Applies to the results table in wide windows. Narrow windows show the two names vertically.";
@@ -345,14 +346,14 @@
 "RegexInvalid" = "Check the pattern (regex) syntax.";
 "RememberFolders" = "Remember recent folders on this device";
 "Remove" = "Remove";
-"RemoveInput" = "Remove from List";
+"RemoveInput" = "Close This Item";
 "RemoveRule" = "Remove rule";
 "Rename" = "Rename";
 "RenameCount" = "Rename {0} items";
 "ReplacementText" = "Replacement / separator";
 "Rescan" = "Rescan";
 "ResetFilters" = "Reset filters";
-"ResetInputs" = "Remove All";
+"ResetInputs" = "Close All";
 "ResetRules" = "Remove All Rules";
 "RestoreNames" = "Repair separated characters";
 "RestoreNamesDetail" = "Combine separated characters in file names.";
@@ -437,6 +438,8 @@
 "SourceColumn" = "Source column";
 "StaleHelp" = "The rules changed. Update the preview before renaming.";
 "Status" = "Status";
+"StatusBar" = "Status Bar";
+"StatusNoInput" = "Nothing added";
 "Stem" = "Name without extension";
 "SumCount" = "{0} characters";
 "SumInsert" = "“{1}” after {0} characters";

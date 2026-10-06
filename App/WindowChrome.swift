@@ -81,10 +81,15 @@ import Combine
     @objc private func rescan() { guard model.canInput, !model.busy, !model.roots.isEmpty else { return }; model.scan() }
 }
 
+/// An image view blocks window moves by default; this one is part of the drag handle.
+private final class BrandIcon: NSImageView {
+    override var mouseDownCanMoveWindow: Bool { true }
+}
+
 /// "[icon] NameFix" beside the window buttons. It is a drag handle like the rest of the band:
 /// the icon and label never take the click.
 final class TitleBrandView: WindowDragView {
-    private let icon = NSImageView()
+    private let icon = BrandIcon()
     private let name = NSTextField(labelWithString: "NameFix")
     override init(frame: NSRect) {
         super.init(frame: frame)

@@ -19,7 +19,7 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 | 항목 | 명령 | 결과 |
 |---|---|---|
 | Runtime·UI model·Core test | eng/test.sh --level 3 --scope all | 103개 실행, 실패 0 (통합 53 중 성능 프로파일 3개 skip, UI model 30, Core 20) |
-| 리소스 | python3 eng/resources.py; python3 eng/validate-resources.py | 446 keys × ko/en/ja, 재생성 diff 0, placeholder parity, 폰트/라이선스, arm64 Services plist, 네트워크 API 없음 PASS |
+| 리소스 | eng/resources.py; eng/validate-resources.py | 524 keys × ko/en/ja, 재생성 diff 0 PASS |
 | CLI | eng/build-cli.sh debug; eng/test-expansion-cli.py | dry-run/JSON, non-TTY 거부, TTY 확인 rename/undo, Free/Pro 경계 PASS. 끝 슬래시 경로 수동 확인 PASS |
 | Debug build | eng/build.sh --configuration Debug --arch arm64 | BUILD SUCCEEDED |
 | Release 구성 build | eng/build.sh --configuration Release --arch arm64 | BUILD SUCCEEDED, arm64, 1.0.0 (3), 최소 14.0, 리소스 self-test PASS. 배포 후보 생성·서명·패키징은 하지 않음 |
@@ -46,9 +46,9 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 | Debug build | eng/build.sh --configuration Debug --arch arm64 | BUILD SUCCEEDED |
 | UI test bundle | xcodebuild build-for-testing | TEST BUILD SUCCEEDED (실행은 하지 않음) |
 | 리소스 | eng/resources.py; eng/validate-resources.py | 521 keys × ko/en/ja, 재생성 diff 0 PASS |
-| 창 동작 진단 | --diagnose-window (보이지 않는 창) | 입력 없음 → navigation 208pt, 폴더 추가 → 레일 + 트리 268pt, 모두 제거 → navigation 복귀, 좁은 창 → 숨김, 다시 넓히면 복귀. band의 왼쪽·가운데·오른쪽 표본이 모두 drag 대상이고 hosting view가 받는 지점 없음 PASS |
-| 실제 창 확인 | Debug 전용 --live-sidebar-check (키·마우스 입력 합성 없음) | 실제 화면의 창에서 같은 상태 전이와 band 판정 PASS. 폴더 선택 창을 연 상태 포함 |
-| 대표 화면 | --render-ux | 31장: 입력 없음, 결과, 충돌, 일괄 변경(파일 없음·규칙 없음·규칙 1개·규칙 편집·stale), 규칙 추가 popover, 고급 sheet, 좁은 창, ko/en/ja, Olive·Dark·Light |
+| 창 동작 진단 | --diagnose-window (보이지 않는 창) | 입력 없음 → navigation 208pt, 폴더 추가 → 레일 + 트리 268pt, 모두 닫기 → navigation 복귀, 좁은 창 → 숨김, 다시 넓히면 복귀. band의 왼쪽·가운데·오른쪽 표본이 모두 drag 대상이고, band 아래에 SwiftUI hosting view가 없으며, 결과 목록의 가로 스크롤 막대가 꺼져 있음 PASS |
+| 실제 창 확인 | Debug 전용 --live-sidebar-check (키·마우스 입력 합성 없음) | 실제 화면의 창에서 같은 상태 전이와 band 판정 PASS. 수정 전에는 창의 시스템 drag 영역이 비어 있었고(hosting view가 band 밑까지 깔려 창 전체가 ‘이동을 막는 영역’으로 계산됨), 수정 후에는 drag 영역이 설정됨 |
+| 대표 화면 | --render-ux | 31장: 입력 없음, 결과, 충돌, 일괄 변경(파일 없음·규칙 없음·규칙 1개·규칙 편집·stale), 규칙 추가 popover, 고급 sheet, 좁은 창, ko/en/ja, Olive·Dark·Light. 모든 화면에 상태 표시줄 |
 | 기존 render fixture | --render-shell, --render-expansion(±--native-sidebar), --render-responsive | 195장 생성, assertion PASS |
 | 앱 아이콘 | eng/icon.swift → eng/build.sh, 빌드한 앱을 시스템 아이콘 API(NSWorkspace)로 그려 비교 | macOS 27에서 이전 비트맵 아이콘은 회색 판 안에 축소되어 그려졌고, Icon Composer 문서(Resources/AppIcon.icon)로 바꾼 뒤 판 없이 꽉 찬 모양으로 그려짐. title bar의 20pt 아이콘도 같음. Dock·Finder의 실제 표시는 U16 |
 
@@ -60,6 +60,8 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 
 사용자 보고(2026-10-06) 처리: “상단 드래그가 되다 말다 함”은 content view가 클릭을 받는 구간 전체에 drag strip을 두어 해결했다. “폴더를 선택하니 사이드 패널이 사라짐”은 재현하지 못했으며, 구분선으로 접히지 않게 하고 render fixture가 저장 상태를 쓰지 않게 한 뒤 왼쪽 영역을 입력 상태 기반으로 다시 만들었다. 사용자의 재확인이 필요하다.
 
+사용자 보고(2026-10-06, 2차) 처리: “band 가운데 구간만 drag가 안 됨”은 위 측정으로 원인을 확인하고 구조를 고쳤다(실제 마우스 확인은 S1). “열고 나서 닫는 방법이 없음”은 트리 제목 줄의 모두 닫기 버튼, 항목별 닫기, 파일 메뉴 항목으로 해결했다. 신호등과 앱 이름 사이 간격을 넓혔고, 결과 목록의 가로 스크롤 막대를 껐고, 하단 상태 표시줄을 도입했다(D-017). 앱 아이콘은 위 ‘앱 아이콘’ 행의 수정으로 해결되며 앱을 다시 실행해야 보인다.
+
 ## User QA — 한 번에 확인할 목록
 
 실제 업무 원본이 아닌 복사본 폴더에서 진행한다. 결과는 사용자가 말한 PASS/FAIL을 그대로 기록하고, 실패가 제품 수정의 근원이 되면 STATUS에 bug Task로 올린다.
@@ -68,8 +70,8 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 
 | 화면 | 볼 것 |
 |---|---|
-| S1 입력 없는 첫 화면 | 왼쪽 메뉴가 이름과 함께 읽히는가. 앱 이름 NameFix의 존재감과 화면 제목 배치가 자연스러운가. band 왼쪽·가운데·오른쪽 어디를 잡아도 창이 움직이는가 |
-| S2 폴더를 넣은 뒤 | 메뉴가 아이콘 레일로 줄고 트리가 나오는가. 모두 제거하면 메뉴가 돌아오는가. 왼쪽 경계선이 title bar 아래 선과 둥글게 이어져 보이는가 |
+| S1 입력 없는 첫 화면 | 왼쪽 메뉴가 이름과 함께 읽히는가. 앱 이름 NameFix의 존재감, 신호등과의 간격, 화면 제목 배치가 자연스러운가. band 왼쪽·가운데·오른쪽 어디를 잡아도 창이 움직이는가. 맨 아래 상태 표시줄이 거슬리지 않는가 |
+| S2 폴더를 넣은 뒤 | 메뉴가 아이콘 레일로 줄고 트리가 나오는가. 트리 제목 줄의 ⊗(모두 닫기)로 첫 화면에 돌아오는가. 왼쪽 경계선이 title bar 아래 선과 둥글게 이어져 보이는가. 목록 아래에 가로 스크롤 막대가 없는가. 개수·진행 상황·알림이 상태 표시줄에서 읽기 편한가 |
 | S3 파일 이름 일괄 변경 — 규칙 없음 | ‘변경 규칙’과 ‘미리보기’가 같은 선에서 시작하는가. ‘+ 규칙 추가’ popover에서 기본·고급을 고르기 쉬운가 |
 | S4 규칙 추가·수정 후 | 규칙 줄 요약과 펼친 편집이 충분한가. ‘업데이트 필요’ 상태가 표를 밀지 않고 눈에 띄는가 |
 | S5 고급 설정 sheet와 좁힌 창 | 글자 저장 형식·CSV 목록·프리셋 sheet가 과하지 않은가. 창을 좁혔을 때 정보가 과밀하지 않은가 |

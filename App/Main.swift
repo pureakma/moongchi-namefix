@@ -226,7 +226,9 @@ import NameFixCore
             guard let model = self?.model, let latest = model.history.first(where: { $0.mode == "rename" && $0.succeeded > 0 }) else { return }
             model.prepare(mode: "undo", historyID: latest.id)
         })
-        file.addItem(.separator()); file.addItem(NSMenuItem(title: model.t("MenuCloseWindow"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w"))
+        file.addItem(.separator())
+        let closeAll = ActionItem(model.t("ResetInputs"), key: "W") { [weak self] in self?.model.remove(nil) }; closeAll.keyEquivalentModifierMask = [.command, .shift]; file.addItem(closeAll)
+        file.addItem(NSMenuItem(title: model.t("MenuCloseWindow"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w"))
         let edit = menu(model.t("EditMenu"))
         for (title, key, action) in [("MenuUndo", "z", "undo:"), ("MenuRedo", "Z", "redo:"), ("MenuCut", "x", "cut:"), ("MenuCopy", "c", "copy:"), ("MenuPaste", "v", "paste:"), ("MenuSelectAll", "a", "selectAll:")] { edit.addItem(NSMenuItem(title: model.t(title), action: Selector(action), keyEquivalent: key)) }
         let view = menu(model.t("ViewMenu"))
