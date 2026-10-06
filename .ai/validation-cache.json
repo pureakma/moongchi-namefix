@@ -2030,7 +2030,7 @@
       "notes": "1.0.0 build 5 (product source commit 76972c75f653d8a175ca799a918880605cb19008, release tooling commit 3e11e18c41e8cbb1bf9d63fe49cdec14c73f2df8). App notarization Accepted (6be4bd10-610a-4c47-adaa-0c2e2b074ff5), stapled and validated, Gatekeeper accepted as Notarized Developer ID. Disk image signed, notarization Accepted (c63f99e1-e719-4bb3-8855-aeca6f81150d), stapled and validated, Gatekeeper accepted; hdiutil verify VALID; read-only mount and ZIP round trips verified. DMG SHA-256 dab6d685d102a3641af28ced97e1c61edff99fdc12e0df4c5daad0fc3c39f4ca; ZIP SHA-256 7eac6ba04daa4ace33b7cede736e56ebf4d638a7d77693c1e096f9ffaf4657dd. The signed binaries were not re-signed. Not published. Clean Mac check not done (CLEAN_MAC_QA_PENDING)."
     },
     {
-      "validationId": "MAC-MARKETING-WEBSITE-20261007",
+      "validationId": "MAC-MARKETING-20261007",
       "status": "PASS",
       "configuration": "Debug",
       "architecture": "arm64",
@@ -2042,12 +2042,12 @@
         "eng/marketing-shots.py",
         "eng/validate-marketing.py"
       ],
-      "sourceFingerprint": "ee7d360f778f942609dd860a8f9956a11ba90b2f979abc0e6e2adacbaf2c2b49",
+      "sourceFingerprint": "29f5ac43114a1533639e0d10fc9942977b126c11fb7281cea088ee66ae8d6cb9",
       "testFingerprint": "ad1cdc76dfa716215f3106783f1cd7103c9975aa459d40ef07a84edcef5ba77c",
-      "timestamp": "2026-10-06T15:39:23.970160+00:00",
-      "command": "eng/build.sh Debug; app --render-marketing; eng/build.sh Release + strings check; eng/test.sh --scope ui-model; eng/validate-marketing.py; eng/marketing-shots.py; website verify.mjs/build.mjs; production hash comparison",
+      "timestamp": "2026-10-06T23:45:14.776024+00:00",
+      "command": "eng/build.sh Debug; app --render-marketing; eng/build.sh Release + strings check; eng/test.sh --scope ui-model; eng/validate-marketing.py; eng/marketing-shots.py",
       "evidencePath": "artifacts/marketing/namefix/1.0.0/manifest.json",
-      "notes": "Marketing captures and store metadata for 1.0.0 (ko/en/ja). Website pureakma/moongchi-website PR #6 merged as 0984460 and deployed to https://moongchi.ailoworks.com: NameFix product and privacy pages published, download URLs empty, no installer uploaded. Product source for direct build 5 is unchanged (76972c7); the fixture is DEBUG-only and absent from the Release binary. The download round trip was not run because the download is not open."
+      "notes": "Marketing captures and store metadata for 1.0.0 (ko/en/ja): 15 store screenshots at 2880x1800. Product source for direct build 5 is unchanged (76972c7); the capture fixture is DEBUG-only and absent from the Release binary. After the build and tests, only a comment in the fixture and the removal of website outputs from the compositor changed; the compositor was run again. The website is owned by the Moongchi Pages project and is not verified here (D-025)."
     }
   ]
 }

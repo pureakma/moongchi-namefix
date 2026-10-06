@@ -4,7 +4,7 @@ import SwiftUI
 import NameFixCore
 import NameFixRuntime
 
-/// Store and website screenshots. Every scene is the real window on sample files that this
+/// Store screenshots. Every scene is the real window on sample files that this
 /// fixture creates inside the output folder: the app scans, previews and renames them itself.
 /// Unshown windows only; no user window, file or setting is touched.
 @MainActor enum MarketingFixtures {

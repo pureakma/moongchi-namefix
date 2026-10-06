@@ -21,6 +21,7 @@
 - 비협조 외부 writer의 source 교체를 원자적으로 막는다고 주장하지 않는다. 상세 계약은 docs/FILESYSTEM_CAPABILITIES.md가 원본이다.
 - 가격 정책(전 기능 무료), UI/UX, 배포 상태는 각각 docs/PROJECT.md, docs/DESIGN.md, docs/RELEASE.md를 따른다.
 - 현재 제품에 AI/OCR/RAG/클라우드 처리 기능은 없다. 새 도입은 사용자 승인과 별도 요구/결정이 필요하다.
+- 뭉치 웹사이트(뭉치페이지스)는 이 저장소의 작업 범위가 아니다. 웹사이트 저장소를 여기서 수정·커밋·배포하지 않는다(D-025). 웹사이트 쪽이 참조할 원본은 docs/RELEASE.md의 ‘웹사이트’ 절에 있다.
 
 ## 승인 범위와 변경 규칙
 

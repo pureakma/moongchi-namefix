@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""Composes store and website images from the app's own captures.
+"""Composes store screenshots from the app's own captures.
 
 Input:  <folder>/raw   written by `Moongchi NameFix --render-marketing` (Debug build)
 Output: <folder>/store/<locale>/NN-scene.png   store screenshots with a caption
-        <folder>/web/<scene>-<language>.jpg    the window alone, sized for the website
-        <folder>/og/namefix-og.png             social preview
         <folder>/manifest.json                 what each image was made from
 
 Nothing is drawn over the app's interface except the sheet the app itself shows in that state,
@@ -63,11 +61,7 @@ records = []
 for scene in captures["scenes"]:
     language = short[scene["language"]]
     shot = window(scene)
-    # Website image: the window alone.
-    web = folder / "web" / f'{scene["scene"]}-{language}.jpg'; web.parent.mkdir(parents=True, exist_ok=True)
-    reduced = shot.convert("RGB").resize((1600, round(1600 * shot.height / shot.width)), Image.LANCZOS)
-    reduced.save(web, "JPEG", quality=84, optimize=True, progressive=True)
-    # Store image: caption above the whole window.
+    # Caption above the whole window.
     page = Image.new("RGBA", canvas, BACKGROUND + (255,))
     head, sub = captions[scene["scene"]][language]
     head_font, sub_font = font(language, "Bold", 104), font(language, "Medium", 50)
@@ -86,22 +80,10 @@ for scene in captures["scenes"]:
     page.convert("RGB").save(target, "PNG", optimize=True)
     records.append({"scene": scene["scene"], "purpose": scene["purpose"], "locale": store_locale[language], "caption": [head, sub],
                     "raw": [scene["window"]] + ([scene["sheet"]] if "sheet" in scene else []), "rawSha256": [digest(raw / scene["window"])] + ([digest(raw / scene["sheet"])] if "sheet" in scene else []),
-                    "store": str(target.relative_to(folder)), "storeSize": list(canvas), "storeSha256": digest(target),
-                    "web": str(web.relative_to(folder)), "webSize": list(reduced.size)})
-
-# Social preview: the icon, the product name and the repair screen.
-og = Image.new("RGBA", (1200, 630), BACKGROUND + (255,))
-draw = ImageDraw.Draw(og)
-og.alpha_composite(rounded(icon.resize((92, 92), Image.LANCZOS), 21), (64, 60))
-draw.text((176, 62), "Moongchi NameFix", font=font("en", "Bold", 46), fill=INK)
-draw.text((177, 120), "Fix broken filenames. Preview first, undo from History.", font=font("en", "Medium", 25), fill=MUTED)
-first = next(scene for scene in captures["scenes"] if scene["scene"] == "1-repair" and scene["language"] == "en-US")
-preview = window(first); preview = rounded(preview.resize((1072, round(1072 * preview.height / preview.width)), Image.LANCZOS), 16)
-shadowed(og, preview, (64, 196), 22, 70, 10)
-(folder / "og").mkdir(exist_ok=True); og.convert("RGB").save(folder / "og/namefix-og.png", "PNG", optimize=True)
+                    "store": str(target.relative_to(folder)), "storeSize": list(canvas), "storeSha256": digest(target)})
 
 manifest = {"app": captures["app"], "version": captures["version"], "sourceBuild": captures["build"], "configuration": captures["configuration"],
             "note": "Captures are the app's own windows on sample files made for this purpose. Sheets are captured separately and placed over the window as the app presents them.",
-            "captionSource": "marketing/appstore.json", "images": records, "og": {"file": "og/namefix-og.png", "size": [1200, 630], "sha256": digest(folder / "og/namefix-og.png")}}
+            "captionSource": "marketing/appstore.json", "images": records}
 (folder / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-print(f"PASS: {len(records)} store screenshots at {canvas[0]}x{canvas[1]}, {len(records)} website images and a social preview")
+print(f"PASS: {len(records)} store screenshots at {canvas[0]}x{canvas[1]}")
