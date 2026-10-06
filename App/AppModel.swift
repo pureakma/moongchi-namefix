@@ -28,6 +28,22 @@ import NameFixApplication
         guard !busy, plan == nil, result == nil else { return }
         sheet = nil
         changeSettings { $0.workbenchEnabled = true }
+        if Self.applicable(workbenchDraft) == pipeline { markWorkbenchPreviewApplied() }
+    }
+    /// Batch Rename opens with a Replace Text rule ready to fill in. Returns its id when it was added.
+    func addStarterRule() -> UUID? {
+        guard isWorkbench, workbenchDraft.rules.isEmpty, workbenchDraft.mapping == nil else { return nil }
+        let current = !hasUnappliedRules || Self.applicable(workbenchDraft) == pipeline
+        let rule = RenameRule(.replace); workbenchDraft.rules = [rule]
+        if current { markWorkbenchPreviewApplied() }
+        return rule.id
+    }
+    /// A rule that still has nothing to search for does nothing. It is left out when rules are
+    /// applied or stored, so an unfilled rule in the editor is not an error.
+    static func applicable(_ pipeline: RulePipeline) -> RulePipeline {
+        var value = pipeline
+        value.rules.removeAll { $0.enabled && [.replace, .regex, .wildcard, .metadata].contains($0.kind) && $0.text.isEmpty }
+        return value
     }
     func openQuickCleanup() {
         guard !busy, plan == nil, result == nil else { return }
@@ -117,11 +133,21 @@ import NameFixApplication
     func t(_ key: String, _ values: String...) -> String { L10n.text(key, language: settings.language, values) }
     /// History reuses journal codes; a stopped rename must not read as a cancelled scan.
     func outcome(_ code: String) -> String { t(code == "Cancelled" ? "ResultCancelled" : code) }
+    /// Short form of a notice for the footer line: its own summary when it has one, else its first sentence.
+    func notice(_ key: String) -> String {
+        let short = t(key + "Short")
+        if short != key + "Short" { return short }
+        let full = t(key)
+        let end = full.firstIndex(where: { ".。!?！？".contains($0) }) ?? full.endIndex
+        return String(full[..<end])
+    }
     func d(_ date: Date) -> String { date.formatted(Date.FormatStyle(date: .abbreviated, time: .shortened).locale(Locale(identifier: L10n.language(settings.language)))) }
     func n(_ number: Int) -> String { number.formatted(.number.locale(Locale(identifier: L10n.language(settings.language)))) }
     func start() async {
         do { entitlement = try await entitlementProvider.verifiedEntitlement(); productAccess = entitlement.access() } catch { productAccess = .free; message = "EntitlementUnavailable" }
         do { settings = try await settingsStore.load() } catch { message = (error as? FSError)?.code ?? "SettingsWarning" }
+        // The app always opens on the repair screen, whichever screen was showing when it quit.
+        settings.workbenchEnabled = false
         do {
             let root = dataRoot.appendingPathComponent("History")
             let store = try await Task.detached { try JournalStore(root: root) }.value
@@ -390,8 +416,9 @@ import NameFixApplication
         guard let text = NSPasteboard.general.string(forType: .string) else { message = "NoClipboardText"; return }
         (clipboard, clipboardTruncated) = NormalizationAnalysis.clipboard(text); sheet = "clipboard"
     }
-    func usePipeline(_ value: RulePipeline) {
+    func usePipeline(_ draft: RulePipeline) {
         guard !busy, plan == nil else { message = "BusyDropRejected"; return }
+        let value = Self.applicable(draft)
         guard !value.requiresPro || productAccess == .pro else { message = "ProRequired"; return }
         let access = productAccess
         phase = "ActivityPreview"
@@ -400,7 +427,8 @@ import NameFixApplication
                 try await Task.detached { try value.validate(access: access) }.value
                 guard let self else { return }
                 phase = ""; pipeline = value; activeWatchID = nil
-                workbenchDraft = value; markWorkbenchPreviewApplied()
+                // The editor keeps what the user sees, unfilled rules included.
+                workbenchDraft = draft; markWorkbenchPreviewApplied()
                 if value != RulePipeline() { changeSettings { $0.workbenchEnabled = true } }
                 if !value.requiresPro {
                     recipes.lastFree = value; recipes.lastFree.manualPaths = nil
@@ -425,7 +453,8 @@ import NameFixApplication
             do { try await store.save(snapshot) } catch { self?.message = "RecipeReadOnly" }
         }
     }
-    func saveRecipe(name: String, pipeline: RulePipeline) {
+    func saveRecipe(name: String, pipeline draft: RulePipeline) {
+        let pipeline = Self.applicable(draft)
         guard !busy else { message = "BusyDropRejected"; return }
         guard productAccess == .pro else { message = "ProRequired"; return }
         let name = name.trimmingCharacters(in: .whitespacesAndNewlines)

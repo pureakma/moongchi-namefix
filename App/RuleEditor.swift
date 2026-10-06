@@ -61,14 +61,21 @@ struct RuleEditor: View {
     var body: some View {
         Group { if embedded { content } else { ScrollView { content } } }
         .disabled(model.busy || model.plan != nil).task(id: SampleRequest(target: draft.target, rules: draft.rules, name: sample)) {
-            let snapshot = RulePipeline(target: draft.target, rules: draft.rules), name = String(sample.prefix(1024)), token = CancellationToken()
+            let snapshot = AppModel.applicable(RulePipeline(target: draft.target, rules: draft.rules)), name = String(sample.prefix(1024)), token = CancellationToken()
             let work = Task.detached { try snapshot.evaluate(name, access: .pro, cancelled: { token.cancelled }) }
             do {
                 let steps = try await withTaskCancellationHandler(operation: { try await work.value }, onCancel: { token.cancel(); work.cancel() })
                 if !Task.isCancelled { sampleSteps = steps; sampleError = nil }
             } catch { if !Task.isCancelled { sampleSteps = []; sampleError = (error as? RuleFailure)?.rawValue ?? "RuleInvalid" } }
         }
-        .onAppear { if let name = model.entries.first(where: { !$0.isDirectory && !$0.status.isError })?.name { sample = name } }
+        .onAppear {
+            if let name = model.entries.first(where: { !$0.isDirectory && !$0.status.isError })?.name { sample = name }
+            // Start with Replace Text open, so the first thing to do is visible.
+            // (A resized window builds this pane again; the rule is then already there, still unfilled.)
+            if selected == nil {
+                selected = model.addStarterRule() ?? (draft.rules.count == 1 && draft.rules[0].kind == .replace && draft.rules[0].text.isEmpty ? draft.rules[0].id : nil)
+            }
+        }
         .sheet(item: $option) { AdvancedRuleSheet(model: model, palette: palette, option: $0) { option = nil } }
     }
     private var content: some View {

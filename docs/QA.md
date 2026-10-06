@@ -19,7 +19,7 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 | 항목 | 명령 | 결과 |
 |---|---|---|
 | Runtime·UI model·Core test | eng/test.sh --level 3 --scope all | 103개 실행, 실패 0 (통합 53 중 성능 프로파일 3개 skip, UI model 30, Core 20) |
-| 리소스 | eng/resources.py; eng/validate-resources.py | 555 keys × ko/en/ja, 재생성 diff 0 PASS |
+| 리소스 | eng/resources.py; eng/validate-resources.py | 579 keys × ko/en/ja, 재생성 diff 0 PASS |
 | CLI | eng/build-cli.sh debug; eng/test-expansion-cli.py | dry-run/JSON, non-TTY 거부, TTY 확인 rename/undo, Free/Pro 경계 PASS. 끝 슬래시 경로 수동 확인 PASS |
 | Debug build | eng/build.sh --configuration Debug --arch arm64 | BUILD SUCCEEDED |
 | Release 구성 build | eng/build.sh --configuration Release --arch arm64 | BUILD SUCCEEDED, arm64, 1.0.0 (3), 최소 14.0, 리소스 self-test PASS. 배포 후보 생성·서명·패키징은 하지 않음 |
@@ -42,7 +42,7 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 | 항목 | 명령 | 결과 |
 |---|---|---|
-| UI model test | swift test --filter UIModelTests | 37개, 실패 0 (sidebar 상태 규칙과 폭 규칙 test 포함) |
+| UI model test | swift test --filter UIModelTests | 38개, 실패 0 (sidebar 상태·폭 규칙, 시작 화면, 비어 있는 시작 규칙이 적용·저장에서 빠지는지 포함) |
 | Debug build | eng/build.sh --configuration Debug --arch arm64 | BUILD SUCCEEDED |
 | UI test bundle | xcodebuild build-for-testing | TEST BUILD SUCCEEDED (실행은 하지 않음) |
 | 리소스 | eng/resources.py; eng/validate-resources.py | 521 keys × ko/en/ja, 재생성 diff 0 PASS |
@@ -64,6 +64,8 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 
 사용자 보고(2026-10-06, 3차) 처리: band drag는 사용자가 잘 된다고 확인했다. 상태 표시줄은 없애고 내용을 맨 아래 줄 왼쪽으로 옮겼다(D-018). 설정 첫 묶음의 ‘표시’ 제목과 아이콘을 지우고 Mac 연동의 switch를 오른쪽 끝으로 맞췄다. 사용 방법 화면을 다시 만들고, 첫 실행 소개(D-019)와 설정 맨 아래 개발자 카드를 추가했다. 개발자 카드의 웹사이트·문의 주소는 값이 정해지지 않아 비어 있다(사용자 입력 대기).
 
+사용자 보고(2026-10-06, 4차) 처리: 앱이 항상 자소 분리 해결 화면에서 시작한다(D-020, 관련 test 2개를 새 동작에 맞게 고침). 파일 이름 일괄 변경은 ‘텍스트 바꾸기’ 규칙이 펼쳐진 채 시작하고, 비어 있는 규칙은 적용에서 빠진다. ‘미리보기’ 제목과 ‘미리보기 갱신’ 버튼을 없애고 ‘업데이트 필요’ chip을 요약 chip 앞에 같은 크기로 두어 그 chip이 갱신 버튼을 겸한다. chip·검색·메뉴는 한 줄이다. 아래 알림은 짧은 요약으로 보이고 누르면 전체 문구가 나온다.
+
 ## User QA — 한 번에 확인할 목록
 
 실제 업무 원본이 아닌 복사본 폴더에서 진행한다. 결과는 사용자가 말한 PASS/FAIL을 그대로 기록하고, 실패가 제품 수정의 근원이 되면 STATUS에 bug Task로 올린다.
@@ -74,8 +76,8 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 |---|---|
 | S1 입력 없는 첫 화면 | 왼쪽 메뉴가 이름과 함께 읽히는가. 앱 이름 NameFix의 존재감, 신호등과의 간격, 화면 제목 배치가 자연스러운가. band 왼쪽·가운데·오른쪽 어디를 잡아도 창이 움직이는가(2026-10-06 사용자 확인: 잘 됨). 처음 열 때 소개가 나오고 ‘다시 보지 않기’가 동작하는가 |
 | S2 폴더를 넣은 뒤 | 메뉴가 아이콘 레일로 줄고 트리가 나오는가. 트리 제목 줄의 ⊗(모두 닫기)로 첫 화면에 돌아오는가. 왼쪽 경계선이 title bar 아래 선과 둥글게 이어져 보이는가. 목록 아래에 가로 스크롤 막대가 없는가. 개수·진행 상황·알림이 실행 버튼 왼쪽에서 읽기 편한가 |
-| S3 파일 이름 일괄 변경 — 규칙 없음 | ‘변경 규칙’과 ‘미리보기’가 같은 선에서 시작하는가. ‘+ 규칙 추가’ popover에서 기본·고급을 고르기 쉬운가 |
-| S4 규칙 추가·수정 후 | 규칙 줄 요약과 펼친 편집이 충분한가. ‘업데이트 필요’ 상태가 표를 밀지 않고 눈에 띄는가 |
+| S3 파일 이름 일괄 변경 — 규칙 없음 | ‘변경 규칙’과 오른쪽 목록 위 한 줄이 같은 선에서 시작하는가. ‘텍스트 바꾸기’가 펼쳐진 채 시작하는 것이 자연스러운가. ‘+ 규칙 추가’ popover에서 기본·고급을 고르기 쉬운가 |
+| S4 규칙 추가·수정 후 | 규칙 줄 요약과 펼친 편집이 충분한가. 맨 앞의 ‘업데이트 필요’ chip이 눈에 띄고, 누르면 목록이 갱신된다는 것이 바로 읽히는가. 아래 알림이 짧게 보이고 누르면 전체 문구가 나오는가 |
 | S5 고급 설정 sheet와 좁힌 창 | 글자 저장 형식·CSV 목록·프리셋 sheet가 과하지 않은가. 창을 좁혔을 때 정보가 과밀하지 않은가 |
 
 | ID | 확인 항목 | 현재 상태 |

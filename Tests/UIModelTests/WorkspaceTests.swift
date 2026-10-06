@@ -51,7 +51,7 @@ import NameFixRuntime
         let settings = try JSONDecoder().decode(AppSettings.self, from: JSONSerialization.data(withJSONObject: object))
         XCTAssertNil(settings.workbenchEnabled); XCTAssertTrue(settings.valid)
     }
-    func testQuickModeRemovesActiveRulesButRetainsDraftAndLastScreen() async throws {
+    func testQuickModeRemovesActiveRulesButRetainsDraftAndRestartOpensRepairScreen() async throws {
         let root = URL(fileURLWithPath: "/private/tmp/namefix-workspace-\(UUID())")
         defer { try? FileManager.default.removeItem(at: root) }
         let model = AppModel(dataRoot: root); await model.start()
@@ -69,8 +69,27 @@ import NameFixRuntime
         XCTAssertTrue(model.isWorkbench); XCTAssertTrue(model.hasUnappliedRules)
         await model.shutdown()
         let restored = AppModel(dataRoot: root); await restored.start()
-        XCTAssertTrue(restored.isWorkbench); XCTAssertEqual(restored.pipeline, value)
+        XCTAssertFalse(restored.isWorkbench); XCTAssertEqual(restored.pipeline, RulePipeline())
+        XCTAssertEqual(restored.workbenchDraft, value)
         await restored.shutdown()
+    }
+    func testBatchRenameStartsWithAnUnfilledReplaceRuleThatIsNeverApplied() async throws {
+        let root = URL(fileURLWithPath: "/private/tmp/namefix-workspace-\(UUID())")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let model = AppModel(dataRoot: root); await model.start()
+        XCTAssertNil(model.addStarterRule())
+        model.openWorkbench()
+        let starter = model.addStarterRule()
+        XCTAssertEqual(model.workbenchDraft.rules.map(\.id), [starter].compactMap { $0 }); XCTAssertEqual(model.workbenchDraft.rules.first?.kind, .replace)
+        XCTAssertFalse(model.hasUnappliedRules); XCTAssertNil(model.addStarterRule())
+        var prefix = RenameRule(.prefix); prefix.text = "Trip_"
+        model.workbenchDraft.rules.append(prefix)
+        XCTAssertTrue(model.hasUnappliedRules)
+        model.usePipeline(model.workbenchDraft); try await settle(model)
+        XCTAssertNil(model.message); XCTAssertFalse(model.hasUnappliedRules)
+        XCTAssertEqual(model.pipeline.rules.map(\.kind), [.prefix]); XCTAssertEqual(model.workbenchDraft.rules.map(\.kind), [.replace, .prefix])
+        XCTAssertEqual(model.recipes.lastFree.rules.map(\.kind), [.prefix])
+        await model.shutdown()
     }
     func testUnappliedRulesBlockPrepareAndBusyBlocksNavigation() async throws {
         let root = URL(fileURLWithPath: "/private/tmp/namefix-workspace-\(UUID())")

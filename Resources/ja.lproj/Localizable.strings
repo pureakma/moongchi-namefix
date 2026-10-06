@@ -40,11 +40,14 @@
 "BatchWorkspaceDetail" = "文字の置換や連番などで、複数のファイル名をまとめて変更します。";
 "Busy" = "処理中";
 "BusyDropRejected" = "作業中は項目を追加できません。完了後にもう一度ドロップしてください。";
+"BusyDropRejectedShort" = "作業中は追加できません";
 "CSVMapping" = "CSVリストで名前を変更";
 "Cancel" = "キャンセル";
 "CancelBeforeClose" = "作業を安全に停止してから終了します…";
+"CancelBeforeCloseShort" = "作業を中断中…";
 "CancelRequested" = "停止を要求しました";
 "Cancelled" = "検査をキャンセルしました。検査済みの項目を表示します。";
+"CancelledShort" = "検査をキャンセル";
 "CanonicalVariant" = "● 構成が異なる";
 "ChangeHelp" = "ファイルの破損ではありません。分離して保存された文字を合成でき、ファイルの内容は変わりません。";
 "CharacterCount" = "文字数: {0}";
@@ -103,6 +106,7 @@
 "DevelopmentProHelp" = "Debug版の機能確認用です。購入・ライセンス認証ではありません。";
 "Diagnostics" = "ローカル診断ログを有効にする";
 "DiagnosticsError" = "診断情報を保存できませんでした。";
+"DiagnosticsErrorShort" = "診断情報の保存に失敗";
 "DiagnosticsPreview" = "書き出す診断情報";
 "Directory" = "フォルダ";
 "Done" = "完了";
@@ -130,12 +134,14 @@
 "Export" = "書き出す";
 "ExportDiagnostics" = "診断レポートを書き出す";
 "ExportFailed" = "書き出しに失敗しました。保存先の権限と空き容量を確認してください。";
+"ExportFailedShort" = "書き出しに失敗";
 "ExportRaw" = "元の文字でCSVを保存";
 "ExportReport" = "検査結果CSVを保存";
 "ExportShort" = "結果をCSVで保存";
 "ExportToolDetail" = "検査結果を表ファイル（CSV）で保存します。";
 "ExportToolHelp" = "現在の名前・変更後の名前・結果をCSVファイルに保存します。ファイル名は変更しません。元の文字のCSVは、ほかのツールで名前をそのまま読み込む場合に使います。";
 "Exported" = "診断レポートを保存しました。";
+"ExportedShort" = "保存しました";
 "Extension" = "拡張子";
 "ExtensionCondition" = "拡張子条件 (例: jpg)";
 "Failed" = "失敗";
@@ -190,6 +196,7 @@
 "HistoryRetentionHelp" = "元に戻す操作や復旧に必要な履歴は上限を超えて保持します。";
 "HistoryShort" = "履歴";
 "HistoryWarning" = "一部の履歴を読み込めません。元の履歴を保持し、元に戻す操作を制限します。";
+"HistoryWarningShort" = "一部の履歴を読めません";
 "ImportCSV" = "一覧を読み込む";
 "ImportRecipe" = "プリセットを読み込む";
 "InputCount" = "追加した場所 · {0}";
@@ -206,6 +213,7 @@
 "InvalidUnicodeHelp" = "名前に正しくない文字データが含まれるため、安全に変更できません。";
 "InvertVisible" = "表示分の選択を反転";
 "JournalWriteFailed" = "作業記録を保存できなかったため、名前の変更を停止しました。ディスクの空き容量を確認して、もう一度お試しください。";
+"JournalWriteFailedShort" = "履歴の保存に失敗";
 "KeepForm" = "文字形式をそのまま維持";
 "KeepFormHelp" = "名前変更ルールだけを適用し、文字の保存形式は変更しません。";
 "Language" = "言語";
@@ -266,9 +274,13 @@
 "NeededCaption" = "整理する名前";
 "NeedsNormalization" = "● 文字が分離";
 "NewerSchema" = "新しいバージョンで作成されたデータです。元のデータを保護するため変更を制限します。";
+"NewerSchemaShort" = "新しいバージョンのデータ";
 "NoChanges" = "実行できる変更はありません。再検査してください。";
 "NoChangesExcluded" = "選択した項目が変更されたか競合したため除外しました。再検査して状態とパスを確認してください。";
+"NoChangesExcludedShort" = "選択項目が除外されました";
+"NoChangesShort" = "変更する名前がありません";
 "NoClipboardText" = "クリップボードにテキストがありません。";
+"NoClipboardTextShort" = "コピーした文字がありません";
 "NoFilesYet" = "まだファイルがありません。ファイルやフォルダをここにドロップしてください。";
 "NoHistory" = "処理履歴はありません。";
 "NoInputs" = "まだ項目が追加されていません。";
@@ -282,6 +294,7 @@
 "NormalizationOnly" = "文字形式のみを正規化します。";
 "NotificationDenied" = "通知が許可されていません。結果はアプリで確認できます。";
 "NotificationFailed" = "通知できませんでした。アプリで結果を確認してください。";
+"NotificationFailedShort" = "通知を送れませんでした";
 "NumberConflicts" = "番号付きの名前を提案";
 "NumberDigits" = "最小桁数: {0}";
 "NumberExplanation" = "候補名を確認してください。実行するまで名前は変更されません。";
@@ -319,6 +332,7 @@
 "OpenLoginSettings" = "ログイン項目の設定を開く";
 "OpenNameFix" = "検査ウインドウを開く";
 "OperationError" = "処理を完了できませんでした。履歴とローカルログを確認してください。";
+"OperationErrorShort" = "作業に失敗";
 "OrderManual" = "手動で並べる";
 "OrderName" = "名前順";
 "OrderPath" = "パス順";
@@ -345,7 +359,6 @@
 "Present" = "一致する項目あり";
 "Preview" = "変更後の名前";
 "PreviewCurrent" = "最新";
-"PreviewPane" = "プレビュー";
 "PreviewStale" = "更新が必要";
 "Privacy" = "履歴とプライバシー";
 "ProExamples" = "その他の例";
@@ -353,6 +366,7 @@
 "ProRequired" = "この機能は利用できません。アプリを再起動してみてください。";
 "PurchaseUnavailableBuild" = "このバージョンでは、まだProを購入・有効化できません。無料機能と、以前の操作の取り消し・復旧は引き続き利用できます。";
 "QueuedInputs" = "ファイルを受け取りました。現在の処理が終わると検査します。";
+"QueuedInputsShort" = "ファイルを受信 · 待機中";
 "QuickCleanup" = "分離した文字を合成";
 "QuickCleanupHelp" = "分離して保存された文字を合成します。見た目が同じでも文字の構成が異なることがあります。変更前に結果をご確認ください。";
 "Quit" = "Moongchi NameFixを終了";
@@ -363,10 +377,13 @@
 "RecipeActions" = "プリセット管理";
 "RecipeName" = "プリセット名";
 "RecipeReadOnly" = "ルール設定を読み込みまたは保存できません。既存ファイルは保持します。";
+"RecipeReadOnlyShort" = "ルール設定の保存に失敗";
 "RecipeSaved" = "プリセットを保存しました。";
+"RecipeSavedShort" = "プリセットを保存";
 "RecipeSection" = "サンプルとプリセット";
 "Recovery" = "中断した操作を復旧";
 "RecoveryNeedsReview" = "前回の作業状態を確認する必要があります。ファイルと記録は保持されています。";
+"RecoveryNeedsReviewShort" = "以前の作業の確認が必要";
 "RecoveryObservedPaths" = "確認された場所です。元のファイルと同一であることを確認できないため自動復元しません。";
 "RecoveryStatus" = "復旧状態の確認（読み取り専用）";
 "RecoveryWarning" = "中断された処理を確認してください。履歴で元・一時・変更先のパスを確認できます。自動復旧は行いません。";
@@ -396,10 +413,12 @@
 "RolledBack" = "復元済み";
 "RuleAccents" = "アクセントを除去";
 "RuleBudgetExceeded" = "処理上限を超えました。パターンや入力を短くしてください。";
+"RuleBudgetExceededShort" = "ルールの処理上限を超過";
 "RuleChangeHelp" = "選択した名前変更ルールを適用します。";
 "RuleCondition" = "適用条件";
 "RuleInsert" = "位置に挿入";
 "RuleInvalid" = "ルールの入力値または変更後の名前が正しくありません。入力内容を確認してください。";
+"RuleInvalidShort" = "ルールの入力を確認";
 "RuleKeepFirst" = "先頭の文字を保持";
 "RuleKeepLast" = "末尾の文字を保持";
 "RuleLowercase" = "小文字";
@@ -437,6 +456,7 @@
 "Save" = "保存";
 "SaveRecipe" = "プリセット保存";
 "ScanLimit" = "安全上の上限20万件に達しました。フォルダを分けて検査してください。";
+"ScanLimitShort" = "項目数の上限に到達";
 "ScanReady" = "確認が完了しました";
 "Scanning" = "{0}件を検査中…";
 "ScopeFullName" = "名前全体（拡張子を含む）";
@@ -457,7 +477,9 @@
 "Settings" = "設定";
 "SettingsAutomatic" = "変更はすぐに適用され、自動で保存されます。";
 "SettingsSaveFailed" = "設定を保存できませんでした。変更は今回の起動中のみ適用されます。";
+"SettingsSaveFailedShort" = "設定の保存に失敗";
 "SettingsWarning" = "設定を読み込めないため既定値を使用します。元のファイルは保持されます。";
+"SettingsWarningShort" = "設定を読めません";
 "ShowInFinder" = "Finderで表示";
 "ShowIntro" = "紹介をもう一度見る";
 "ShowMenuBar" = "メニューバーに表示";
@@ -467,7 +489,7 @@
 "SourceChanged" = "検査後に項目が変更されたため除外しました。再検査してください。";
 "SourceChangedAfterMove" = "他のアプリによる変更を検出して停止しました。一時名の項目が残っている場合があります。履歴の復旧場所を確認してください。";
 "SourceColumn" = "元の名前の列";
-"StaleHelp" = "ルールが変更されました。プレビューを更新してから名前を変更できます。";
+"StaleHelp" = "ルールが変更されました。押すと新しいルールで一覧を計算し直します。その後に名前を変更できます。";
 "Status" = "状態";
 "Stem" = "拡張子を除く名前";
 "SumCount" = "{0}文字";
@@ -503,6 +525,7 @@
 "Type" = "種類";
 "UTF16Units" = "UTF-16コード単位";
 "UnappliedRules" = "ルールが変更されました。プレビューを更新してから名前を変更できます。";
+"UnappliedRulesShort" = "プレビューの更新が必要";
 "Unavailable" = "× 利用不可";
 "UnavailableHelp" = "この項目にアクセスできません。デバイスの接続や現在の場所を確認し、再検査してください。";
 "Undo" = "選択した処理を元に戻す";
@@ -511,7 +534,6 @@
 "UndoLatest" = "最近の操作を元に戻す…";
 "UndoNow" = "この操作を元に戻す";
 "Unsupported" = "— 未対応の項目";
-"UpdateFilePreview" = "プレビューを更新";
 "UseMapping" = "リストを適用";
 "Utilities" = "テキスト";
 "Verified" = "確認済み";
@@ -528,7 +550,9 @@
 "WatchPaused" = "一時停止中";
 "WatchPending" = "確認待ちの変更があります。";
 "WatchReadOnly" = "監視設定を読み込み・保存できません。元のファイルは保持しました。";
+"WatchReadOnlyShort" = "監視設定の保存に失敗";
 "WatchReauthorize" = "アクセス権が期限切れ、または場所が変わりました。項目を削除してフォルダを選び直してください。";
+"WatchReauthorizeShort" = "フォルダへのアクセス権が必要";
 "WatchRescan" = "一部の変更を検出できなかったか、フォルダが変更されました。「確認」を押して全体を再確認してください。";
 "WatchResume" = "再開";
 "WatchReview" = "確認";

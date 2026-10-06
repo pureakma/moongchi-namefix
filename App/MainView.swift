@@ -82,9 +82,8 @@ struct MainView: View {
     }
     private var resultPane: some View {
         VStack(alignment: .leading, spacing: Metrics.gap) {
-            if model.isWorkbench { previewHeader }
+            controlRow
             overview
-            filterRow
             results
             footer
         }
@@ -92,9 +91,8 @@ struct MainView: View {
     @ViewBuilder private func compactResults<Rules: View>(height: CGFloat, @ViewBuilder rules: () -> Rules) -> some View {
         let sections = LazyVStack(alignment: .leading, spacing: Metrics.gap) {
             rules()
-            if model.isWorkbench { previewHeader }
+            controlRow
             overview
-            filterRow
             if model.visible.isEmpty { noResults.frame(minHeight: 150) }
             else { ForEach(model.visible) { entry in CompactResultRow(model: model, entry: entry, palette: palette).id(entry.id) } }
         }.padding(Metrics.gap)
@@ -148,39 +146,55 @@ struct MainView: View {
 
     // MARK: Result state
 
-    /// Fixed-height header: a stale preview is a status here, never a banner that pushes the table down.
-    private var previewHeader: some View {
-        HStack(spacing: Metrics.control) {
-            Text(model.t("PreviewPane")).font(.headline).accessibilityAddTraits(.isHeader)
-            if model.hasUnappliedRules {
-                Label(model.t("PreviewStale"), systemImage: "arrow.triangle.2.circlepath").font(.caption).foregroundStyle(palette.warning)
-                    .padding(.horizontal, 7).padding(.vertical, 2).background(palette.warning.opacity(0.12), in: Capsule())
-                    .help(model.t("StaleHelp")).accessibilityLabel(model.t("StaleHelp"))
+    /// One line above the list: what needs attention (also the filters), then search and list menus.
+    /// It starts on the same line as the rules pane's header and keeps its height in every state.
+    private var controlRow: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: Metrics.control) { chips; searchField; viewOptions; selectionMenu }
+            // Tighter panes keep the single line by showing the two menus as icons.
+            HStack(spacing: Metrics.control) { chips; searchField; viewOptions.labelStyle(.iconOnly).help(model.t("ViewOptions")); selectionMenu.labelStyle(.iconOnly).help(model.t("SelectMenu")) }
+            VStack(alignment: .leading, spacing: Metrics.control) {
+                HStack(spacing: Metrics.control) { chips; Spacer(minLength: 0) }
+                HStack(spacing: Metrics.control) { searchField; viewOptions; selectionMenu }
             }
-            Spacer(minLength: Metrics.control)
-            if model.hasUnappliedRules {
-                Button(model.t("UpdateFilePreview")) { model.usePipeline(model.workbenchDraft) }.buttonStyle(.borderedProminent).controlSize(.small)
-                    .disabled(model.busy || model.plan != nil).accessibilityIdentifier("updatePreview")
+            VStack(alignment: .leading, spacing: Metrics.control) {
+                chips
+                searchField
+                HStack(spacing: Metrics.gap) { viewOptions; selectionMenu }
             }
-        }.frame(height: Metrics.paneHeader)
+        }.frame(minHeight: Metrics.paneHeader).disabled(model.plan != nil)
     }
-    /// Compact summary. Each item is also the filter for that group.
-    private var overview: some View {
-        VStack(alignment: .leading, spacing: Metrics.control) {
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: Metrics.control) { if model.sidebarCollapsed { locationsToggle }; summaryItems; conflictAction }
-                VStack(alignment: .leading, spacing: Metrics.control) { if model.sidebarCollapsed { locationsToggle }; HStack(spacing: Metrics.control) { summaryItems }; conflictAction }
-            }
-            // The sidebar tree owns the added locations; this fallback exists only while the sidebar is hidden.
-            if model.sidebarCollapsed, locationsExpanded { locations }
-            if let folder = model.folderFilter {
-                HStack(spacing: 6) {
-                    Image(systemName: "folder").foregroundStyle(palette.secondary).accessibilityHidden(true)
-                    Text(model.t("TreeFiltered", String(data: folder.leaf, encoding: .utf8) ?? folder.display)).font(.callout).lineLimit(1).truncationMode(.middle)
-                    Button(model.t("TreeAll")) { model.folderFilter = nil }.buttonStyle(.link)
+    @ViewBuilder private var chips: some View { staleChip; summaryItems; conflictAction }
+    /// Rules changed since the list was computed. The chip says so and is the button that updates it.
+    @ViewBuilder private var staleChip: some View {
+        if model.hasUnappliedRules {
+            Button { model.usePipeline(model.workbenchDraft) } label: {
+                HStack(spacing: 5) {
+                    Image(systemName: "arrow.triangle.2.circlepath").font(.caption).accessibilityHidden(true)
+                    Text(model.t("PreviewStale")).fontWeight(.semibold)
+                }.foregroundStyle(palette.warning).padding(.horizontal, 10).padding(.vertical, 4)
+                    .background(RoundedRectangle(cornerRadius: 7).fill(palette.warning.opacity(0.14)))
+                    .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(palette.warning, lineWidth: 1))
+                    .contentShape(Rectangle())
+            }.buttonStyle(.plain).fixedSize().disabled(model.busy || model.plan != nil)
+                .help(model.t("StaleHelp")).accessibilityLabel(model.t("PreviewStale")).accessibilityHint(model.t("StaleHelp")).accessibilityIdentifier("updatePreview")
+        }
+    }
+    /// Lines that appear only when they apply: the added locations while the sidebar is hidden, and the folder filter.
+    @ViewBuilder private var overview: some View {
+        if model.sidebarCollapsed || model.folderFilter != nil {
+            VStack(alignment: .leading, spacing: Metrics.control) {
+                // The sidebar tree owns the added locations; this fallback exists only while the sidebar is hidden.
+                if model.sidebarCollapsed { locationsToggle; if locationsExpanded { locations } }
+                if let folder = model.folderFilter {
+                    HStack(spacing: 6) {
+                        Image(systemName: "folder").foregroundStyle(palette.secondary).accessibilityHidden(true)
+                        Text(model.t("TreeFiltered", String(data: folder.leaf, encoding: .utf8) ?? folder.display)).font(.callout).lineLimit(1).truncationMode(.middle)
+                        Button(model.t("TreeAll")) { model.folderFilter = nil }.buttonStyle(.link)
+                    }
                 }
-            }
-        }.frame(maxWidth: .infinity, alignment: .leading).disabled(model.plan != nil)
+            }.frame(maxWidth: .infinity, alignment: .leading).disabled(model.plan != nil)
+        }
     }
     private var locationsToggle: some View {
         Button { locationsExpanded.toggle() } label: {
@@ -233,14 +247,8 @@ struct MainView: View {
                 .contentShape(Rectangle())
         }.buttonStyle(.plain).fixedSize().accessibilityLabel(model.t(key) + " " + model.n(count)).accessibilityAddTraits(active ? .isSelected : [])
     }
-    private var filterRow: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: Metrics.control) { searchField; viewOptions; selectionMenu }
-            VStack(alignment: .leading, spacing: Metrics.control) { searchField; HStack(spacing: Metrics.gap) { viewOptions; selectionMenu } }
-        }
-    }
     private var searchField: some View {
-        TextField(model.t("Search"), text: $model.query).textFieldStyle(.roundedBorder).focused($searchFocused).frame(minWidth: 150).accessibilityIdentifier("search")
+        TextField(model.t("Search"), text: $model.query).textFieldStyle(.roundedBorder).focused($searchFocused).frame(minWidth: 120).accessibilityIdentifier("search")
     }
     private var viewOptions: some View {
         Menu {
@@ -362,9 +370,9 @@ struct StatusLine: View {
             let info = Self.informational.contains(message)
             HStack(spacing: 6) {
                 Image(systemName: info ? "info.circle" : "exclamationmark.triangle.fill").foregroundStyle(info ? palette.secondary : palette.warning).accessibilityHidden(true)
-                // One line here; the whole text, selectable, on click.
-                Button { showsNotice = true } label: { Text(model.t(message)).lineLimit(1).truncationMode(.tail).contentShape(Rectangle()) }
-                    .buttonStyle(.plain).help(model.t(message))
+                // A short form here; the whole text, selectable, on click.
+                Button { showsNotice = true } label: { Text(model.notice(message)).lineLimit(1).truncationMode(.tail).contentShape(Rectangle()) }
+                    .buttonStyle(.plain).help(model.t(message)).accessibilityLabel(model.t(message))
                     .popover(isPresented: $showsNotice, arrowEdge: .top) {
                         Text(model.t(message)).textSelection(.enabled).fixedSize(horizontal: false, vertical: true).padding(14).frame(width: 340, alignment: .leading)
                     }

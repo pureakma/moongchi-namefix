@@ -40,11 +40,14 @@
 "BatchWorkspaceDetail" = "Replace text, add numbers and more across many file names.";
 "Busy" = "Working";
 "BusyDropRejected" = "Items cannot be added during this operation. Drop them again when it finishes.";
+"BusyDropRejectedShort" = "Can’t add during an operation";
 "CSVMapping" = "Rename from a CSV list";
 "Cancel" = "Cancel";
 "CancelBeforeClose" = "Stopping the operation safely before quitting…";
+"CancelBeforeCloseShort" = "Stopping…";
 "CancelRequested" = "Stop requested";
 "Cancelled" = "Scan cancelled. Partial results are shown.";
+"CancelledShort" = "Check cancelled";
 "CanonicalVariant" = "● Different composition";
 "ChangeHelp" = "The file is not damaged. Characters stored as separate parts can be combined; file contents stay unchanged.";
 "CharacterCount" = "Character count: {0}";
@@ -103,6 +106,7 @@
 "DevelopmentProHelp" = "For feature review in Debug builds, not purchase or license verification.";
 "Diagnostics" = "Enable local diagnostic logs";
 "DiagnosticsError" = "Could not save diagnostics.";
+"DiagnosticsErrorShort" = "Couldn’t save diagnostics";
 "DiagnosticsPreview" = "Diagnostic export preview";
 "Directory" = "Folder";
 "Done" = "Done";
@@ -130,12 +134,14 @@
 "Export" = "Export";
 "ExportDiagnostics" = "Export diagnostic report";
 "ExportFailed" = "Export failed. Check destination permissions and free space.";
+"ExportFailedShort" = "Export failed";
 "ExportRaw" = "Export raw CSV";
 "ExportReport" = "Export report CSV";
 "ExportShort" = "Save Results as CSV";
 "ExportToolDetail" = "Save the results as a table file (CSV).";
 "ExportToolHelp" = "Save the current names, new names and results as a CSV file. This does not rename anything. Use raw CSV when another tool needs the names exactly as stored.";
 "Exported" = "Diagnostic report saved.";
+"ExportedShort" = "Saved";
 "Extension" = "Extension";
 "ExtensionCondition" = "Extension condition (e.g. jpg)";
 "Failed" = "Failed";
@@ -190,6 +196,7 @@
 "HistoryRetentionHelp" = "Records needed for Undo and recovery are retained beyond this limit.";
 "HistoryShort" = "History";
 "HistoryWarning" = "Some records cannot be read. Originals are preserved; Undo is restricted.";
+"HistoryWarningShort" = "Some history is unreadable";
 "ImportCSV" = "Import list";
 "ImportRecipe" = "Import preset";
 "InputCount" = "Locations · {0}";
@@ -206,6 +213,7 @@
 "InvalidUnicodeHelp" = "The name contains invalid character data and cannot be changed safely.";
 "InvertVisible" = "Invert visible selection";
 "JournalWriteFailed" = "Renaming stopped because the operation record could not be saved. Check free disk space and try again.";
+"JournalWriteFailedShort" = "Couldn’t save history";
 "KeepForm" = "Keep original form";
 "KeepFormHelp" = "Apply naming rules without changing the character form.";
 "Language" = "Language";
@@ -266,9 +274,13 @@
 "NeededCaption" = "Names to fix";
 "NeedsNormalization" = "● Separated";
 "NewerSchema" = "This data was created by a newer version. The original is preserved and changes are restricted.";
+"NewerSchemaShort" = "Data from a newer version";
 "NoChanges" = "No safe changes remain. Rescan to refresh the preview.";
 "NoChangesExcluded" = "Selected items changed or conflict and were excluded by safety checks. Rescan and review their status and paths.";
+"NoChangesExcludedShort" = "Selected items were left out";
+"NoChangesShort" = "Nothing to rename";
 "NoClipboardText" = "No text on the clipboard.";
+"NoClipboardTextShort" = "No copied text";
 "NoFilesYet" = "No files added yet. Drop files or folders here.";
 "NoHistory" = "No operations recorded yet.";
 "NoInputs" = "No files or folders added yet.";
@@ -282,6 +294,7 @@
 "NormalizationOnly" = "Only normalize the character form.";
 "NotificationDenied" = "Notifications are not allowed. Results remain available in the app.";
 "NotificationFailed" = "Could not deliver a notification. Check results in the app.";
+"NotificationFailedShort" = "Notification not delivered";
 "NumberConflicts" = "Suggest numbered names";
 "NumberDigits" = "Minimum digits: {0}";
 "NumberExplanation" = "Review every proposed name below. Nothing changes until you confirm.";
@@ -319,6 +332,7 @@
 "OpenLoginSettings" = "Open Login Items settings";
 "OpenNameFix" = "Open scan window";
 "OperationError" = "The operation could not finish. Check History and local diagnostic logs.";
+"OperationErrorShort" = "Operation failed";
 "OrderManual" = "Manual order";
 "OrderName" = "By name";
 "OrderPath" = "By path";
@@ -345,7 +359,6 @@
 "Present" = "Matching entry found";
 "Preview" = "New name";
 "PreviewCurrent" = "Up to date";
-"PreviewPane" = "Preview";
 "PreviewStale" = "Needs update";
 "Privacy" = "History and privacy";
 "ProExamples" = "More examples";
@@ -353,6 +366,7 @@
 "ProRequired" = "This feature is unavailable. Try restarting the app.";
 "PurchaseUnavailableBuild" = "Pro cannot be purchased or activated in this version yet. Free features, Undo and recovery of earlier operations remain available.";
 "QueuedInputs" = "Files received. They will be scanned when the current operation finishes.";
+"QueuedInputsShort" = "Files received · waiting";
 "QuickCleanup" = "Combine separated characters";
 "QuickCleanupHelp" = "Combine characters stored as separate parts. Names may look identical while their character structure differs. Review the results before changing names.";
 "Quit" = "Quit Moongchi NameFix";
@@ -363,10 +377,13 @@
 "RecipeActions" = "Preset actions";
 "RecipeName" = "Preset name";
 "RecipeReadOnly" = "Could not read or save your rules and presets. The existing file is preserved.";
+"RecipeReadOnlyShort" = "Couldn’t save rule settings";
 "RecipeSaved" = "Preset saved.";
+"RecipeSavedShort" = "Preset saved";
 "RecipeSection" = "Examples and presets";
 "Recovery" = "Recover interrupted operation";
 "RecoveryNeedsReview" = "A previous operation needs review. Files and records have been preserved.";
+"RecoveryNeedsReviewShort" = "Earlier operation needs review";
 "RecoveryObservedPaths" = "Observed locations. Automatic restoration is blocked because the original identity could not be verified.";
 "RecoveryStatus" = "Recovery inspection (read-only)";
 "RecoveryWarning" = "An interrupted operation needs review. Open History to inspect source, temporary and destination paths. No automatic recovery is performed.";
@@ -396,10 +413,12 @@
 "RolledBack" = "Original name restored";
 "RuleAccents" = "Remove accents";
 "RuleBudgetExceeded" = "This rule exceeded its processing budget. Simplify the pattern or input.";
+"RuleBudgetExceededShort" = "Rule limit exceeded";
 "RuleChangeHelp" = "Apply the selected naming rules.";
 "RuleCondition" = "Condition";
 "RuleInsert" = "Insert at position";
 "RuleInvalid" = "A rule value or the resulting name is not valid. Check what you entered.";
+"RuleInvalidShort" = "Check the rule values";
 "RuleKeepFirst" = "Keep first characters";
 "RuleKeepLast" = "Keep last characters";
 "RuleLowercase" = "Lowercase";
@@ -437,6 +456,7 @@
 "Save" = "Save";
 "SaveRecipe" = "Save preset";
 "ScanLimit" = "The 200,000 item safety limit was reached. Scan smaller folders separately.";
+"ScanLimitShort" = "Item limit reached";
 "ScanReady" = "Scan complete";
 "Scanning" = "{0} items scanned…";
 "ScopeFullName" = "Full name (with extension)";
@@ -457,7 +477,9 @@
 "Settings" = "Settings";
 "SettingsAutomatic" = "Changes apply immediately and save automatically.";
 "SettingsSaveFailed" = "Settings could not be saved. Changes apply only to this session.";
+"SettingsSaveFailedShort" = "Couldn’t save settings";
 "SettingsWarning" = "Settings could not be loaded. Safe defaults are active; the original file is preserved.";
+"SettingsWarningShort" = "Couldn’t read settings";
 "ShowInFinder" = "Show in Finder";
 "ShowIntro" = "Show Introduction";
 "ShowMenuBar" = "Show in menu bar";
@@ -467,7 +489,7 @@
 "SourceChanged" = "This item changed after scanning and was skipped. Scan again.";
 "SourceChangedAfterMove" = "Stopped after detecting an external change. An item may remain at a temporary name. Review recovery locations in History.";
 "SourceColumn" = "Source column";
-"StaleHelp" = "The rules changed. Update the preview before renaming.";
+"StaleHelp" = "The rules have changed. Click to recompute the list with them; then you can rename.";
 "Status" = "Status";
 "Stem" = "Name without extension";
 "SumCount" = "{0} characters";
@@ -503,6 +525,7 @@
 "Type" = "Type";
 "UTF16Units" = "UTF-16 code units";
 "UnappliedRules" = "The rules changed. Update the preview before renaming.";
+"UnappliedRulesShort" = "Preview needs updating";
 "Unavailable" = "× Unavailable";
 "UnavailableHelp" = "This item is no longer available. Reconnect the device or rescan its current location.";
 "Undo" = "Undo selected operation";
@@ -511,7 +534,6 @@
 "UndoLatest" = "Undo latest operation…";
 "UndoNow" = "Undo this operation";
 "Unsupported" = "— Unsupported item";
-"UpdateFilePreview" = "Update Preview";
 "UseMapping" = "Use list";
 "Utilities" = "Text";
 "Verified" = "Verified";
@@ -528,7 +550,9 @@
 "WatchPaused" = "Paused";
 "WatchPending" = "Changes are awaiting review.";
 "WatchReadOnly" = "Watch settings could not be read or saved. The original file was preserved.";
+"WatchReadOnlyShort" = "Couldn’t save watch settings";
 "WatchReauthorize" = "Folder access expired or its location changed. Remove this entry and select the folder again.";
+"WatchReauthorizeShort" = "Folder access needed";
 "WatchRescan" = "Some changes may have been missed, or the folder changed. Choose Review to check everything again.";
 "WatchResume" = "Resume";
 "WatchReview" = "Review";
