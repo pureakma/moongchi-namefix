@@ -18,6 +18,7 @@ struct MainView: View {
     }
     var palette: Palette { Palette(model.settings.theme, systemDark: scheme == .dark) }
     private var awaitingInput: Bool { model.roots.isEmpty && model.entries.isEmpty }
+    private var inputOnly: Bool { awaitingInput && !(model.isWorkbench && rulesFirst) }
     private var conflicts: Int { model.counts["ConflictCaption"] ?? 0 }
     private var filtering: Bool { !model.query.isEmpty || model.filter != "All" || model.settings.hideNormal }
     /// Where the panel meets the left side: a rounded turn beside the navigation, a straight
@@ -38,7 +39,13 @@ struct MainView: View {
             .foregroundStyle(contrast == .increased ? Color.primary : palette.text)
             .font(L10n.font(model.settings.language)).tint(palette.accent)
             .overlay { if model.dragActive { RoundedRectangle(cornerRadius: Metrics.corner).stroke(palette.accent, lineWidth: 3).padding(4).allowsHitTesting(false) } }
-            .safeAreaInset(edge: .bottom, spacing: 0) { StatusBar(model: model, palette: palette) }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                // The input-only screen has no footer; a notice or progress still needs a place there.
+                if inputOnly, model.busy || model.message != nil {
+                    StatusLine(model: model, palette: palette, showsCounts: false)
+                        .padding(.horizontal, Metrics.page).padding(.bottom, Metrics.gap).frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
             .sheet(isPresented: Binding(get: { model.plan != nil }, set: { if !$0 { model.cancelPreview() } })) {
                 if let plan = model.plan { ConfirmationView(model: model, plan: plan, palette: palette, availableSize: proxy.size) }
             }
@@ -56,13 +63,13 @@ struct MainView: View {
     // MARK: Screens
 
     @ViewBuilder private func quick(width: CGFloat, height: CGFloat) -> some View {
-        if awaitingInput { inputState(title: "EmptyTitle", icon: "character.cursor.ibeam", height: height) }
+        if inputOnly { inputState(title: "EmptyTitle", icon: "character.cursor.ibeam", height: height) }
         else if WindowLayout.wide(width: width) && height >= 420 { resultPane.padding(Metrics.page) }
         else { compactResults(height: height) { EmptyView() } }
     }
     /// Two panes that start on the same line: rules on the left, their preview on the right.
     @ViewBuilder private func workbench(width: CGFloat, height: CGFloat) -> some View {
-        if awaitingInput && !rulesFirst { inputState(title: "BatchEmptyTitle", icon: "pencil.line", height: height) }
+        if inputOnly { inputState(title: "BatchEmptyTitle", icon: "pencil.line", height: height) }
         else if width >= 820 && height >= 480 {
             HStack(alignment: .top, spacing: 0) {
                 RuleEditor(model: model, palette: palette).padding(Metrics.page).frame(width: min(360, width * 0.38))
@@ -263,7 +270,7 @@ struct MainView: View {
             .menuStyle(.borderlessButton).fixedSize().disabled(model.busy).accessibilityIdentifier("selectMenu")
     }
     private var results: some View {
-        // Progress and notices live in the status bar, so nothing here ever pushes the table down.
+        // Progress and notices live on the footer line, so nothing here ever pushes the table down.
         Group { if model.visible.isEmpty { noResults } else { ResultTable(model: model, palette: palette) } }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(palette.surface, in: RoundedRectangle(cornerRadius: 8))
@@ -288,8 +295,13 @@ struct MainView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity).accessibilityElement(children: .combine)
         }
     }
-    /// The bottom of the pane holds the one primary action; counts and notices are in the status bar.
-    private var footer: some View { HStack { Spacer(minLength: 0); primaryAction } }
+    /// Bottom line of the pane: status on the left, the one primary action on the right.
+    private var footer: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: Metrics.gap) { StatusLine(model: model, palette: palette); Spacer(minLength: Metrics.control); primaryAction.fixedSize() }
+            VStack(alignment: .leading, spacing: Metrics.control) { StatusLine(model: model, palette: palette); HStack { Spacer(minLength: 0); primaryAction } }
+        }
+    }
     private var primaryAction: some View {
         Button { model.prepare() } label: { Text(model.t(model.isWorkbench ? "RenameCount" : "CombineCount", model.n(model.selected.count))).fontWeight(.semibold).padding(.horizontal, 12).padding(.vertical, 6) }
             .buttonStyle(PrimaryButtonStyle(palette: palette)).disabled(model.selected.isEmpty || model.busy || !model.ready || model.hasUnappliedRules)
@@ -321,35 +333,27 @@ extension MainView {
     }
 }
 
-/// Bottom status bar: the one place for item counts, what the app is doing now, and notices.
-/// It is always there, so messages and progress never move the content above it.
-struct StatusBar: View {
+/// Item counts, what the app is doing now, and notices, on the same line as the primary action.
+/// Progress and notices appear here instead of above the list, so they never move it.
+struct StatusLine: View {
     @ObservedObject var model: AppModel
     let palette: Palette
+    var showsCounts = true
     @State private var showsNotice = false
     private static let informational: Set<String> = ["Exported", "RecipeSaved", "QueuedInputs", "CancelBeforeClose"]
     var body: some View {
         ViewThatFits(in: .horizontal) {
-            HStack(spacing: Metrics.gap) { counts; Spacer(minLength: Metrics.control); notice; activity }.frame(height: Metrics.statusBar)
-            VStack(alignment: .leading, spacing: 0) {
-                if model.message != nil { HStack { notice; Spacer(minLength: 0) }.frame(height: Metrics.statusBar) }
-                HStack(spacing: Metrics.gap) { counts; Spacer(minLength: Metrics.control); activity }.frame(height: Metrics.statusBar)
-            }
-            VStack(alignment: .leading, spacing: 0) {
-                if model.message != nil { HStack { notice; Spacer(minLength: 0) }.frame(height: Metrics.statusBar) }
-                if model.busy { HStack { activity; Spacer(minLength: 0) }.frame(height: Metrics.statusBar) }
-                HStack { counts.lineLimit(2).minimumScaleFactor(0.85); Spacer(minLength: 0) }.frame(minHeight: Metrics.statusBar)
-            }
-        }
-        .font(.callout).padding(.horizontal, Metrics.page)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(palette.canvas)
-        .overlay(alignment: .top) { Rectangle().fill(palette.border).frame(height: 1).accessibilityHidden(true) }
-        .accessibilityElement(children: .contain).accessibilityLabel(model.t("StatusBar")).accessibilityIdentifier("statusBar")
+            HStack(spacing: Metrics.gap) { parts }
+            VStack(alignment: .leading, spacing: 4) { parts }
+        }.font(.callout).accessibilityElement(children: .contain).accessibilityIdentifier("statusLine")
+    }
+    @ViewBuilder private var parts: some View {
+        if showsCounts { counts }
+        activity
+        notice
     }
     private var counts: some View {
-        let empty = model.roots.isEmpty && model.entries.isEmpty
-        let shown = empty ? model.t("StatusNoInput") : model.t("ShownCount", model.n(model.visible.count), model.n(model.entries.count))
+        let shown = model.t("ShownCount", model.n(model.visible.count), model.n(model.entries.count))
         return Text(model.hiddenSelected > 0 ? shown + " · " + model.t("HiddenSelected", model.n(model.hiddenSelected)) : shown)
             .foregroundStyle(model.hiddenSelected > 0 ? palette.warning : palette.secondary).lineLimit(1)
     }

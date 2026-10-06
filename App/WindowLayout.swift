@@ -85,7 +85,6 @@ enum Metrics {
     static let gap: CGFloat = 12
     static let control: CGFloat = 8
     static let corner: CGFloat = 10
-    static let statusBar: CGFloat = 28
 }
 @MainActor final class WindowPlacementStore {
     private let defaults: UserDefaults

@@ -96,6 +96,18 @@ import NameFixRuntime
             try renderPart("H-advanced-csv-ko-KR", theme: "olive", size: CGSize(width: 480, height: 320), AdvancedRuleSheet(model: model, palette: palette, option: .csv) {})
             try renderPart("E-add-rule-popover-expanded-ko-KR", theme: "olive", size: CGSize(width: 266, height: 760), AddRuleMenu(model: model, palette: palette, startExpanded: true, rule: { _ in }, advanced: { _ in }))
         }
+        // Introduction (always light), help, and settings with the developer card.
+        for (language, pages) in [("ko-KR", [0, 1, 2, 3]), ("en-US", [0, 3]), ("ja-JP", [0, 2])] {
+            let model = makeModel(language: language, theme: "dark", workbench: false, entries: [], rules: [], applied: true)
+            for page in pages { try renderPart("L-intro-\(page + 1)-\(language)", theme: "dark", size: CGSize(width: 620, height: 560), OnboardingView(model: model, page: page).frame(height: 560)) }
+        }
+        for (language, theme) in [("ko-KR", "olive"), ("en-US", "dark")] {
+            let model = makeModel(language: language, theme: theme, workbench: false, entries: [], rules: [], applied: true)
+            let palette = Palette(theme, systemDark: theme == "dark")
+            let dressed = { (view: AnyView) in AnyView(view.padding(22).foregroundStyle(palette.text).font(L10n.font(language)).tint(palette.accent).environment(\.colorScheme, theme == "dark" ? .dark : .light)) }
+            try renderPart("M-help-\(language)", theme: theme, size: CGSize(width: 680, height: 1180), dressed(AnyView(HelpView(model: model, palette: palette).frame(height: 1136))))
+            try renderPart("N-settings-\(language)", theme: theme, size: CGSize(width: 680, height: 1320), dressed(AnyView(SettingsView(model: model, palette: palette).frame(height: 1276))))
+        }
         try render("I-narrow-quick-empty-ko-KR", language: "ko-KR", theme: "olive", size: narrow)
         try render("I-narrow-quick-results-ko-KR", language: "ko-KR", theme: "olive", size: narrow, entries: rows(conflict: true))
         try render("I-narrow-batch-ja-JP", language: "ja-JP", theme: "olive", size: narrow, workbench: true, entries: renamed(rows(conflict: false)), rules: [prefix])

@@ -84,18 +84,26 @@ struct IntegrationSettingsView: View {
     @State private var status = ""
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Toggle(model.t("ShowMenuBar"), isOn: $menuBar).onChange(of: menuBar) { _, _ in AppDelegate.shared?.refreshIntegration() }
-            Toggle(model.t("LoginLaunch"), isOn: Binding(get: { login }, set: setLogin))
+            row("ShowMenuBar", $menuBar).onChange(of: menuBar) { _, _ in AppDelegate.shared?.refreshIntegration() }
+            row("LoginLaunch", Binding(get: { login }, set: setLogin))
             Text(model.t("LoginLaunchHelp")).font(.caption)
-            Toggle(model.t("CompletionAlerts"), isOn: $notifications).onChange(of: notifications) { _, enabled in
+            row("CompletionAlerts", $notifications).onChange(of: notifications) { _, enabled in
                 if enabled { Task {
                     do { let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert]); if !granted { notifications = false; status = "NotificationDenied" } }
                     catch { notifications = false; status = "NotificationFailed" }
                 } }
             }
             if !status.isEmpty { Text(model.t(status)).font(.caption) }
-            if SMAppService.mainApp.status == .requiresApproval { Button(model.t("OpenLoginSettings")) { SMAppService.openSystemSettingsLoginItems() } }
+            if SMAppService.mainApp.status == .requiresApproval { HStack { Spacer(minLength: 0); Button(model.t("OpenLoginSettings")) { SMAppService.openSystemSettingsLoginItems() } } }
         }.onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in login = SMAppService.mainApp.status == .enabled }
+    }
+    /// Same row as the other settings: name on the left, switch at the right edge.
+    private func row(_ key: String, _ isOn: Binding<Bool>) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            Text(model.t(key)).fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+            Toggle(model.t(key), isOn: isOn).labelsHidden().fixedSize()
+        }
     }
     private func setLogin(_ enabled: Bool) {
         do { if enabled { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }; login = SMAppService.mainApp.status == .enabled; status = login == enabled ? "" : "LoginNeedsApproval" }

@@ -3,14 +3,17 @@ import NameFixCore
 
 /// Shared hierarchy: a quiet section heading above a bounded group of native controls.
 struct ToolSection<Content: View>: View {
-    let title: String
+    /// A section may go without a heading when its content says what it is.
+    let title: String?
     let icon: String
     let palette: Palette
     @ViewBuilder var content: () -> Content
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label(title, systemImage: icon).font(.headline).foregroundStyle(palette.secondary)
-                .accessibilityAddTraits(.isHeader).padding(.horizontal, 4)
+            if let title {
+                Label(title, systemImage: icon).font(.headline).foregroundStyle(palette.secondary)
+                    .accessibilityAddTraits(.isHeader).padding(.horizontal, 4)
+            }
             VStack(alignment: .leading, spacing: 14, content: content)
                 .padding(16).frame(maxWidth: .infinity, alignment: .leading)
                 .background(palette.surface, in: RoundedRectangle(cornerRadius: 10))

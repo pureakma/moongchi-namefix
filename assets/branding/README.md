@@ -15,4 +15,4 @@ swift -module-cache-path .build/module-cache eng/icon.swift Resources/AppIcon.ic
 
 eng/icon.swift는 별도 경로를 명시하지 않으면 이 원본을 1024px layer 한 장으로 넣은 Icon Composer 문서(Resources/AppIcon.icon)를 만든다. Xcode가 이 문서에서 macOS 26 이상의 아이콘과 macOS 14·15용 비트맵 아이콘을 함께 만든다.
 
-비트맵 slot만 있는 아이콘(이전 AppIcon.appiconset)은 macOS 26 이상에서 회색 판 안에 축소되어 표시되어 2026-10-06에 이 형식으로 바꿨다. 그림 자체는 바꾸지 않았다.
+비트맵 slot만 있는 아이콘(이전 AppIcon.appiconset)은 macOS 26 이상에서 회색 판 안에 축소되어 표시되어 2026-10-06에 이 형식으로 바꿨다. 그림 자체는 바꾸지 않았다. 다만 원본의 남색 여백이 넓어 Dock에서 작아 보여, 생성할 때 1.12배로 키워 여백을 잘라 낸다(eng/icon.swift의 enlargement).

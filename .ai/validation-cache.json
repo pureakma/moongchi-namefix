@@ -1833,12 +1833,12 @@
         "eng/test-expansion-cli.py",
         "eng/test-release-cli.py"
       ],
-      "sourceFingerprint": "8250db6c3f89d8a912cc9cecfe8baff24ceedcf777c14d3cf03139740d6faa42",
+      "sourceFingerprint": "535e7c1640d6c57d43bce5ba3c0f16a68dce3fdadb957a846f0efaaa8fbaf4c0",
       "testFingerprint": "8ef5d9c84531e1bffd1e1d7a0e6b1d8ddeda49c9c0f2a83ff5e725e0e5bd56bc",
-      "timestamp": "2026-10-06T09:07:21.827310+00:00",
+      "timestamp": "2026-10-06T09:57:58.044257+00:00",
       "command": "swift test --filter UIModelTests; eng/build.sh Debug; eng/resources.py; eng/validate-resources.py; --render-ux/--render-shell/--render-expansion/--render-expansion --native-sidebar/--render-responsive; --diagnose-window; --live-sidebar-check (Debug). Reused from the previous receipt without re-running: runtime/core/CLI tests and the UI test bundle build (no Core/Application/Infrastructure/CLI/UITests change)",
-      "evidencePath": "artifacts/development/ui-structure-3",
-      "notes": "Follow-up to UI structure pass 2 (status bar, close-all, band drag root cause, brand spacing, no horizontal list scroller): 37 UI model tests, 0 failures; 524 keys x 3 locales; headless window diagnosis and Debug-only live window check PASS (state transitions, band hit targets, no SwiftUI hosting view under the band, system drag region set, list horizontal scroller off); 31 representative screens plus 195 existing fixture renders. Real mouse dragging, tooltips and the Dock icon are user checks (docs/QA.md S1-S5, U16)."
+      "evidencePath": "artifacts/development/ui-structure-4",
+      "notes": "Third follow-up (status on the footer line, introduction, help redesign, settings and developer card, enlarged icon artwork): 37 UI model tests, 0 failures; 555 keys x 3 locales; headless window diagnosis and Debug-only live window check PASS; 43 representative screens plus 195 existing fixture renders. Runtime/core/CLI tests and the UI test bundle build were not re-run (only a launch argument was added to the UI test). First-run presentation of the introduction, the Dock icon and tooltips are user checks (docs/QA.md S1-S5, U16-U18)."
     }
   ]
 }

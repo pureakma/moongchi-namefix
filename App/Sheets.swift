@@ -54,6 +54,12 @@ struct SheetRouter: View {
     private var palette: Palette { Palette(model.settings.theme, systemDark: scheme == .dark) }
     var availableSize = CGSize(width: 1180, height: 780)
     var body: some View {
+        // The introduction brings its own frame and light colours.
+        if model.sheet == "onboarding" {
+            FlexibleSheet(preferred: CGSize(width: 620, height: 560), available: availableSize) { OnboardingView(model: model) }
+        } else { standard }
+    }
+    private var standard: some View {
         FlexibleSheet(preferred: CGSize(width: model.sheet == "history" ? 840 : 680, height: model.sheet == "history" ? 580 : 560), available: availableSize) {
         VStack(spacing: 0) {
             HStack {
@@ -74,7 +80,7 @@ struct SheetRouter: View {
                 case "watch": WatchView(model: model, palette: palette)
                 case "diagnostics": diagnostics
                 case "about": about
-                default: help
+                default: HelpView(model: model, palette: palette)
                 }
             }.padding(22)
         }
@@ -102,19 +108,6 @@ struct SheetRouter: View {
             }
         } else { Text(model.t("InspectorHint")).frame(maxHeight: .infinity) }
     }
-    private var help: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                Label(model.t("EmptyDescription"), systemImage: "checkmark.shield").font(.headline).fixedSize(horizontal: false, vertical: true)
-                ToolSection(title: model.t("HelpSteps"), icon: "list.number", palette: palette) { helpText("HelpBody") }
-                ToolSection(title: model.t("HelpSeparation"), icon: "character.cursor.ibeam", palette: palette) { helpText("NormalizationNotice"); helpText("HelpAuto"); helpText("CompositionLegend") }
-                ToolSection(title: model.t("SafetyTitle"), icon: "checkmark.shield", palette: palette) { helpText("FilesystemHelp"); helpText("ConflictHelp"); helpText("ConcurrentChangeHelp"); helpText("HelpRecovery") }
-                ToolSection(title: model.t("BatchWorkspace"), icon: "pencil.line", palette: palette) { helpText("HelpBatch") }
-                Text(model.t("LocalOnly")).foregroundStyle(palette.secondary)
-            }.frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-    private func helpText(_ key: String) -> some View { Text(model.t(key)).fixedSize(horizontal: false, vertical: true) }
     private var about: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
@@ -184,7 +177,7 @@ struct SettingsView: View {
             } else {
                 Label(model.t("SettingsAutomatic"), systemImage: "checkmark.circle").font(.caption).foregroundStyle(palette.secondary)
             }
-            settingsSection("Appearance", icon: "paintpalette") {
+            settingsSection(nil, icon: "") {
                 Text(model.t("Theme")).fontWeight(.medium)
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 112), spacing: 10)], spacing: 10) {
                     ForEach(AppTheme.allCases, id: \.rawValue) { theme in themeChoice(theme) }
@@ -216,7 +209,7 @@ struct SettingsView: View {
                 Text(model.t("HistoryRetentionHelp")).font(.caption).foregroundStyle(palette.secondary)
                 settingToggle("Diagnostics", \.diagnostics)
             }
-            Button { model.sheet = "help" } label: { Label(model.t("HelpTitle"), systemImage: "questionmark.circle") }.buttonStyle(.borderless)
+            DeveloperCard(model: model, palette: palette)
           }.padding(2).frame(maxWidth: .infinity, alignment: .leading)
         }.toggleStyle(.switch)
     }
@@ -227,8 +220,8 @@ struct SettingsView: View {
             Toggle(model.t(key), isOn: binding(path)).labelsHidden().fixedSize()
         }
     }
-    private func settingsSection<Content: View>(_ title: String, icon: String, @ViewBuilder content: @escaping () -> Content) -> some View {
-        ToolSection(title: model.t(title), icon: icon, palette: palette, content: content)
+    private func settingsSection<Content: View>(_ title: String?, icon: String, @ViewBuilder content: @escaping () -> Content) -> some View {
+        ToolSection(title: title.map { model.t($0) }, icon: icon, palette: palette, content: content)
     }
 
     private func themeChoice(_ theme: AppTheme) -> some View {

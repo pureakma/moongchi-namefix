@@ -14,11 +14,15 @@ guard let source = CGImageSourceCreateWithURL(sourceURL as CFURL, nil),
       let artwork = CGImageSourceCreateImageAtIndex(source, 0, nil), artwork.width == artwork.height else {
     fatalError("A readable square source icon is required")
 }
-// The artwork is preserved as one full-canvas layer; the system supplies the outline.
-let pixels = 1024
+// The artwork is one layer on Apple's 1024pt canvas; the system supplies the outline.
+// Its own dark margin is cropped by enlarging it, so the mark reads at the size of other icons
+// (drawn edge to edge, the mark looked small on the Dock because the margin blends into it).
+let pixels = 1024, enlargement = 1.12
 let ctx = CGContext(data: nil, width: pixels, height: pixels, bitsPerComponent: 8, bytesPerRow: pixels * 4, space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
 ctx.interpolationQuality = .high
-ctx.draw(artwork, in: CGRect(x: 0, y: 0, width: pixels, height: pixels))
+let side = Double(pixels) * enlargement, origin = (Double(pixels) - side) / 2
+ctx.setFillColor(CGColor(srgbRed: 0.06275, green: 0.21961, blue: 0.49412, alpha: 1)); ctx.fill(CGRect(x: 0, y: 0, width: pixels, height: pixels))
+ctx.draw(artwork, in: CGRect(x: origin, y: origin, width: side, height: side))
 let dest = CGImageDestinationCreateWithURL(assets.appendingPathComponent("artwork.png") as CFURL, UTType.png.identifier as CFString, 1, nil)!
 CGImageDestinationAddImage(dest, ctx.makeImage()!, nil); guard CGImageDestinationFinalize(dest) else { exit(1) }
 // The fill only shows where the artwork's own rounded corners fall inside the system shape,

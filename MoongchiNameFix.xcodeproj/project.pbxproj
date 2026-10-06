@@ -11,6 +11,7 @@
 		0B376627B91FB5D63D03511A /* WindowChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB7C995BCFE90BDFDD10762 /* WindowChrome.swift */; };
 		1859AF7F20AE2BCEC21A9347 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C97AF31D59F59E35F1CA70E0 /* MainView.swift */; };
 		2692A5654C12934ADABC9B42 /* PretendardJPVariable-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4AC7A7C4473CB251738C207C /* PretendardJPVariable-LICENSE.txt */; };
+		2A374A853EEBA7FCB7A0BC62 /* Onboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7058F4A14D4C8CCFB7745084 /* Onboarding.swift */; };
 		350F74D6489FC38A77E800E5 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C5DE9C3032D9977C3EB7D2C /* Theme.swift */; };
 		3FCC43B724AFAB5E038D538A /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CFC7F2B7E292AF391BD36F3 /* AppModel.swift */; };
 		4223DE486CDBF8D874BCA235 /* PretendardVariable.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 66DF4D3B8F9432248AE5FB10 /* PretendardVariable.ttf */; };
@@ -73,6 +74,7 @@
 		6264B75CFE0B45509956F403 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		65FEAD634AA2D6B42089CBD3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		66DF4D3B8F9432248AE5FB10 /* PretendardVariable.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = PretendardVariable.ttf; sourceTree = "<group>"; };
+		7058F4A14D4C8CCFB7745084 /* Onboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Onboarding.swift; sourceTree = "<group>"; };
 		70D6C62FF38BE1A996D52652 /* ResultExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultExport.swift; sourceTree = "<group>"; };
 		79B8D3E7354BA420195E6C4F /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		7BB7C995BCFE90BDFDD10762 /* WindowChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowChrome.swift; sourceTree = "<group>"; };
@@ -145,6 +147,7 @@
 				04C4B02BB0C941977F014217 /* Main.swift */,
 				C97AF31D59F59E35F1CA70E0 /* MainView.swift */,
 				566CE7135BCEB7372C3B64D1 /* MappingView.swift */,
+				7058F4A14D4C8CCFB7745084 /* Onboarding.swift */,
 				BE07319F4D79BAD635708E6D /* RenderFixtures.swift */,
 				21CE1AE72DD3EC9A04694A90 /* ResponsiveFixtures.swift */,
 				AB9CC28DA18B07355F7C3166 /* ResponsiveViews.swift */,
@@ -317,6 +320,7 @@
 				4C29A4A934CAEA2E59FE19BB /* Main.swift in Sources */,
 				1859AF7F20AE2BCEC21A9347 /* MainView.swift in Sources */,
 				EE6B7124F704971AD0BE7513 /* MappingView.swift in Sources */,
+				2A374A853EEBA7FCB7A0BC62 /* Onboarding.swift in Sources */,
 				8691E6495E8EF60184E071EB /* RenderFixtures.swift in Sources */,
 				5CCC87462BDAFC26D5F959C8 /* ResponsiveFixtures.swift in Sources */,
 				5229529B2072938B59E073BD /* ResponsiveViews.swift in Sources */,

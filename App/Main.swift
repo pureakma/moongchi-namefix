@@ -84,6 +84,8 @@ import NameFixCore
         let screens = NSScreen.screens.map(screenArea)
         if let frame = WindowLayout.restored(placementStore.load(), screens: screens, preferredID: NSScreen.main.map { screenArea($0).id }) { window.setFrame(frame, display: false) }
         applyAppearance(); buildMenus(); window.makeKeyAndOrderFront(nil)
+        // The introduction opens on launch until the user ticks "don't show again".
+        if !UserDefaults.standard.bool(forKey: OnboardingView.hiddenKey), !CommandLine.arguments.contains("--skip-onboarding"), !CommandLine.arguments.contains("--live-sidebar-check") { model.sheet = "onboarding" }
         savePlacement()
         NSApp.activate(ignoringOtherApps: true)
         NSApp.servicesProvider = self
@@ -250,6 +252,7 @@ import NameFixCore
         NSApp.windowsMenu = windows
         let help = menu(model.t("HelpMenu")); help.addItem(ActionItem(model.t("HelpTitle")) { [weak self] in self?.model.present("help") })
         help.addItem(ActionItem(model.t("FormatGuide")) { [weak self] in self?.model.present("formatHelp") })
+        help.addItem(ActionItem(model.t("ShowIntro")) { [weak self] in self?.model.present("onboarding") })
         help.addItem(.separator())
         help.addItem(ActionItem(model.t("ExportDiagnostics") + "…") { [weak self] in self?.model.diagnostics(); self?.model.present("diagnostics") })
         NSApp.mainMenu = main

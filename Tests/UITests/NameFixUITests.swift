@@ -2,6 +2,7 @@ import XCTest
 @MainActor final class NameFixUITests: XCTestCase {
     func testEmptyStateShowsOnlyInputAndSettingsOpens() throws {
         let app = XCUIApplication()
+        app.launchArguments = ["--skip-onboarding"]
         app.launch()
         XCTAssertTrue(app.buttons["addFiles"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["addFolders"].exists)

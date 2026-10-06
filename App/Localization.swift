@@ -6,6 +6,10 @@ import CoreText
 enum AppInfo {
     static var version: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0" }
     static var build: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0" }
+    static let developer = "아일로"
+    /// The developer card shows these rows only once the addresses are set.
+    static let website: URL? = nil
+    static let support: URL? = nil
 }
 enum L10n {
     static func language(_ value: String) -> String {
