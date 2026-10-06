@@ -32,7 +32,8 @@ struct MainView: View {
                 if let message = model.message {
                     ScrollView {
                         HStack(alignment: .top) {
-                            Image(systemName: "exclamationmark.circle").foregroundStyle(palette.warning)
+                            let notice = ["Exported", "RecipeSaved", "QueuedInputs", "CancelBeforeClose"].contains(message)
+                            Image(systemName: notice ? "info.circle" : "exclamationmark.circle").foregroundStyle(notice ? palette.secondary : palette.warning).accessibilityHidden(true)
                             Text(model.t(message)).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
                             Spacer(minLength: 4)
                             Button { model.message = nil } label: { Image(systemName: "xmark") }.buttonStyle(.plain).help(model.t("Close")).accessibilityLabel(model.t("Close"))
@@ -163,7 +164,7 @@ struct MainView: View {
         LazyVStack(alignment: .leading, spacing: 8) {
             ForEach(model.roots, id: \.self) { root in
                 HStack {
-                    Image(systemName: "folder")
+                    Image(systemName: "folder").accessibilityHidden(true)
                     Text(String(data: root.leaf, encoding: .utf8) ?? root.display).lineLimit(2).frame(maxWidth: .infinity, alignment: .leading).help(root.display)
                     Button { model.remove(root) } label: { Image(systemName: "minus.circle") }.buttonStyle(.plain).disabled(model.busy).help(model.t("RemoveInput")).accessibilityLabel(model.t("RemoveInput"))
                 }.padding(.vertical, 5)
@@ -233,10 +234,10 @@ struct MainView: View {
         ViewThatFits(in: .horizontal) { HStack { filterPicker; sortPicker }; VStack(alignment: .leading) { filterPicker; sortPicker } }
     }
     private var filterPicker: some View {
-        Picker(model.t("Filter"), selection: $model.filter) { ForEach(["All", "NeedsNormalization", "Normal", "Conflict", "Errors", "SelectedOnly"], id: \.self) { Text(model.t($0)).tag($0) } }.labelsHidden().frame(width: 145)
+        Picker(model.t("Filter"), selection: $model.filter) { ForEach(["All", "NeedsNormalization", "Normal", "Conflict", "Errors", "SelectedOnly"], id: \.self) { Text(model.t($0 == "NeedsNormalization" ? "NeededCaption" : $0)).tag($0) } }.labelsHidden().frame(minWidth: 145).fixedSize()
     }
     private var sortPicker: some View {
-        Picker(model.t("Sort"), selection: $model.sort) { ForEach(["Name", "Status", "Path"], id: \.self) { Text(model.t($0)).tag($0) } }.labelsHidden().frame(width: 145)
+        Picker(model.t("Sort"), selection: $model.sort) { ForEach(["Name", "Status", "Path"], id: \.self) { Text(model.t($0)).tag($0) } }.labelsHidden().frame(minWidth: 145).fixedSize()
     }
     private var hideNormal: some View {
         Toggle(model.t("HideNormal"), isOn: Binding(get: { model.settings.hideNormal }, set: { value in model.changeSettings { $0.hideNormal = value } })).fixedSize()
@@ -266,7 +267,7 @@ struct MainView: View {
                 HStack {
                     if model.mutating { ProgressView(value: Double(model.completed), total: Double(max(1, model.total))).frame(width: 100) } else { ProgressView().controlSize(.small) }
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(model.t(model.cancelled ? "ActivityCancel" : model.phase))
+                        Text(model.cancelled ? model.t("ActivityCancel") : model.phaseLabel)
                         if model.mutating { Text(model.t("ActivityCount", model.n(model.completed), model.n(model.total), model.n(model.total == 0 ? 0 : model.completed * 100 / model.total))).font(.caption); Text(model.current).font(.caption).lineLimit(1).truncationMode(.middle).help(model.current) }
                         else if model.phase == "ActivityScan" { Text(model.t("Scanning", model.n(model.scanned))).font(.caption) }
                     }
@@ -320,14 +321,22 @@ struct MainView: View {
         ScrollView { VStack(alignment: .leading, spacing: 18) {
             Text(model.t(result.status == "Cancelled" ? "ResultCancelled" : result.status)).font(.title2)
             Text(model.t("ResultSummary", model.n(result.succeeded), model.n(max(0, result.total - result.succeeded - result.failed)), model.n(result.failed)))
-            VStack(alignment: .leading, spacing: 12) {
-                Button(model.t("HistoryShort")) { model.result = nil; model.sheet = "history"; model.loadDetails(result.id) }
-                if result.mode == "rename" { Button(model.t("UndoNow")) { model.result = nil; model.prepare(mode: "undo", historyID: result.id) }.disabled(model.busy || result.succeeded == 0) }
-                Spacer()
-                Button(model.t("Close")) { model.dismissResult() }.keyboardShortcut(.cancelAction)
+            ViewThatFits(in: .horizontal) {
+                HStack { resultActions(result); Spacer(); resultClose }
+                VStack(alignment: .leading, spacing: 12) { resultActions(result); resultClose }
             }
         }.padding(24) }
         }.background(palette.dialog).foregroundStyle(palette.text).font(L10n.font(model.settings.language)).tint(palette.accent)
+    }
+}
+
+extension MainView {
+    @ViewBuilder fileprivate func resultActions(_ result: TransactionSummary) -> some View {
+        Button(model.t("HistoryShort")) { model.result = nil; model.sheet = "history"; model.loadDetails(result.id) }
+        if result.mode == "rename" { Button(model.t("UndoNow")) { model.result = nil; model.prepare(mode: "undo", historyID: result.id) }.disabled(model.busy || result.succeeded == 0) }
+    }
+    fileprivate var resultClose: some View {
+        Button(model.t("Close")) { model.dismissResult() }.keyboardShortcut(.cancelAction)
     }
 }
 
@@ -339,7 +348,7 @@ struct ResultTable: View {
             TableColumn("") { entry in
                 Toggle(model.t("SelectedCaption"), isOn: Binding(get: { model.selected.contains(entry.id) }, set: { _ in model.toggle(entry) })).labelsHidden().disabled(!entry.status.fixable || model.busy).accessibilityLabel(model.t("SelectedCaption") + " " + entry.name)
             }.width(28)
-            TableColumn(model.t("Type")) { entry in Image(systemName: entry.isDirectory ? "folder" : "doc").foregroundStyle(palette.secondary).help(model.t(entry.isDirectory ? "Directory" : "File")) }.width(46)
+            TableColumn(model.t("Type")) { entry in Image(systemName: entry.isDirectory ? "folder" : "doc").foregroundStyle(palette.secondary).help(model.t(entry.isDirectory ? "Directory" : "File")).accessibilityLabel(model.t(entry.isDirectory ? "Directory" : "File")) }.width(46)
             TableColumn(model.t("Name")) { entry in NameCompositionCell(entry: entry, preview: false, compact: model.settings.compactRows, palette: palette, language: model.settings.language) }.width(min: 110, ideal: CGFloat(model.settings.nameColumnRatio * 3), max: .infinity)
             TableColumn(model.t("Preview")) { entry in NameCompositionCell(entry: entry, preview: true, compact: model.settings.compactRows, palette: palette, language: model.settings.language) }.width(min: 110, ideal: CGFloat((100 - model.settings.nameColumnRatio) * 3), max: .infinity)
             TableColumn(model.t("Status")) { entry in Text(model.t(CharacterPresentation.statusKey(entry.status, name: entry.name, reason: entry.reason))).font(.caption).foregroundStyle(entry.status.isError || entry.status == .conflict ? palette.warning : palette.secondary).help(model.t(entry.reason)) }.width(min: 90, ideal: 125, max: 170)

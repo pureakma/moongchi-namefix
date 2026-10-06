@@ -17,6 +17,7 @@ struct RuleEditor: View {
     @State private var sampleError: String?
     @State private var manualRows: [RawPath] = []
     @State private var sample = "photo  001.jpg"
+    @State private var pairExpanded = false
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -70,8 +71,12 @@ struct RuleEditor: View {
                         .onMove { source, destination in manualRows.move(fromOffsets: source, toOffset: destination); draft.manualPaths = manualRows.map(\.bytes) }
                     }.frame(height: 160)
                 }
-                TextField(model.t("PairExtensions"), text: Binding(get: { (draft.pairExtensions ?? []).joined(separator: ",") }, set: { draft.pairExtensions = $0.lowercased().split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty } }))
-                Text(model.t("PairHelp")).font(.caption).foregroundStyle(palette.secondary)
+                DisclosureGroup(model.t("PairSection"), isExpanded: $pairExpanded) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        TextField(model.t("PairExtensions"), text: Binding(get: { (draft.pairExtensions ?? []).joined(separator: ",") }, set: { draft.pairExtensions = $0.lowercased().split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty } }))
+                        Text(model.t("PairHelp")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
+                    }
+                }
                 MappingView(model: model, pipeline: draftBinding)
                 if draft.rules.contains(where: { $0.kind == .metadata }) {
                     Text(model.t("MetadataHelp")).font(.caption)
@@ -132,7 +137,7 @@ struct RuleEditor: View {
                 let steps = try await withTaskCancellationHandler(operation: { try await work.value }, onCancel: { token.cancel(); work.cancel() })
                 if !Task.isCancelled { sampleSteps = steps; sampleError = nil }
             } catch { if !Task.isCancelled { sampleSteps = []; sampleError = (error as? RuleFailure)?.rawValue ?? "RuleInvalid" } }
-        }.onAppear { manualRows = model.entries.map(\.path); if let name = model.entries.first(where: { !$0.isDirectory && !$0.status.isError })?.name { sample = name } }
+        }.onAppear { pairExpanded = !(draft.pairExtensions ?? []).isEmpty; manualRows = model.entries.map(\.path); if let name = model.entries.first(where: { !$0.isDirectory && !$0.status.isError })?.name { sample = name } }
     }
     @ViewBuilder private var samplePreview: some View {
         if let sampleError { Text(model.t(sampleError)).foregroundStyle(palette.warning) }
@@ -176,10 +181,12 @@ struct RuleEditor: View {
 struct RuleFields: View {
     @ObservedObject var model: AppModel
     @Binding var rule: RenameRule
+    // RuleScope.name shares its raw value with the "Current name" column title.
+    private func scopeKey(_ scope: RuleScope) -> String { scope == .name ? "ScopeFullName" : scope.rawValue }
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(model.t("RuleScope")).font(.caption)
-            Picker(model.t("RuleScope"), selection: $rule.scope) { ForEach(RuleScope.allCases, id: \.self) { Text(model.t($0.rawValue)).tag($0) } }.labelsHidden().help(model.t(rule.scope.rawValue))
+            Picker(model.t("RuleScope"), selection: $rule.scope) { ForEach(RuleScope.allCases, id: \.self) { Text(model.t(scopeKey($0))).tag($0) } }.labelsHidden().help(model.t(scopeKey(rule.scope)))
             if rule.kind == .metadata { Picker(model.t("MetadataKey"), selection: $rule.text) { Text(model.t("ChooseField")).tag(""); ForEach(MetadataReader.fields, id: \.self) { Text(model.t($0)).tag($0) } } }
             if [.replace, .prefix, .suffix, .insert, .setName, .numbering, .regex, .wildcard].contains(rule.kind) {
                 TextField(model.t(rule.kind == .metadata ? "MetadataKey" : "RuleText"), text: $rule.text)

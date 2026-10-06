@@ -1,1 +1,4 @@
 "Inspect Names with NameFix" = "Inspect Names with NameFix";
+"NSDesktopFolderUsageDescription" = "Inspect and rename only the files and folders you explicitly select.";
+"NSDocumentsFolderUsageDescription" = "Inspect and rename only the files and folders you explicitly select.";
+"NSDownloadsFolderUsageDescription" = "Inspect and rename only the files and folders you explicitly select.";

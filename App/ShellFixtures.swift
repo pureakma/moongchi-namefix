@@ -26,7 +26,7 @@ import NameFixCore
                 window.contentView = host
                 let chrome = WindowChrome(model: model); chrome.install(on: window); window.setContentSize(size)
                 RunLoop.main.run(until: Date().addingTimeInterval(0.15))
-                let actions = chrome.toolbar.items.filter { $0.itemIdentifier != .flexibleSpace }
+                let actions = chrome.toolbar.items.filter { ["NameFix.rescan", "NameFix.history", "NameFix.settings"].contains($0.itemIdentifier.rawValue) }
                 guard actions.count == 3, window.titleVisibility == .hidden, actions.first?.isEnabled == false else { throw NSError(domain: "ToolbarContract", code: 1) }
                 model.roots = [RawPath("/fixture")]; chrome.refresh()
                 guard actions.first?.isEnabled == true else { throw NSError(domain: "ToolbarContract", code: 2) }

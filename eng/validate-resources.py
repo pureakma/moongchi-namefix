@@ -30,6 +30,14 @@ for source in (root / "App").glob("*.swift"):
     for key in re.findall(r'(?:\.t\(|L10n\.text\()"([A-Za-z]+)"', source.read_text()):
         assert key in catalog, (source, key)
 
+# Info.plist keys that macOS shows to the user, each mapped to its catalog key.
+info_plist_keys = [
+    ("Inspect Names with NameFix", "FinderServiceTitle"),
+    ("NSDesktopFolderUsageDescription", "FolderAccessPurpose"),
+    ("NSDocumentsFolderUsageDescription", "FolderAccessPurpose"),
+    ("NSDownloadsFolderUsageDescription", "FolderAccessPurpose"),
+]
+
 # Generated runtime strings must be exactly reproducible from the canonical catalog.
 for language in languages:
     expected = "\n".join(
@@ -38,10 +46,9 @@ for language in languages:
     ) + "\n"
     actual = (resources / f"{language}.lproj" / "Localizable.strings").read_text()
     assert actual == expected, f"{language} Localizable.strings is not generated from xcstrings"
-    expected_info = (
-        '"Inspect Names with NameFix" = '
-        + json.dumps(value_for("FinderServiceTitle", language), ensure_ascii=False)
-        + ";\n"
+    expected_info = "".join(
+        json.dumps(name) + " = " + json.dumps(value_for(key, language), ensure_ascii=False) + ";\n"
+        for name, key in info_plist_keys
     )
     actual_info = (resources / f"{language}.lproj" / "InfoPlist.strings").read_text()
     assert actual_info == expected_info, f"{language} InfoPlist.strings mismatch"

@@ -103,9 +103,14 @@ import NameFixApplication
         settingsStore = SettingsStore(url: dataRoot.appendingPathComponent("settings.json"))
     }
     var busy: Bool { !phase.isEmpty }
+    /// "Recovery" also names the confirmation step, so the running phase needs its own wording.
+    var phaseLabel: String { t(phase == "Recovery" ? "ActivityRecovery" : phase) }
     var mutating: Bool { ["ActivityRename", "ActivityUndo", "Recovery"].contains(phase) }
     var canInput: Bool { result == nil && ready && !mutating && phase != "ActivityPreview" && plan == nil && sheet == nil }
     func t(_ key: String, _ values: String...) -> String { L10n.text(key, language: settings.language, values) }
+    /// History reuses journal codes; a stopped rename must not read as a cancelled scan.
+    func outcome(_ code: String) -> String { t(code == "Cancelled" ? "ResultCancelled" : code) }
+    func d(_ date: Date) -> String { date.formatted(Date.FormatStyle(date: .abbreviated, time: .shortened).locale(Locale(identifier: L10n.language(settings.language)))) }
     func n(_ number: Int) -> String { number.formatted(.number.locale(Locale(identifier: L10n.language(settings.language)))) }
     func start() async {
         do { entitlement = try await entitlementProvider.verifiedEntitlement(); productAccess = entitlement.access() } catch { productAccess = .free; message = "EntitlementUnavailable" }
@@ -157,6 +162,8 @@ import NameFixApplication
         for url in local { let path = RawPath(url.path); if seen.insert(path).inserted { roots.append(path) } }
         scan()
     }
+    /// Menu and menu-bar commands must not stack a sheet on a confirmation, result or running rename.
+    func present(_ name: String) { guard plan == nil, result == nil, !mutating else { return }; sheet = name }
     func dismissResult() { result = nil; flushQueued() }
     func cancelPreview() { plan = nil; flushQueued() }
     func flushQueued() {
@@ -308,19 +315,22 @@ import NameFixApplication
                     Task { @MainActor [recipient] in recipient.completed = progress.completed; recipient.total = progress.total; recipient.current = progress.current }
                 }
                 guard let self else { return }
+                // The rename already ran; a bookkeeping failure here must not hide its result.
                 if let store {
-                    if let watchID = activeWatchID {
-                        let verified = try await Task.detached { try History.details(store: store, id: summary.id).filter { $0.state == "Verified" }.map(\.operation) }.value
-                        for operation in verified {
-                            watchBaselines[watchID]?.removeValue(forKey: WatchSnapshot.key(operation.source))
-                            if let version = operation.contentVersion { watchBaselines[watchID, default: [:]][WatchSnapshot.key(operation.finalPath)] = WatchedFile(identity: operation.identity, version: version) }
+                    do {
+                        if let watchID = activeWatchID {
+                            let verified = try await Task.detached { try History.details(store: store, id: summary.id).filter { $0.state == "Verified" }.map(\.operation) }.value
+                            for operation in verified {
+                                watchBaselines[watchID]?.removeValue(forKey: WatchSnapshot.key(operation.source))
+                                if let version = operation.contentVersion { watchBaselines[watchID, default: [:]][WatchSnapshot.key(operation.finalPath)] = WatchedFile(identity: operation.identity, version: version) }
+                            }
+                            saveWatches()
                         }
-                        saveWatches()
-                    }
-                    let oldRoots = roots, oldRecent = settings.recentFolders.map(RawPath.init)
-                    let remapped = try await Task.detached { try History.remap(oldRoots + oldRecent, store: store, id: summary.id) }.value
-                    roots = Array(remapped.prefix(oldRoots.count))
-                    if settings.rememberRecentFolders { settings.recentFolders = remapped.dropFirst(oldRoots.count).map(\.display); persist() }
+                        let oldRoots = roots, oldRecent = settings.recentFolders.map(RawPath.init)
+                        let remapped = try await Task.detached { try History.remap(oldRoots + oldRecent, store: store, id: summary.id) }.value
+                        roots = Array(remapped.prefix(oldRoots.count))
+                        if settings.rememberRecentFolders { settings.recentFolders = remapped.dropFirst(oldRoots.count).map(\.display); persist() }
+                    } catch { message = (error as? FSError)?.code ?? "HistoryWarning" }
                 }
                 phase = ""; result = summary; transactionFinished?(summary)
                 if settings.diagnostics { do { try await diagnosticLog.record(code: summary.status, transaction: summary.id, count: summary.succeeded) } catch { message = "DiagnosticsError" } }
@@ -366,6 +376,7 @@ import NameFixApplication
         }
     }
     func inspectClipboard() {
+        guard plan == nil, result == nil, !mutating else { return }
         guard let text = NSPasteboard.general.string(forType: .string) else { message = "NoClipboardText"; return }
         (clipboard, clipboardTruncated) = NormalizationAnalysis.clipboard(text); sheet = "clipboard"
     }
@@ -390,6 +401,12 @@ import NameFixApplication
             } catch { self?.phase = ""; self?.message = (error as? RuleFailure)?.rawValue ?? "RuleInvalid" }
         }
     }
+    /// A manual order lists this session's absolute paths; it has no meaning in a stored rule set.
+    static func reusable(_ pipeline: RulePipeline) -> RulePipeline {
+        var value = pipeline; value.manualPaths = nil
+        if value.order == .manual { value.order = .path }
+        return value
+    }
     func saveRecipes() {
         guard let store = recipeStore else { return }
         let snapshot = recipes, previous = recipeTask
@@ -410,7 +427,7 @@ import NameFixApplication
                 guard let self else { return }
                 phase = ""
                 guard productAccess == .pro else { message = "ProRequired"; return }
-                recipes.recipes.append(Recipe(name: name, pipeline: pipeline)); saveRecipes(); message = "RecipeSaved"
+                recipes.recipes.append(Recipe(name: name, pipeline: Self.reusable(pipeline))); saveRecipes(); message = "RecipeSaved"
             } catch { self?.phase = ""; self?.message = (error as? RuleFailure)?.rawValue ?? "RuleInvalid" }
         }
     }
@@ -473,7 +490,7 @@ import NameFixApplication
             guard watches.folders.count < 100, !watches.folders.contains(where: { Data($0.path.utf8) == Data(url.path.utf8) }) else { throw RuleFailure.invalid }
             let lease = AccessLease(url); defer { withExtendedLifetime(lease) {} }
             let bookmark = try url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
-            watches.folders.append(WatchedFolder(bookmark: bookmark, path: url.path, pipeline: pipeline)); saveWatches(); restartWatches()
+            watches.folders.append(WatchedFolder(bookmark: bookmark, path: url.path, pipeline: Self.reusable(pipeline))); saveWatches(); restartWatches()
         } catch { message = (error as? RuleFailure)?.rawValue ?? "WatchReauthorize" }
     }
     func toggleWatch(_ id: UUID) {
@@ -485,7 +502,7 @@ import NameFixApplication
     func updateWatch(_ id: UUID) {
         guard productAccess == .pro, let index = watches.folders.firstIndex(where: { $0.id == id }) else { message = "ProRequired"; return }
         guard !busy, plan == nil else { message = "BusyDropRejected"; return }
-        watches.folders[index].pipeline = pipeline; watchBaselines[id] = [:]; saveWatches(); watchPending.insert(id)
+        watches.folders[index].pipeline = Self.reusable(pipeline); watchBaselines[id] = [:]; saveWatches(); watchPending.insert(id)
     }
     func reviewWatch(_ id: UUID) {
         guard productAccess == .pro, !busy, plan == nil, result == nil, let folder = watches.folders.first(where: { $0.id == id }) else { message = "BusyDropRejected"; return }
@@ -494,7 +511,7 @@ import NameFixApplication
         watchPending.remove(id); activeWatchID = id; pipeline = folder.pipeline; workbenchDraft = folder.pipeline; markWorkbenchPreviewApplied(); changeSettings { $0.workbenchEnabled = true }; roots = [RawPath(folder.path)]; sheet = nil; scan()
     }
     func diagnostics() {
-        var report: [String: Any] = ["version": "1.0.0", "architecture": "arm64", "os": ProcessInfo.processInfo.operatingSystemVersionString, "counts": counts, "history": history.map { ["id": $0.id.uuidString, "status": $0.status, "succeeded": String($0.succeeded), "failed": String($0.failed)] }, "theme": settings.theme, "language": settings.language, "masked": maskPaths]
+        var report: [String: Any] = ["version": AppInfo.version, "build": AppInfo.build, "architecture": "arm64", "os": ProcessInfo.processInfo.operatingSystemVersionString, "counts": counts, "history": history.map { ["id": $0.id.uuidString, "status": $0.status, "succeeded": String($0.succeeded), "failed": String($0.failed)] }, "theme": settings.theme, "language": settings.language, "masked": maskPaths]
         if !maskPaths { report["inputPaths"] = roots.map(\.display) }
         do { diagnosticsPreview = String(decoding: try JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys]), as: UTF8.self) }
         catch { message = "DiagnosticsError" }

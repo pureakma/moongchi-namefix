@@ -60,7 +60,7 @@ struct SidebarNavigation: View {
             }
             Divider()
             VStack(alignment: .leading, spacing: 4) {
-                navigation("HistoryShort", icon: "clock.arrow.circlepath") { model.sheet = "history"; Task { await model.reloadHistory() } }
+                navigation("HistoryShort", detail: "HistoryDetail", icon: "clock.arrow.circlepath") { model.sheet = "history"; Task { await model.reloadHistory() } }
                 navigation("Settings", icon: "gearshape") { model.sheet = "settings" }
                 navigation("HelpTitle", icon: "questionmark.circle") { model.sheet = "help" }
             }

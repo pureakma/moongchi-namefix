@@ -16,6 +16,7 @@ struct ConfirmationView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         Text(model.t(plan.mode == "rename" ? "Confirm" : plan.mode == "undo" ? "Undo" : "Recovery")).font(.title2).fontWeight(.semibold)
                         Text(model.t(plan.mode == "rename" ? "ConfirmBody" : plan.mode == "recovery" ? "ConfirmRecovery" : "UndoConfirm", model.n(plan.operations.count), model.n(plan.excluded)))
+                        if plan.mode == "rename" { Label(model.t("UndoAvailable"), systemImage: "arrow.uturn.backward.circle").foregroundStyle(palette.secondary) }
                         if plan.mode == "rename", model.hiddenSelected > 0 { Text(model.t("HiddenSelectionConfirm", model.n(model.hiddenSelected))).foregroundStyle(palette.warning) }
                         Text(model.t("OutputForm") + ": " + model.t(model.pipeline.target.rawValue)).font(.caption).foregroundStyle(palette.secondary)
                         Text(model.t("CloudWarning")).foregroundStyle(palette.secondary)
@@ -36,14 +37,14 @@ struct ConfirmationView: View {
                 }
                 Divider()
                 ViewThatFits(in: .horizontal) {
-                    HStack { confirm; Spacer(); cancel }
-                    VStack(alignment: .leading, spacing: 8) { confirm; cancel }
+                    HStack { Spacer(); cancel; confirm }
+                    VStack(alignment: .trailing, spacing: 8) { confirm; cancel }.frame(maxWidth: .infinity, alignment: .trailing)
                 }.padding(14)
             }
         }.background(palette.dialog).foregroundStyle(palette.text).font(L10n.font(model.settings.language)).tint(palette.accent)
     }
     private var confirm: some View {
-        Button(model.t(plan.mode == "rename" ? "Rename" : plan.mode == "recovery" ? "RestoreOriginal" : "Undo")) { model.execute() }.accessibilityIdentifier("confirmRename")
+        Button(model.t(plan.mode == "rename" ? "Rename" : plan.mode == "recovery" ? "RestoreOriginal" : "Undo")) { model.execute() }.buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction).accessibilityIdentifier("confirmRename")
     }
     private var cancel: some View { Button(model.t("Cancel")) { model.cancelPreview() }.keyboardShortcut(.cancelAction) }
 }
@@ -103,24 +104,22 @@ struct SheetRouter: View {
     }
     private var help: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 22) {
-                Label(model.t("EmptyDescription"), systemImage: "checkmark.shield").font(.headline)
-                Text(model.t("NormalizationNotice"))
-                Text(model.t("CompositionLegend"))
-                Text(model.t("HelpBody"))
-                Text(model.t("ExpansionHelp"))
-                Text(model.t("FilesystemHelp"))
-                Text(model.t("ConflictHelp"))
-                Text(model.t("RecoveryWarning"))
+            VStack(alignment: .leading, spacing: 20) {
+                Label(model.t("EmptyDescription"), systemImage: "checkmark.shield").font(.headline).fixedSize(horizontal: false, vertical: true)
+                ToolSection(title: model.t("HelpSteps"), icon: "list.number", palette: palette) { helpText("HelpBody") }
+                ToolSection(title: model.t("HelpSeparation"), icon: "character.cursor.ibeam", palette: palette) { helpText("NormalizationNotice"); helpText("CompositionLegend") }
+                ToolSection(title: model.t("SafetyTitle"), icon: "checkmark.shield", palette: palette) { helpText("FilesystemHelp"); helpText("ConflictHelp"); helpText("ConcurrentChangeHelp"); helpText("HelpRecovery") }
+                ToolSection(title: model.t("HelpEditions"), icon: "checkmark.seal", palette: palette) { helpText("ExpansionHelp") }
                 Text(model.t("LocalOnly")).foregroundStyle(palette.secondary)
             }.frame(maxWidth: .infinity, alignment: .leading)
         }
     }
+    private func helpText(_ key: String) -> some View { Text(model.t(key)).fixedSize(horizontal: false, vertical: true) }
     private var about: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 Text("Moongchi NameFix").font(.largeTitle)
-                Text("1.0.0 (1) · Apple Silicon · macOS 14+")
+                Text("\(AppInfo.version) (\(AppInfo.build)) · Apple Silicon · macOS 14+")
                 Text(model.t("LocalOnly"))
                 Text(model.t("License")).font(.headline)
                 Text(licenseText).font(.system(size: 11)).textSelection(.enabled)
@@ -168,7 +167,7 @@ struct UnicodeView: View {
                 DisclosureGroup(model.t("Advanced")) {
                     VStack(alignment: .leading, spacing: 12) {
                         Text(analysis.scalars)
-                        Text("UTF-16 code units\n" + analysis.utf16)
+                        Text(model.t("UTF16Units") + "\n" + analysis.utf16)
                     }.font(.system(size: 12, design: .monospaced)).textSelection(.enabled).padding(.top, 8)
                 }
             }.frame(maxWidth: .infinity, alignment: .leading)
@@ -274,8 +273,8 @@ struct HistoryView: View {
             List(selection: $model.historyID) {
                 ForEach(model.history) { item in
                     VStack(alignment: .leading, spacing: 5) {
-                        Text(item.date == .distantPast ? model.t("RecoveryNeedsReview") : item.date.formatted(date: .abbreviated, time: .shortened))
-                        Text(model.t(item.status)).font(.caption).foregroundStyle(palette.secondary)
+                        Text(item.date == .distantPast ? model.t("RecoveryNeedsReview") : model.d(item.date))
+                        Text(model.outcome(item.status)).font(.caption).foregroundStyle(palette.secondary)
                         Text(model.t("ResultSummary", model.n(item.succeeded), model.n(max(0, item.total-item.succeeded-item.failed)), model.n(item.failed))).font(.caption)
                     }.tag(item.id).padding(.vertical, 6)
                 }
@@ -289,7 +288,7 @@ struct HistoryView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(row.operation.source.display).lineLimit(2).help(row.operation.source.display)
                         Text("→ " + String(decoding: row.operation.destination, as: UTF8.self)).foregroundStyle(palette.preview)
-                        Text(model.t(row.error ?? row.state)).font(.caption).foregroundStyle(row.error == nil ? palette.secondary : palette.warning)
+                        Text(model.outcome(row.error ?? row.state)).font(.caption).foregroundStyle(row.error == nil ? palette.secondary : palette.warning)
                     }.textSelection(.enabled).padding(.vertical, 3)
                 }.scrollContentBackground(.hidden).frame(minHeight: 160, maxHeight: compact ? 180 : .infinity)
                 if !model.recoveryDetails.isEmpty {

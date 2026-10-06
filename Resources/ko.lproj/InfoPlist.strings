@@ -1,1 +1,4 @@
 "Inspect Names with NameFix" = "NameFix로 파일 이름 검사";
+"NSDesktopFolderUsageDescription" = "직접 선택한 파일과 폴더의 이름만 검사하고 바꿉니다.";
+"NSDocumentsFolderUsageDescription" = "직접 선택한 파일과 폴더의 이름만 검사하고 바꿉니다.";
+"NSDownloadsFolderUsageDescription" = "직접 선택한 파일과 폴더의 이름만 검사하고 바꿉니다.";

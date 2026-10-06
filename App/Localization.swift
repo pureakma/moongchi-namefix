@@ -3,6 +3,10 @@ import AppKit
 import SwiftUI
 import CoreText
 
+enum AppInfo {
+    static var version: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0" }
+    static var build: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0" }
+}
 enum L10n {
     static func language(_ value: String) -> String {
         if value != "system" { return String(value.prefix(2)) }

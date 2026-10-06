@@ -64,6 +64,7 @@ import NameFixCore
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
         Self.shared = self
+        NSWindow.allowsAutomaticWindowTabbing = false
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1180, height: 780), styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView], backing: .buffered, defer: false)
         window.minSize = .zero; window.title = "Moongchi NameFix"; window.titlebarAppearsTransparent = true
         window.isReleasedWhenClosed = false; window.delegate = self
@@ -155,25 +156,40 @@ import NameFixCore
         let main = NSMenu()
         func menu(_ title: String) -> NSMenu { let item = NSMenuItem(title: title, action: nil, keyEquivalent: ""); let sub = NSMenu(title: title); item.submenu = sub; main.addItem(item); return sub }
         let app = menu("Moongchi NameFix")
-        app.addItem(ActionItem(model.t("About")) { [weak self] in self?.model.sheet = "about" })
-        app.addItem(ActionItem(model.t("Settings"), key: ",") { [weak self] in self?.model.sheet = "settings" })
+        app.addItem(ActionItem(model.t("About")) { [weak self] in self?.model.present("about") })
+        app.addItem(ActionItem(model.t("Settings"), key: ",") { [weak self] in self?.model.present("settings") })
         let services = NSMenuItem(title: model.t("Services"), action: nil, keyEquivalent: ""); services.submenu = NSMenu(title: model.t("Services")); app.addItem(services); NSApp.servicesMenu = services.submenu
+        app.addItem(.separator())
+        app.addItem(NSMenuItem(title: model.t("MenuHide"), action: #selector(NSApplication.hide(_:)), keyEquivalent: "h"))
+        let others = NSMenuItem(title: model.t("MenuHideOthers"), action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h"); others.keyEquivalentModifierMask = [.command, .option]; app.addItem(others)
+        app.addItem(NSMenuItem(title: model.t("MenuShowAll"), action: #selector(NSApplication.unhideAllApplications(_:)), keyEquivalent: ""))
         app.addItem(.separator()); app.addItem(NSMenuItem(title: model.t("Quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         let file = menu(model.t("FileMenu"))
         file.addItem(ActionItem(model.t("AddFiles"), key: "o") { [weak self] in self?.pick(folders: false) })
         let folder = ActionItem(model.t("AddFolders"), key: "O") { [weak self] in self?.pick(folders: true) }; folder.keyEquivalentModifierMask = [.command, .shift]; file.addItem(folder)
         file.addItem(ActionItem(model.t("Rescan"), key: "r") { [weak self] in self?.model.scan() })
+        file.addItem(.separator()); file.addItem(NSMenuItem(title: model.t("MenuCloseWindow"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w"))
         let edit = menu(model.t("EditMenu"))
         for (title, key, action) in [("MenuUndo", "z", "undo:"), ("MenuRedo", "Z", "redo:"), ("MenuCut", "x", "cut:"), ("MenuCopy", "c", "copy:"), ("MenuPaste", "v", "paste:"), ("MenuSelectAll", "a", "selectAll:")] { edit.addItem(NSMenuItem(title: model.t(title), action: Selector(action), keyEquivalent: key)) }
         let view = menu(model.t("ViewMenu"))
+        view.addItem(ActionItem(model.t("RestoreNames"), key: "1") { [weak self] in self?.model.openQuickCleanup() })
+        view.addItem(ActionItem(model.t("BatchWorkspace"), key: "2") { [weak self] in self?.model.openWorkbench() })
+        view.addItem(.separator())
         view.addItem(ActionItem(model.t("Search"), key: "f") { [weak self] in self?.model.searchFocus = true })
-        view.addItem(ActionItem(model.t("Inspector")) { [weak self] in self?.model.sheet = "inspector" })
+        view.addItem(ActionItem(model.t("Inspector")) { [weak self] in self?.model.present("inspector") })
         view.addItem(ActionItem(model.t("ToggleSidebar")) { [weak self] in self?.sidebarController?.toggleSidebar(nil) })
-        view.addItem(ActionItem(model.t("HistoryShort")) { [weak self] in self?.model.sheet = "history"; Task { await self?.model.reloadHistory() } })
+        view.addItem(ActionItem(model.t("HistoryShort")) { [weak self] in self?.model.present("history"); Task { await self?.model.reloadHistory() } })
         view.addItem(ActionItem(model.t("ClipboardInspect")) { [weak self] in self?.model.inspectClipboard() })
-        view.addItem(ActionItem(model.t("Rules"), key: "k") { [weak self] in guard self?.model.busy == false, self?.model.plan == nil else { return }; self?.model.openWorkbench() })
-        view.addItem(ActionItem(model.t("FolderWatch")) { [weak self] in guard self?.model.busy == false, self?.model.plan == nil else { return }; self?.model.sheet = "watch" })
-        let help = menu(model.t("HelpMenu")); help.addItem(ActionItem(model.t("HelpTitle")) { [weak self] in self?.model.sheet = "help" })
+        view.addItem(ActionItem(model.t("FolderWatch")) { [weak self] in guard self?.model.busy == false else { return }; self?.model.present("watch") })
+        view.addItem(.separator())
+        let fullScreen = NSMenuItem(title: model.t("MenuFullScreen"), action: #selector(NSWindow.toggleFullScreen(_:)), keyEquivalent: "f"); fullScreen.keyEquivalentModifierMask = [.command, .control]; view.addItem(fullScreen)
+        let windows = menu(model.t("WindowMenu"))
+        windows.addItem(NSMenuItem(title: model.t("MenuMinimize"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m"))
+        windows.addItem(NSMenuItem(title: model.t("MenuZoom"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: ""))
+        windows.addItem(.separator())
+        windows.addItem(NSMenuItem(title: model.t("MenuBringAllToFront"), action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: ""))
+        NSApp.windowsMenu = windows
+        let help = menu(model.t("HelpMenu")); help.addItem(ActionItem(model.t("HelpTitle")) { [weak self] in self?.model.present("help") })
         NSApp.mainMenu = main
     }
 }

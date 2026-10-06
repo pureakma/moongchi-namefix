@@ -14,6 +14,20 @@ def value_for(key, language):
     except KeyError as exc:
         raise SystemExit(f"Missing localization: {key}/{language}") from exc
 
+# Info.plist keys that macOS shows to the user, each mapped to its catalog key.
+info_plist_keys = [
+    ("Inspect Names with NameFix", "FinderServiceTitle"),
+    ("NSDesktopFolderUsageDescription", "FolderAccessPurpose"),
+    ("NSDocumentsFolderUsageDescription", "FolderAccessPurpose"),
+    ("NSDownloadsFolderUsageDescription", "FolderAccessPurpose"),
+]
+
+def info_plist_strings(language):
+    return "".join(
+        json.dumps(name) + " = " + json.dumps(value_for(key, language), ensure_ascii=False) + ";\n"
+        for name, key in info_plist_keys
+    )
+
 # Localizable.xcstrings is the single translation SSOT.
 # Generate runtime .strings only for the app's explicit in-app language selection.
 for language in languages:
@@ -24,11 +38,7 @@ for language in languages:
         for key in sorted(catalog)
     ]
     (target / "Localizable.strings").write_text("\n".join(lines) + "\n")
-    (target / "InfoPlist.strings").write_text(
-        '"Inspect Names with NameFix" = '
-        + json.dumps(value_for("FinderServiceTitle", language), ensure_ascii=False)
-        + ";\n"
-    )
+    (target / "InfoPlist.strings").write_text(info_plist_strings(language))
 
 for font in ["PretendardVariable", "PretendardJPVariable"]:
     ttf = resources / f"{font}.ttf"

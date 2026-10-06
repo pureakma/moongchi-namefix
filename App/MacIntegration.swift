@@ -16,7 +16,7 @@ import NameFixRuntime
     }
     private func updateStatus() {
         guard let model else { return }
-        item?.button?.toolTip = model.busy ? model.t(model.phase) + " · " + model.n(model.scanned) : model.t("MenuBarHelp")
+        item?.button?.toolTip = model.busy ? model.phaseLabel + " · " + model.n(model.scanned) : model.t("MenuBarHelp")
         item?.button?.image = NSImage(systemSymbolName: model.busy ? "arrow.triangle.2.circlepath" : "textformat.abc", accessibilityDescription: "Moongchi NameFix")
     }
     func refresh() {
@@ -34,7 +34,7 @@ import NameFixRuntime
     }
     private func makeMenu() -> NSMenu {
         let menu = NSMenu()
-        if let model, model.busy { let status = NSMenuItem(title: model.t(model.phase) + " · " + model.n(model.scanned), action: nil, keyEquivalent: ""); status.isEnabled = false; menu.addItem(status); menu.addItem(.separator()) }
+        if let model, model.busy { let status = NSMenuItem(title: model.phaseLabel + " · " + model.n(model.scanned), action: nil, keyEquivalent: ""); status.isEnabled = false; menu.addItem(status); menu.addItem(.separator()) }
         for (key, selector) in [("OpenNameFix", #selector(open)), ("TextTool", #selector(textTool)), ("History", #selector(history)), ("Settings", #selector(settings))] {
             let entry = NSMenuItem(title: model?.t(key) ?? key, action: selector, keyEquivalent: ""); entry.target = self; menu.addItem(entry)
         }
@@ -50,9 +50,9 @@ import NameFixRuntime
         return menu
     }
     @objc private func open() { reveal?() }
-    @objc private func textTool() { guard let model, !model.busy else { return }; model.clipboard = ""; model.sheet = "clipboard"; reveal?() }
-    @objc private func history() { guard let model, !model.busy else { return }; model.sheet = "history"; reveal?() }
-    @objc private func settings() { guard let model, !model.busy else { return }; model.sheet = "settings"; reveal?() }
+    @objc private func textTool() { guard let model, !model.busy else { return }; model.clipboard = ""; model.present("clipboard"); reveal?() }
+    @objc private func history() { guard let model, !model.busy else { return }; model.present("history"); reveal?() }
+    @objc private func settings() { guard let model, !model.busy else { return }; model.present("settings"); reveal?() }
     func finished(_ summary: TransactionSummary) {
         guard !NSApp.isActive, UserDefaults.standard.bool(forKey: "NameFix.Notifications"), let model else { return }
         let content = UNMutableNotificationContent(); content.title = "Moongchi NameFix"
