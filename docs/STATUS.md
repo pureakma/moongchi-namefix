@@ -2,11 +2,11 @@
 
 <!-- HOT:START -->
 ## 지금
-- 단계: 1.0.0 build 5 Developer ID 서명 완료 · 공증은 notarytool profile 생성 대기(NEEDS_CREDENTIAL_SETUP)
-- 현재 Task: T-003 (verificationPending), T-002 (verificationPending)
-- 다음: 사용자가 로컬 터미널에서 notarytool profile(권장 이름 NameFix-Notary)을 만들면 T-006을 이어서 진행: 공증 → staple → DMG/ZIP → DMG 공증 → Gatekeeper → 최종 검증
-- 위험·막힘: 공증용 자격 증명 없음(저장된 profile MoongchiNotaryRC는 Apple에서 401로 거부됨). D-003의 비협조 writer source-race 알려진 제한
-- 검증 대기: 공증·staple·Gatekeeper·DMG의 새 evidence, 깨끗한 Mac 설치, docs/QA.md의 화면 S1~S5와 User QA U01~U19
+- 단계: RELEASE_ARTIFACT_READY — 1.0.0 build 5 서명·공증·staple·DMG 완료 · 공개 배포 전
+- 현재 Task: T-006 (verificationPending), T-003 (verificationPending), T-002 (verificationPending)
+- 다음: 사용자가 최종 DMG를 깨끗한 Mac에서 설치·실행해 확인(docs/QA.md U14와 남은 User QA) → 사용자가 공개 배포를 결정하면 업로드(별도 단계)
+- 위험·막힘: 깨끗한 Mac 확인 미실행(CLEAN_MAC_QA_PENDING). D-003의 비협조 writer source-race 알려진 제한
+- 검증 대기: 깨끗한 Mac 설치·실행, docs/QA.md의 화면 S1~S5와 User QA U01~U19
 - 마지막 갱신: 2026-10-06
 <!-- HOT:END -->
 
@@ -28,26 +28,19 @@
 - 대기: 사용자의 User QA(docs/QA.md U01~U13). AI가 본 렌더와 test는 Engineering Verification이며 User QA PASS가 아니다.
 - 검증: docs/QA.md의 현재 Engineering Verification 표
 
-### T-006 Release 2차: Developer ID 서명·공증·DMG [onHold]
+### T-006 Release 2차: Developer ID 서명·공증·DMG [verificationPending]
 - 근원: R-010
-- 사유: Developer ID 서명은 끝났다(build5-signed-r2). 공증에 쓸 notarytool Keychain profile이 없다. 저장돼 있던 profile은 Apple에서 자격 증명 오류로 거부된다.
-- 조건: 사용자가 로컬 터미널에서 notarytool profile을 만들고 계속 진행을 알린다(자격 증명은 채팅에 보내지 않는다).
-- 완료기준: build5 서명 전 후보의 사본을 Developer ID로 서명, 공증 성공과 staple, 서명된 앱의 DMG 공증, Gatekeeper 평가, 깨끗한 Mac 설치·실행, QA.md의 User QA 반영
-- 검증: docs/RELEASE.md의 2차 순서와 새 evidence
-
-### T-001 출시 단계 입력 확정 [completed]
-- 근원: R-010
-- 범위: 배포 채널, 출시 식별자, Release 구성 확정과 현재 source의 서명 전 후보 준비(Release Preparation 1차)
-- 완료기준: 승인된 배포 채널·출시 식별자가 PROJECT/DECISIONS/RELEASE에 확정되고 실제 Release Task를 별도로 생성할 수 있다.
-- 근거: D-023, artifacts/release-candidate/1.0.0/build5-pre-sign, MAC-RELEASE-PREP15-BUILD5-20261006(docs/QA.md). 공증 방법의 남은 입력은 T-006으로 넘김
-- 검증: docs/QA.md의 Release Preparation 1차 검증
+- 범위: build5 서명 전 후보의 사본을 Developer ID로 서명, 공증, staple, 최종 DMG/ZIP, Gatekeeper 확인. 공개 업로드는 포함하지 않음.
+- 완료기준: 서명·공증·staple·DMG·Gatekeeper·산출물 검증 PASS(달성), 깨끗한 Mac 설치·실행과 QA.md의 User QA 반영(대기)
+- 대기: 사용자의 깨끗한 Mac 확인과 남은 User QA. 공개 배포는 사용자가 따로 결정한다.
+- 검증: docs/RELEASE.md의 현재 Release 상태, docs/QA.md의 Release 검증
 
 ## 현재 상태 요약
 
 - 구현: 현재 승인된 앱 기능 범위에서 추가 필수 구현 Task 없음. 확인된 P0/P1 결함 없음.
 - 알려진 제한: 비협조 외부 writer의 source 교체를 expected-inode 조건으로 원자 차단하지 못한다. 감지·중단·보존·복구 안내는 구현돼 있다. swap/cycle/묶음 파일 그룹은 그룹 도중 취소하면 복구 확인이 필요할 수 있다. 읽을 수 없는 작업 기록이 있으면 Undo/Recovery를 막는다.
 - 유료 등급: 없음. 모든 기능을 무료로 제공한다(D-014).
-- Release: 1.0.0 build 5를 Developer ID로 서명했다(com.ailoworks.namefix, 팀 25373G7846). 공증·staple·DMG·공개 배포는 하지 않았다(T-006, 자격 증명 대기).
+- Release: 1.0.0 build 5의 공증된 DMG가 artifacts/release-candidate/1.0.0/build5-final에 있다(Developer ID 서명, Apple 공증 Accepted, staple, Gatekeeper accepted). 공개 배포는 하지 않았고 깨끗한 Mac 확인이 남았다.
 - User QA: QA.md의 Q1~Q5와 F1~F5는 사용자가 확인했다. 화면 S1~S5와 U01~U19가 대기 중이며 서명·공증된 앱으로 진행한다.
 
 과거 완료 Task와 날짜별 개발 기록은 이 파일에 누적하지 않는다. 필요하면 Git 이력과 .ai/validation-cache.json의 evidence path를 확인한다.

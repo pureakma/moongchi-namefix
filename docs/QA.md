@@ -70,11 +70,17 @@ Final Release Automation(2026-10-06)의 진행 상황. 영수증 MAC-RELEASE-SIG
 | 도구 점검·수정 | eng/sign-candidate.py, eng/notarize-candidate.py(신규, sign-notarize.sh 대체), eng/package-candidate.py, eng/verify-candidate.py | 고친 것: 최종 package가 packaging 시점의 HEAD를 source commit으로 찍던 것(서명 전 후보의 값을 계승하도록), 공증 직전에 다시 서명하던 것(한 번만 서명), 서명·공증·staple 상태 표현(PRE_SIGN/SIGNED/ACCEPTED/stapled를 관측한 뒤에만 기록), DMG의 공증·staple·Gatekeeper·hash 기록 |
 | Developer ID 서명 | eng/sign-candidate.py --identity "Developer ID Application: Hyein Kang (25373G7846)" | build5-signed-r2. 앱과 CLI 각 1회 서명, 팀 25373G7846, Hardened Runtime, secure timestamp, entitlement 없음, 식별자 com.ailoworks.namefix, arm64. 서명 전 후보와 서명만 다름 |
 | 서명된 후보 검증 | eng/verify-candidate.py build5-signed-r2 | PASS(서명 전 후보에서 source commit 계승 확인 포함). 상태 SIGNED / 공증 NOT_RUN / publicRelease false |
-| 공증 | xcrun notarytool | 미실행. 저장된 profile MoongchiNotaryRC가 401로 거부됨, NameFix-Notary profile 없음 |
+| 공증(앱) | eng/notarize-candidate.py --profile NameFix-Notary | Accepted, submission 6be4bd10-610a-4c47-adaa-0c2e2b074ff5, notary log issue 없음. 서명된 binary를 다시 서명하지 않고 그대로 제출 |
+| staple·Gatekeeper(앱) | stapler staple / validate, codesign --verify --deep --strict, spctl --assess --type execute | 모두 통과, source=Notarized Developer ID. staple로 바뀐 것은 티켓 파일 하나뿐 |
+| 최종 DMG·ZIP | hdiutil create(APFS, UDZO), ditto | Moongchi_NameFix_1.0.0_build5_arm64.dmg(SHA-256 dab6d685d102a3641af28ced97e1c61edff99fdc12e0df4c5daad0fc3c39f4ca), .zip(SHA-256 7eac6ba04daa4ace33b7cede736e56ebf4d638a7d77693c1e096f9ffaf4657dd). hdiutil verify VALID |
+| 공증(DMG) | DMG를 Developer ID로 서명 후 제출 | Accepted, submission c63f99e1-e719-4bb3-8855-aeca6f81150d, issue 없음. 티켓에 앱·CLI 포함 |
+| staple·Gatekeeper(DMG) | stapler staple / validate, spctl --assess --type open | 통과, source=Notarized Developer ID |
+| 최종 산출물 검증 | eng/verify-candidate.py build5-final | PASS: manifest hash, Info.plist(1.0.0 build 5, com.ailoworks.namefix, 최소 14.0), arm64, 아이콘·세 언어·폰트, 서명(팀 25373G7846, Hardened Runtime, timestamp, entitlement 없음), 공증 기록, DMG 무결성·staple·Gatekeeper, DMG 읽기 전용 mount와 내용 목록, ZIP 풀기, self-test, Release CLI 계약, 사용자 안내 문구, source commit 계승 |
+| 실행 확인 | 공증된 앱 1회 실행 | 0.63초에 창 표시, 정상 종료. 개발 Mac에서의 확인이며 깨끗한 Mac 확인이 아니다 |
 
 첫 서명 시도(build5-signed)는 도구가 ‘서명을 뗀 실행 파일 전체’를 비교하다 실패해 manifest 없이 멈췄다. 서명을 떼어도 Mach-O header의 한 필드에 서명이 차지하던 크기가 남기 때문이었고, load command 뒤의 코드만 비교하도록 고친 뒤 새 경로에 다시 서명했다. 중단된 디렉터리는 ABORTED.txt를 넣고 그대로 뒀다.
 
-아직 하지 않은 것: 공증, staple, 최종 DMG/ZIP, 공증 기준 Gatekeeper 확인, 깨끗한 Mac 확인(CLEAN_MAC_QA_PENDING), 공개 배포.
+최종 상태: RELEASE_ARTIFACT_READY. 서명 전 후보와 서명된 후보는 최종 단계 뒤에도 각자의 manifest와 일치한다(바뀌지 않음). 아직 하지 않은 것: 깨끗한 Mac 확인(CLEAN_MAC_QA_PENDING, 별도 장비·VM 없음), 공개 배포.
 
 현재 후보는 build 5다(Release Preparation 1.5, 2026-10-06). 영수증 MAC-RELEASE-PREP15-BUILD5-20261006, evidence artifacts/release-candidate/1.0.0/evidence-build5, 후보 artifacts/release-candidate/1.0.0/build5-pre-sign(source commit 76972c7). build 4 뒤에 바뀐 것은 CLI 도움말 문구와 build 번호, 후보 검사에 추가한 도움말 확인뿐이다.
 
@@ -225,7 +231,7 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 | U11 | 실제 macOS 14 Apple Silicon에서 U01과 U10 | PENDING |
 | U12 | Finder 서비스, Dock/다음으로 열기, 메뉴바 아이콘 drop·메뉴, 로그인 시 실행, 완료 알림의 실제 OS 승인·거절 | PENDING |
 | U13 | 고급 기능 흐름: 패턴·조건 규칙, 프리셋 저장·불러오기, CSV 목록, 파일 정보(실제 사진/음악/영상), 묶음 파일, 폴더 자동 감시(잠자기·재시작·권한 철회 포함) | PENDING |
-| U14 | 서명·공증된 앱을 깨끗한 Mac에 DMG로 설치·실행(Gatekeeper 경고 없음), Finder 서비스·다음으로 열기·권한 요청, 기본 이름 바꾸기 → 되돌리기 | BLOCKED_BY_RELEASE |
+| U14 | 공증된 DMG(artifacts/release-candidate/1.0.0/build5-final)를 깨끗한 Mac에 설치·실행: Gatekeeper 경고 없이 열리는지, Finder 서비스·다음으로 열기·폴더 접근 권한 요청, 기본 이름 바꾸기 → 되돌리기 | PENDING |
 | U15 | 화면 어디에도 Pro·구매 표시가 없고 모든 기능이 바로 동작하는지 | PENDING |
 | U16 | Dock·Finder·앱 전환기(⌘Tab)에서 앱 아이콘이 회색 판 없이 다른 앱과 같은 크기로 보이는지 | PENDING |
 | U17 | 첫 실행 소개: 4쪽 내용과 그림, 어두운 테마에서도 밝게 보이는지, ‘다시 보지 않기’ 후 다시 실행하면 안 나오는지, 설정·도움말 메뉴에서 다시 열리는지 | PENDING |

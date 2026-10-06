@@ -1625,7 +1625,7 @@
         "App/**/*.swift",
         "Resources/**/*"
       ],
-      "status": "BLOCKED_EXTERNAL",
+      "status": "SUPERSEDED",
       "architecture": "arm64",
       "configuration": "Release",
       "command": "spctl --assess (unnotarized Developer ID); missing notary profile",
@@ -1642,7 +1642,7 @@
       "timestamp": "2026-10-04T04:55:32.355622+00:00",
       "evidencePath": "artifacts/release-candidate/1.0.0/evidence/gatekeeper-build3.txt",
       "evidenceSHA256": "e82b960bda1a1f91171d536bd8cefe605ab9241470e84318ca55abdd8f2b71c4",
-      "notes": "Recorded for the build 3 candidate. Notarization of the build 4 candidate is T-006 and has not been attempted."
+      "notes": "Recorded for the build 3 candidate. Notarization of the build 4 candidate is T-006 and has not been attempted. Superseded by MAC-RELEASE-NOTARIZATION-BUILD5."
     },
     {
       "validationId": "MAC-V1-PAID-PROVIDER",
@@ -1998,7 +1998,7 @@
     },
     {
       "validationId": "MAC-RELEASE-NOTARIZATION-BUILD5",
-      "status": "BLOCKED_EXTERNAL",
+      "status": "PASS",
       "configuration": "Release",
       "architecture": "arm64",
       "scope": [
@@ -2024,10 +2024,10 @@
       ],
       "sourceFingerprint": "2639a482e3a125a2bf77d7d64be12f01104a2e856d7b78cf476c4f1fcf1f7cb0",
       "testFingerprint": "bb17f70518986aaaa1b27c2e199dfce0c00357840282dddffe5d4beaa0784c3e",
-      "timestamp": "2026-10-06T13:20:51.137526+00:00",
-      "command": "xcrun notarytool history --keychain-profile MoongchiNotaryRC (401); --keychain-profile NameFix-Notary (no such profile)",
-      "evidencePath": "artifacts/release-candidate/1.0.0/evidence-build5",
-      "notes": "No usable notarytool Keychain profile. The one saved profile is rejected by Apple with invalid credentials. Nothing has been submitted. Needs the user to create a profile locally; then eng/notarize-candidate.py continues from build5-signed-r2."
+      "timestamp": "2026-10-06T13:36:21.044265+00:00",
+      "command": "eng/notarize-candidate.py --input build5-signed-r2 --profile NameFix-Notary --output build5-final; eng/verify-candidate.py build5-final; one launch of the notarized app",
+      "evidencePath": "artifacts/release-candidate/1.0.0/build5-final/evidence",
+      "notes": "1.0.0 build 5 (product source commit 76972c75f653d8a175ca799a918880605cb19008, release tooling commit 3e11e18c41e8cbb1bf9d63fe49cdec14c73f2df8). App notarization Accepted (6be4bd10-610a-4c47-adaa-0c2e2b074ff5), stapled and validated, Gatekeeper accepted as Notarized Developer ID. Disk image signed, notarization Accepted (c63f99e1-e719-4bb3-8855-aeca6f81150d), stapled and validated, Gatekeeper accepted; hdiutil verify VALID; read-only mount and ZIP round trips verified. DMG SHA-256 dab6d685d102a3641af28ced97e1c61edff99fdc12e0df4c5daad0fc3c39f4ca; ZIP SHA-256 7eac6ba04daa4ace33b7cede736e56ebf4d638a7d77693c1e096f9ffaf4657dd. The signed binaries were not re-signed. Not published. Clean Mac check not done (CLEAN_MAC_QA_PENDING)."
     }
   ]
 }
