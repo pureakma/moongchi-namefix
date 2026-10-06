@@ -1899,7 +1899,7 @@
     },
     {
       "validationId": "MAC-RELEASE-PREP1-BUILD4-20261006",
-      "status": "PASS",
+      "status": "SUPERSEDED",
       "configuration": "Release (Debug build also checked)",
       "architecture": "arm64",
       "scope": [
@@ -1928,7 +1928,40 @@
       "timestamp": "2026-10-06T12:57:33.409606+00:00",
       "command": "xcodegen generate; eng/build.sh --configuration Debug; eng/build.sh --clean --configuration Release; eng/resources.py; eng/validate-resources.py; bash eng/build-cli.sh release + eng/test-release-cli.py; eng/package-candidate.py --output artifacts/release-candidate/1.0.0/build4-pre-sign; eng/verify-candidate.py; eng/sign-candidate.py --dry-run",
       "evidencePath": "artifacts/release-candidate/1.0.0/evidence-build4",
-      "notes": "Release Preparation 1: 1.0.0 build 4 pre-sign candidate from source commit bd64b03bce51555bcff333186a88069d0402ff0d, bundle ID com.ailoworks.namefix (Debug com.moongchi.namefix.dev), arm64, minimum 14.0, Hardened Runtime on, no entitlements, no development fixtures in the Release binaries, free/direct-distribution metadata, no paid-model fields. Developer ID signing NOT RUN, notarization NOT RUN, no ZIP/DMG, not public. Reused without re-running: the 116 tests and Debug CLI contract of MAC-FAVORITES-TARGETS-20261006 and the T-004 performance measurements (no Core/Application/Infrastructure change since)."
+      "notes": "Release Preparation 1: 1.0.0 build 4 pre-sign candidate from source commit bd64b03bce51555bcff333186a88069d0402ff0d, bundle ID com.ailoworks.namefix (Debug com.moongchi.namefix.dev), arm64, minimum 14.0, Hardened Runtime on, no entitlements, no development fixtures in the Release binaries, free/direct-distribution metadata, no paid-model fields. Developer ID signing NOT RUN, notarization NOT RUN, no ZIP/DMG, not public. Reused without re-running: the 116 tests and Debug CLI contract of MAC-FAVORITES-TARGETS-20261006 and the T-004 performance measurements (no Core/Application/Infrastructure change since). Superseded by MAC-RELEASE-PREP15-BUILD5-20261006: the CLI help and build number changed. The build 4 candidate is kept as a record and is not used for release."
+    },
+    {
+      "validationId": "MAC-RELEASE-PREP15-BUILD5-20261006",
+      "status": "PASS",
+      "configuration": "Release (Debug build also checked)",
+      "architecture": "arm64",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "CLI/**/*.swift",
+        "App/**/*.swift",
+        "App/Info.plist",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "Resources/AppIcon.icon/**/*",
+        "Package.swift",
+        "project.yml",
+        "eng/build.sh",
+        "eng/package-candidate.py",
+        "eng/verify-candidate.py",
+        "eng/sign-candidate.py",
+        "eng/sign-notarize.sh",
+        "eng/test-release-cli.py",
+        "docs/PACKAGE_README.txt",
+        "docs/EXPANSION_USER_GUIDE.md"
+      ],
+      "sourceFingerprint": "2feea742a3a6d8380b8c611f106e347ab43a1aa4dc4ee57fdf95b642ba755328",
+      "testFingerprint": "bb17f70518986aaaa1b27c2e199dfce0c00357840282dddffe5d4beaa0784c3e",
+      "timestamp": "2026-10-06T13:05:49.215282+00:00",
+      "command": "bash eng/build-cli.sh release; namefix --help; dry runs of --include-folders/--include-hidden on a temporary folder; eng/test-release-cli.py; eng/build.sh --configuration Debug; eng/build.sh --clean --configuration Release; eng/validate-resources.py; eng/package-candidate.py --output artifacts/release-candidate/1.0.0/build5-pre-sign; eng/verify-candidate.py; eng/sign-candidate.py --dry-run",
+      "evidencePath": "artifacts/release-candidate/1.0.0/evidence-build5",
+      "notes": "Release Preparation 1.5: 1.0.0 build 5 pre-sign candidate from source commit 76972c75f653d8a175ca799a918880605cb19008, the current target for Developer ID signing. Bundle ID com.ailoworks.namefix (Debug com.moongchi.namefix.dev), arm64, minimum 14.0, Hardened Runtime on, no entitlements, no development fixtures, free/direct-distribution metadata, no paid-model fields; CLI help lists --include-folders and --include-hidden. Developer ID signing NOT RUN, notarization NOT RUN, no ZIP/DMG, not public. Reused without re-running: the 116 tests, Debug CLI contract and fixture renders of MAC-FAVORITES-TARGETS-20261006 and the T-004 performance measurements (only CLI help text and build metadata changed)."
     }
   ]
 }

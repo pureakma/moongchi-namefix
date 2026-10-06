@@ -9,7 +9,7 @@
 - SwiftUI + AppKit
 - Foundation/Darwin 파일시스템 API
 - 현재 App Sandbox OFF, Hardened Runtime ON
-- 제품 version 설정 1.0.0 build 4. bundle ID는 Release 구성 com.ailoworks.namefix, Debug 구성 com.moongchi.namefix.dev(project.yml이 원본). 앱 정보 화면과 진단 보고서는 번들의 version/build 값을 읽는다. 설정·작업 기록 폴더는 bundle ID와 무관하게 Application Support/Moongchi/NameFix다.
+- 제품 version 설정 1.0.0 build 5. bundle ID는 Release 구성 com.ailoworks.namefix, Debug 구성 com.moongchi.namefix.dev(project.yml이 원본). 앱 정보 화면과 진단 보고서는 번들의 version/build 값을 읽는다. 설정·작업 기록 폴더는 bundle ID와 무관하게 Application Support/Moongchi/NameFix다.
 
 ## 책임 경계
 

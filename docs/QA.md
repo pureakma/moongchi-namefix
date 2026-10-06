@@ -60,7 +60,21 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 과거 build3 Release 후보의 서명·패키지 검증은 현재 source의 근거가 아니다. 경쟁 제품 대비 속도로 확대하지 않는다.
 
-## Release Preparation 1차 검증
+## Release Preparation 검증
+
+현재 후보는 build 5다(Release Preparation 1.5, 2026-10-06). 영수증 MAC-RELEASE-PREP15-BUILD5-20261006, evidence artifacts/release-candidate/1.0.0/evidence-build5, 후보 artifacts/release-candidate/1.0.0/build5-pre-sign(source commit 76972c7). build 4 뒤에 바뀐 것은 CLI 도움말 문구와 build 번호, 후보 검사에 추가한 도움말 확인뿐이다.
+
+| 항목 | 명령 | 결과 |
+|---|---|---|
+| CLI 도움말 | bash eng/build-cli.sh release; namefix --help | --include-folders, --include-hidden 설명이 나오고 기존 항목은 그대로. 임시 폴더 dry-run으로 설명과 동작 일치 확인(기본: 보이는 파일만 / 두 옵션: 폴더·숨김 포함 / 규칙 없음: 글자 구성만) |
+| CLI 계약 | eng/test-release-cli.py | PASS |
+| Debug build | eng/build.sh --configuration Debug --arch arm64 | BUILD SUCCEEDED, com.moongchi.namefix.dev, 1.0.0 (5) |
+| Release build | eng/build.sh --clean --configuration Release --arch arm64 | BUILD SUCCEEDED, com.ailoworks.namefix, 1.0.0 (5), arm64, 최소 14.0, Hardened Runtime, entitlement 없음(get-task-allow·sandbox 없음), 개발 fixture·flag 없음, self-test PASS |
+| 리소스 | eng/validate-resources.py | 516 keys × ko/en/ja PASS |
+| 후보 생성·검증 | eng/package-candidate.py; eng/verify-candidate.py | build5-pre-sign 생성, 검증 PASS(아래 build 4 표와 같은 항목 + CLI 도움말 항목). 서명 PRE_SIGN, Developer ID NOT_RUN, 공증 NOT_RUN, publicRelease false, 유료 모델 필드 없음 |
+| 서명 도구 | eng/sign-candidate.py --dry-run | 입력 후보가 manifest와 일치, 아무것도 서명하지 않음 |
+
+build 4 후보(build4-pre-sign)는 대체됐고 파일은 그대로다(CLI hash가 자기 manifest와 일치). 아래는 build 4 때의 기록이다.
 
 2026-10-06. 영수증은 MAC-RELEASE-PREP1-BUILD4-20261006, evidence는 artifacts/release-candidate/1.0.0/evidence-build4, 후보는 artifacts/release-candidate/1.0.0/build4-pre-sign(source commit bd64b03)이다. 이번에 바뀐 것은 Release metadata·bundle ID·build 번호·패키징 도구·문구이며 Core/Application/Infrastructure는 바뀌지 않았다.
 
@@ -80,7 +94,7 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 재사용한 근거: Core/통합/UI model test 116개와 Debug CLI 계약(MAC-FAVORITES-TARGETS-20261006), 성능·시작·유휴 측정(T-004). 이번 변경은 문자열 값 하나와 metadata·도구라서 다시 돌리지 않았다.
 
-알려진 차이: 후보의 namefix --help에 --include-folders, --include-hidden 설명이 없다(옵션은 동작한다). 다음 후보에서 고친다.
+build 4의 알려진 차이였던 CLI 도움말 누락은 build 5에서 고쳤다.
 
 ## 즐겨찾기와 일괄 변경 대상 정책 검증 (T-005)
 

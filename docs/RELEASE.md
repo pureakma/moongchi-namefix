@@ -3,7 +3,7 @@
 ## 출시 정책 (D-023)
 
 - 배포: 직접 배포. Developer ID Application 서명 + Apple 공증 + DMG. Mac App Store는 대상이 아니다.
-- 버전: MARKETING_VERSION 1.0.0, CURRENT_PROJECT_VERSION 4
+- 버전: MARKETING_VERSION 1.0.0, CURRENT_PROJECT_VERSION 5
 - bundle ID: Release 구성 com.ailoworks.namefix, Debug 구성 com.moongchi.namefix.dev. 원본은 project.yml 하나이며 build 명령이나 서명 도구가 바꾸지 않는다.
 - 개발사 AILO WORKS, 문의 ailo@ailoworks.com
 - 모든 기능 무료. 유료 등급·구매·계정·광고 없음.
@@ -12,20 +12,21 @@
 
 ## 현재 Release 상태
 
-- Release Preparation 1차: 완료(2026-10-06). 근거는 QA.md의 ‘Release Preparation 1차 검증’.
-- 서명 전 후보: artifacts/release-candidate/1.0.0/build4-pre-sign (1.0.0 build 4, source commit bd64b03). 앱·CLI·사용자 안내·manifest만 있고 ZIP/DMG는 없다. 배포하지 않는다.
+- Release Preparation 1차와 1.5: 완료(2026-10-06). 근거는 QA.md의 ‘Release Preparation 검증’.
+- 현재 서명 전 후보: artifacts/release-candidate/1.0.0/build5-pre-sign (1.0.0 build 5, source commit 76972c7). 실제 Developer ID 서명의 대상이다. 앱·CLI·사용자 안내·manifest만 있고 ZIP/DMG는 없다. 배포하지 않는다.
+- 대체된 후보: artifacts/release-candidate/1.0.0/build4-pre-sign (build 4, source commit bd64b03). CLI 도움말에 두 옵션 설명이 빠져 있어 build 5로 대체했다. 공개 Release에 쓰지 않으며 기록으로 그대로 둔다.
 - Developer ID 서명: 미실행.
 - 공증·staple: 미실행.
 - 최종 DMG, 깨끗한 Mac 확인, 공개 배포: 미실행.
 - 과거 build3 후보(artifacts/release-candidate/1.0.0/build3)는 예전 source와 개발용 bundle ID의 기록이며 현재 source의 근거가 아니다. 덮어쓰지 않고 그대로 둔다.
 
-후보를 다시 만들어야 하면 build 번호를 5 이상으로 올리고 새 output 경로를 쓴다.
+후보를 다시 만들어야 하면 build 번호를 6 이상으로 올리고 새 output 경로를 쓴다.
 
 ## 2차(서명·공증)에 필요한 외부 입력
 
-1. 서명에 쓸 Developer ID Application identity의 확정(로컬 Keychain에 유효한 identity 1개가 있음을 읽기 전용으로 확인했다. 인증서 이름은 개인 명의다)
-2. Apple Team 확인
-3. notarytool Keychain profile 이름(현재 프로필 존재 여부는 확인할 수 없다)
+1. 서명 identity: 사용자가 2차의 승인 후보로 지정한 것은 Developer ID Application: Hyein Kang (25373G7846)이다. 로컬 Keychain에 이 identity가 유효하게 있음을 읽기 전용으로 확인했다. 실제 서명은 2차 승인 뒤에만 한다.
+2. Apple Team: 위 identity의 팀(25373G7846)
+3. notarytool Keychain profile 이름: 아직 정해지지 않았다. 2차 시작 전에 사용자가 알려 준다(여기에 추측해 적지 않는다).
 4. com.ailoworks.namefix를 이 팀에서 쓸 수 있는지(직접 배포는 App ID 등록이 필수는 아니지만 식별자 소유는 사용자가 확인한다)
 
 비밀번호, app-specific password, 인증서 private key, API key는 저장소 문서·스크립트·로그에 기록하지 않는다. Gatekeeper/SIP/검역 해제로 미완료 서명·공증을 우회하지 않는다.
