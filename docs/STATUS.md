@@ -2,11 +2,11 @@
 
 <!-- HOT:START -->
 ## 지금
-- 단계: Release Preparation 1.5 완료(1.0.0 build 5 서명 전 후보) · 실제 Developer ID 서명·공증(2차) 대기
+- 단계: 1.0.0 build 5 Developer ID 서명 완료 · 공증은 notarytool profile 생성 대기(NEEDS_CREDENTIAL_SETUP)
 - 현재 Task: T-003 (verificationPending), T-002 (verificationPending)
-- 다음: 사용자가 2차를 승인하고 notarytool profile을 알려 주면 T-006 진행(build5 후보의 사본 서명 → 공증 → DMG → 깨끗한 Mac 확인). 남은 User QA(docs/QA.md S1~S5, U01~U19)는 서명·공증된 앱으로 한 번에 진행
-- 위험·막힘: D-003의 비협조 writer source-race 알려진 제한. 2차 입력 중 notarytool profile 미제공
-- 검증 대기: 서명·공증·staple·Gatekeeper·DMG의 새 evidence, 깨끗한 Mac 설치, docs/QA.md의 화면 S1~S5와 User QA U01~U19
+- 다음: 사용자가 로컬 터미널에서 notarytool profile(권장 이름 NameFix-Notary)을 만들면 T-006을 이어서 진행: 공증 → staple → DMG/ZIP → DMG 공증 → Gatekeeper → 최종 검증
+- 위험·막힘: 공증용 자격 증명 없음(저장된 profile MoongchiNotaryRC는 Apple에서 401로 거부됨). D-003의 비협조 writer source-race 알려진 제한
+- 검증 대기: 공증·staple·Gatekeeper·DMG의 새 evidence, 깨끗한 Mac 설치, docs/QA.md의 화면 S1~S5와 User QA U01~U19
 - 마지막 갱신: 2026-10-06
 <!-- HOT:END -->
 
@@ -30,8 +30,8 @@
 
 ### T-006 Release 2차: Developer ID 서명·공증·DMG [onHold]
 - 근원: R-010
-- 사유: 실제 서명과 공증은 사용자의 별도 승인과 notarytool Keychain profile이 있어야 시작한다. 서명 identity 후보는 사용자가 지정했다(docs/RELEASE.md).
-- 조건: 사용자가 2차를 승인하고 입력을 제공한다.
+- 사유: Developer ID 서명은 끝났다(build5-signed-r2). 공증에 쓸 notarytool Keychain profile이 없다. 저장돼 있던 profile은 Apple에서 자격 증명 오류로 거부된다.
+- 조건: 사용자가 로컬 터미널에서 notarytool profile을 만들고 계속 진행을 알린다(자격 증명은 채팅에 보내지 않는다).
 - 완료기준: build5 서명 전 후보의 사본을 Developer ID로 서명, 공증 성공과 staple, 서명된 앱의 DMG 공증, Gatekeeper 평가, 깨끗한 Mac 설치·실행, QA.md의 User QA 반영
 - 검증: docs/RELEASE.md의 2차 순서와 새 evidence
 
@@ -47,7 +47,7 @@
 - 구현: 현재 승인된 앱 기능 범위에서 추가 필수 구현 Task 없음. 확인된 P0/P1 결함 없음.
 - 알려진 제한: 비협조 외부 writer의 source 교체를 expected-inode 조건으로 원자 차단하지 못한다. 감지·중단·보존·복구 안내는 구현돼 있다. swap/cycle/묶음 파일 그룹은 그룹 도중 취소하면 복구 확인이 필요할 수 있다. 읽을 수 없는 작업 기록이 있으면 Undo/Recovery를 막는다.
 - 유료 등급: 없음. 모든 기능을 무료로 제공한다(D-014).
-- Release: 1.0.0 build 5 서명 전 후보(com.ailoworks.namefix)를 만들고 검증했다. build 4 후보는 대체됐다. Developer ID 서명·공증·DMG·공개 배포는 하지 않았다(T-006).
+- Release: 1.0.0 build 5를 Developer ID로 서명했다(com.ailoworks.namefix, 팀 25373G7846). 공증·staple·DMG·공개 배포는 하지 않았다(T-006, 자격 증명 대기).
 - User QA: QA.md의 Q1~Q5와 F1~F5는 사용자가 확인했다. 화면 S1~S5와 U01~U19가 대기 중이며 서명·공증된 앱으로 진행한다.
 
 과거 완료 Task와 날짜별 개발 기록은 이 파일에 누적하지 않는다. 필요하면 Git 이력과 .ai/validation-cache.json의 evidence path를 확인한다.

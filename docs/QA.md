@@ -62,6 +62,20 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 ## Release Preparation 검증
 
+Final Release Automation(2026-10-06)의 진행 상황. 영수증 MAC-RELEASE-SIGN-BUILD5-20261006, evidence artifacts/release-candidate/1.0.0/evidence-build5.
+
+| 단계 | 명령 | 결과 |
+|---|---|---|
+| 후보 재확인 | eng/verify-candidate.py build5-pre-sign | PASS. 후보 이후 제품 source 변경 없음 |
+| 도구 점검·수정 | eng/sign-candidate.py, eng/notarize-candidate.py(신규, sign-notarize.sh 대체), eng/package-candidate.py, eng/verify-candidate.py | 고친 것: 최종 package가 packaging 시점의 HEAD를 source commit으로 찍던 것(서명 전 후보의 값을 계승하도록), 공증 직전에 다시 서명하던 것(한 번만 서명), 서명·공증·staple 상태 표현(PRE_SIGN/SIGNED/ACCEPTED/stapled를 관측한 뒤에만 기록), DMG의 공증·staple·Gatekeeper·hash 기록 |
+| Developer ID 서명 | eng/sign-candidate.py --identity "Developer ID Application: Hyein Kang (25373G7846)" | build5-signed-r2. 앱과 CLI 각 1회 서명, 팀 25373G7846, Hardened Runtime, secure timestamp, entitlement 없음, 식별자 com.ailoworks.namefix, arm64. 서명 전 후보와 서명만 다름 |
+| 서명된 후보 검증 | eng/verify-candidate.py build5-signed-r2 | PASS(서명 전 후보에서 source commit 계승 확인 포함). 상태 SIGNED / 공증 NOT_RUN / publicRelease false |
+| 공증 | xcrun notarytool | 미실행. 저장된 profile MoongchiNotaryRC가 401로 거부됨, NameFix-Notary profile 없음 |
+
+첫 서명 시도(build5-signed)는 도구가 ‘서명을 뗀 실행 파일 전체’를 비교하다 실패해 manifest 없이 멈췄다. 서명을 떼어도 Mach-O header의 한 필드에 서명이 차지하던 크기가 남기 때문이었고, load command 뒤의 코드만 비교하도록 고친 뒤 새 경로에 다시 서명했다. 중단된 디렉터리는 ABORTED.txt를 넣고 그대로 뒀다.
+
+아직 하지 않은 것: 공증, staple, 최종 DMG/ZIP, 공증 기준 Gatekeeper 확인, 깨끗한 Mac 확인(CLEAN_MAC_QA_PENDING), 공개 배포.
+
 현재 후보는 build 5다(Release Preparation 1.5, 2026-10-06). 영수증 MAC-RELEASE-PREP15-BUILD5-20261006, evidence artifacts/release-candidate/1.0.0/evidence-build5, 후보 artifacts/release-candidate/1.0.0/build5-pre-sign(source commit 76972c7). build 4 뒤에 바뀐 것은 CLI 도움말 문구와 build 번호, 후보 검사에 추가한 도움말 확인뿐이다.
 
 | 항목 | 명령 | 결과 |
