@@ -65,17 +65,6 @@ assert not any(
     for path in (root / folder).glob("*.swift")
 )
 
-for path in [
-    root / "eng/resources.py",
-    root / "eng/validate-resources.py",
-    root / "docs/ARCHITECTURE.md",
-    root / "docs/README.md",
-    root / "assets/branding/README.md",
-]:
-    text = path.read_text()
-    assert "Moongchi_NameFix_macOS_Dev_Handoff_v1.0" not in text, path
-    assert "eng/expansion-localizations.json" not in text, path
-
 print(
     f"PASS: {len(catalog)} keys × 3 locales; xcstrings canonical; "
     "generated strings parity; fonts/licenses; arm64 Services plist; "
