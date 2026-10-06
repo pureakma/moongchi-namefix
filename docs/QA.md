@@ -19,11 +19,11 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 | 항목 | 명령 | 결과 |
 |---|---|---|
 | Runtime·UI model·Core test | eng/test.sh --level 3 --scope all (성능 프로파일 4종 포함) | 112개 실행, 실패 0 (통합 53, UI model 39, Core 20) |
-| 리소스 | eng/resources.py; eng/validate-resources.py | 490 keys × ko/en/ja, 재생성 diff 0 PASS |
+| 리소스 | eng/resources.py; eng/validate-resources.py | 496 keys × ko/en/ja, 재생성 diff 0 PASS |
 | CLI | eng/build-cli.sh debug + eng/test-expansion-cli.py; eng/build-cli.sh release + eng/test-release-cli.py | Debug: dry-run/JSON, non-TTY 거부, TTY 확인 rename/undo PASS. Release: raw JSON/dry-run/freshness, non-TTY 거부, source hash 불변 PASS |
 | Debug build | eng/build.sh --configuration Debug --arch arm64 | BUILD SUCCEEDED |
 | Release 구성 build | eng/build.sh --configuration Release --arch arm64 | BUILD SUCCEEDED, arm64, 리소스 self-test PASS. render·진단 fixture와 그 실행 flag가 binary에 없음을 확인. 배포 후보 생성·서명·패키징은 하지 않음 |
-| 대표 화면·fixture (Debug) | --render-ux, --render-shell, --render-expansion(±--native-sidebar), --render-responsive | 242장 생성, assertion PASS |
+| 대표 화면·fixture (Debug) | --render-ux, --render-shell, --render-expansion(±--native-sidebar), --render-responsive | 244장 생성, assertion PASS |
 | 창 동작 진단 | --diagnose-window; Debug 전용 --live-sidebar-check | 상태 전이, band drag 영역, 가로 스크롤 막대 없음 PASS |
 | 성능 프로파일 (Debug) | NAMEFIX_PERFORMANCE=1, NAMEFIX_EXPANSION_PERF=1, NAMEFIX_MUTATION_PERF=1 | 10,000건 scan+rule Preview+plan 중앙값 2.174초 · p95 2.210초(직전 2.221 · 2.225), 100,000건 scan 3.02초(직전 3.10), 단독 실행 peak 약 116 MiB, 1,000건 실제 mutation 31.2초(durable journal 유지). 이 경로의 코드는 바꾸지 않았고 수치는 오차 범위 안에서 같다 |
 | 대량 목록 조작 (Debug, 100,000행) | NAMEFIX_UI_PERF=1 testLargeListInteractionProfile | 아래 표 |
@@ -99,6 +99,8 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 사용자 지시(2026-10-06, 8차) 처리: 설정 맨 아래 카드를 개발사 소개로 바꿨다. 로고는 AILO, ‘개발’ 문구는 ‘기획 · 설계 · 개발’ 표제와 소개 문장으로, 뭉치 웹사이트(https://moongchi.ailoworks.com) 소개와 링크를 추가했다. 웹사이트 소개 문구는 실제 사이트 내용을 확인해 썼다. 버그 신고·문의 주소는 아직 없어 그 줄은 나오지 않는다. 개발사 이름은 사용자 확인에 따라 AILO WORKS로 적는다. ‘기획 · 설계 · 개발’ 표제는 사용자 지시로 다시 뺐다.
 
 사용자 보고(2026-10-06, 9차) 처리: 소개가 닫힐 때 뒤에 다른 화면이 보인다는 보고. sheet가 닫히는 순간 내용이 기본 화면(사용 방법)으로 바뀌어 닫히는 animation 동안 그 화면이 비쳤다. 모든 sheet가 닫히는 동안 자기 내용을 유지하도록 고쳤고, 소개를 설정·사용 방법에서 열었을 때는 닫으면 그 화면으로 돌아가게 했다. 닫히는 animation 자체는 화면 렌더로 확인할 수 없어 사용자 확인 대상이다.
+
+사용자 지시(2026-10-06, 10차) 처리: 설정 맨 아래 카드를 사용자가 보여 준 다른 뭉치 앱(DiskSuite)의 정보 화면과 합친 구성으로 다시 만들었다(앱 소개 + 개발자 소개). 넓은 sheet와 320pt sheet 렌더로 확인했다.
 
 
 ## User QA — 한 번에 확인할 목록

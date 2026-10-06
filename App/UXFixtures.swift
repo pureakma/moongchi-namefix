@@ -107,7 +107,8 @@ import NameFixRuntime
             let palette = Palette(theme, systemDark: theme == "dark")
             let dressed = { (view: AnyView) in AnyView(view.padding(22).foregroundStyle(palette.text).font(L10n.font(language)).tint(palette.accent).environment(\.colorScheme, theme == "dark" ? .dark : .light)) }
             try renderPart("M-help-\(language)", theme: theme, size: CGSize(width: 680, height: 1180), dressed(AnyView(HelpView(model: model, palette: palette).frame(height: 1136))))
-            try renderPart("N-settings-\(language)", theme: theme, size: CGSize(width: 680, height: 1320), dressed(AnyView(SettingsView(model: model, palette: palette).frame(height: 1276))))
+            try renderPart("N-settings-\(language)", theme: theme, size: CGSize(width: 680, height: 1620), dressed(AnyView(SettingsView(model: model, palette: palette).frame(height: 1576))))
+            try renderPart("N-settings-narrow-\(language)", theme: theme, size: CGSize(width: 320, height: 2300), dressed(AnyView(SettingsView(model: model, palette: palette).frame(height: 2256))))
         }
         // The rail with the pointer on an icon, and the rule pane's example states.
         for (language, theme) in [("ko-KR", "olive"), ("en-US", "dark")] {

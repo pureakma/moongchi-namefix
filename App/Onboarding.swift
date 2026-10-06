@@ -283,58 +283,84 @@ struct AiloLogo: View {
     }
 }
 
-/// Last card of Settings: who makes the app, the Moongchi site, and where to go for help.
+/// Last card of Settings: the app in brief, then the developer and the Moongchi site.
 struct DeveloperCard: View {
     @ObservedObject var model: AppModel
     let palette: Palette
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .center, spacing: 18) {
-                AiloLogo().frame(width: 104)
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(model.t("DeveloperAbout")).fixedSize(horizontal: false, vertical: true)
-                    Text("Moongchi NameFix · " + model.t("VersionLine", AppInfo.version, AppInfo.build)).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
+        VStack(alignment: .leading, spacing: 16) {
+            // The app
+            HStack(alignment: .center, spacing: 16) {
+                Image(nsImage: NSApp.applicationIconImage).resizable().interpolation(.high).frame(width: 72, height: 72).accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("MOONGCHI").font(.system(size: 10, weight: .semibold, design: .monospaced)).tracking(3).foregroundStyle(palette.secondary).accessibilityHidden(true)
+                    Text("Moongchi NameFix").font(L10n.font(model.settings.language, size: 22, weight: .semibold)).accessibilityAddTraits(.isHeader)
+                    Text(model.t("AppTagline")).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer(minLength: 0)
             }
-            Rectangle().fill(palette.border.opacity(0.7)).frame(height: 1).accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 10) {
-                if let website = AppInfo.website {
-                    row("globe", Tint.blue, "MoongchiWebsite", detail: "MoongchiWebsiteDetail") { link(website.host ?? website.absoluteString, website) }
-                }
-                if let support = AppInfo.support {
-                    row("ladybug.fill", Tint.pink, "ContactSupport", detail: nil) { link(support.scheme == "mailto" ? String(support.absoluteString.dropFirst(7)) : (support.host ?? support.absoluteString), support) }
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) { facts }
+                VStack(alignment: .leading, spacing: 6) { facts }
+            }
+            line
+            VStack(alignment: .leading, spacing: 7) {
+                ForEach(["AboutFeatures", "AboutFree", "AboutPrivate"], id: \.self) { key in
+                    Text(model.t(key)).fixedSize(horizontal: false, vertical: true)
                 }
             }
             ViewThatFits(in: .horizontal) {
-                HStack(spacing: 8) { actions }
-                VStack(alignment: .leading, spacing: 8) { actions }
+                HStack(spacing: 8) { guides }
+                VStack(alignment: .leading, spacing: 8) { guides }
             }
+            line
+            // The developer
+            Text(model.t("DeveloperHeading")).font(.headline).accessibilityAddTraits(.isHeader)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .center, spacing: 20) { AiloLogo().frame(width: 108); developer.fixedSize(); Spacer(minLength: 0) }
+                VStack(alignment: .leading, spacing: 10) { AiloLogo().frame(width: 96); developer }
+            }
+            if let website = AppInfo.website {
+                VStack(alignment: .leading, spacing: 6) {
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 10) { site(website) }
+                        VStack(alignment: .leading, spacing: 6) { site(website) }
+                    }
+                    Text(model.t("MoongchiWebsiteDetail")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            if let support = AppInfo.support {
+                Button { NSWorkspace.shared.open(support) } label: { Label(model.t("ContactSupport"), systemImage: "ladybug") }
+            }
+            Button { model.sheet = "about" } label: {
+                HStack(spacing: 6) { Image(systemName: "chevron.right").font(.caption).accessibilityHidden(true); Text(model.t("License")) }.contentShape(Rectangle())
+            }.buttonStyle(.plain).foregroundStyle(palette.secondary)
         }
-        .padding(18).frame(maxWidth: .infinity, alignment: .leading)
-        .background(LinearGradient(colors: [Tint.blue[0].opacity(0.14), Tint.purple[0].opacity(0.10), palette.surface.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .padding(20).frame(maxWidth: .infinity, alignment: .leading)
+        .background(LinearGradient(colors: [Tint.blue[0].opacity(0.12), Tint.purple[0].opacity(0.08), palette.surface.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         .background(palette.surface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(palette.border.opacity(0.8), lineWidth: 0.5))
         .accessibilityElement(children: .contain).accessibilityIdentifier("developerCard")
     }
-    @ViewBuilder private var actions: some View {
-        Button { model.sheet = "help" } label: { Label(model.t("HelpTitle"), systemImage: "questionmark.circle") }
-        Button { model.sheet = "onboarding" } label: { Label(model.t("ShowIntro"), systemImage: "sparkles") }.accessibilityIdentifier("showIntro")
-        Button { model.sheet = "about" } label: { Label(model.t("License"), systemImage: "doc.text") }
-    }
-    private func row<Value: View>(_ symbol: String, _ colors: [Color], _ label: String, detail: String?, @ViewBuilder value: () -> Value) -> some View {
-        HStack(alignment: .center, spacing: 10) {
-            ColorTile(symbol: symbol, colors: colors, size: 26)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(model.t(label)).fontWeight(.medium)
-                if let detail { Text(model.t(detail)).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true) }
-            }
-            Spacer(minLength: 8)
-            value()
+    private var developer: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("AILO WORKS").font(L10n.font(model.settings.language, size: 18, weight: .medium))
+            Text(model.t("DeveloperTagline")).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
         }
     }
-    private func link(_ title: String, _ url: URL) -> some View {
-        Button { NSWorkspace.shared.open(url) } label: { HStack(spacing: 4) { Text(title); Image(systemName: "arrow.up.right").font(.caption) } }
-            .buttonStyle(.link).help(url.absoluteString)
+    private var line: some View { Rectangle().fill(palette.border.opacity(0.7)).frame(height: 1).accessibilityHidden(true) }
+    @ViewBuilder private var facts: some View {
+        Text(model.t("FreeBadge")).font(.callout).fontWeight(.semibold).foregroundStyle(palette.accent)
+            .padding(.horizontal, 12).padding(.vertical, 4).background(palette.accent.opacity(0.14), in: Capsule())
+        Text("v\(AppInfo.version) (\(AppInfo.build))").font(.system(.callout, design: .monospaced))
+        Text(model.t("PlatformLine")).foregroundStyle(palette.secondary)
+    }
+    @ViewBuilder private var guides: some View {
+        Button { model.sheet = "help" } label: { Label(model.t("HelpTitle"), systemImage: "questionmark.circle") }
+        Button { model.sheet = "onboarding" } label: { Label(model.t("ShowIntro"), systemImage: "sparkles") }.accessibilityIdentifier("showIntro")
+    }
+    @ViewBuilder private func site(_ url: URL) -> some View {
+        Button { NSWorkspace.shared.open(url) } label: { Label(model.t("MoongchiWebsite"), systemImage: "arrow.up.right.square") }.help(url.absoluteString)
+        Text(url.host ?? url.absoluteString).font(.callout).foregroundStyle(palette.secondary).textSelection(.enabled)
     }
 }

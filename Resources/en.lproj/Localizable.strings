@@ -1,4 +1,7 @@
 "About" = "About Moongchi NameFix";
+"AboutFeatures" = "Joins separated characters in file names and renames many files at once with rules.";
+"AboutFree" = "Every feature is free, with no locked features and no time or usage limits.";
+"AboutPrivate" = "Works on this Mac without an account and makes no network connections.";
 "AccessDenied" = "× Access denied";
 "AccessHelp" = "macOS denied access. Check folder permissions and select the folder again if needed.";
 "ActionCase" = "Change letter case";
@@ -23,6 +26,7 @@
 "Advanced" = "Character details";
 "All" = "All";
 "Ambiguous" = "Manual review required";
+"AppTagline" = "A file-name tool for Mac, made by AILO WORKS";
 "BasicExample" = "Basic example";
 "BatchEmptyTitle" = "Rename many files at once";
 "BatchWorkspace" = "Batch Rename Files";
@@ -79,7 +83,8 @@
 "DateFormat" = "Date format (e.g. yyyy-MM-dd)";
 "DecomposeHelp" = "Use only when another tool requires the separated form. Characters are stored as separate parts and may still look identical.";
 "DestinationColumn" = "Destination column";
-"DeveloperAbout" = "Moongchi NameFix is a Mac app in the Moongchi family, designed and engineered by AILO WORKS.";
+"DeveloperHeading" = "About the Developer";
+"DeveloperTagline" = "AILO WORKS makes practical tools for the Mac.";
 "Diagnostics" = "Enable local diagnostic logs";
 "DiagnosticsError" = "Could not save diagnostics.";
 "DiagnosticsErrorShort" = "Couldn’t save diagnostics";
@@ -127,6 +132,7 @@
 "FolderWatch" = "Watch a Folder";
 "FormatGuide" = "About character forms";
 "FormatIntro" = "Combine separated Hangul letters, Japanese voicing marks, and accented characters in names. Names can look identical while storing characters differently.";
+"FreeBadge" = "Free";
 "General" = "General";
 "Graphemes" = "Visible characters {0} · code points {1} · UTF-16 units {2}";
 "HeaderRow" = "First row is header";
@@ -298,6 +304,7 @@
 "PhotoExample" = "Capture date + number";
 "PlanExcluded" = "Excluded by safety checks: {0}";
 "PlannedChange" = "Rename planned";
+"PlatformLine" = "Apple Silicon · macOS 14 or later";
 "Prepared" = "Prepared";
 "Present" = "Matching entry found";
 "Preview" = "New name";
@@ -450,7 +457,6 @@
 "Unsupported" = "— Unsupported item";
 "UseMapping" = "Use list";
 "Verified" = "Verified";
-"VersionLine" = "Version {0} ({1}) · Apple Silicon · macOS 14 or later";
 "ViewMenu" = "View";
 "ViewOptions" = "Filter & Sort";
 "VolumeNormalizationUnsupported" = "This disk format cannot keep the requested character form.";

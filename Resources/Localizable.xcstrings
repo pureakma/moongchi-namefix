@@ -10535,29 +10535,6 @@
         }
       }
     },
-    "VersionLine": {
-      "extractionState": "manual",
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "버전 {0} ({1}) · Apple Silicon · macOS 14 이상"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Version {0} ({1}) · Apple Silicon · macOS 14 or later"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "バージョン {0} ({1}) · Apple Silicon · macOS 14以降"
-          }
-        }
-      }
-    },
     "ContactSupport": {
       "extractionState": "manual",
       "localizations": {
@@ -11202,29 +11179,6 @@
         }
       }
     },
-    "DeveloperAbout": {
-      "extractionState": "manual",
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Moongchi NameFix는 AILO WORKS가 설계하고 개발한 뭉치(Moongchi) 제품군의 Mac 앱입니다."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Moongchi NameFix is a Mac app in the Moongchi family, designed and engineered by AILO WORKS."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Moongchi NameFixは、AILO WORKSが設計・開発するMoongchiシリーズのMacアプリです。"
-          }
-        }
-      }
-    },
     "MoongchiWebsite": {
       "extractionState": "manual",
       "localizations": {
@@ -11267,6 +11221,190 @@
           "stringUnit": {
             "state": "translated",
             "value": "圧縮・整理・サーバ接続・ディスク計測など、Mac向けのほかのMoongchiアプリを紹介しています。"
+          }
+        }
+      }
+    },
+    "AppTagline": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AILO WORKS가 만드는 Mac용 파일 이름 정리 도구"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A file-name tool for Mac, made by AILO WORKS"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AILO WORKSがつくるMac用ファイル名整理ツール"
+          }
+        }
+      }
+    },
+    "FreeBadge": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "무료"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無料"
+          }
+        }
+      }
+    },
+    "PlatformLine": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Silicon · macOS 14 이상"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Silicon · macOS 14 or later"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Silicon · macOS 14以降"
+          }
+        }
+      }
+    },
+    "AboutFeatures": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자소 분리된 파일 이름을 합치고, 규칙으로 여러 파일의 이름을 한 번에 바꿉니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Joins separated characters in file names and renames many files at once with rules."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文字が分離したファイル名をまとめ、ルールで複数のファイル名を一度に変更します。"
+          }
+        }
+      }
+    },
+    "AboutFree": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 기능이 무료이며, 기능 잠금이나 사용 기간·횟수 제한이 없습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every feature is free, with no locked features and no time or usage limits."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべての機能が無料で、機能のロックや利用期間・回数の制限はありません。"
+          }
+        }
+      }
+    },
+    "AboutPrivate": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정 없이 이 Mac에서 처리하며, 네트워크 통신을 하지 않습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Works on this Mac without an account and makes no network connections."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントなしでこのMac上で処理し、ネットワーク通信は行いません。"
+          }
+        }
+      }
+    },
+    "DeveloperHeading": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "개발자 소개"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About the Developer"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開発者について"
+          }
+        }
+      }
+    },
+    "DeveloperTagline": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AILO WORKS는 Mac을 위한 실용적인 도구를 만듭니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AILO WORKS makes practical tools for the Mac."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AILO WORKSは、Macのための実用的なツールをつくっています。"
           }
         }
       }

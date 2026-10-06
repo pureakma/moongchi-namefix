@@ -1,4 +1,7 @@
 "About" = "Moongchi NameFixについて";
+"AboutFeatures" = "文字が分離したファイル名をまとめ、ルールで複数のファイル名を一度に変更します。";
+"AboutFree" = "すべての機能が無料で、機能のロックや利用期間・回数の制限はありません。";
+"AboutPrivate" = "アカウントなしでこのMac上で処理し、ネットワーク通信は行いません。";
 "AccessDenied" = "× アクセス拒否";
 "AccessHelp" = "macOSでアクセスが拒否されました。フォルダのアクセス権を確認し、必要に応じてフォルダを選び直してください。";
 "ActionCase" = "大文字・小文字を変更";
@@ -23,6 +26,7 @@
 "Advanced" = "文字構成の詳細";
 "All" = "すべて";
 "Ambiguous" = "手動確認が必要";
+"AppTagline" = "AILO WORKSがつくるMac用ファイル名整理ツール";
 "BasicExample" = "基本の例";
 "BatchEmptyTitle" = "複数のファイル名をまとめて変更";
 "BatchWorkspace" = "ファイル名を一括変更";
@@ -79,7 +83,8 @@
 "DateFormat" = "日付形式 (例: yyyy-MM-dd)";
 "DecomposeHelp" = "ほかのツールが分離形式を必要とする場合にだけ使います。文字を分けて保存しますが、見た目は変わらない場合があります。";
 "DestinationColumn" = "新しい名前の列";
-"DeveloperAbout" = "Moongchi NameFixは、AILO WORKSが設計・開発するMoongchiシリーズのMacアプリです。";
+"DeveloperHeading" = "開発者について";
+"DeveloperTagline" = "AILO WORKSは、Macのための実用的なツールをつくっています。";
 "Diagnostics" = "ローカル診断ログを有効にする";
 "DiagnosticsError" = "診断情報を保存できませんでした。";
 "DiagnosticsErrorShort" = "診断情報の保存に失敗";
@@ -127,6 +132,7 @@
 "FolderWatch" = "フォルダを自動監視";
 "FormatGuide" = "文字の保存形式について";
 "FormatIntro" = "ハングルの字母や、日本語の濁点・半濁点、アクセント付き文字の構成を整えます。見た目が同じでも、保存されている文字の構成が異なる場合があります。";
+"FreeBadge" = "無料";
 "General" = "一般";
 "Graphemes" = "見える文字 {0} · 内部の文字 {1} · UTF-16単位 {2}";
 "HeaderRow" = "先頭行は見出し";
@@ -298,6 +304,7 @@
 "PhotoExample" = "撮影日 + 連番";
 "PlanExcluded" = "安全確認で除外: {0}件";
 "PlannedChange" = "名前変更予定";
+"PlatformLine" = "Apple Silicon · macOS 14以降";
 "Prepared" = "準備済み";
 "Present" = "一致する項目あり";
 "Preview" = "変更後の名前";
@@ -450,7 +457,6 @@
 "Unsupported" = "— 未対応の項目";
 "UseMapping" = "リストを適用";
 "Verified" = "確認済み";
-"VersionLine" = "バージョン {0} ({1}) · Apple Silicon · macOS 14以降";
 "ViewMenu" = "表示";
 "ViewOptions" = "絞り込み・並べ替え";
 "VolumeNormalizationUnsupported" = "このディスク形式では、変更した文字形式を保持できません。";
