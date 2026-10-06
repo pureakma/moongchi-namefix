@@ -102,7 +102,7 @@
 "EmptyDrop" = "ファイルやフォルダをここにドロップしてください。";
 "EmptySafety" = "名前だけを確認し、ファイルの内容は変更しません。";
 "EmptyTitle" = "文字が分離したファイル名を整理";
-"EntitlementUnavailable" = "購入権限を確認できません。無料機能と取り消しは引き続き利用できます。";
+"EntitlementUnavailable" = "アプリの構成を確認できません。名前の確認と取り消しは引き続き利用できます。";
 "Errors" = "エラー";
 "Export" = "書き出す";
 "ExportDiagnostics" = "診断レポートを書き出す";

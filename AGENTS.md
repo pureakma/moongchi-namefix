@@ -19,7 +19,7 @@
 - 파일 변경은 로컬 writable APFS의 이름 변경만 지원한다. 사용자 파일 내용 삭제·덮어쓰기·임의 변환을 추가하지 않는다.
 - 모든 mutation은 fresh Preview/충돌 검사/명시 확인/영속 Journal/Undo·Recovery 안전 경계를 유지한다.
 - 비협조 외부 writer의 source 교체를 원자적으로 막는다고 주장하지 않는다. 상세 계약은 docs/FILESYSTEM_CAPABILITIES.md가 원본이다.
-- Free/Pro, UI/UX, 배포 상태는 각각 docs/PROJECT.md, docs/DESIGN.md, docs/RELEASE.md를 따른다.
+- 가격 정책(전 기능 무료), UI/UX, 배포 상태는 각각 docs/PROJECT.md, docs/DESIGN.md, docs/RELEASE.md를 따른다.
 - 현재 제품에 AI/OCR/RAG/클라우드 처리 기능은 없다. 새 도입은 사용자 승인과 별도 요구/결정이 필요하다.
 
 ## 승인 범위와 변경 규칙

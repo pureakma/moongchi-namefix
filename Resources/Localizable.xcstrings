@@ -7298,19 +7298,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "구매 권한을 확인할 수 없습니다. 무료 기능과 되돌리기는 계속 사용할 수 있습니다."
+            "value": "앱 구성을 확인할 수 없습니다. 이름 확인과 되돌리기는 계속 사용할 수 있습니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Purchase access is unavailable. Free features and undo remain available."
+            "value": "The app’s configuration couldn’t be checked. Checking names and undo remain available."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "購入権限を確認できません。無料機能と取り消しは引き続き利用できます。"
+            "value": "アプリの構成を確認できません。名前の確認と取り消しは引き続き利用できます。"
           }
         }
       }

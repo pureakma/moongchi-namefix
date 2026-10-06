@@ -102,7 +102,7 @@
 "EmptyDrop" = "Drop files or folders here.";
 "EmptySafety" = "Only names are checked. File contents are never changed.";
 "EmptyTitle" = "Fix file names with separated characters";
-"EntitlementUnavailable" = "Purchase access is unavailable. Free features and undo remain available.";
+"EntitlementUnavailable" = "The app’s configuration couldn’t be checked. Checking names and undo remain available.";
 "Errors" = "Errors";
 "Export" = "Export";
 "ExportDiagnostics" = "Export diagnostic report";
