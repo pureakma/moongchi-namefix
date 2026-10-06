@@ -15,7 +15,7 @@
 - 결정: local writable APFS만 mutation 대상으로 삼고, no-replace·durable journal·NSFileCoordinator 협조·identity/raw/version 재검사·post-check·보존/Recovery를 사용한다. 비협조 외부 writer의 source 교체를 원자 예방한다고 주장하지 않는다.
 - 이유: Darwin의 현재 사용 계약에는 expected-inode 조건부 atomic rename 보장이 없으며 실제 경합 fixture도 이 한계를 재현했다.
 
-### D-004 Free/Pro capability는 구현하되 실제 공급자 미구성 시 fail-closed [accepted]
+### D-004 Free/Pro capability는 구현하되 실제 공급자 미구성 시 fail-closed [superseded by D-014]
 - 날짜: 2026-10-04
 - 결정: Free 기본 이름 정리와 Pro 고급 반복 작업의 capability 경계를 코드에 유지한다. Unconfigured entitlement는 Pro를 허용하지 않으며 Debug 개발 스위치를 실제 구매로 취급하지 않는다.
 - 이유: 기능 구현과 실제 판매/영수증 검증을 분리해 권한 우회를 막는다.
@@ -64,3 +64,13 @@
 - 날짜: 2026-10-06
 - 결정: 입력이 없을 때는 빈 상태 하나가 유일한 입력 화면이며 결과용 control을 두지 않는다. sidebar는 부제 없는 한 줄 navigation, toolbar는 sidebar 접기만 둔다. 이름 일괄 변경은 일상 작업 선택을 먼저 보여 주고 규칙 편집 전체는 ‘고급 규칙’을 펼쳤을 때만 노출한다. 기능은 지우지 않고 처음 보이는 시점만 늦춘다. 세부 계약은 DESIGN.md가 원본이다.
 - 이유: 사용자가 실제 화면에서 입력 UI 중복, 빈 상태의 결과용 control 노출, sidebar 부제, 일괄 변경 화면의 복잡함을 지적했다. 이전 화면 구조는 사용자가 승인한 적이 없다.
+
+### D-014 모든 기능을 무료로 제공 [accepted]
+- 날짜: 2026-10-06
+- 결정: 유료 등급을 두지 않는다. 앱과 CLI는 항상 전체 access로 동작하고 화면·문구에서 Pro·구매 표시를 없앤다. 규칙 집합을 access 수준에 대해 검증하는 내부 구조와 그 test는 남겨 둔다. 다음 실행 때 자동 복원하는 ‘마지막 규칙’은 종전처럼 기본 규칙 조합만 대상이며, 패턴·파일 정보 등을 포함한 규칙은 프리셋으로 저장해 다시 쓴다.
+- 이유: 사용자가 “Pro 없음, 무료로 모두 제공”을 지시했다. 구매 공급자·상품 구성·영수증 검증이 필요 없어져 출시 Gate가 줄고, 구매할 수 없는 Pro 표시가 화면에 남는 문제도 사라진다.
+
+### D-015 sidebar는 아이콘 레일과 추가 항목 트리 [accepted]
+- 날짜: 2026-10-06
+- 결정: sidebar 왼쪽 끝에 아이콘만 있는 레일(tooltip 제공)로 화면·도구·작업 기록·설정·도움말을 두고, 그 옆 패널에는 추가한 파일·폴더의 트리를 보여 준다. 트리의 폴더를 누르면 목록이 그 안의 항목으로 좁혀진다. sidebar 접기 버튼은 없애고 title bar band에 앱 이름 NameFix를 표시한다. 좁은 창에서는 sidebar가 자동으로 숨는다.
+- 이유: 사용자가 이 구조를 직접 제안했다. 트리가 ‘추가한 위치’ 목록과 폴더별 보기를 한곳에서 해결한다. 아이콘만으로는 처음 보는 사용자에게 뜻이 덜 분명할 수 있어 tooltip, 접근성 이름, 상단 band의 화면 제목으로 보완한다.

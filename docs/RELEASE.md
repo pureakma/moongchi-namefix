@@ -17,7 +17,7 @@
 - 제품 기능 개발: 현재 승인 범위에서 완료 상태. 앱 자체 기준 Release Candidate Ready(2026-10-06, 근거는 QA.md).
 - 현재 source의 Release 구성 build: 성공(arm64, 1.0.0 build 3). 컴파일 확인용이며 배포 후보가 아니다.
 - 새 current-source Release 후보: 아직 만들지 않음. build 번호는 새 후보를 만들 때 올린다.
-- 실제 Pro 판매/복원 공급자: 미연결.
+- 판매 공급자: 필요 없음. 전 기능 무료(D-014).
 - 출시용 bundle ID: 미확정, development ID 유지.
 - Developer ID: 과거 후보에서 유효 identity 사용 기록이 있으나 현재 source에 대한 새 signing evidence는 STALE.
 - notarization: 과거 후보에서 notary profile 미제공으로 미실행. 현재 성공 티켓 없음.
@@ -38,7 +38,7 @@
 
 1. 현재 branch/HEAD와 제품 source fingerprint 확정.
 2. 현재 source에 영향받은 test/build/resource/render 범위 검증.
-3. 실제 판매 채널과 Free/Pro 공급자, 상품 ID 확정.
+3. 배포 채널 확정(무료 제품이므로 상품 ID·구매 공급자는 없음).
 4. 팀 소유 release bundle ID 확정.
 5. 새 고유 output 경로로 Release app/CLI 생성. 기존 후보 덮어쓰기 금지.
 6. Developer ID 또는 선택한 채널에 맞는 signing.

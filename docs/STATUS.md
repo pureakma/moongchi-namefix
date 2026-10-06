@@ -5,7 +5,7 @@
 - 단계: First-use UX 구조 단순화 구현 완료 · 사용자의 화면 확인 대기
 - 현재 Task: T-003 (verificationPending), T-002 (verificationPending)
 - 다음: 사용자가 docs/QA.md의 화면 S1~S5를 확인 → 지적 사항은 bug/수정 Task, 승인되면 U01~U13 진행 후 T-001 재개
-- 위험·막힘: D-003의 비협조 writer source-race 알려진 제한, 실제 Pro 공급자/출시 입력 미확정
+- 위험·막힘: D-003의 비협조 writer source-race 알려진 제한, 출시 입력(배포 채널·bundle ID·공증) 미확정
 - 검증 대기: docs/QA.md의 화면 S1~S5와 User QA U01~U13, 새 Release Task의 서명·공증·패키지
 - 마지막 갱신: 2026-10-06
 <!-- HOT:END -->
@@ -16,8 +16,8 @@
 
 ### T-003 First-use UX와 화면 구조 단순화 [verificationPending]
 - 근원: R-008
-- 범위: 빈 상태를 유일한 입력 화면으로, 결과 control은 입력 뒤에만, sidebar 한 줄 navigation, toolbar 중복 제거, 일괄 변경의 작업 선택 우선 흐름과 고급 규칙 접기. 기능 삭제 없음, Core/Application/Infrastructure 변경 없음.
-- 완료기준: 빈 화면에 결과용 control 없음, 입력 UI 중복 없음, sidebar 부제 없음, 일괄 변경 첫 화면에 규칙 편집 전체가 노출되지 않음, 관련 자동 검증 PASS, 사용자 화면 승인
+- 범위: 빈 상태를 유일한 입력 화면으로, 결과 control은 입력 뒤에만, 일괄 변경의 작업 선택 우선 흐름과 고급 규칙 접기. 사용자 첫 확인 뒤 추가: 전 기능 무료(D-014), sidebar를 아이콘 레일 + 추가 항목 트리로(D-015), 상단 band에 화면 제목과 상황별 동작, 목록 아래 잡동사니 메뉴 제거, sidebar 접기 버튼 제거와 앱 이름 표시. 기능 삭제 없음. Core는 전체 access provider 추가뿐이고 Application/Infrastructure 변경 없음.
+- 완료기준: 빈 화면에 결과용 control 없음, 입력 UI 중복 없음, sidebar가 레일과 트리로 읽힘, 일괄 변경 첫 화면에 규칙 편집 전체가 노출되지 않음, Pro 표시 없음, 관련 자동 검증 PASS, 사용자 화면 승인
 - 대기: 사용자의 화면 확인(docs/QA.md S1~S5). AI가 본 렌더는 Engineering Verification이며 화면 승인이 아니다.
 - 검증: docs/QA.md의 First-use UX 구조 단순화 검증 표
 
@@ -30,17 +30,17 @@
 
 ### T-001 출시 단계 입력 확정 [onHold]
 - 근원: R-010
-- 사유: Store/직접 배포 선택, 실제 판매 방식·상품 ID·검증 공급자, 출시용 bundle ID, 공증 프로필, User QA 수행 시점이 사용자 결정/외부 입력을 기다린다.
-- 조건: 사용자가 출시 단계 범위와 배포/판매 방식을 승인하고 필요한 입력을 제공한다.
-- 완료기준: 승인된 배포 채널·판매 경계·출시 식별자·공증 방법·User QA Gate가 PROJECT/DECISIONS/RELEASE에 확정되고 실제 Release Task를 별도로 생성할 수 있다.
+- 사유: Store/직접 배포 선택, 출시용 bundle ID, 공증 프로필, User QA 수행 시점이 사용자 결정/외부 입력을 기다린다. 전 기능 무료이므로 판매 방식·상품·구매 공급자 결정은 필요 없다.
+- 조건: 사용자가 출시 단계 범위와 배포 방식을 승인하고 필요한 입력을 제공한다.
+- 완료기준: 승인된 배포 채널·출시 식별자·공증 방법·User QA Gate가 PROJECT/DECISIONS/RELEASE에 확정되고 실제 Release Task를 별도로 생성할 수 있다.
 - 검증: 문서 일치와 사람 Gate 확인. 이 Task 자체는 제품 build/test를 요구하지 않는다.
 
 ## 현재 상태 요약
 
 - 구현: 현재 승인된 앱 기능 범위에서 추가 필수 구현 Task 없음. 확인된 P0/P1 결함 없음.
 - 알려진 제한: 비협조 외부 writer의 source 교체를 expected-inode 조건으로 원자 차단하지 못한다. 감지·중단·보존·복구 안내는 구현돼 있다. swap/cycle/묶음 파일 그룹은 그룹 도중 취소하면 복구 확인이 필요할 수 있다. 읽을 수 없는 작업 기록이 있으면 Undo/Recovery를 막는다.
-- 사용자 결정 대기: 일괄 변경 규칙이 추가한 폴더 자체·하위 폴더·숨김 파일도 기본 대상으로 삼는 현재 동작을 유지할지(PROJECT.md 백로그 후보).
-- 유료: Pro 기능 경계는 구현됐지만 실제 구매/활성화 공급자는 미연결이다. Release에서는 fail-closed Free 동작이 기준이며 화면에는 Pro 표기가 그대로 보인다.
+- 사용자 결정 대기: 일괄 변경 규칙이 추가한 폴더 자체·하위 폴더·숨김 파일도 기본 대상으로 삼는 현재 동작을 유지할지, 즐겨찾기 폴더 기능을 넣을지(PROJECT.md 백로그 후보).
+- 유료 등급: 없음. 모든 기능을 무료로 제공한다(D-014).
 - Release: 현재 source의 Release 구성 build는 성공했다. 배포 후보 생성·서명·공증·패키징은 새 Release Task에서 수행한다.
 - User QA: QA.md의 화면 S1~S5와 U01~U13이 대기 중이다.
 

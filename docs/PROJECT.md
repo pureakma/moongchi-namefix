@@ -12,23 +12,24 @@ Moongchi NameFix는 파일과 폴더 이름의 Unicode 정규화 차이와 이�
 - R-002 실제 mutation은 사용자 파일 내용을 바꾸거나 기존 대상을 덮어쓰거나 삭제하지 않고, fresh Plan·충돌 검사·명시 확인·영속 Journal·Undo/Recovery 경계를 지켜야 한다.
 - R-003 지원 mutation 범위는 검증된 로컬 writable APFS다. symlink/alias, 앱/package, 알려진 cloud/FileProvider 위치, 확인되지 않은 파일시스템은 보호하거나 변경을 차단해야 한다.
 - R-004 앱은 macOS 14 이상 Apple Silicon arm64 네이티브 앱이며 Swift 6 strict concurrency와 SwiftUI + AppKit 현재 구조를 유지한다.
-- R-005 Free는 NFC/NFD·문자 설명·기본 문자 편집·literal 규칙·일반 순번·무료 규칙 조합·기본 결과 export·기본 CLI·Preview/Undo/Recovery를 제공하고, 인위적인 속도/개수 등급 제한을 두지 않는다.
-- R-006 Pro는 정규식/조건/고급 순번, 프리셋, CSV/TSV 가져오기, 지원 메타데이터, 파일 쌍, 폴더 감시 연계를 담당한다. 실제 구매 권한이 미구성이면 fail-closed로 Free 상태를 유지해야 한다.
-- R-007 기본 이름 검사와 Free 사용은 계정·서버·텔레메트리 없이 동작해야 한다. 메타데이터는 사용자가 해당 규칙을 선택한 지원 형식에서만 읽기 전용으로 추출하며, AI/OCR/RAG는 현재 제품 범위가 아니다.
+- R-005 모든 기능을 무료로 제공한다. 유료 등급, 구매, 계정, 라이선스 인증을 두지 않으며 인위적인 속도/개수 제한도 두지 않는다. 자소 분리 합치기·분리하기, 글자 구성 설명, 일괄 변경 규칙(패턴·조건·고급 번호 포함), 프리셋, CSV/TSV 목록, 지원 파일 정보, 묶음 파일, 폴더 감시, 결과 저장, CLI, Preview/Undo/Recovery가 모두 같은 조건으로 열려 있다.
+- R-006 capability 검사 구조(규칙 집합을 access 수준에 대해 검증하는 코드)는 내부에 남기되 앱과 CLI는 항상 전체 access로 동작한다. 화면과 문구에 Pro·유료·구매를 표시하지 않는다. 유료 등급을 다시 도입하려면 사용자 승인과 새 결정이 필요하다.
+- R-007 이름 검사와 모든 기능은 계정·서버·텔레메트리 없이 동작해야 한다. 파일 정보는 사용자가 해당 규칙을 선택한 지원 형식에서만 읽기 전용으로 추출하며, AI/OCR/RAG는 현재 제품 범위가 아니다.
 - R-008 UI는 간단한 자소 분리 해결 화면과 별도 이름 일괄 변경 작업실을 분리하고, native macOS 상호작용·네 테마·반응형 창·ko/en/ja·키보드/접근성 원칙을 유지해야 한다.
 - R-009 성능과 검증은 변경 영향 기반으로 관리한다. 기존 PASS는 source/test/dependency/toolchain/environment 또는 계약이 바뀌면 무효화하며, Engineering Verification과 User QA를 구분한다.
-- R-010 Store 실제 동작 검증, 판매 공급자 연결, 새 Release 후보, 공증, 실제 배포는 현재 자동 개발 범위가 아니다. 사용자가 별도 출시 단계를 승인하고 필요한 외부 입력을 제공해야 시작한다.
+- R-010 Store 실제 동작 검증, 새 Release 후보, 공증, 실제 배포는 현재 자동 개발 범위가 아니다. 사용자가 별도 출시 단계를 승인하고 필요한 외부 입력을 제공해야 시작한다. 무료 제품이므로 판매 공급자 연결은 필요하지 않다.
 - R-011 설정·Journal·프리셋·watch 데이터의 기존 호환과 손상 원본 보존을 유지하고, 새 schema를 모르는 구버전이 새 기록을 잘못 Undo하지 않도록 해야 한다.
 - R-012 Git/AI 협업은 한 working tree 한 writer, 안전한 Preflight/Finish, 최소 충분 Context, Task 영향 기반 검증을 사용하고 과거 개발 문서는 Git 이력으로 보존한다.
 
 ## 현재 확정 범위
 
-현재 소스에는 Unicode 정리, 기본/고급 일괄 이름 변경, Free/Pro capability 경계, 프리셋/CSV/메타데이터/파일 쌍/감시/CLI, 안전한 Rename·Undo·Recovery, ko/en/ja, 네 테마, 반응형 창, 자소 분리 중심 간편 화면과 일괄 변경 작업실, native sidebar가 구현돼 있다.
+현재 소스에는 Unicode 정리, 기본/고급 일괄 이름 변경, 프리셋/CSV/파일 정보/묶음 파일/감시/CLI, 안전한 Rename·Undo·Recovery, ko/en/ja, 네 테마, 반응형 창, 자소 분리 해결 화면과 파일 이름 일괄 변경 화면, 아이콘 레일과 추가 항목 트리로 이뤄진 native sidebar가 구현돼 있다. 모든 기능은 무료다.
 
 현재 지원/구현 사실과 세부 책임은 ARCHITECTURE.md, DESIGN.md, FILESYSTEM_CAPABILITIES.md가 원본이다. 제품 완성과 공개 출시 완료는 같은 상태가 아니다.
 
 범위 밖 또는 아직 승인되지 않은 후보:
-- 실제 Pro 판매/복원 공급자와 상품 구성
+- 유료 등급 재도입(현재는 전 기능 무료)
+- 즐겨찾기 폴더(자주 쓰는 폴더를 고정해 바로 검사)
 - App Store 또는 직접 배포 채널의 최종 선택과 그에 따른 sandbox/entitlement 조정
 - AI/Apple Foundation Models/OCR/RAG 기반 내용 이름 제안
 - Windows/Intel 지원
@@ -44,9 +45,9 @@ Moongchi NameFix는 파일과 폴더 이름의 Unicode 정규화 차이와 이�
 
 2026-10-06 사용자가 ‘출시 전 제품 완성도 고도화’ Phase를 승인했다. 범위는 UI/UX·사용자 용어·ko/en/ja·접근성·코드·안정성 리뷰와 확인된 문제의 수정, 영향 검증, 앱 자체 기준 Release Candidate Ready 판정, User QA 목록 정리다(T-002). 실제 판매 연결·공증·Store 제출·공개 배포는 이 Phase에 포함하지 않으며 R-010의 사용자 Gate에서 보류한다. 별도 PLAN.md는 만들지 않는다.
 
-T-002의 구현과 Engineering Verification은 끝났고 User QA만 남았다. 같은 날 사용자가 실제 화면을 보고 first-use 복잡도를 지적해 ‘First-use UX 및 전체 UI 구조 단순화’(T-003)를 추가 승인했다. 범위는 화면의 정보 노출 시점·navigation·hierarchy 재설계이며 기능 추가와 안전 엔진 변경은 포함하지 않는다. T-003도 구현과 Engineering Verification이 끝났고 사용자의 화면 승인만 남았다. 그 뒤 승인된 다음 제품 구현 Phase는 없다.
+T-002의 구현과 Engineering Verification은 끝났고 User QA만 남았다. 같은 날 사용자가 실제 화면을 보고 first-use 복잡도를 지적해 ‘First-use UX 및 전체 UI 구조 단순화’(T-003)를 추가 승인했다. 범위는 화면의 정보 노출 시점·navigation·hierarchy 재설계이며 기능 추가와 안전 엔진 변경은 포함하지 않는다. 사용자가 첫 화면 확인 뒤 추가로 지시한 내용도 T-003에 포함했다: 전 기능 무료(유료 등급 제거), sidebar를 아이콘 레일 + 추가 항목 트리로 변경, 상단 band에 화면 제목과 상황별 동작 배치, 하단 잡동사니 메뉴 제거. T-003은 구현과 Engineering Verification이 끝났고 사용자의 화면 승인만 남았다. 그 뒤 승인된 다음 제품 구현 Phase는 없다.
 
-다음 개발은 사용자가 새 범위를 승인하면 그 범위의 Milestone/Task를 STATUS에 만들고 진행한다. Release를 승인할 경우 첫 순서는 현재 소스에 대한 영향 검증 → 현재 source 기준 새 Release 후보 → 실제 판매/식별자/공증 입력 연결 → User QA/깨끗한 Mac Gate다.
+다음 개발은 사용자가 새 범위를 승인하면 그 범위의 Milestone/Task를 STATUS에 만들고 진행한다. Release를 승인할 경우 첫 순서는 현재 소스에 대한 영향 검증 → 현재 source 기준 새 Release 후보 → 출시 식별자/공증 입력 연결 → User QA/깨끗한 Mac Gate다.
 
 ## 환경과 의존성
 

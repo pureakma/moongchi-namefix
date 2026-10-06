@@ -1813,7 +1813,7 @@
       "timestamp": "2026-10-06T06:07:29.914660+00:00",
       "command": "eng/test.sh --level 3 --scope all; eng/resources.py; eng/validate-resources.py; eng/build-cli.sh debug; eng/test-expansion-cli.py; eng/build.sh Debug; eng/build.sh Release; --render-shell/--render-expansion/--render-expansion --native-sidebar/--render-responsive; NAMEFIX_PERFORMANCE=1 NAMEFIX_EXPANSION_PERF=1 profiles",
       "evidencePath": "artifacts/development/release-readiness",
-      "notes": "103 tests, 0 failures (53 integration with 3 opt-in profiles skipped, 30 UI model, 20 core); 446 keys x 3 locales; 219 off-screen renders with representative ko/en/ja x theme x size screens visually inspected; 10k scan+preview+plan median 2.221s, 100k scan 3.104s (Debug); Release configuration compiles and passes resource self-test. No signing, packaging, notarization, case-sensitive volume run, 1,000-item mutation profile or user GUI control. App UI and strings were restructured afterwards (MAC-FIRST-USE-UX-20261006); the runtime, core and CLI results here still apply because those sources are unchanged, while the render and Release-build parts are superseded for App."
+      "notes": "103 tests, 0 failures (53 integration with 3 opt-in profiles skipped, 30 UI model, 20 core); 446 keys x 3 locales; 219 off-screen renders with representative ko/en/ja x theme x size screens visually inspected; 10k scan+preview+plan median 2.221s, 100k scan 3.104s (Debug); Release configuration compiles and passes resource self-test. No signing, packaging, notarization, case-sensitive volume run, 1,000-item mutation profile or user GUI control. Superseded for App, Core entitlement, CLI and strings by MAC-FIRST-USE-UX-20261006; the Application/Infrastructure results still apply because those sources are unchanged."
     },
     {
       "validationId": "MAC-FIRST-USE-UX-20261006",
@@ -1821,20 +1821,24 @@
       "configuration": "Debug",
       "architecture": "arm64",
       "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "CLI/**/*.swift",
         "App/**/*.swift",
         "App/Info.plist",
         "Resources/**/*.strings",
         "Resources/*.xcstrings",
         "Package.swift",
         "project.yml",
-        "Tests/UITests/**/*.swift"
+        "Tests/UITests/**/*.swift",
+        "eng/test-expansion-cli.py",
+        "eng/test-release-cli.py"
       ],
-      "sourceFingerprint": "72d026f757993440421ddd3924af8ba69a90ac346cef971528dcec9f9b858f65",
-      "testFingerprint": "2bccb9e500f6bb2cfc939cbd779f0fd516fe5ea74336d4c8869752c17c965271",
-      "timestamp": "2026-10-06T07:08:02.635653+00:00",
-      "command": "eng/build.sh Debug; swift test --filter UIModelTests; xcodebuild build-for-testing; eng/resources.py; eng/validate-resources.py; --render-ux/--render-shell/--render-expansion/--render-expansion --native-sidebar/--render-responsive",
+      "sourceFingerprint": "542fb3301fdabc100890ad94c63927a47d8754ca0730fb5d3eac6fac54ad6bf1",
+      "testFingerprint": "0da12d7944b5a50bb14c6c52ce181e2787ccbc97835f96e56922a9898e1cf615",
+      "timestamp": "2026-10-06T07:37:24.272776+00:00",
+      "command": "eng/test.sh --level 3 --scope all; eng/build-cli.sh debug; eng/test-expansion-cli.py; eng/build.sh Debug; xcodebuild build-for-testing; eng/resources.py; eng/validate-resources.py; --render-ux/--render-shell/--render-expansion/--render-expansion --native-sidebar/--render-responsive",
       "evidencePath": "artifacts/development/first-use-ux",
-      "notes": "30 UI model tests, 0 failures; UI test bundle compiles (not run); 482 keys x 3 locales; 25 representative first-use screens plus 195 existing fixture renders, representative screens visually inspected by the AI. No Core/Application/Infrastructure/CLI change, so runtime regression was not repeated. No Release build, no user GUI control; screen structure is not user-approved."
+      "notes": "108 tests, 0 failures (53 integration with 3 opt-in profiles skipped, 35 UI model, 20 core); CLI contract PASS without a paid tier; UI test bundle compiles (not run); 490 keys x 3 locales; 25 representative first-use screens plus 195 existing fixture renders, representative screens visually inspected by the AI. Free-only policy, icon rail + folder tree sidebar, title/contextual toolbar. No Application/Infrastructure change. No Release build or Release CLI run, no user GUI control; screen structure is not user-approved."
     }
   ]
 }

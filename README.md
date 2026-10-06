@@ -8,7 +8,7 @@
 - Swift 6, SwiftUI + AppKit, 로컬 NameFixCore/Application/Infrastructure 구조.
 - 기본 이름 검사와 변경은 로컬에서 동작하며 핵심 기능에 네트워크 통신이나 텔레메트리를 요구하지 않습니다.
 - 로컬 writable APFS 이름 변경만 지원하며, 링크·앱/package·알려진 클라우드 위치·확인되지 않은 파일시스템은 보수적으로 보호합니다.
-- Release 소스는 Free 기능을 제공할 수 있지만 실제 Pro 구매/활성화 공급자는 아직 연결되지 않았습니다.
+- 모든 기능을 무료로 제공합니다. 유료 등급, 구매, 계정이 없습니다.
 - 현재 소스는 v1.0 앱 개발 이후 UI/설정 보완이 추가된 상태이며, 과거 build3 Release 후보의 Release/서명/패키지 PASS를 현재 소스 전체 PASS로 재사용하지 않습니다.
 
 ## 개발 시작

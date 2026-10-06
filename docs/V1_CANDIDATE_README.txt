@@ -1,11 +1,9 @@
 Moongchi NameFix 1.0.0 — Apple Silicon macOS 14+
 
 This is a local Release candidate, not an approved public distribution.
-See BUILD_INFO.json for its signing status. Notarization and the real purchase
-provider are not configured. The bundle still uses a development identifier.
-The Release app provides the Free features. Pro implementation is present but
-cannot be purchased or activated in this candidate. The Debug-only Pro switch
-does not exist in Release. Do not advertise this package as a paid Pro product.
+See BUILD_INFO.json for its signing status. Notarization is not configured.
+The bundle still uses a development identifier.
+Every feature is free. There is no paid tier, purchase or account.
 
 로컬 출시 후보입니다. Release 구성은 공개 배포 승인·공증 완료를 뜻하지 않습니다.
 기존 앱이나 사용자 파일을 자동 설치·덮어쓰기하지 않습니다.
