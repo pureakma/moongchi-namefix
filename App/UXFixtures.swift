@@ -75,4 +75,56 @@ import NameFixRuntime
         try render("I-light-batch-choose", language: "en-US", theme: "light", size: wide, workbench: true, entries: rows(conflict: false))
         print("PASS: \(count) representative first-use screens; no user window controlled")
     }
+
+    /// Window behaviour that a still image cannot show: the sidebar must stay visible after
+    /// something is added, and the title bar band must drag the window wherever it has no control.
+    static func diagnose(output: URL) throws {
+        try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
+        NSApplication.shared.setActivationPolicy(.prohibited)
+        let folder = output.appendingPathComponent("fixture/Trip/Day 1")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        try Data("a".utf8).write(to: folder.appendingPathComponent("cafe\u{301}.txt"))
+        try Data("b".utf8).write(to: folder.deletingLastPathComponent().appendingPathComponent("normal.txt"))
+        let model = AppModel(dataRoot: output.appendingPathComponent("isolated")); model.ready = true
+        let controller = MainSidebarController(model: model)
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1400, height: 800), styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView], backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false; window.titlebarAppearsTransparent = true
+        window.contentViewController = controller
+        let chrome = WindowChrome(model: model); chrome.install(on: window, split: controller)
+        window.setContentSize(NSSize(width: 1400, height: 800)); controller.fit(width: 1400)
+        func settle(_ seconds: Double) { RunLoop.main.run(until: Date().addingTimeInterval(seconds)) }
+        func report(_ label: String) {
+            let side = controller.navigationItem.viewController.view
+            print("\(label): collapsed=\(controller.navigationItem.isCollapsed) sidebarWidth=\(Int(side.frame.width)) hidden=\(side.isHidden) toolbarItems=\(chrome.toolbar.items.map { $0.itemIdentifier.rawValue.replacingOccurrences(of: "NameFix.", with: "") })")
+        }
+        settle(0.4); report("empty")
+        guard !controller.navigationItem.isCollapsed else { throw NSError(domain: "SidebarContract", code: 1) }
+        model.add([folder.deletingLastPathComponent()])
+        for _ in 0..<60 { settle(0.1); if !model.busy && !model.entries.isEmpty { break } }
+        settle(0.5); report("after add (\(model.entries.count) entries, tree \(model.folderTree.count))")
+        guard !controller.navigationItem.isCollapsed, controller.navigationItem.viewController.view.frame.width >= 200 else { throw NSError(domain: "SidebarContract", code: 2) }
+        model.folderFilter = model.folderTree.first?.children?.first?.id
+        settle(0.5); report("after choosing a tree folder")
+        guard !controller.navigationItem.isCollapsed else { throw NSError(domain: "SidebarContract", code: 3) }
+        // Title bar band: every point without a control must move the window. Over the sidebar that
+        // means the drag strip, because a SwiftUI hosting view there would swallow the click.
+        guard let frame = window.contentView?.superview else { throw NSError(domain: "DragContract", code: 1) }
+        let bandY = frame.bounds.height - 26, sidebarWidth = Int(controller.navigationItem.viewController.view.frame.width)
+        var blocked: [Int] = []
+        for x in stride(from: 100, through: 1100, by: 20) {
+            let hit = frame.hitTest(NSPoint(x: CGFloat(x), y: bandY))
+            let hosting = hit.map { String(describing: type(of: $0)).contains("HostingView") } ?? false
+            if x < sidebarWidth - 8 ? !(hit is WindowDragView) : (hosting || (hit != nil && !(hit is NSControl) && hit?.mouseDownCanMoveWindow == false)) { blocked.append(x) }
+        }
+        print("band points that would not drag the window: \(blocked)")
+        guard blocked.isEmpty else { throw NSError(domain: "DragContract", code: 2) }
+        // Dragging the divider must not be able to collapse a sidebar that has no toggle.
+        guard !controller.navigationItem.canCollapse else { throw NSError(domain: "SidebarContract", code: 4) }
+        window.setContentSize(NSSize(width: 600, height: 800)); controller.fit(width: 600); settle(0.3); report("narrow window")
+        guard controller.navigationItem.isCollapsed, model.sidebarCollapsed else { throw NSError(domain: "SidebarContract", code: 5) }
+        window.setContentSize(NSSize(width: 1400, height: 800)); controller.fit(width: 1400); settle(0.3); report("wide again")
+        guard !controller.navigationItem.isCollapsed, !model.sidebarCollapsed, !controller.navigationItem.canCollapse else { throw NSError(domain: "SidebarContract", code: 6) }
+        window.close(); withExtendedLifetime(chrome) {}
+        print("PASS: sidebar stays visible after adding and filtering, cannot be collapsed by the divider, returns after a narrow window; title bar band drags the window")
+    }
 }

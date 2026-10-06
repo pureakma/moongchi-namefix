@@ -47,12 +47,15 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 | Debug build | eng/build.sh --configuration Debug --arch arm64 | BUILD SUCCEEDED |
 | UI test bundle | xcodebuild build-for-testing | TEST BUILD SUCCEEDED (실행은 하지 않음) |
 | 리소스 | eng/resources.py; eng/validate-resources.py | 490 keys × ko/en/ja, 재생성 diff 0 PASS |
+| 창 동작 진단 | --diagnose-window (보이지 않는 창), Debug 전용 --live-sidebar-check (실제 창, 키 입력 합성 없음) | 폴더 추가·트리 폴더 선택·일괄 변경 전환 뒤에도 sidebar 유지, 구분선으로 접히지 않음, 좁은 창에서 숨었다가 넓히면 복귀, sidebar 위 band의 클릭이 drag strip으로 감 PASS |
 | 대표 화면 | --render-ux | 25장: 빈 상태, 결과, 충돌, 일괄 변경 빈 상태·작업 선택·값 입력·미적용·고급 펼침, 좁은 창, ko/en/ja, Olive·Dark·Light |
 | 기존 render fixture | --render-shell, --render-expansion(±--native-sidebar), --render-responsive | 195장, assertion PASS |
 
 이번에 추가한 test: sidebar 트리 구성과 폴더별 변경 가능 개수, 폴더 선택이 목록만 좁히고 선택 집합은 유지하는지, 기본 앱이 유료 등급 없이 모든 기능을 허용하는지. Core는 FullAccessEntitlementProvider 추가뿐이고 Application/Infrastructure는 바꾸지 않았다. Release 구성 build와 Release CLI test(eng/test-release-cli.py는 새 정책에 맞게 고쳤음)는 다시 실행하지 않았다.
 
-AI가 직접 본 화면 평가(User QA가 아니다): 빈 상태에는 입력 요소만 있고 결과용 control이 없다. 상단 band에는 화면 제목이, 항목을 추가한 뒤에는 결과 저장·다시 검사·추가 버튼이 나온다. sidebar는 아이콘 레일과 트리로 나뉘고 폴더별 변경 가능 개수가 보인다. 일괄 변경은 파일이 없으면 빈 상태, 파일이 있으면 작업 여섯 가지가 먼저 보이고 규칙 편집 전체는 고급 규칙을 펼쳐야 나온다. 아이콘 tooltip, hover, drag 중 표시, 메뉴 동작, 트리 펼침·선택의 실제 조작, sidebar 자동 숨김은 렌더로 확인할 수 없어 아래 화면 확인에 넣었다.
+AI가 직접 본 화면 평가(User QA가 아니다): 빈 상태에는 입력 요소만 있고 결과용 control이 없다. 상단 band에는 화면 제목이, 항목을 추가한 뒤에는 결과 저장·다시 검사·추가 버튼이 나온다. sidebar는 아이콘 레일과 트리로 나뉘고 폴더별 변경 가능 개수가 보인다. 일괄 변경은 파일이 없으면 빈 상태, 파일이 있으면 작업 여섯 가지가 먼저 보이고 규칙 편집 전체는 고급 규칙을 펼쳐야 나온다. 아이콘 tooltip, hover, drag 중 표시, 메뉴 동작, 트리 펼침·선택의 실제 조작은 렌더로 확인할 수 없어 아래 화면 확인에 넣었다.
+
+사용자 보고(2026-10-06): “폴더를 선택하니 사이드 패널이 사라짐”, “상단 드래그가 되다 말다 함”. 두 번째는 sidebar 위 band에서 hosting view가 클릭을 받는 것을 실제 창에서 측정해 원인을 확인하고 drag strip으로 고쳤다. 첫 번째는 폴더 선택 창을 거친 추가와 트리 선택을 실제 창에서 재현했으나 다시 나타나지 않았다. 구분선 드래그로 접힌 뒤 되돌릴 방법이 없던 점과 render fixture가 저장된 sidebar 상태를 덮어쓰던 점을 가능한 원인으로 보고 둘 다 막았으며, 넓은 창에서는 sidebar가 항상 복귀하도록 했다. 사용자의 재확인이 필요하다.
 
 ## User QA — 한 번에 확인할 목록
 

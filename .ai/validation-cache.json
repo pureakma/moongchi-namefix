@@ -1833,12 +1833,12 @@
         "eng/test-expansion-cli.py",
         "eng/test-release-cli.py"
       ],
-      "sourceFingerprint": "542fb3301fdabc100890ad94c63927a47d8754ca0730fb5d3eac6fac54ad6bf1",
+      "sourceFingerprint": "9ae7a96e9c07c02ad14e8a9def2f083277dcb471a745eb1f341f4864f1c0f444",
       "testFingerprint": "0da12d7944b5a50bb14c6c52ce181e2787ccbc97835f96e56922a9898e1cf615",
-      "timestamp": "2026-10-06T07:37:24.272776+00:00",
-      "command": "eng/test.sh --level 3 --scope all; eng/build-cli.sh debug; eng/test-expansion-cli.py; eng/build.sh Debug; xcodebuild build-for-testing; eng/resources.py; eng/validate-resources.py; --render-ux/--render-shell/--render-expansion/--render-expansion --native-sidebar/--render-responsive",
+      "timestamp": "2026-10-06T07:57:10.880488+00:00",
+      "command": "eng/test.sh --level 3 --scope all; eng/build-cli.sh debug; eng/test-expansion-cli.py; eng/build.sh Debug; xcodebuild build-for-testing; eng/resources.py; eng/validate-resources.py; --render-ux/--render-shell/--render-expansion/--render-expansion --native-sidebar/--render-responsive; --diagnose-window; --live-sidebar-check (Debug)",
       "evidencePath": "artifacts/development/first-use-ux",
-      "notes": "108 tests, 0 failures (53 integration with 3 opt-in profiles skipped, 35 UI model, 20 core); CLI contract PASS without a paid tier; UI test bundle compiles (not run); 490 keys x 3 locales; 25 representative first-use screens plus 195 existing fixture renders, representative screens visually inspected by the AI. Free-only policy, icon rail + folder tree sidebar, title/contextual toolbar. No Application/Infrastructure change. No Release build or Release CLI run, no user GUI control; screen structure is not user-approved."
+      "notes": "108 tests, 0 failures (53 integration with 3 opt-in profiles skipped, 35 UI model, 20 core); CLI contract PASS without a paid tier; UI test bundle compiles (not run); 490 keys x 3 locales; 25 representative first-use screens plus 195 existing fixture renders, representative screens visually inspected by the AI. Free-only policy, icon rail + folder tree sidebar, title/contextual toolbar. No Application/Infrastructure change. No Release build or Release CLI run, no user GUI control; screen structure is not user-approved. After the user reported a vanishing sidebar and unreliable title bar dragging: drag strip over the sidebar band, divider collapse blocked, fixtures no longer write the saved sidebar width; headless and live window checks PASS. The vanishing sidebar was not reproduced and needs user re-check. UI model tests were not rerun for this last change (view-layer only)."
     }
   ]
 }

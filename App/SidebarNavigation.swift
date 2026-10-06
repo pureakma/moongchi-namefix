@@ -29,6 +29,16 @@ import SwiftUI
             title.centerYAnchor.constraint(equalTo: band.centerYAnchor),
             title.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 92)
         ])
+        // Content views receive clicks in the title bar band of a full-height sidebar, and a SwiftUI
+        // hosting view does not move the window. This strip makes the whole band a drag handle.
+        let handle = WindowDragView(); handle.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(handle)
+        NSLayoutConstraint.activate([
+            handle.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            handle.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            handle.topAnchor.constraint(equalTo: band.topAnchor),
+            handle.bottomAnchor.constraint(equalTo: band.bottomAnchor)
+        ])
         container.addSubview(sidebar)
         NSLayoutConstraint.activate([
             sidebar.leadingAnchor.constraint(equalTo: container.leadingAnchor),
@@ -40,28 +50,45 @@ import SwiftUI
         self.model = model
         super.init(nibName: nil, bundle: nil)
         navigationItem.minimumThickness = 220; navigationItem.maximumThickness = 380
-        navigationItem.canCollapse = true
+        // There is no toggle to bring it back, so the sidebar hides only through fit(width:).
+        // Dragging the divider or AppKit's own resize handling must not collapse it.
+        navigationItem.canCollapse = false
+        navigationItem.canCollapseFromWindowResize = false
         navigationItem.allowsFullHeightLayout = true
         let detail = NSViewController()
         let host = DropHostingView(rootView: MainView(model: model, startAdvanced: startAdvanced)); host.model = model; host.sizingOptions = []
         detail.view = host
         addSplitViewItem(navigationItem); addSplitViewItem(NSSplitViewItem(viewController: detail))
-        // A new autosave name so earlier wide defaults do not carry over.
-        splitView.autosaveName = "NameFix.Sidebar.v3"
     }
     required init?(coder: NSCoder) { nil }
-    private var placedDivider = false
+    private static let autosaveName = "NameFix.Sidebar.v4"
+    private var remembersWidth = false, placedDivider = false
+    /// Only the real window remembers the sidebar width. Render fixtures run the same binary and
+    /// must not write their throwaway layouts into the user's saved state.
+    func rememberWidth() { remembersWidth = true; splitView.autosaveName = Self.autosaveName }
     override func viewDidAppear() {
         super.viewDidAppear()
         // First run starts at the compact width; later runs restore what the user dragged to.
-        guard !placedDivider else { return }; placedDivider = true
-        if UserDefaults.standard.object(forKey: "NSSplitView Subview Frames NameFix.Sidebar.v3") == nil { splitView.setPosition(240, ofDividerAt: 0) }
+        guard remembersWidth, !placedDivider else { return }; placedDivider = true
+        if UserDefaults.standard.object(forKey: "NSSplitView Subview Frames " + Self.autosaveName) == nil { splitView.setPosition(240, ofDividerAt: 0) }
+        if let width = view.window?.frame.width { fit(width: width) }
     }
     /// The sidebar has no toggle button: it yields to the content in narrow windows and returns when there is room.
     func fit(width: CGFloat) {
         let collapse = width < 760
-        if navigationItem.isCollapsed != collapse { navigationItem.isCollapsed = collapse }
+        if navigationItem.isCollapsed != collapse {
+            // canCollapse also gates programmatic changes, so it is opened only for this call.
+            navigationItem.canCollapse = true
+            navigationItem.isCollapsed = collapse
+        }
+        if navigationItem.canCollapse != collapse { navigationItem.canCollapse = collapse }
         if model.sidebarCollapsed != collapse { model.sidebarCollapsed = collapse }
+    }
+    /// Whatever else changes the split layout, a wide window always ends up with its sidebar.
+    override func splitViewDidResizeSubviews(_ notification: Notification) {
+        super.splitViewDidResizeSubviews(notification)
+        guard isViewLoaded, let width = view.window?.frame.width, width >= 760, navigationItem.isCollapsed else { return }
+        DispatchQueue.main.async { [weak self] in self?.fit(width: width) }
     }
     private let model: AppModel
 }
@@ -199,6 +226,21 @@ private struct FolderRow: View {
         }
         .padding(.leading, CGFloat(depth) * 12).padding(.trailing, 6).padding(.vertical, 3)
         .background(selected ? palette.accent.opacity(0.14) : .clear, in: RoundedRectangle(cornerRadius: 6))
+    }
+}
+
+/// Transparent strip over the sidebar's title bar band: drag to move, double-click as the system setting says.
+final class WindowDragView: NSView {
+    override var mouseDownCanMoveWindow: Bool { true }
+    override func mouseDown(with event: NSEvent) {
+        guard let window else { return }
+        if event.clickCount == 2 {
+            switch UserDefaults.standard.string(forKey: "AppleActionOnDoubleClick") {
+            case "Minimize": window.performMiniaturize(nil)
+            case "None": break
+            default: window.performZoom(nil)
+            }
+        } else { window.performDrag(with: event) }
     }
 }
 

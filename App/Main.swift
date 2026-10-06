@@ -10,6 +10,10 @@ import NameFixCore
             do { try ExpansionFixtures.run(output: URL(fileURLWithPath: CommandLine.arguments[flag + 1])); exit(0) }
             catch { print("Expansion render failed:", error); exit(1) }
         }
+        if let flag = CommandLine.arguments.firstIndex(of: "--diagnose-window"), CommandLine.arguments.count > flag + 1 {
+            do { try UXFixtures.diagnose(output: URL(fileURLWithPath: CommandLine.arguments[flag + 1])); exit(0) }
+            catch { print("Window diagnosis failed:", error); exit(1) }
+        }
         if let flag = CommandLine.arguments.firstIndex(of: "--render-ux"), CommandLine.arguments.count > flag + 1 {
             do { try UXFixtures.run(output: URL(fileURLWithPath: CommandLine.arguments[flag + 1])); exit(0) }
             catch { print("UX render failed:", error); exit(1) }
@@ -73,6 +77,7 @@ import NameFixCore
         window.minSize = .zero; window.title = "Moongchi NameFix"; window.titlebarAppearsTransparent = true
         window.isReleasedWhenClosed = false; window.delegate = self
         let split = MainSidebarController(model: model); sidebarController = split
+        split.rememberWidth()
         window.contentViewController = split
         let chrome = WindowChrome(model: model); chrome.install(on: window, split: split); windowChrome = chrome
         self.window = window
@@ -91,7 +96,51 @@ import NameFixCore
         integration?.reveal = { [weak self] in self?.window?.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
         model.transactionFinished = { [weak self] summary in self?.integration?.finished(summary) }
         Task { await model.start() }
+        #if DEBUG
+        if let flag = CommandLine.arguments.firstIndex(of: "--live-sidebar-check"), CommandLine.arguments.count > flag + 1 {
+            liveSidebarCheck(folder: URL(fileURLWithPath: CommandLine.arguments[flag + 1]))
+        }
+        #endif
     }
+    #if DEBUG
+    /// Runs the real window through "open the folder panel, add a folder, pick a tree folder" and
+    /// prints the sidebar state at each step. No keystrokes are synthesised and nothing is renamed.
+    private func liveSidebarCheck(folder: URL) {
+        func report(_ label: String) {
+            let item = sidebarController?.navigationItem
+            print("LIVE \(label): collapsed=\(item?.isCollapsed ?? true) sidebarWidth=\(Int(item?.viewController.view.frame.width ?? -1)) flag=\(model.sidebarCollapsed) window=\(Int(window?.frame.width ?? 0))x\(Int(window?.frame.height ?? 0)) entries=\(model.entries.count)")
+        }
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1.5)); report("launched")
+            @MainActor func band(_ label: String) {
+                guard let window = self.window, let frame = window.contentView?.superview else { return }
+                for dy in [10, 26, 44] {
+                    var line = "LIVE band \(label) y-\(dy):"
+                    for x in stride(from: 20, through: Int(frame.bounds.width) - 20, by: 60) {
+                        let hit = frame.hitTest(NSPoint(x: CGFloat(x), y: frame.bounds.height - CGFloat(dy)))
+                        let name = hit.map { String(describing: type(of: $0)).prefix(18) } ?? "nil"
+                        line += " \(x):\(name)\(hit?.mouseDownCanMoveWindow == true ? "+" : "-")"
+                    }
+                    print(line)
+                }
+            }
+            band("empty")
+            let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false
+            // Add from inside the completion handler, exactly when the real picker does.
+            if let window { panel.beginSheetModal(for: window) { [weak self] _ in self?.model.add([folder]) } }
+            try? await Task.sleep(for: .seconds(1.5)); report("panel open")
+            panel.cancel(nil)
+            for _ in 0..<50 { try? await Task.sleep(for: .milliseconds(100)); if !model.busy, !model.entries.isEmpty { break } }
+            try? await Task.sleep(for: .seconds(1.0)); report("folder added")
+            band("results")
+            model.folderFilter = model.folderTree.first?.children?.first?.id ?? model.folderTree.first?.id
+            try? await Task.sleep(for: .seconds(1.0)); report("tree folder chosen")
+            model.openWorkbench()
+            try? await Task.sleep(for: .seconds(1.0)); report("batch screen")
+            fflush(stdout); exit(0)
+        }
+    }
+    #endif
     func refreshIntegration() { integration?.refresh() }
     private func savePlacement() {
         guard let window, !fullScreenTransition, !adjustingScreen, !window.styleMask.contains(.fullScreen), !window.isMiniaturized,
@@ -108,7 +157,12 @@ import NameFixCore
             self?.savePlacement()
         }
     }
-    func windowDidResize(_ notification: Notification) { sidebarController?.fit(width: window?.frame.width ?? 1180); schedulePlacementSave() }
+    func windowDidResize(_ notification: Notification) {
+        #if DEBUG
+        if CommandLine.arguments.contains("--live-sidebar-check") { print("LIVE resize: object=\(type(of: notification.object as AnyObject)) width=\(Int(window?.frame.width ?? -1))") }
+        #endif
+        sidebarController?.fit(width: window?.frame.width ?? 1180); schedulePlacementSave()
+    }
     func windowDidMove(_ notification: Notification) { schedulePlacementSave() }
     func windowDidEndLiveResize(_ notification: Notification) { placementSave?.cancel(); savePlacement() }
     func windowWillEnterFullScreen(_ notification: Notification) { savePlacement(); fullScreenTransition = true; placementSave?.cancel() }
