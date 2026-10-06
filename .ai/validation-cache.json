@@ -1791,7 +1791,7 @@
     },
     {
       "validationId": "MAC-RELEASE-READINESS-20261006",
-      "status": "PASS",
+      "status": "SUPERSEDED",
       "configuration": "Debug + Release build",
       "architecture": "arm64",
       "scope": [
@@ -1813,11 +1813,11 @@
       "timestamp": "2026-10-06T06:07:29.914660+00:00",
       "command": "eng/test.sh --level 3 --scope all; eng/resources.py; eng/validate-resources.py; eng/build-cli.sh debug; eng/test-expansion-cli.py; eng/build.sh Debug; eng/build.sh Release; --render-shell/--render-expansion/--render-expansion --native-sidebar/--render-responsive; NAMEFIX_PERFORMANCE=1 NAMEFIX_EXPANSION_PERF=1 profiles",
       "evidencePath": "artifacts/development/release-readiness",
-      "notes": "103 tests, 0 failures (53 integration with 3 opt-in profiles skipped, 30 UI model, 20 core); 446 keys x 3 locales; 219 off-screen renders with representative ko/en/ja x theme x size screens visually inspected; 10k scan+preview+plan median 2.221s, 100k scan 3.104s (Debug); Release configuration compiles and passes resource self-test. No signing, packaging, notarization, case-sensitive volume run, 1,000-item mutation profile or user GUI control. Superseded for App, Core entitlement, CLI and strings by MAC-FIRST-USE-UX-20261006; the Application/Infrastructure results still apply because those sources are unchanged."
+      "notes": "103 tests, 0 failures (53 integration with 3 opt-in profiles skipped, 30 UI model, 20 core); 446 keys x 3 locales; 219 off-screen renders with representative ko/en/ja x theme x size screens visually inspected; 10k scan+preview+plan median 2.221s, 100k scan 3.104s (Debug); Release configuration compiles and passes resource self-test. No signing, packaging, notarization, case-sensitive volume run, 1,000-item mutation profile or user GUI control. Superseded for App, Core entitlement, CLI and strings by MAC-FIRST-USE-UX-20261006; the Application/Infrastructure results still apply because those sources are unchanged. Superseded by MAC-OPTIMIZATION-GATE-20261006: App sources changed after this receipt."
     },
     {
       "validationId": "MAC-FIRST-USE-UX-20261006",
-      "status": "PASS",
+      "status": "SUPERSEDED",
       "configuration": "Debug",
       "architecture": "arm64",
       "scope": [
@@ -1838,7 +1838,34 @@
       "timestamp": "2026-10-06T10:32:53.756376+00:00",
       "command": "swift test --filter UIModelTests; eng/build.sh Debug; eng/resources.py; eng/validate-resources.py; --render-ux/--render-shell/--render-expansion/--render-expansion --native-sidebar/--render-responsive; --diagnose-window; --live-sidebar-check (Debug). Reused from the previous receipt without re-running: runtime/core/CLI tests and the UI test bundle build (no Core/Application/Infrastructure/CLI/UITests change)",
       "evidencePath": "artifacts/development/ui-structure-6",
-      "notes": "Fifth follow-up (example shows only a name the rules change; rail icons show their name beside them on hover): 38 UI model tests, 0 failures; 580 keys x 3 locales; headless window diagnosis and Debug-only live window check PASS; 47 representative screens plus 195 existing fixture renders. Hover itself and system tooltips elsewhere are user checks. Runtime/core/CLI tests and the UI test bundle build were not re-run."
+      "notes": "Fifth follow-up (example shows only a name the rules change; rail icons show their name beside them on hover): 38 UI model tests, 0 failures; 580 keys x 3 locales; headless window diagnosis and Debug-only live window check PASS; 47 representative screens plus 195 existing fixture renders. Hover itself and system tooltips elsewhere are user checks. Runtime/core/CLI tests and the UI test bundle build were not re-run. Superseded by MAC-OPTIMIZATION-GATE-20261006: App sources changed after this receipt."
+    },
+    {
+      "validationId": "MAC-OPTIMIZATION-GATE-20261006",
+      "status": "PASS",
+      "configuration": "Debug + Release build",
+      "architecture": "arm64",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "CLI/**/*.swift",
+        "App/**/*.swift",
+        "App/Info.plist",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "Resources/AppIcon.icon/**/*",
+        "Package.swift",
+        "project.yml",
+        "eng/test-expansion-cli.py",
+        "eng/test-release-cli.py"
+      ],
+      "sourceFingerprint": "0bbf9a5a59048b993ce9b7577779c8d7ef416e153fc118a54b0e5754a944a3f7",
+      "testFingerprint": "e68bef7fbbbbeb1a14b6d102cc311115ae5bf3d7f69e294262994165cc3e1cb3",
+      "timestamp": "2026-10-06T11:04:44.787150+00:00",
+      "command": "NAMEFIX_PERFORMANCE=1 NAMEFIX_EXPANSION_PERF=1 NAMEFIX_MUTATION_PERF=1 NAMEFIX_UI_PERF=1 eng/test.sh --level 3 --scope all; eng/resources.py; eng/validate-resources.py; bash eng/build-cli.sh debug + eng/test-expansion-cli.py; bash eng/build-cli.sh release + eng/test-release-cli.py; eng/build.sh Debug; eng/build.sh Release + --self-test; --render-ux/--render-shell/--render-expansion/--render-expansion --native-sidebar/--render-responsive; --diagnose-window; --live-sidebar-check (Debug); Release startup/idle measurement",
+      "evidencePath": "artifacts/development/optimization",
+      "notes": "Consolidated gate after cleanup and list-refresh optimization: 112 tests, 0 failures (53 integration incl. performance profiles, 39 UI model, 20 core); 489 keys x 3 locales; Debug and Release CLI contracts PASS; Debug and Release arm64 builds; Release binary carries no render fixtures; 242 fixture renders; 10k scan+preview+plan median 2.174s, 100k scan 3.02s (unchanged code path, within noise of the previous 2.221s/3.10s); 100k-row list operations before/after recorded in docs/QA.md; Release first window 0.575s median, idle 0.02% CPU over 30s. Not re-run: case-sensitive APFS volume profile, UI test bundle build. User checks Q1-Q5 in docs/QA.md are pending."
     }
   ]
 }

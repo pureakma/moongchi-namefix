@@ -88,7 +88,7 @@ import NameFixCore
         if let frame = WindowLayout.restored(placementStore.load(), screens: screens, preferredID: NSScreen.main.map { screenArea($0).id }) { window.setFrame(frame, display: false) }
         applyAppearance(); buildMenus(); window.makeKeyAndOrderFront(nil)
         // The introduction opens on launch until the user ticks "don't show again".
-        if !UserDefaults.standard.bool(forKey: OnboardingView.hiddenKey), !CommandLine.arguments.contains("--skip-onboarding"), !CommandLine.arguments.contains("--live-sidebar-check") { model.sheet = "onboarding" }
+        if !UserDefaults.standard.bool(forKey: OnboardingView.hiddenKey), !CommandLine.arguments.contains("--skip-onboarding") { model.sheet = "onboarding" }
         savePlacement()
         NSApp.activate(ignoringOtherApps: true)
         NSApp.servicesProvider = self

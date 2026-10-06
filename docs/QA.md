@@ -14,27 +14,51 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 ## 현재 source의 Engineering Verification 상태
 
-2026-10-06 출시 전 제품 완성도 고도화(T-002) 통합 검증 결과다. 영수증은 .ai/validation-cache.json의 MAC-RELEASE-READINESS-20261006, 로컬 evidence는 artifacts/development/release-readiness다.
+2026-10-06 출시 전 코드 정리·성능 최적화(T-004)의 통합 Engineering Gate 결과다. 영수증은 .ai/validation-cache.json의 MAC-OPTIMIZATION-GATE-20261006, 로컬 evidence는 artifacts/development/optimization이다. 이 Gate가 이전 MAC-RELEASE-READINESS-20261006과 MAC-FIRST-USE-UX-20261006을 대체한다.
 
 | 항목 | 명령 | 결과 |
 |---|---|---|
-| Runtime·UI model·Core test | eng/test.sh --level 3 --scope all | 103개 실행, 실패 0 (통합 53 중 성능 프로파일 3개 skip, UI model 30, Core 20) |
-| 리소스 | eng/resources.py; eng/validate-resources.py | 580 keys × ko/en/ja, 재생성 diff 0 PASS |
-| CLI | eng/build-cli.sh debug; eng/test-expansion-cli.py | dry-run/JSON, non-TTY 거부, TTY 확인 rename/undo, Free/Pro 경계 PASS. 끝 슬래시 경로 수동 확인 PASS |
+| Runtime·UI model·Core test | eng/test.sh --level 3 --scope all (성능 프로파일 4종 포함) | 112개 실행, 실패 0 (통합 53, UI model 39, Core 20) |
+| 리소스 | eng/resources.py; eng/validate-resources.py | 489 keys × ko/en/ja, 재생성 diff 0 PASS |
+| CLI | eng/build-cli.sh debug + eng/test-expansion-cli.py; eng/build-cli.sh release + eng/test-release-cli.py | Debug: dry-run/JSON, non-TTY 거부, TTY 확인 rename/undo PASS. Release: raw JSON/dry-run/freshness, non-TTY 거부, source hash 불변 PASS |
 | Debug build | eng/build.sh --configuration Debug --arch arm64 | BUILD SUCCEEDED |
-| Release 구성 build | eng/build.sh --configuration Release --arch arm64 | BUILD SUCCEEDED, arm64, 1.0.0 (3), 최소 14.0, 리소스 self-test PASS. 배포 후보 생성·서명·패키징은 하지 않음 |
-| Off-screen render | --render-shell, --render-expansion, --render-expansion --native-sidebar, --render-responsive | 219장 생성, toolbar/sidebar/선택 유지 assertion PASS. ko/en/ja × 네 테마 × 넓은/좁은 창의 대표 화면을 AI가 직접 확인 |
-| 성능 프로파일 (Debug) | NAMEFIX_PERFORMANCE=1, NAMEFIX_EXPANSION_PERF=1 | 10,000건 scan+rule Preview+plan 중앙값 2.221초 · p95 2.225초(Preview 약 0.70초), 100,000건 scan 3.104초 · peak 약 148 MiB · 오류 0 |
+| Release 구성 build | eng/build.sh --configuration Release --arch arm64 | BUILD SUCCEEDED, arm64, 리소스 self-test PASS. render·진단 fixture와 그 실행 flag가 binary에 없음을 확인. 배포 후보 생성·서명·패키징은 하지 않음 |
+| 대표 화면·fixture (Debug) | --render-ux, --render-shell, --render-expansion(±--native-sidebar), --render-responsive | 242장 생성, assertion PASS |
+| 창 동작 진단 | --diagnose-window; Debug 전용 --live-sidebar-check | 상태 전이, band drag 영역, 가로 스크롤 막대 없음 PASS |
+| 성능 프로파일 (Debug) | NAMEFIX_PERFORMANCE=1, NAMEFIX_EXPANSION_PERF=1, NAMEFIX_MUTATION_PERF=1 | 10,000건 scan+rule Preview+plan 중앙값 2.174초 · p95 2.210초(직전 2.221 · 2.225), 100,000건 scan 3.02초(직전 3.10), 단독 실행 peak 약 116 MiB, 1,000건 실제 mutation 31.2초(durable journal 유지). 이 경로의 코드는 바꾸지 않았고 수치는 오차 범위 안에서 같다 |
+| 대량 목록 조작 (Debug, 100,000행) | NAMEFIX_UI_PERF=1 testLargeListInteractionProfile | 아래 표 |
+| 시작·유휴 (Release 구성) | 실행 후 첫 창까지 3회, 그 뒤 30초 관찰 | 첫 창 0.57~0.59초(중앙값 0.575초), 유휴 30초 동안 CPU 시간 0.007초(평균 0.02%), footprint 약 43 MiB |
 
-이번 Task가 추가한 회귀 test: 항목 처리 중 취소 시 임시 이름에 남지 않음, metadata 규칙에서 폴더와 하위 항목 동시 변경, Finder 관리 파일 규칙 제외, scan 한도 경계, 와일드카드 바꿀 글자의 literal 처리, RawPath 전체 바이트 해시.
+대량 목록 조작 시간(100,000행, 같은 장비·같은 Debug test build, 최적화 전 → 후). 목록 계산은 main thread 밖에서 돌며, 아래는 조작부터 새 목록이 게시될 때까지다.
+
+| 조작 | 전 | 후 |
+|---|---|---|
+| 필터 바꾸기(정리할 이름) | 0.29초 | 0.05초 |
+| 필터 풀기 | 0.42초 | 0.06초 |
+| 검색(입력 지연 0.18초 포함) | 1.57초 | 0.65~0.69초 |
+| 검색 지우기(입력 지연 포함) | 0.62초 | 0.27초 |
+| 폴더 트리 선택 | 0.10초 | 0.06초 |
+| 폴더 선택 풀기 | 0.42초 | 0.06초 |
+| 정렬: 이름 | 0.44초 | 0.29초 |
+| 정렬: 경로 | 1.08초 | 0.83초 |
+| 정렬: 상태 | 1.41초 | 0.70초 |
+| 전체 선택(main thread) | 0.064초 | 0.064초 (변화 없음) |
+| 선택 200회 | 0.001초 | 0.001초 (변화 없음) |
+
+바꾼 것: 정렬 순서를 목록·정렬 기준이 바뀔 때만 계산해 필터·검색이 재사용한다. 정렬 key를 비교마다가 아니라 한 번만 만든다. 글자 검색은 여러 조각으로 나눠 병렬로 돌리고, 경로에 이미 들어 있는 이름을 따로 한 번 더 검색하지 않는다. Release 구성의 수치와 실제 화면 scroll 체감은 측정하지 않았다.
+
+유휴 상태 확인: 반복 timer·polling·상시 animation이 없다. 1초 주기 갱신은 작업 중 경과 시간 표시뿐이고, 폴더 감시(FSEvents)는 사용자가 ‘폴더 자동 감시’에 등록한 폴더에만 걸린다. 최근 폴더 기록은 감시를 시작하지 않는다.
+
+코드 정리: Swift product source 48개 파일 유지, 6,270 → 6,387줄(아이콘 전용 control의 이름 label 약 +95, 목록 갱신 재구성 약 +45, 제거 약 −50). 제거한 것은 쓰지 않는 문자열 91개(580 → 489 keys), 예전 hero 화면용 테마 값과 button style, 쓰지 않는 model 상태 1개, 화면에서 열 수 없는 sheet 2종과 그 전용 코드, test만 쓰던 layout helper. render·진단 fixture 5개 파일은 Debug build에서만 compile한다. 새 파일·새 의존성은 없다.
 
 재사용한 기존 근거와 한계:
-- MAC-V1-APFS-CASE-SENSITIVE(대소문자 구분 APFS 볼륨)와 MAC-V1-RELEASE-TRANSACTIONS, MAC-V1-CLI(Release 구성 test/CLI)는 이번에 다시 실행하지 않았다. 이번 변경으로 Infrastructure/Application/CLI source가 바뀌었으므로 validation cache에서 STALE로 내렸고, 새 Release Task에서 다시 실행한다.
-- 1,000건 실제 mutation 프로파일(과거 Debug 28.3초)은 다시 측정하지 않았다. 항목당 이동·journal 횟수는 바꾸지 않았다.
+- MAC-V1-APFS-CASE-SENSITIVE(대소문자 구분 APFS 볼륨)는 다시 실행하지 않았다. Infrastructure/Application/Core source는 이번에 바뀌지 않았다.
+- UI test bundle(xcodebuild build-for-testing)은 다시 build하지 않았다. 직전 변경은 실행 인자 한 줄이다.
 - MAC-V1-SOURCE-RACE-LIMITATION은 KNOWN_LIMITATION, MAC-V1-NOTARIZATION과 MAC-V1-PAID-PROVIDER는 BLOCKED_EXTERNAL로 유지한다.
-- 경로 해시 보강은 Data 해시가 앞부분만 쓰는 macOS 버전을 대비한 방어 변경이다. 개발 장비의 macOS에서는 기존 구현도 선형이었으므로, macOS 14 실기의 대량 목록 성능은 User QA U10/U11에서 확인한다.
+- macOS 14 실기의 대량 목록 성능과 실제 scroll 체감은 User QA U10/U11에서 확인한다.
+- Core의 DevelopmentEntitlementProvider는 쓰이지 않지만 Core 계약 파일이라 이번 정리에서 건드리지 않았다. eng/build-cli.sh는 실행 권한이 없어 bash로 실행했다.
 
-과거 build3 Release 후보의 서명·패키지 검증은 현재 source의 근거가 아니다. 경쟁 제품 대비 속도, 실제 UI scroll latency, Release 구성 성능 수치로 확대하지 않는다.
+과거 build3 Release 후보의 서명·패키지 검증은 현재 source의 근거가 아니다. 경쟁 제품 대비 속도로 확대하지 않는다.
 
 ## First-use UX 구조 단순화 검증 (T-003)
 
@@ -70,7 +94,21 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 
 사용자 확인(2026-10-06, 6차): 레일 아이콘 hover label PASS, 이름 일괄 변경의 ‘적용 예시’ PASS. 트리 제목 ⊗의 tooltip FAIL, band 오른쪽 저장·다시 검사·추가 버튼의 tooltip FAIL(둘 다 시스템 tooltip이 나타나지 않음). 조사 결과 toolbar item에는 시스템 tooltip이 정상 등록돼 있었고, 그 위치에 다른 창이 겹쳐 있지 않았으며, 앱이 event를 가로채는 코드도 없었다. pointer를 직접 올려 재현할 수 없어 시스템 tooltip이 뜨지 않는 원인은 확인하지 못했다. 대신 아이콘만 있는 control 전체에 앱이 직접 그리는 이름 label을 적용했다(docs/DESIGN.md ‘아이콘만 있는 control의 이름 표시’). 이 수정의 실제 hover 동작은 사용자 재확인 대상이다.
 
+
 ## User QA — 한 번에 확인할 목록
+
+### 지금 확인할 다섯 가지 (T-004 종료 시점)
+
+자동 검증으로 대신할 수 없는 것만 추렸다. 사용자가 이미 PASS한 레일 hover label과 ‘적용 예시’, band drag는 다시 묻지 않는다.
+
+| 번호 | 확인할 것 | 결과 |
+|---|---|---|
+| Q1 | 폴더를 넣은 뒤 트리 제목 줄의 ⊗에 pointer를 올리면 ‘모두 닫기’가 바로 옆에 나오는가 | PENDING |
+| Q2 | 오른쪽 위 저장·다시 검사·추가 버튼에 pointer를 올리면 각 이름이 나오는가. 세 버튼이 이전처럼 눌리고, 추가(+)는 메뉴가 열리는가 | PENDING |
+| Q3 | 그 밖의 아이콘 전용 control(목록 옵션 ⋯, 추가 항목의 ×, 규칙 초기화 휴지통, 규칙 줄 ⋯)에서도 같은 모양의 이름이 나오고, 누르거나 벗어나면 사라지는가 | PENDING |
+| Q4 | 실제로 쓰는 큰 폴더에서 검색·필터·정렬·스크롤이 답답하지 않은가 | PENDING |
+| Q5 | Dock·⌘Tab의 앱 아이콘 크기와 첫 실행 소개(‘다시 보지 않기’ 포함)가 의도대로인가 | PENDING |
+
 
 실제 업무 원본이 아닌 복사본 폴더에서 진행한다. 결과는 사용자가 말한 PASS/FAIL을 그대로 기록하고, 실패가 제품 수정의 근원이 되면 STATUS에 bug Task로 올린다.
 

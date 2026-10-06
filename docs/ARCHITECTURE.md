@@ -16,6 +16,8 @@
 | 경계 | 책임 | 외부에서 쓰는 계약 | 주요 검증 |
 |---|---|---|---|
 | App | SwiftUI 화면, AppKit 창/toolbar/sidebar/menu, 입력, sheet, 접근성·표시 상태 | AppModel/Application API | UIModelTests, focused render/build |
+
+App의 render·창 진단 fixture(App/*Fixtures.swift)와 그 실행 flag는 Debug build에서만 compile된다. Release binary에는 리소스 self-test(--self-test)만 남는다. 결과 목록의 표시 순서는 목록과 정렬 기준이 바뀔 때만 main thread 밖에서 계산하고, 필터·검색은 그 순서를 재사용한다.
 | Application | fresh Plan, Rule Preview, selection/numbering, Undo/Recovery preview, watch snapshot | NameFixCore 모델 + Infrastructure 서비스 | Integration/UI model |
 | Packages/NameFixCore | raw 이름/경로 모델, Unicode 정규화, RulePipeline, entitlement, CSV/name mapping 순수 로직 | Foundation 값 모델 | NameFixCore tests |
 | Infrastructure | scan, raw filesystem access, FileCoordination, transaction/graph transaction, journal, metadata, settings, recipe/watch store, diagnostics | Application이 호출하는 저장/실행 API | Integration/Safety/Transaction |
