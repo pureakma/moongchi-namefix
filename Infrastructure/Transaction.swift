@@ -73,7 +73,9 @@ public actor TransactionCoordinator {
                 try journal.append("TemporaryRenamed", operation: op)
                 try journal.append("FinalIntent", operation: op)
                 try FS.verify(fd, raw: op.temporary, identity: op.identity)
-                try move(fd, operation: op, from: op.temporary, to: op.destination, token: token) { moved = true }
+                // A cancel requested mid-item must not strand it at the temporary name:
+                // finish this item, then stop at the top of the loop.
+                try move(fd, operation: op, from: op.temporary, to: op.destination, token: CancellationToken()) { moved = true }
                 try journal.append("FinalRenamed", operation: op)
                 try FS.verify(fd, raw: op.destination, identity: op.identity)
                 guard try FS.absent(fd, raw: op.temporary), try FS.directoryIdentity(fd) == op.parentIdentity else { throw FSError("SourceChanged", ESTALE) }

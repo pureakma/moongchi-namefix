@@ -36,6 +36,9 @@ public actor WatchStore {
     }
     public func save(_ value: WatchLibrary) throws {
         guard !readOnly else { throw FSError("WatchReadOnly") }; try value.validate()
+        // Refuse what load() would reject, so the saved file can always be read back.
+        let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        guard try encoder.encode(value).count <= 96_000_000 else { throw RuleFailure.budget }
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         try Durable.atomic(value, to: url)
     }

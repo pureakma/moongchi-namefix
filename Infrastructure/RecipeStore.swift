@@ -40,6 +40,9 @@ public actor RecipeStore {
     public func save(_ library: RecipeLibrary) throws {
         guard !readOnly else { throw FSError("RecipeReadOnly") }
         try validate(library)
+        // Refuse what load() would reject, so one oversized preset cannot lock the whole library.
+        let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        guard try encoder.encode(library).count <= 8_000_000 else { throw RuleFailure.budget }
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         try Durable.atomic(library, to: url)
     }

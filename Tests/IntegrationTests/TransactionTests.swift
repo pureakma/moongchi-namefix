@@ -218,4 +218,13 @@ final class TransactionTests: XCTestCase, @unchecked Sendable {
             }
         }
     }
+
+    func testScanLimitReportsTheOneItemBeyondIt() throws {
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        _ = try create(root, "a.txt"); _ = try create(root, "b.txt")
+        let exact = Scanner.scan(roots: [RawPath(root.path)], recursive: true, token: CancellationToken(), limit: 3)
+        XCTAssertEqual(exact.entries.count, 3); XCTAssertFalse(exact.limited)
+        let over = Scanner.scan(roots: [RawPath(root.path)], recursive: true, token: CancellationToken(), limit: 2)
+        XCTAssertEqual(over.entries.count, 2); XCTAssertTrue(over.limited)
+    }
 }

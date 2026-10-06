@@ -70,7 +70,7 @@ public struct RulePipeline: Codable, Equatable, Sendable {
                   pairExtensions.allSatisfy({ !$0.isEmpty && $0.count <= 16 && $0.allSatisfy({ $0.isLetter || $0.isNumber }) }),
                   mapping == nil, rules.allSatisfy({ !$0.enabled || $0.scope == .stem && $0.conditionExtension.isEmpty }) else { throw RuleFailure.invalid }
         }
-        if let manualPaths { guard manualPaths.count <= 200000, Set(manualPaths).count == manualPaths.count else { throw RuleFailure.invalid } }
+        if let manualPaths { guard manualPaths.count <= 200000, Set(manualPaths.map(RawPath.init(bytes:))).count == manualPaths.count else { throw RuleFailure.invalid } }
         for r in rules where r.enabled {
             guard (r.metadataFallback?.utf8.count ?? 0) <= 8192, r.text.utf8.count <= 8192, r.replacement.utf8.count <= 8192, (0...4096).contains(r.position), (0...18).contains(r.digits), r.repeatCount > 0, r.restartCount >= 0 else { throw RuleFailure.invalid }
             if [.replace, .regex, .wildcard, .metadata].contains(r.kind) && r.text.isEmpty { throw RuleFailure.invalid }
@@ -148,7 +148,7 @@ public struct RulePipeline: Codable, Equatable, Sendable {
             var aborted = false, replacements: [(NSRange, String)] = []
             expression.enumerateMatches(in: input, options: [.reportProgress, .reportCompletion], range: NSRange(input.startIndex..., in: input)) { match, _, stop in
                 if cancelled() || Date() > deadline { aborted = true; stop.pointee = true; return }
-                if let match { replacements.append((match.range, expression.replacementString(for: match, in: input, offset: 0, template: r.replacement))) }
+                if let match { replacements.append((match.range, expression.replacementString(for: match, in: input, offset: 0, template: r.kind == .wildcard ? NSRegularExpression.escapedTemplate(for: r.replacement) : r.replacement))) }
             }
             if aborted { throw cancelled() ? RuleFailure.cancelled : RuleFailure.regexBudget }
             let result = NSMutableString(string: input)

@@ -76,7 +76,9 @@ import NameFixApplication
             #endif
             default:
                 guard !arg.hasPrefix("--"), arg.hasPrefix("/"), !arg.utf8.contains(0) else { throw RuleFailure.invalid }
-                paths.append(RawPath(arg))
+                // "/folder/" must name the folder itself, not an entry called "folder" inside it.
+                var path = arg; while path.count > 1, path.hasSuffix("/") { path.removeLast() }
+                paths.append(RawPath(path))
             }
         }
         guard !(json && execute) else { throw RuleFailure.invalid }

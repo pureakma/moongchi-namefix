@@ -6,10 +6,10 @@ import NameFixRuntime
 public enum Planning {
     public static func make(entries: [FileEntry], selected: Set<UUID>, generation: UUID) throws -> RenamePlan {
         var operations: [RenameOperation] = [], excluded = entries.filter { $0.status == .conflict || $0.status.isError }.count
-        let groups = Dictionary(grouping: entries.filter { $0.groupID != nil }, by: { $0.groupID! })
+        let groups = Dictionary(grouping: entries.filter { $0.groupID != nil }, by: { RawPath(bytes: $0.groupID!) })
         let incompleteGroups = Set(groups.filter { _, rows in rows.contains { !$0.status.fixable || !selected.contains($0.id) } }.keys)
-        let candidates = entries.filter { selected.contains($0.id) && $0.status.fixable && ($0.groupID == nil || !incompleteGroups.contains($0.groupID!)) }
-        excluded += entries.filter { selected.contains($0.id) && $0.status.fixable && $0.groupID.map(incompleteGroups.contains) == true }.count
+        let candidates = entries.filter { selected.contains($0.id) && $0.status.fixable && ($0.groupID == nil || !incompleteGroups.contains(RawPath(bytes: $0.groupID!))) }
+        excluded += entries.filter { selected.contains($0.id) && $0.status.fixable && $0.groupID.map { incompleteGroups.contains(RawPath(bytes: $0)) } == true }.count
         var snapshots: [RawPath: Set<Data>] = [:]
         let directories = DirectoryReadSession()
         for entry in candidates.sorted(by: { $0.path.depth == $1.path.depth ? $0.path.bytes.lexicographicallyPrecedes($1.path.bytes) : $0.path.depth > $1.path.depth }) {
@@ -31,7 +31,7 @@ public enum Planning {
             } catch { excluded += 1 }
         }
         // Remove every duplicate destination, never select an arbitrary winner.
-        let grouped = Dictionary(grouping: operations) { op in op.source.parent.bytes + Data([0]) + Data(String(decoding: op.destination, as: UTF8.self).precomposedStringWithCanonicalMapping.lowercased().utf8) }
+        let grouped = Dictionary(grouping: operations) { op in RawPath(bytes: op.source.parent.bytes + Data([0]) + Data(String(decoding: op.destination, as: UTF8.self).precomposedStringWithCanonicalMapping.lowercased().utf8)) }
         let duplicates = Set(grouped.values.filter { $0.count > 1 }.flatMap { $0.map(\.id) })
         excluded += operations.filter { duplicates.contains($0.id) }.count
         operations.removeAll { duplicates.contains($0.id) }
@@ -39,16 +39,16 @@ public enum Planning {
         var changed = true
         while changed {
             changed = false
-            let operationGroupCounts = Dictionary(grouping: operations.filter { $0.groupID != nil }, by: { $0.groupID! }).mapValues(\.count)
+            let operationGroupCounts = Dictionary(grouping: operations.filter { $0.groupID != nil }, by: { RawPath(bytes: $0.groupID!) }).mapValues(\.count)
             let completeGroups = Set(groups.filter { key, members in operationGroupCounts[key] == members.count }.keys)
-            let peersByKey = Dictionary(grouping: operations) { op in op.source.parent.bytes + Data([0]) + Data(String(decoding: op.source.leaf, as: UTF8.self).precomposedStringWithCanonicalMapping.lowercased().utf8) }
+            let peersByKey = Dictionary(grouping: operations) { op in RawPath(bytes: op.source.parent.bytes + Data([0]) + Data(String(decoding: op.source.leaf, as: UTF8.self).precomposedStringWithCanonicalMapping.lowercased().utf8)) }
             operations = operations.filter { op in
-                if let group = op.groupID, !completeGroups.contains(group) { excluded += 1; changed = true; return false }
+                if let group = op.groupID, !completeGroups.contains(RawPath(bytes: group)) { excluded += 1; changed = true; return false }
                 do {
                     let fd = try directories.open(op.source.parent)
                     if try FS.destinationAvailable(fd, source: op.source.leaf, dest: op.destination, expected: op.identity, names: snapshots[op.source.parent] ?? []) { return true }
                     let key = Data(String(decoding: op.destination, as: UTF8.self).precomposedStringWithCanonicalMapping.lowercased().utf8)
-                    let peers = (peersByKey[op.source.parent.bytes + Data([0]) + key] ?? []).filter { $0.id != op.id }
+                    let peers = (peersByKey[RawPath(bytes: op.source.parent.bytes + Data([0]) + key)] ?? []).filter { $0.id != op.id }
                     if peers.count == 1, try FS.identity(FS.metadata(fd, op.destination)) == peers[0].identity { try FS.verify(fd, raw: peers[0].source.leaf, identity: peers[0].identity); return true }
                 } catch { /* Count and surface excluded operations in the confirmation. */ }
                 excluded += 1; changed = true; return false

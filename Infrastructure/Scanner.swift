@@ -76,7 +76,8 @@ public enum Scanner {
             return nil
         }
         var indices: [RawPath: ([Data], Set<Data>)] = [:]
-        while let (requested, level, device) = work.popLast(), !token.cancelled, result.count < limit {
+        // Test the limit before popping so the item that would exceed it stays counted as pending.
+        while !token.cancelled, result.count < limit, let (requested, level, device) = work.popLast() {
             if seen.contains(requested) { continue }
             do {
                 let opened = try parentFD(requested.parent), fd = opened.fd

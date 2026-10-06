@@ -362,4 +362,28 @@ final class ExpansionTests: XCTestCase, @unchecked Sendable {
         let replay = try store.replay(current); XCTAssertTrue(replay.valid); XCTAssertEqual(replay.events.first?.schemaVersion, 2)
     }
 
+    func testMetadataRuleRenamesFolderTogetherWithItsChildren() async throws {
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        let folder = root.appendingPathComponent("album"); try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        try Data("a".utf8).write(to: folder.appendingPathComponent("a.txt"))
+        var rule = RenameRule(.metadata); rule.text = "size"; rule.replacement = "_"; rule.metadataFallback = "x"
+        let scan = Scanner.scan(roots: [RawPath(folder.path)], recursive: true, token: CancellationToken())
+        let entries = try await RulePreview.apply(scan.entries, pipeline: RulePipeline(rules: [rule]), access: .pro, token: CancellationToken())
+        // A folder's mtime changes when its children are renamed, so it must not carry a freshness snapshot.
+        XCTAssertNil(entries.first { $0.isDirectory }?.contentVersion)
+        let plan = try Planning.make(entries: entries, selected: Set(entries.filter { $0.status.fixable }.map(\.id)), generation: UUID())
+        XCTAssertEqual(plan.operations.count, 2)
+        let store = try JournalStore(root: root.appendingPathComponent("journal"))
+        let result = try await TransactionCoordinator(store: store).execute(plan, token: CancellationToken())
+        XCTAssertEqual(result.status, "Completed"); XCTAssertEqual(result.succeeded, 2)
+    }
+    func testFinderBookkeepingFilesAreNotRenamedOrNumbered() async throws {
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        for name in [".DS_Store", "a.txt", "b.txt"] { try Data(name.utf8).write(to: root.appendingPathComponent(name)) }
+        var number = RenameRule(.numbering); number.text = "_"; number.start = 1
+        let scan = Scanner.scan(roots: [RawPath(root.path)], recursive: true, token: CancellationToken()).entries.filter { !$0.isDirectory }
+        let entries = try await RulePreview.apply(scan, pipeline: RulePipeline(rules: [number]), access: .free, token: CancellationToken())
+        XCTAssertEqual(entries.first { $0.name == ".DS_Store" }?.status, .normal)
+        XCTAssertEqual(Set(entries.filter { $0.status.fixable }.map(\.preview)), ["a_001.txt", "b_002.txt"])
+    }
 }

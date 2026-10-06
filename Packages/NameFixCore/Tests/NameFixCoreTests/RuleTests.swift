@@ -55,4 +55,13 @@ final class RuleTests: XCTestCase {
         XCTAssertEqual(try RulePipeline(rules: [prefix]).evaluate("file.").last?.after, "p_file.")
     }
 
+    func testWildcardReplacementIsLiteralText() throws {
+        var r = RenameRule(.wildcard); r.text = "IMG*"; r.replacement = "US$100"
+        XCTAssertEqual(try RulePipeline(rules: [r]).evaluate("IMG_1.jpg", access: .pro).last?.after, "US$100.jpg")
+    }
+    func testRawPathHashCoversBytesBeyondTheSharedPrefix() {
+        let prefix = "/" + String(repeating: "a", count: 120) + "/IMG_"
+        XCTAssertNotEqual(RawPath(prefix + "0001.JPG").hashValue, RawPath(prefix + "0002.JPG").hashValue)
+        XCTAssertEqual(RawPath(prefix + "0001.JPG"), RawPath(bytes: Data((prefix + "0001.JPG").utf8)))
+    }
 }

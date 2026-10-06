@@ -145,4 +145,19 @@ final class CoordinatedTransactionTests: XCTestCase, @unchecked Sendable {
         print("COORDINATED_MUTATION count=1000 seconds=\(Date().timeIntervalSince(start)) durable_journal=true content_size_mtime_check=true")
         for i in 0..<1000 { XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("é-\(i).txt")), Data("original \(i)".utf8)) }
     }
+
+    #if DEBUG
+    func testCancelDuringAnItemFinishesThatItemBeforeStopping() async throws {
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        for name in ["e\u{301}-1.txt", "e\u{301}-2.txt"] { try Data(name.utf8).write(to: root.appendingPathComponent(name)) }
+        let store = try JournalStore(root: root.appendingPathComponent("journal")), approved = try plan(root), token = CancellationToken()
+        XCTAssertEqual(approved.operations.count, 2)
+        // Cancel inside the first source→temporary move, as pressing Cancel mid-item would.
+        let coordinator = TransactionCoordinator(store: store) { _, _, _, _ in token.cancel() }
+        let summary = try await coordinator.execute(approved, token: token)
+        XCTAssertEqual(summary.status, "Cancelled"); XCTAssertEqual(summary.succeeded, 1); XCTAssertEqual(summary.failed, 0)
+        XCTAssertFalse(try FileManager.default.contentsOfDirectory(atPath: root.path).contains { $0.hasPrefix(".namefix-") })
+        XCTAssertTrue(try History.inspect(store: store, id: approved.id).isEmpty)
+    }
+    #endif
 }

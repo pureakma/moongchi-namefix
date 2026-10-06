@@ -16,6 +16,10 @@ public struct RawPath: Codable, Hashable, Sendable {
     public var bytes: Data
     public init(_ string: String) { bytes = Data(string.utf8) }
     public init(bytes: Data) { self.bytes = bytes }
+    // Data's own hashing has sampled only a leading window of bytes on some macOS
+    // releases. Sibling paths share that window, so path-keyed sets must hash it all.
+    public static func == (a: RawPath, b: RawPath) -> Bool { a.bytes == b.bytes }
+    public func hash(into hasher: inout Hasher) { bytes.withUnsafeBytes { hasher.combine(bytes: $0) } }
     public var display: String { String(data: bytes, encoding: .utf8) ?? "⟨invalid UTF-8⟩" }
     public var leaf: Data { Data(bytes.split(separator: 47).last ?? Data.SubSequence()) }
     public var parent: RawPath { let cut = bytes.lastIndex(of: 47) ?? bytes.startIndex; return RawPath(bytes: cut == bytes.startIndex ? Data([47]) : Data(bytes[..<cut])) }
@@ -86,6 +90,8 @@ public struct NormalizationAnalysis: Sendable {
     }
 }
 public enum NameRules {
+    /// Finder's own bookkeeping files. Batch rules never rename them.
+    public static func finderMetadata(_ raw: Data) -> Bool { raw == Data(".DS_Store".utf8) || raw == Data(".localized".utf8) }
     public static func valid(_ raw: Data, limit: Int = 255) -> Bool {
         !raw.isEmpty && raw.count <= limit && !raw.contains(0) && !raw.contains(47) && raw != Data(".".utf8) && raw != Data("..".utf8) && String(data: raw, encoding: .utf8) != nil
     }

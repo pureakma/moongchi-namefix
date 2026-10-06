@@ -63,7 +63,8 @@ public final class JournalWriter {
         fd = open(url.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
         guard fd >= 0 else { throw FSError("JournalWriteFailed") }
         let dir = try FS.openDirectory(RawPath(url.deletingLastPathComponent().path)); defer { close(dir) }
-        guard fsync(dir) == 0 else { close(fd); throw FSError("JournalWriteFailed") }
+        // deinit closes fd when this throws; closing here as well would release it twice.
+        guard fsync(dir) == 0 else { throw FSError("JournalWriteFailed") }
     }
     deinit { close(fd) }
     public func append(_ state: String, operation: RenameOperation? = nil, error: String? = nil) throws {
