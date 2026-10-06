@@ -75,6 +75,6 @@ CLI는 기본 dry-run이며 실제 변경은 execute 요청과 터미널 최종 
 
 ## 리소스 생성
 
-Resources/Localizable.xcstrings가 runtime 번역 원본이다. eng/resources.py는 초기 handoff의 LOCALIZATION_CATALOG.md와 eng/expansion-localizations.json을 입력으로 사용해 ko/en/ja 리소스를 생성하고 bundled font를 복사한다.
+Resources/Localizable.xcstrings가 번역의 단일 SSOT다. eng/resources.py는 이 catalog에서 ko/en/ja runtime .strings와 Finder Services InfoPlist.strings만 재생성한다.
 
-Moongchi_NameFix_macOS_Dev_Handoff_v1.0은 이 리소스 생성과 hash 검증에 필요한 provenance package이므로 현재 제품 요구/계획 SSOT로 읽지 않는다.
+Pretendard Variable과 Pretendard JP Variable의 실제 앱 자산·라이선스는 Resources/ 한 곳만 유지한다. Windows→macOS 초기 handoff, 별도 localization JSON, 중복 폰트 사본에 빌드나 검증이 의존하지 않는다.

@@ -16,6 +16,6 @@
 | 로컬 QA 패키지 안내 | `QA_README.txt` | 로컬 QA 패키징 Task | 패키지 안내 변경 | Cold | - |
 | Release 후보 패키지 안내 | `V1_CANDIDATE_README.txt` | Release 후보 패키징 Task | 후보 안내 변경 | Cold | - |
 
-루트 README.md는 프로젝트 진입점, AGENTS.md는 AI 실행 규칙이다. ThirdPartyNotices.md, Resources의 라이선스, assets/branding, Moongchi_NameFix_macOS_Dev_Handoff_v1.0은 법적/브랜드/리소스 생성용 provenance 자산이며 현재 제품 요구나 계획 SSOT가 아니다.
+루트 README.md는 프로젝트 진입점, AGENTS.md는 AI 실행 규칙이다. ThirdPartyNotices.md와 Resources의 라이선스는 법적 자산, assets/branding/NameFix-Original.png는 현재 앱 아이콘 원본이다. 과거 Windows→macOS handoff와 이전 아이콘은 Git 이력에서만 조회한다.
 
 현재 Active Plan은 별도 PLAN.md가 아니라 PROJECT.md의 현재 승인 범위 한 곳만 사용한다. 별도 Handoff 문서는 만들지 않는다. Git과 STATUS로 재개할 수 있어야 한다.

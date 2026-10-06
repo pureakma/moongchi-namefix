@@ -1709,7 +1709,7 @@
     },
     {
       "validationId": "MAC-APP-ICON-1aa97856",
-      "status": "PASS",
+      "status": "STALE",
       "configuration": "Debug",
       "architecture": "arm64",
       "scope": [
@@ -1720,7 +1720,9 @@
       "sourceFingerprint": "1aa97856609e170b2f7679d5c9206ce6c7300d503324afe4b2248a77424dd40a",
       "evidencePath": "artifacts/development/icon-1aa97856",
       "timestamp": "2026-10-04T05:56:17.639147+00:00",
-      "command": "eng/icon.swift; eng/build.sh; 10-slot dimensions/alpha and bundle ICNS checks"
+      "command": "eng/icon.swift; eng/build.sh; 10-slot dimensions/alpha and bundle ICNS checks",
+      "previousStatus": "PASS",
+      "invalidationReason": "2026-10-06 resource SSOT cleanup removed Windows-to-macOS handoff/generator inputs; rerun affected resource/UI verification after sync."
     },
     {
       "validationId": "MAC-QUICK-BATCH-WORKSPACE-20261004",
@@ -1748,7 +1750,7 @@
     },
     {
       "validationId": "MAC-NATIVE-SIDEBAR-20261004",
-      "status": "PASS",
+      "status": "STALE",
       "configuration": "Debug",
       "architecture": "arm64",
       "scope": [
@@ -1769,7 +1771,9 @@
       "timestamp": "2026-10-04T07:10:21.572620+00:00",
       "command": "eng/build.sh; eng/test.sh --filter WorkspaceTests|WindowLayoutTests; validate-resources.py; --render-expansion --native-sidebar",
       "evidencePath": "artifacts/development/native-sidebar",
-      "notes": "12 related tests; 36 native renders and collapse assertions; 426 keys x 3 locales; selected images visually inspected. No Release/user GUI control."
+      "notes": "12 related tests; 36 native renders and collapse assertions; 426 keys x 3 locales; selected images visually inspected. No Release/user GUI control.",
+      "previousStatus": "PASS",
+      "invalidationReason": "2026-10-06 resource SSOT cleanup removed Windows-to-macOS handoff/generator inputs; rerun affected resource/UI verification after sync."
     }
   ]
 }

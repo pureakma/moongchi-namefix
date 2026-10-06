@@ -45,7 +45,7 @@ runtime = core + ['Infrastructure/**/*.swift','Application/**/*.swift']
 ui = runtime + ['App/**/*.swift','Resources/**/*']
 cli = runtime + ['CLI/**/*.swift']
 dependencies = ['Package.swift','Packages/NameFixCore/Package.swift','project.yml']
-source = ui + cli + dependencies + ['eng/*.sh','eng/*.py','eng/expansion-localizations.json']
+source = ui + cli + dependencies + ['eng/*.sh','eng/*.py']
 files = sorted({p for pattern in source for p in root.glob(pattern) if p.is_file()})
 write(evidence/'source-snapshot.json', {'fingerprint': fingerprint(source), 'files': {str(p.relative_to(root)): sha(p) for p in files}})
 manifest['sourceFingerprint'] = fingerprint(source)
@@ -85,7 +85,7 @@ entry('APFS-CASE-SENSITIVE',runtime,['Tests/IntegrationTests/**/*.swift'],'case-
 entry('RELEASE-TRANSACTIONS',runtime,['Tests/IntegrationTests/**/*.swift'],'release-transaction-tests.txt','NAMEFIX_MUTATION_PERF=1 eng/test.sh -c release --filter TransactionTests|CoordinatedTransactionTests',configuration='Release')
 entry('PERFORMANCE',runtime,['Tests/IntegrationTests/**/*.swift'],'performance-and-races.txt','NAMEFIX_MUTATION_PERF=1 NAMEFIX_EXPANSION_PERF=1 NAMEFIX_PERFORMANCE=1 eng/test.sh --filter CoordinatedTransactionTests|ExpansionPerformanceTests|SafetyTests.testScanPerformanceProfile')
 entry('CLI',cli,['eng/test-release-cli.py'],'cli-release-final.txt','python3 eng/test-release-cli.py .build/out/Products/Release/namefix',configuration='Release')
-entry('RESOURCES',['Resources/**/*','eng/expansion-localizations.json'],['eng/validate-resources.py'],'resources.txt','python3 eng/validate-resources.py')
+entry('RESOURCES',['Resources/**/*','eng/resources.py','eng/validate-resources.py'],['eng/validate-resources.py'],'resources.txt','python3 eng/validate-resources.py')
 entry('RENDER',ui,['App/ResponsiveFixtures.swift'],'render-history-build3.txt','Release --render-responsive; final affected --history-only (6 renders after 75 baseline)',configuration='Release')
 entry('BUILD',ui+dependencies,[],'release-build3.txt','eng/build.sh --configuration Release --arch arm64',configuration='Release')
 entry('DEVELOPER-ID',ui+cli,[],'signing-build3.txt','python3 eng/sign-candidate.py (existing Developer ID, new copy only)',configuration='Release')

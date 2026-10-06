@@ -44,3 +44,8 @@
 - 날짜: 2026-10-06
 - 결정: 날짜별 개발 보고서, 옛 계획, StartPrompt, Project Master의 현재 유효 정보는 새 SSOT로 이관하고 중복 파일은 삭제한다. 별도 archive/backup/old 개발문서를 만들지 않는다.
 - 이유: 현재 판단 원본을 하나로 줄이고 과거 이력은 Git에서 복구할 수 있다.
+
+### D-010 Windows→macOS handoff는 제품 공통 명세 전달에만 사용 [accepted]
+- 날짜: 2026-10-06
+- 결정: 현재 macOS 저장소는 Windows 개발 handoff 패키지나 Windows 개발 이력에 실행 의존하지 않는다. 번역은 Resources/Localizable.xcstrings, 폰트는 Resources/, 앱 아이콘은 assets/branding/NameFix-Original.png를 각각 단일 원본으로 사용한다.
+- 이유: 동일 제품의 기능·사용자 흐름·안전 요구는 계승하되 Windows 구현/개발 산출물 전체를 macOS 프로젝트의 영구 입력으로 유지하면 중복 SSOT와 불필요한 저장소 비대화를 만든다. 향후 플랫폼 이식도 공통 Product/UI·UX 명세 + 대상 플랫폼 Native Spec 방식으로 한다.
