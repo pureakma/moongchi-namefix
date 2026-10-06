@@ -330,7 +330,10 @@ struct DeveloperCard: View {
                 }
             }
             if let support = AppInfo.support {
-                Button { NSWorkspace.shared.open(support) } label: { Label(model.t("ContactSupport"), systemImage: "ladybug") }
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 10) { contact(support) }
+                    VStack(alignment: .leading, spacing: 6) { contact(support) }
+                }
             }
             Button { model.sheet = "about" } label: {
                 HStack(spacing: 6) { Image(systemName: "chevron.right").font(.caption).accessibilityHidden(true); Text(model.t("License")) }.contentShape(Rectangle())
@@ -358,6 +361,11 @@ struct DeveloperCard: View {
     @ViewBuilder private var guides: some View {
         Button { model.sheet = "help" } label: { Label(model.t("HelpTitle"), systemImage: "questionmark.circle") }
         Button { model.sheet = "onboarding" } label: { Label(model.t("ShowIntro"), systemImage: "sparkles") }.accessibilityIdentifier("showIntro")
+    }
+    /// Opens a new message in the user's mail app; the address is also shown so it can be copied.
+    @ViewBuilder private func contact(_ url: URL) -> some View {
+        Button { NSWorkspace.shared.open(url) } label: { Label(model.t("ContactSupport"), systemImage: "envelope") }.help(url.absoluteString).accessibilityIdentifier("contactSupport")
+        Text(url.absoluteString.replacingOccurrences(of: "mailto:", with: "")).font(.callout).foregroundStyle(palette.secondary).textSelection(.enabled)
     }
     @ViewBuilder private func site(_ url: URL) -> some View {
         Button { NSWorkspace.shared.open(url) } label: { Label(model.t("MoongchiWebsite"), systemImage: "arrow.up.right.square") }.help(url.absoluteString)

@@ -6,9 +6,9 @@ import CoreText
 enum AppInfo {
     static var version: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0" }
     static var build: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0" }
-    /// The Moongchi site. The developer card shows the support row only once an address is set.
+    /// The Moongchi site and the address for bug reports and questions.
     static let website = URL(string: "https://moongchi.ailoworks.com")
-    static let support: URL? = nil
+    static let support = URL(string: "mailto:ailo@ailoworks.com")
 }
 enum L10n {
     static func language(_ value: String) -> String {

@@ -1887,12 +1887,12 @@
         "eng/test-expansion-cli.py",
         "eng/test-release-cli.py"
       ],
-      "sourceFingerprint": "fb81f99f1632e9ea8be1101f27015cc9a8c4e8a47052218b323f0a1b4dacb98b",
+      "sourceFingerprint": "ab8a0722666764e22b7bcccfa8025328bddf7262d699f399ada42fb42c0ce659",
       "testFingerprint": "bb17f70518986aaaa1b27c2e199dfce0c00357840282dddffe5d4beaa0784c3e",
-      "timestamp": "2026-10-06T12:20:04.350428+00:00",
+      "timestamp": "2026-10-06T12:42:51.390440+00:00",
       "command": "eng/test.sh --level 3 --scope all; eng/resources.py; eng/validate-resources.py; bash eng/build-cli.sh debug + eng/test-expansion-cli.py; bash eng/build-cli.sh release + eng/test-release-cli.py; eng/build.sh Debug; eng/build.sh Release + --self-test; --render-ux/--render-shell/--render-expansion/--render-expansion --native-sidebar/--render-responsive; --diagnose-window",
       "evidencePath": "artifacts/development/favorites-targets",
-      "notes": "Favourite folders (D-021) and the batch rename target policy (D-022): 116 tests, 0 failures (54 integration, 42 UI model, 20 core; performance profiles skipped); 516 keys x 3 locales; Debug and Release CLI contracts PASS; Debug and Release arm64 builds; 249 fixture renders. Not re-run: performance profiles, startup/idle measurement, case-sensitive APFS volume profile, UI test bundle build. User checks F1-F5 in docs/QA.md are pending."
+      "notes": "Favourite folders (D-021) and the batch rename target policy (D-022): 116 tests, 0 failures (54 integration, 42 UI model, 20 core; performance profiles skipped); 516 keys x 3 locales; Debug and Release CLI contracts PASS; Debug and Release arm64 builds; 249 fixture renders. Not re-run: performance profiles, startup/idle measurement, case-sensitive APFS volume profile, UI test bundle build. User checks F1-F5 in docs/QA.md are pending. Then the support address (ailo@ailoworks.com) was added to the Settings card: re-verified with a Debug build and --render-ux; tests were not re-run."
     }
   ]
 }
