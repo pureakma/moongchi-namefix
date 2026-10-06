@@ -16,7 +16,7 @@ settings:
     ENABLE_HARDENED_RUNTIME: YES
     ENABLE_APP_SANDBOX: NO
     MARKETING_VERSION: 1.0.0
-    CURRENT_PROJECT_VERSION: 3
+    CURRENT_PROJECT_VERSION: 4
 packages:
   Runtime:
     path: .
@@ -32,10 +32,17 @@ targets:
     settings:
       base:
         PRODUCT_NAME: Moongchi NameFix
-        PRODUCT_BUNDLE_IDENTIFIER: com.moongchi.namefix.dev
         INFOPLIST_FILE: App/Info.plist
         GENERATE_INFOPLIST_FILE: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      # The released app and the development app never share an identifier.
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: com.moongchi.namefix.dev
+        Release:
+          PRODUCT_BUNDLE_IDENTIFIER: com.ailoworks.namefix
+          # No debugging entitlement in what gets signed and notarized.
+          CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
     dependencies:
       - package: Runtime
         product: NameFixApplication

@@ -1,12 +1,16 @@
 #!/bin/bash
+# Signs and notarizes a copy of an already built Release app. It never edits the app: the bundle
+# identifier comes from the Release build itself, and a different one stops the run.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+expected_bundle_id="com.ailoworks.namefix"
 : "${NAMEFIX_SIGN_IDENTITY:?Provide an explicitly approved Developer ID Application identity}"
 : "${NAMEFIX_NOTARY_PROFILE:?Provide a Keychain notarytool profile}"
-: "${NAMEFIX_RELEASE_BUNDLE_ID:?Provide your team-owned bundle ID}"
-: "${NAMEFIX_SIGN_INPUT_APP:?Provide a separate release app copy, not the QA artifact}"
+: "${NAMEFIX_SIGN_INPUT_APP:?Provide a separate release app copy, not the pre-sign candidate itself}"
 [[ -d "$NAMEFIX_SIGN_INPUT_APP" ]] || exit 1
-/usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $NAMEFIX_RELEASE_BUNDLE_ID" "$NAMEFIX_SIGN_INPUT_APP/Contents/Info.plist"
+actual_bundle_id="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$NAMEFIX_SIGN_INPUT_APP/Contents/Info.plist")"
+[[ "$actual_bundle_id" == "$expected_bundle_id" ]] || { echo "Bundle ID is $actual_bundle_id, expected $expected_bundle_id. Build the Release configuration; do not edit the app." >&2; exit 1; }
+[[ "$(lipo -archs "$NAMEFIX_SIGN_INPUT_APP/Contents/MacOS/Moongchi NameFix")" == arm64 ]] || { echo 'Expected an arm64-only app' >&2; exit 1; }
 codesign --force --sign "$NAMEFIX_SIGN_IDENTITY" --options runtime --timestamp "$NAMEFIX_SIGN_INPUT_APP"
 codesign --verify --deep --strict --verbose=2 "$NAMEFIX_SIGN_INPUT_APP"
 work="$(mktemp -d /private/tmp/namefix-notary.XXXXXX)"

@@ -10,7 +10,6 @@ while [[ $# -gt 0 ]]; do
  --clean) build_action=(clean build); shift;;
  --configuration) configuration="$2"; shift 2;;
  --arch) [[ "$2" == arm64 ]] || { echo 'Apple Silicon arm64 only' >&2; exit 2; }; shift 2;;
- --bundle-id) [[ "$2" =~ ^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$ ]] || { echo 'Invalid bundle ID' >&2; exit 2; }; build_settings+=("PRODUCT_BUNDLE_IDENTIFIER=$2"); shift 2;;
  *) echo "Unknown argument: $1" >&2; exit 2;;
  esac
 done
