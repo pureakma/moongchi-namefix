@@ -33,7 +33,6 @@ final class WindowLayoutTests: XCTestCase {
     }
     func testResponsiveThresholdsAndSheetsFitParent() {
         XCTAssertFalse(WindowLayout.wide(width: 899)); XCTAssertTrue(WindowLayout.wide(width: 900))
-        XCTAssertEqual([250, 500, 800].map { WindowLayout.cardColumns(width: CGFloat($0)) }, [1,2,4])
         for available in [CGSize(width: 320, height: 240), CGSize(width: 480, height: 360), CGSize(width: 1180, height: 780)] {
             let sheet = WindowLayout.sheet(preferred: CGSize(width: 840, height: 580), available: available)
             XCTAssertLessThanOrEqual(sheet.width, available.width); XCTAssertLessThanOrEqual(sheet.height, available.height)

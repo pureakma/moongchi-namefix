@@ -1,3 +1,4 @@
+#if DEBUG
 import AppKit
 import SwiftUI
 import NameFixCore
@@ -219,3 +220,4 @@ import NameFixRuntime
         guard blocked.isEmpty, thirds.allSatisfy({ $0 > 0 }) else { throw NSError(domain: "DragContract", code: 2) }
     }
 }
+#endif

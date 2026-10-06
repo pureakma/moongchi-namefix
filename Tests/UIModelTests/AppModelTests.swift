@@ -1,4 +1,5 @@
 import XCTest
+import Combine
 import Foundation
 import NameFixCore
 import NameFixRuntime
@@ -150,6 +151,44 @@ import NameFixRuntime
         model.query = "not-present"; model.query = "99999-"
         try await settled(model, condition: { model.visible.count == 1 })
         XCTAssertTrue(model.visible[0].name.hasPrefix("99999-")); XCTAssertEqual(model.hiddenSelected, 100)
+        await model.shutdown()
+    }
+    /// Timing profile of the list operations a large result set goes through. Opt-in: NAMEFIX_UI_PERF=1.
+    func testLargeListInteractionProfile() async throws {
+        guard ProcessInfo.processInfo.environment["NAMEFIX_UI_PERF"] == "1" else { throw XCTSkip("UI performance profile only") }
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        let model = AppModel(dataRoot: root); await model.start()
+        let rows = await Task.detached { (0..<100_000).map { i -> FileEntry in
+            let folder = "/fixture/folder-\(i % 200)"
+            return FileEntry(path: RawPath("\(folder)/\(String(i, radix: 7))-보고서 e\u{301}-\(i).txt"), status: i % 3 == 0 ? .normal : .needsNormalization, reason: "ChangeHelp", proposed: Data("\(i)-é.txt".utf8))
+        } }.value
+        model.entries = rows
+        // Each step ends when the model publishes the recomputed list.
+        func timed(_ label: String, _ action: @MainActor @escaping () -> Void) async {
+            let start = Date()
+            var waiting: AnyCancellable?
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                var resumed = false
+                waiting = model.$visible.dropFirst().sink { _ in if !resumed { resumed = true; continuation.resume() } }
+                action()
+            }
+            waiting?.cancel(); await Task.yield()
+            print(String(format: "UI_PERF %@ total=%.3f visible=%d", label, Date().timeIntervalSince(start), model.visible.count))
+        }
+        await timed("sort-name") { model.refreshVisible() }
+        await timed("sort-path") { model.sort = "Path" }
+        await timed("sort-status") { model.sort = "Status" }
+        await timed("sort-name-again") { model.sort = "Name" }
+        await timed("filter-needed") { model.filter = "NeedsNormalization" }
+        await timed("filter-all") { model.filter = "All" }
+        await timed("search(+0.18s debounce)") { model.query = "66" }
+        await timed("search-clear(+0.18s debounce)") { model.query = "" }
+        await timed("folder-filter") { model.folderFilter = RawPath("/fixture/folder-7") }
+        await timed("folder-clear") { model.folderFilter = nil }
+        var start = Date(); model.select("all"); print(String(format: "UI_PERF select-all call=%.4f selected=%d", Date().timeIntervalSince(start), model.selected.count))
+        start = Date(); model.select("none"); print(String(format: "UI_PERF select-none call=%.4f", Date().timeIntervalSince(start)))
+        start = Date(); for row in rows.prefix(300) where row.status.fixable { model.toggle(row) }; print(String(format: "UI_PERF toggle-x200 call=%.4f", Date().timeIntervalSince(start)))
+        start = Date(); model.select("invert"); print(String(format: "UI_PERF select-invert call=%.4f", Date().timeIntervalSince(start)))
         await model.shutdown()
     }
     func testFreePipelineRestoresWithoutPersistingInputPathsAndProRejects() async throws {

@@ -6,6 +6,14 @@ import NameFixCore
 @main @MainActor struct NameFixMain {
     static func main() {
         L10n.registerFonts()
+        if CommandLine.arguments.contains("--self-test") {
+            let checks = ["ko", "en", "ja"].allSatisfy { L10n.text("WorkspaceTitle", language: $0) != "WorkspaceTitle" }
+            let fonts = ["PretendardVariable-Regular", "PretendardJPVariable-Regular"].allSatisfy { NSFont(name: $0, size: 13) != nil }
+            print("NameFix arm64 resource startup: locales=\(checks) fonts=\(fonts)")
+            exit(checks && fonts ? 0 : 1)
+        }
+        // Render and diagnosis fixtures are development tools and are not part of a Release build.
+        #if DEBUG
         if let flag = CommandLine.arguments.firstIndex(of: "--render-expansion"), CommandLine.arguments.count > flag + 1 {
             do { try ExpansionFixtures.run(output: URL(fileURLWithPath: CommandLine.arguments[flag + 1])); exit(0) }
             catch { print("Expansion render failed:", error); exit(1) }
@@ -21,12 +29,6 @@ import NameFixCore
         if let flag = CommandLine.arguments.firstIndex(of: "--render-shell"), CommandLine.arguments.count > flag + 1 {
             do { try ShellFixtures.run(output: URL(fileURLWithPath: CommandLine.arguments[flag + 1])); exit(0) }
             catch { print("Shell render failed:", error); exit(1) }
-        }
-        if CommandLine.arguments.contains("--self-test") {
-            let checks = ["ko", "en", "ja"].allSatisfy { L10n.text("WorkspaceTitle", language: $0) != "WorkspaceTitle" }
-            let fonts = ["PretendardVariable-Regular", "PretendardJPVariable-Regular"].allSatisfy { NSFont(name: $0, size: 13) != nil }
-            print("NameFix arm64 resource startup: locales=\(checks) fonts=\(fonts)")
-            exit(checks && fonts ? 0 : 1)
         }
         if let flag = CommandLine.arguments.firstIndex(of: "--render-responsive"), CommandLine.arguments.count > flag + 1 {
             do { try ResponsiveFixtures.run(output: URL(fileURLWithPath: CommandLine.arguments[flag + 1])); exit(0) }
@@ -44,6 +46,7 @@ import NameFixCore
             do { try RenderFixtures.run(output: URL(fileURLWithPath: CommandLine.arguments[flag + 1])); exit(0) }
             catch { print("Off-screen render failed:", error); exit(1) }
         }
+        #endif
         let app = NSApplication.shared
         let delegate = AppDelegate()
         app.delegate = delegate

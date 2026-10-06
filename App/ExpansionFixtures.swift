@@ -1,3 +1,4 @@
+#if DEBUG
 import AppKit
 import SwiftUI
 import NameFixCore
@@ -98,3 +99,4 @@ import NameFixRuntime
         print("PASS: \(count) expansion view renders; ko/en/ja, 4 themes, narrow and wide windows; no user window controlled")
     }
 }
+#endif

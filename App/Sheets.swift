@@ -70,13 +70,12 @@ struct SheetRouter: View {
             Divider()
             Group {
                 switch model.sheet {
-                case "format", "formatHelp": CharacterFormatView(model: model, palette: palette, guidanceOnly: model.sheet == "formatHelp")
+                case "formatHelp": CharacterFormatView(model: model, palette: palette)
                 case "tools": AdditionalToolsView(model: model, palette: palette)
                 case "settings": SettingsView(model: model, palette: palette)
                 case "history": HistoryView(model: model, palette: palette)
                 case "inspector": inspector
                 case "clipboard": TextToolView(model: model, palette: palette)
-                case "rules": RuleEditor(model: model, palette: palette)
                 case "watch": WatchView(model: model, palette: palette)
                 case "diagnostics": diagnostics
                 case "about": about
@@ -87,7 +86,7 @@ struct SheetRouter: View {
         }.background(palette.dialog).foregroundStyle(palette.text).font(L10n.font(model.settings.language)).tint(palette.accent)
     }
     private var title: String {
-        let keys = ["format":"OutputForm", "formatHelp":"FormatGuide", "tools":"ExportReport", "watch":"FolderWatch", "rules":"Rules", "settings":"Settings", "history":"History", "inspector":"Inspector", "clipboard":"TextTool", "diagnostics":"DiagnosticsPreview", "about":"About", "help":"HelpTitle"]
+        let keys = ["formatHelp":"FormatGuide", "tools":"ExportReport", "watch":"FolderWatch", "settings":"Settings", "history":"History", "inspector":"Inspector", "clipboard":"TextTool", "diagnostics":"DiagnosticsPreview", "about":"About", "help":"HelpTitle"]
         return model.t(keys[model.sheet ?? "help"] ?? "HelpTitle")
     }
     @ViewBuilder private var inspector: some View {

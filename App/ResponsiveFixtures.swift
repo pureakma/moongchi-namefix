@@ -1,3 +1,4 @@
+#if DEBUG
 import AppKit
 import SwiftUI
 import NameFixCore
@@ -102,3 +103,4 @@ import NameFixApplication
         print("Rendered \(count) responsive layouts; selection/row identity/focus preserved across all sizes")
     }
 }
+#endif

@@ -25,7 +25,6 @@ struct ToolSection<Content: View>: View {
 struct CharacterFormatView: View {
     @ObservedObject var model: AppModel
     let palette: Palette
-    var guidanceOnly = false
     private func explanation(_ target: NormalizationTarget) -> String {
         target == .nfc ? "ComposeHelp" : target == .nfd ? "DecomposeHelp" : "KeepFormHelp"
     }
@@ -35,18 +34,6 @@ struct CharacterFormatView: View {
                 Text(model.t("FormatIntro")).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
                 ForEach(NormalizationTarget.allCases, id: \.self) { target in
                     ToolSection(title: model.t(target.rawValue), icon: target == .nfc ? "textformat.abc" : "textformat", palette: palette) {
-                        if !guidanceOnly {
-                            Button {
-                                var pipeline = model.pipeline; pipeline.target = target; model.usePipeline(pipeline)
-                            } label: {
-                                HStack(alignment: .top) {
-                                    Text(model.t(target.rawValue)).frame(maxWidth: .infinity, alignment: .leading)
-                                    Image(systemName: model.pipeline.target == target ? "checkmark.circle.fill" : "circle")
-                                }.contentShape(Rectangle())
-                            }.buttonStyle(.plain).foregroundStyle(palette.accent)
-                                .accessibilityAddTraits(model.pipeline.target == target ? .isSelected : [])
-                                .disabled(model.busy || model.plan != nil)
-                        }
                         Text(model.t(explanation(target))).font(.callout).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
                     }
                 }

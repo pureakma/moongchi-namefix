@@ -1,3 +1,4 @@
+#if DEBUG
 import AppKit
 import SwiftUI
 import NameFixCore
@@ -80,3 +81,4 @@ import NameFixCore
         print("PASS: \(count) shell/settings renders; screen title in the band, contextual toolbar actions and Olive default verified")
     }
 }
+#endif

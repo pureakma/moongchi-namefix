@@ -1,3 +1,4 @@
+#if DEBUG
 import AppKit
 import SwiftUI
 import NameFixCore
@@ -85,3 +86,4 @@ import NameFixCore
     }
 
 }
+#endif

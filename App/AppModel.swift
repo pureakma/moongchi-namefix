@@ -65,7 +65,11 @@ import NameFixApplication
     @Published var folderFilter: RawPath? { didSet { if oldValue != folderFilter { refreshVisible() } } }
     @Published var sidebarCollapsed = false
     func rebuildFolderTree() { folderTree = FolderTree.build(roots: roots, entries: entries) }
-    @Published var entries: [FileEntry] = []
+    @Published var entries: [FileEntry] = [] { didSet { entriesRevision &+= 1; order = nil } }
+    /// Display order of `entries` for one sort key. Sorting is the costly part of refreshing a large
+    /// list and does not depend on the filter or the search text, so it is kept until either changes.
+    private var order: (sort: String, indices: [Int])?
+    private var entriesRevision: UInt64 = 0
     @Published var visible: [FileEntry] = []
     @Published var selected: Set<UUID> = []
     @Published var focused: UUID?
@@ -88,7 +92,6 @@ import NameFixApplication
     @Published var historyID: UUID?
     @Published var historyLoading = false
     @Published var sheet: String?
-    @Published var inspector = false
     @Published var clipboard: String?
     @Published var clipboardTruncated = false
     @Published var dragActive = false
@@ -105,7 +108,7 @@ import NameFixApplication
     private var transactionToken = CancellationToken()
     private var worker: Task<Void, Never>?
     private var searchTask: Task<Void, Never>?
-    private var filterWorker: Task<[FileEntry], Error>?
+    private var filterWorker: Task<ListView, Error>?
     private var visibleIDs: Set<UUID> = []
     private(set) var viewComputationCount = 0
     private var settingsTask: Task<Void, Never>?
@@ -269,38 +272,85 @@ import NameFixApplication
     }
     func refreshVisible(debounce: Bool = false) {
         searchTask?.cancel(); filterWorker?.cancel(); viewGeneration = UUID()
-        let id = viewGeneration, items = entries, selected = selected, query = query, filter = filter, sort = sort, hide = settings.hideNormal, folder = folderFilter
+        let id = viewGeneration, items = entries, revision = entriesRevision, selected = selected, query = query, filter = filter, sort = sort, hide = settings.hideNormal, scope = folderFilter.map(FolderTree.Scope.init)
+        let known = order?.sort == sort ? order?.indices : nil
         searchTask = Task { [weak self] in
             if debounce { do { try await Task.sleep(for: .milliseconds(180)) } catch { return } }
             guard !Task.isCancelled else { return }
             guard let owner = self else { return }
             owner.viewComputationCount += 1
-            let work = Task.detached(priority: .userInitiated) { () throws -> [FileEntry] in
-                let filtered = try items.filter { e in
-                    try Task.checkCancellation()
-                    if let folder, !FolderTree.contains(folder, e.path) { return false }
+            let work = Task.detached(priority: .userInitiated) { () throws -> ListView in
+                let indices = try known ?? Self.sortedIndices(items, by: sort)
+                let rows = try await Self.filtered(items, in: indices, sliced: !query.isEmpty) { e in
+                    if let scope, !scope.contains(e.path) { return false }
                     if hide && e.status == .normal { return false }
                     if filter == "NeedsNormalization" && !e.status.fixable { return false }
                     if filter == "Normal" && e.status != .normal { return false }
                     if filter == "Conflict" && e.status != .conflict { return false }
                     if filter == "Errors" && !e.status.isError { return false }
                     if filter == "SelectedOnly" && !selected.contains(e.id) { return false }
-                    return query.isEmpty || e.name.localizedStandardContains(query) || e.preview.localizedStandardContains(query) || e.path.display.localizedStandardContains(query)
+                    guard !query.isEmpty else { return true }
+                    // The path ends with the name, so searching it covers both, unless the path cannot be shown as text.
+                    let path = e.path.display
+                    return path.localizedStandardContains(query) || e.preview.localizedStandardContains(query) || (!path.hasPrefix("/") && e.name.localizedStandardContains(query))
                 }
-                return try filtered.sorted { a, b in
-                    try Task.checkCancellation()
-                    let x = sort == "Path" ? a.path.display : sort == "Status" ? a.status.rawValue : a.name
-                    let y = sort == "Path" ? b.path.display : sort == "Status" ? b.status.rawValue : b.name
-                    let cmp = x.localizedStandardCompare(y)
-                    return cmp == .orderedSame ? a.path.bytes.lexicographicallyPrecedes(b.path.bytes) : cmp == .orderedAscending
-                }
+                return ListView(rows: rows, ids: Set(rows.map(\.id)), indices: indices)
             }
             owner.filterWorker = work
-            guard let rows = try? await work.value, let self, viewGeneration == id, !Task.isCancelled else { return }
-            visible = rows; visibleIDs = Set(rows.map(\.id))
+            guard let view = try? await work.value, let self, viewGeneration == id, !Task.isCancelled else { return }
+            if revision == entriesRevision { order = (sort, view.indices) }
+            visible = view.rows; visibleIDs = view.ids
             hiddenSelected = self.selected.subtracting(visibleIDs).count
             // Selection may have changed while a detached SelectedOnly filter ran.
             if filter == "SelectedOnly", selected != self.selected { refreshVisible() }
+        }
+    }
+    private struct ListView: Sendable { var rows: [FileEntry]; var ids: Set<UUID>; var indices: [Int] }
+    /// Positions of `items` in display order. Each sort key is built once, not once per comparison.
+    nonisolated private static func sortedIndices(_ items: [FileEntry], by sort: String) throws -> [Int] {
+        // Equal keys fall back to the raw path bytes, compared in place.
+        func ascending(_ a: Int, _ b: Int, _ result: ComparisonResult) -> Bool {
+            guard result == .orderedSame else { return result == .orderedAscending }
+            return items[a].path.bytes.withUnsafeBytes { x in
+                items[b].path.bytes.withUnsafeBytes { y in
+                    let difference = memcmp(x.baseAddress, y.baseAddress, min(x.count, y.count))
+                    return difference != 0 ? difference < 0 : x.count < y.count
+                }
+            }
+        }
+        if sort == "Status" {
+            // A handful of distinct values: rank them once and compare the ranks.
+            let names = Set(items.map(\.status.rawValue)).sorted { $0.localizedStandardCompare($1) == .orderedAscending }
+            let rank = Dictionary(uniqueKeysWithValues: names.enumerated().map { ($1, $0) }), keys = items.map { rank[$0.status.rawValue] ?? 0 }
+            return try items.indices.sorted { a, b in
+                try Task.checkCancellation()
+                return ascending(a, b, keys[a] == keys[b] ? .orderedSame : keys[a] < keys[b] ? .orderedAscending : .orderedDescending)
+            }
+        }
+        let keys = items.map { sort == "Path" ? $0.path.display : $0.name }
+        return try items.indices.sorted { a, b in
+            try Task.checkCancellation()
+            return ascending(a, b, keys[a].localizedStandardCompare(keys[b]))
+        }
+    }
+    /// The entries that pass `keep`, in the given order. A text search is the costly check on a
+    /// large list, so it runs in parallel slices; the cheap checks are faster in one pass.
+    nonisolated private static func filtered(_ items: [FileEntry], in indices: [Int], sliced: Bool, keep: @escaping @Sendable (FileEntry) -> Bool) async throws -> [FileEntry] {
+        let size = sliced ? max(4_096, indices.count / (ProcessInfo.processInfo.activeProcessorCount * 2) + 1) : max(1, indices.count)
+        return try await withThrowingTaskGroup(of: (Int, [FileEntry]).self) { group in
+            for (part, start) in stride(from: 0, to: indices.count, by: size).enumerated() {
+                group.addTask {
+                    var rows: [FileEntry] = []
+                    for index in indices[start..<min(start + size, indices.count)] {
+                        try Task.checkCancellation()
+                        if keep(items[index]) { rows.append(items[index]) }
+                    }
+                    return (part, rows)
+                }
+            }
+            var parts = [[FileEntry]](repeating: [], count: (indices.count + size - 1) / size)
+            for try await (part, rows) in group { parts[part] = rows }
+            return parts.flatMap { $0 }
         }
     }
     func toggle(_ entry: FileEntry) {

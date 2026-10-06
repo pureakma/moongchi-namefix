@@ -41,8 +41,13 @@ enum FolderTree {
         }
     }
     /// True when `path` is the selected node itself or lies inside it.
-    static func contains(_ folder: RawPath, _ path: RawPath) -> Bool {
-        path == folder || path.bytes.starts(with: folder.bytes + Data([47]))
+    static func contains(_ folder: RawPath, _ path: RawPath) -> Bool { Scope(folder).contains(path) }
+    /// A folder and everything inside it, for checking many paths: the prefix is built once.
+    struct Scope: Sendable {
+        let folder: RawPath
+        private let prefix: Data
+        init(_ folder: RawPath) { self.folder = folder; prefix = folder.bytes + Data([47]) }
+        func contains(_ path: RawPath) -> Bool { path == folder || path.bytes.starts(with: prefix) }
     }
     static func paths(_ nodes: [FolderNode]) -> Set<RawPath> {
         var result = Set<RawPath>()

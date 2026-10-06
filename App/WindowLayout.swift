@@ -43,7 +43,6 @@ enum WindowLayout {
     static func sheet(preferred: CGSize, available: CGSize) -> CGSize {
         CGSize(width: max(160, min(preferred.width, available.width - 24)), height: max(120, min(preferred.height, available.height - 24)))
     }
-    static func cardColumns(width: CGFloat) -> Int { width >= 600 ? 4 : width >= 360 ? 2 : 1 }
     static func wide(width: CGFloat) -> Bool { width >= 900 }
 }
 /// What the left side of the window shows. It follows the input state; the user never toggles it.

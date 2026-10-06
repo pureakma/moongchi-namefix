@@ -17,25 +17,9 @@ struct Palette {
     var secondary: Color { olive ? Color(hex: "636750") : (dark ? .white.opacity(197/255) : .black.opacity(158/255)) }
     var control: Color { olive ? Color(hex: "EFEADA") : .white.opacity(dark ? 15/255 : 179/255) }
     var dialog: Color { color("202020", "F3F3F3", "F7F3E8") }
-    var heroStart: Color { color("173F46", "E2F5F4", "39452D") }
-    var heroEnd: Color { color("292B49", "F0EEFF", "555C3B") }
-    var heroText: Color { olive ? Color(hex:"FBF5E5") : text }
-    var heroCaption: Color { olive ? Color(hex:"E0DFC7") : secondary }
-    var heroPreview: Color { color("8AE5DC", "066775", "D6E3AB") }
-    var heroWarning: Color { color("F0C273", "925B0A", "F5C8A0") }
 }
 extension Color {
     init(hex: String) { let n = UInt32(hex, radix: 16) ?? 0; self.init(.sRGB, red: Double((n >> 16) & 255)/255, green: Double((n >> 8) & 255)/255, blue: Double(n & 255)/255, opacity: 1) }
-}
-struct SurfaceButtonStyle: ButtonStyle {
-    let palette: Palette
-    @Environment(\.isEnabled) private var enabled
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label.padding(.horizontal, 10).padding(.vertical, 6)
-            .foregroundStyle(enabled ? palette.text : palette.secondary.opacity(0.55))
-            .background(configuration.isPressed ? palette.border : palette.control, in: RoundedRectangle(cornerRadius: 9))
-            .overlay(RoundedRectangle(cornerRadius: 9).stroke(palette.border, lineWidth: 1))
-    }
 }
 struct PrimaryButtonStyle: ButtonStyle {
     let palette: Palette
