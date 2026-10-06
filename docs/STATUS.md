@@ -2,17 +2,24 @@
 
 <!-- HOT:START -->
 ## 지금
-- 단계: 출시 전 제품 완성도 고도화 완료 · 앱 자체 기준 Release Candidate Ready · User QA 대기
-- 현재 Task: T-002 (verificationPending)
-- 다음: 사용자가 docs/QA.md의 User QA 목록을 확인 → 실패 항목은 bug Task, 통과 시 사용자 승인으로 T-001 재개
+- 단계: First-use UX 구조 단순화 구현 완료 · 사용자의 화면 확인 대기
+- 현재 Task: T-003 (verificationPending), T-002 (verificationPending)
+- 다음: 사용자가 docs/QA.md의 화면 S1~S5를 확인 → 지적 사항은 bug/수정 Task, 승인되면 U01~U13 진행 후 T-001 재개
 - 위험·막힘: D-003의 비협조 writer source-race 알려진 제한, 실제 Pro 공급자/출시 입력 미확정
-- 검증 대기: docs/QA.md의 User QA U01~U13, 새 Release Task의 서명·공증·패키지
+- 검증 대기: docs/QA.md의 화면 S1~S5와 User QA U01~U13, 새 Release Task의 서명·공증·패키지
 - 마지막 갱신: 2026-10-06
 <!-- HOT:END -->
 
 ## 현재 Milestone
 
-출시 전 제품 완성도 고도화. 구현과 Engineering Verification은 끝났고 사용자 확인만 남았다. 그 밖의 제품 코드를 자동으로 이어서 개발하지 않는다.
+출시 전 제품 완성도 고도화와 그 뒤 사용자가 지적한 first-use 화면 구조 단순화. 구현과 Engineering Verification은 끝났고 사용자 확인만 남았다. 화면 구조는 사용자가 아직 승인하지 않았다. 그 밖의 제품 코드를 자동으로 이어서 개발하지 않는다.
+
+### T-003 First-use UX와 화면 구조 단순화 [verificationPending]
+- 근원: R-008
+- 범위: 빈 상태를 유일한 입력 화면으로, 결과 control은 입력 뒤에만, sidebar 한 줄 navigation, toolbar 중복 제거, 일괄 변경의 작업 선택 우선 흐름과 고급 규칙 접기. 기능 삭제 없음, Core/Application/Infrastructure 변경 없음.
+- 완료기준: 빈 화면에 결과용 control 없음, 입력 UI 중복 없음, sidebar 부제 없음, 일괄 변경 첫 화면에 규칙 편집 전체가 노출되지 않음, 관련 자동 검증 PASS, 사용자 화면 승인
+- 대기: 사용자의 화면 확인(docs/QA.md S1~S5). AI가 본 렌더는 Engineering Verification이며 화면 승인이 아니다.
+- 검증: docs/QA.md의 First-use UX 구조 단순화 검증 표
 
 ### T-002 출시 전 제품 완성도 고도화 [verificationPending]
 - 근원: R-008
@@ -35,6 +42,6 @@
 - 사용자 결정 대기: 일괄 변경 규칙이 추가한 폴더 자체·하위 폴더·숨김 파일도 기본 대상으로 삼는 현재 동작을 유지할지(PROJECT.md 백로그 후보).
 - 유료: Pro 기능 경계는 구현됐지만 실제 구매/활성화 공급자는 미연결이다. Release에서는 fail-closed Free 동작이 기준이며 화면에는 Pro 표기가 그대로 보인다.
 - Release: 현재 source의 Release 구성 build는 성공했다. 배포 후보 생성·서명·공증·패키징은 새 Release Task에서 수행한다.
-- User QA: QA.md의 U01~U13이 대기 중이다.
+- User QA: QA.md의 화면 S1~S5와 U01~U13이 대기 중이다.
 
 과거 완료 Task와 날짜별 개발 기록은 이 파일에 누적하지 않는다. 필요하면 Git 이력과 .ai/validation-cache.json의 evidence path를 확인한다.

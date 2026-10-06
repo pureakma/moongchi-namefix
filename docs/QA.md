@@ -36,9 +36,34 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 과거 build3 Release 후보의 서명·패키지 검증은 현재 source의 근거가 아니다. 경쟁 제품 대비 속도, 실제 UI scroll latency, Release 구성 성능 수치로 확대하지 않는다.
 
+## First-use UX 구조 단순화 검증 (T-003)
+
+2026-10-06 화면 구조를 다시 설계한 뒤의 Engineering Verification이다. 영수증은 MAC-FIRST-USE-UX-20261006, 로컬 evidence는 artifacts/development/first-use-ux다. 변경은 App UI와 문구에 한정돼 Core/Application/Infrastructure/CLI는 바꾸지 않았으므로 runtime·transaction·filesystem regression은 다시 실행하지 않고 위 T-002 결과를 그대로 쓴다.
+
+| 항목 | 명령 | 결과 |
+|---|---|---|
+| Debug build | eng/build.sh --configuration Debug --arch arm64 | BUILD SUCCEEDED |
+| UI model test | swift test --filter UIModelTests | 30개, 실패 0 |
+| UI test bundle | xcodebuild build-for-testing | TEST BUILD SUCCEEDED (실행은 하지 않음) |
+| 리소스 | eng/resources.py; eng/validate-resources.py | 482 keys × ko/en/ja, 재생성 diff 0 PASS |
+| 대표 화면 | --render-ux | 25장: 빈 상태, 결과, 충돌, 일괄 변경 빈 상태·작업 선택·값 입력·미적용·고급 펼침, 좁은 창, ko/en/ja, Olive·Dark·Light |
+| 기존 render fixture | --render-shell, --render-expansion(±--native-sidebar), --render-responsive | 195장, assertion PASS |
+
+AI가 직접 본 화면 평가(User QA가 아니다): 빈 상태에는 입력 요소만 있고 결과용 control이 없다. sidebar는 한 줄 항목 8개로 읽힌다. 일괄 변경은 파일이 없으면 빈 상태, 파일이 있으면 작업 여섯 가지가 먼저 보이고 규칙 편집 전체는 고급 규칙을 펼쳐야 나온다. 240pt 폭까지 내용 접근이 유지된다. 실제 창 조작·hover·drag 중 표시·메뉴 동작은 렌더로 확인할 수 없어 아래 U01~U05에 넣었다.
+
 ## User QA — 한 번에 확인할 목록
 
 실제 업무 원본이 아닌 복사본 폴더에서 진행한다. 결과는 사용자가 말한 PASS/FAIL을 그대로 기록하고, 실패가 제품 수정의 근원이 되면 STATUS에 bug Task로 올린다.
+
+먼저 화면 구조를 아래 다섯 화면으로 확인한다. 이 다섯 개가 승인돼야 나머지 항목이 의미가 있다.
+
+| 화면 | 볼 것 |
+|---|---|
+| S1 자소 분리 해결 — 처음 연 상태 | 무엇을 하는 앱인지, 파일을 어디에 넣는지 바로 알 수 있는가. 불필요한 요소가 없는가 |
+| S2 자소 분리 해결 — 폴더를 넣은 뒤 | 요약·검색·목록·‘선택한 N개 이름 합치기’의 위계가 분명한가. ‘필터·정렬’과 ‘선택’ 메뉴로 충분한가 |
+| S3 이름 일괄 변경 — 처음 연 상태와 파일을 넣은 뒤 | “이름을 어떻게 바꿀까요?”에서 바로 시작할 수 있는가 |
+| S4 이름 일괄 변경 — 작업 하나 선택 후 | 값 입력 → 미리보기 갱신 → 이름 바꾸기 순서가 자연스러운가. 고급 규칙을 펼쳤을 때 과하지 않은가 |
+| S5 창을 좁힌 상태와 사이드바 | 사이드바가 한눈에 읽히는가. 좁은 창에서 정보가 과밀하지 않은가 |
 
 | ID | 확인 항목 | 현재 상태 |
 |---|---|---|

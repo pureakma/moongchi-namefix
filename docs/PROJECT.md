@@ -44,7 +44,7 @@ Moongchi NameFix는 파일과 폴더 이름의 Unicode 정규화 차이와 이�
 
 2026-10-06 사용자가 ‘출시 전 제품 완성도 고도화’ Phase를 승인했다. 범위는 UI/UX·사용자 용어·ko/en/ja·접근성·코드·안정성 리뷰와 확인된 문제의 수정, 영향 검증, 앱 자체 기준 Release Candidate Ready 판정, User QA 목록 정리다(T-002). 실제 판매 연결·공증·Store 제출·공개 배포는 이 Phase에 포함하지 않으며 R-010의 사용자 Gate에서 보류한다. 별도 PLAN.md는 만들지 않는다.
 
-T-002의 구현과 Engineering Verification은 끝났고 User QA만 남았다. 이 Phase 이후 승인된 다음 제품 구현 Phase는 없다.
+T-002의 구현과 Engineering Verification은 끝났고 User QA만 남았다. 같은 날 사용자가 실제 화면을 보고 first-use 복잡도를 지적해 ‘First-use UX 및 전체 UI 구조 단순화’(T-003)를 추가 승인했다. 범위는 화면의 정보 노출 시점·navigation·hierarchy 재설계이며 기능 추가와 안전 엔진 변경은 포함하지 않는다. T-003도 구현과 Engineering Verification이 끝났고 사용자의 화면 승인만 남았다. 그 뒤 승인된 다음 제품 구현 Phase는 없다.
 
 다음 개발은 사용자가 새 범위를 승인하면 그 범위의 Milestone/Task를 STATUS에 만들고 진행한다. Release를 승인할 경우 첫 순서는 현재 소스에 대한 영향 검증 → 현재 source 기준 새 Release 후보 → 실제 판매/식별자/공증 입력 연결 → User QA/깨끗한 Mac Gate다.
 
