@@ -258,29 +258,50 @@ struct HelpView: View {
     }
 }
 
-/// Last card of Settings: the app, who makes it, and where to go for help.
+/// The AILO wordmark, drawn from its vector outline (ailo-long.svg) so it stays sharp at any size.
+struct AiloLogo: View {
+    var body: some View {
+        Canvas { context, size in
+            // The logo's own coordinate space is 280 × 158 with its origin at (-20, -19).
+            let scale = min(size.width / 280, size.height / 158)
+            var letters = Path()
+            letters.addEllipse(in: CGRect(x: 9, y: 50, width: 60, height: 60))
+            letters.move(to: CGPoint(x: 69, y: 50)); letters.addLine(to: CGPoint(x: 69, y: 110))
+            letters.move(to: CGPoint(x: 103, y: 50)); letters.addLine(to: CGPoint(x: 103, y: 110))
+            letters.move(to: CGPoint(x: 137, y: 10)); letters.addLine(to: CGPoint(x: 137, y: 110))
+            letters.addEllipse(in: CGRect(x: 171, y: 50, width: 60, height: 60))
+            var caret = Path()
+            caret.move(to: CGPoint(x: 92, y: 26)); caret.addLine(to: CGPoint(x: 103, y: 10)); caret.addLine(to: CGPoint(x: 114, y: 26))
+            let place = CGAffineTransform(translationX: 20, y: 19).concatenating(CGAffineTransform(scaleX: scale, y: scale))
+            context.stroke(letters.applying(place), with: .color(Color(hex: "3F51F7")), style: StrokeStyle(lineWidth: 18 * scale, lineCap: .round, lineJoin: .round))
+            context.stroke(caret.applying(place), with: .color(Color(hex: "2DD4BF")), style: StrokeStyle(lineWidth: 13 * scale, lineCap: .round, lineJoin: .round))
+        }
+        .aspectRatio(280 / 158, contentMode: .fit).accessibilityLabel("AILO")
+    }
+}
+
+/// Last card of Settings: who makes the app, the Moongchi site, and where to go for help.
 struct DeveloperCard: View {
     @ObservedObject var model: AppModel
     let palette: Palette
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .center, spacing: 16) {
-                Image(nsImage: NSApp.applicationIconImage).resizable().interpolation(.high).frame(width: 68, height: 68).accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Moongchi NameFix").font(.title3).fontWeight(.semibold)
-                    Text(model.t("VersionLine", AppInfo.version, AppInfo.build)).font(.callout).foregroundStyle(palette.secondary)
-                    Text(model.t("LocalOnly")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
+            HStack(alignment: .center, spacing: 18) {
+                AiloLogo().frame(width: 104)
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(model.t("DeveloperCaption")).font(.caption).fontWeight(.semibold).tracking(0.6).foregroundStyle(palette.secondary)
+                    Text(model.t("DeveloperAbout")).fixedSize(horizontal: false, vertical: true)
+                    Text("Moongchi NameFix · " + model.t("VersionLine", AppInfo.version, AppInfo.build)).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer(minLength: 0)
             }
             Rectangle().fill(palette.border.opacity(0.7)).frame(height: 1).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 10) {
-                row("person.fill", Tint.blue, "DeveloperLabel") { Text(AppInfo.developer).fontWeight(.medium) }
                 if let website = AppInfo.website {
-                    row("globe", Tint.teal, "Website") { link(website.host ?? website.absoluteString, website) }
+                    row("globe", Tint.blue, "MoongchiWebsite", detail: "MoongchiWebsiteDetail") { link(website.host ?? website.absoluteString, website) }
                 }
                 if let support = AppInfo.support {
-                    row("ladybug.fill", Tint.pink, "ContactSupport") { link(support.scheme == "mailto" ? String(support.absoluteString.dropFirst(7)) : (support.host ?? support.absoluteString), support) }
+                    row("ladybug.fill", Tint.pink, "ContactSupport", detail: nil) { link(support.scheme == "mailto" ? String(support.absoluteString.dropFirst(7)) : (support.host ?? support.absoluteString), support) }
                 }
             }
             ViewThatFits(in: .horizontal) {
@@ -299,10 +320,13 @@ struct DeveloperCard: View {
         Button { model.sheet = "onboarding" } label: { Label(model.t("ShowIntro"), systemImage: "sparkles") }.accessibilityIdentifier("showIntro")
         Button { model.sheet = "about" } label: { Label(model.t("License"), systemImage: "doc.text") }
     }
-    private func row<Value: View>(_ symbol: String, _ colors: [Color], _ label: String, @ViewBuilder value: () -> Value) -> some View {
-        HStack(spacing: 10) {
-            ColorTile(symbol: symbol, colors: colors, size: 24)
-            Text(model.t(label)).foregroundStyle(palette.secondary)
+    private func row<Value: View>(_ symbol: String, _ colors: [Color], _ label: String, detail: String?, @ViewBuilder value: () -> Value) -> some View {
+        HStack(alignment: .center, spacing: 10) {
+            ColorTile(symbol: symbol, colors: colors, size: 26)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(model.t(label)).fontWeight(.medium)
+                if let detail { Text(model.t(detail)).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true) }
+            }
             Spacer(minLength: 8)
             value()
         }

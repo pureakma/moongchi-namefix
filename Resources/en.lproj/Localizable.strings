@@ -79,7 +79,8 @@
 "DateFormat" = "Date format (e.g. yyyy-MM-dd)";
 "DecomposeHelp" = "Use only when another tool requires the separated form. Characters are stored as separate parts and may still look identical.";
 "DestinationColumn" = "Destination column";
-"DeveloperLabel" = "Developer";
+"DeveloperAbout" = "Moongchi NameFix is a Mac app in the Moongchi family, designed and engineered by AILO.";
+"DeveloperCaption" = "DESIGN & ENGINEERING";
 "Diagnostics" = "Enable local diagnostic logs";
 "DiagnosticsError" = "Could not save diagnostics.";
 "DiagnosticsErrorShort" = "Couldn’t save diagnostics";
@@ -209,6 +210,8 @@
 "MetadataKey" = "File info to use";
 "MetadataMissing" = "This item was excluded because the required file info is missing.";
 "Mixed" = "● Partly separated";
+"MoongchiWebsite" = "Moongchi Website";
+"MoongchiWebsiteDetail" = "Meet the other Moongchi apps for Mac: archives, cleanup, server access and disk measurement.";
 "MoreCharacterChanges" = "{0} more characters change. Open Details for the full comparison.";
 "MountBoundaryExcluded" = "Other disks (volumes) are not scanned automatically. Add one yourself if needed.";
 "MoveDown" = "Move down";
@@ -471,7 +474,6 @@
 "WatchUnavailable" = "Could not start watching this folder.";
 "WatchUseRules" = "Use current rules";
 "WatchWriting" = "The file is being written or changed. Review again after writing finishes.";
-"Website" = "Website";
 "WindowMenu" = "Window";
 "WorkspaceTitle" = "File name check";
 "created" = "Created date";

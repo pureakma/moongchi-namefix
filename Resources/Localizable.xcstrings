@@ -10558,52 +10558,6 @@
         }
       }
     },
-    "DeveloperLabel": {
-      "extractionState": "manual",
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "개발"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Developer"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "開発"
-          }
-        }
-      }
-    },
-    "Website": {
-      "extractionState": "manual",
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "웹사이트"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Website"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ウェブサイト"
-          }
-        }
-      }
-    },
     "ContactSupport": {
       "extractionState": "manual",
       "localizations": {
@@ -11244,6 +11198,98 @@
           "stringUnit": {
             "state": "translated",
             "value": "追加した名前の中に、このルールで変わるものはまだありません。"
+          }
+        }
+      }
+    },
+    "DeveloperCaption": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기획 · 설계 · 개발"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DESIGN & ENGINEERING"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "企画・設計・開発"
+          }
+        }
+      }
+    },
+    "DeveloperAbout": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moongchi NameFix는 AILO가 설계하고 개발한 뭉치(Moongchi) 제품군의 Mac 앱입니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moongchi NameFix is a Mac app in the Moongchi family, designed and engineered by AILO."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moongchi NameFixは、AILOが設計・開発するMoongchiシリーズのMacアプリです。"
+          }
+        }
+      }
+    },
+    "MoongchiWebsite": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뭉치 웹사이트"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moongchi Website"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moongchi ウェブサイト"
+          }
+        }
+      }
+    },
+    "MoongchiWebsiteDetail": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "압축·정리·서버 접속·디스크 측정 등 Mac을 위한 다른 뭉치 앱을 소개합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meet the other Moongchi apps for Mac: archives, cleanup, server access and disk measurement."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "圧縮・整理・サーバ接続・ディスク計測など、Mac向けのほかのMoongchiアプリを紹介しています。"
           }
         }
       }

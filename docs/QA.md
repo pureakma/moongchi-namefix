@@ -19,7 +19,7 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 | 항목 | 명령 | 결과 |
 |---|---|---|
 | Runtime·UI model·Core test | eng/test.sh --level 3 --scope all (성능 프로파일 4종 포함) | 112개 실행, 실패 0 (통합 53, UI model 39, Core 20) |
-| 리소스 | eng/resources.py; eng/validate-resources.py | 489 keys × ko/en/ja, 재생성 diff 0 PASS |
+| 리소스 | eng/resources.py; eng/validate-resources.py | 491 keys × ko/en/ja, 재생성 diff 0 PASS |
 | CLI | eng/build-cli.sh debug + eng/test-expansion-cli.py; eng/build-cli.sh release + eng/test-release-cli.py | Debug: dry-run/JSON, non-TTY 거부, TTY 확인 rename/undo PASS. Release: raw JSON/dry-run/freshness, non-TTY 거부, source hash 불변 PASS |
 | Debug build | eng/build.sh --configuration Debug --arch arm64 | BUILD SUCCEEDED |
 | Release 구성 build | eng/build.sh --configuration Release --arch arm64 | BUILD SUCCEEDED, arm64, 리소스 self-test PASS. render·진단 fixture와 그 실행 flag가 binary에 없음을 확인. 배포 후보 생성·서명·패키징은 하지 않음 |
@@ -95,6 +95,8 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 사용자 확인(2026-10-06, 6차): 레일 아이콘 hover label PASS, 이름 일괄 변경의 ‘적용 예시’ PASS. 트리 제목 ⊗의 tooltip FAIL, band 오른쪽 저장·다시 검사·추가 버튼의 tooltip FAIL(둘 다 시스템 tooltip이 나타나지 않음). 조사 결과 toolbar item에는 시스템 tooltip이 정상 등록돼 있었고, 그 위치에 다른 창이 겹쳐 있지 않았으며, 앱이 event를 가로채는 코드도 없었다. pointer를 직접 올려 재현할 수 없어 시스템 tooltip이 뜨지 않는 원인은 확인하지 못했다. 대신 아이콘만 있는 control 전체에 앱이 직접 그리는 이름 label을 적용했다(docs/DESIGN.md ‘아이콘만 있는 control의 이름 표시’). 이 수정의 실제 hover 동작은 사용자 재확인 대상이다.
 
 사용자 보고(2026-10-06, 7차) 처리: 트리가 보이는데도 목록 위에 나오던 ‘… 안의 항목만 표시 중 · 전체 보기’ 줄을 트리가 숨은 좁은 창에서만 나오게 했다. ‘추가한 파일·폴더 N개’ 줄이 주변보다 굵고 커 보이던 것을 같은 글자 크기·굵기로 맞췄다.
+
+사용자 지시(2026-10-06, 8차) 처리: 설정 맨 아래 카드를 개발사 소개로 바꿨다. 로고는 AILO, ‘개발’ 문구는 ‘기획 · 설계 · 개발’ 표제와 소개 문장으로, 뭉치 웹사이트(https://moongchi.ailoworks.com) 소개와 링크를 추가했다. 웹사이트 소개 문구는 실제 사이트 내용을 확인해 썼다. 버그 신고·문의 주소는 아직 없어 그 줄은 나오지 않는다.
 
 
 ## User QA — 한 번에 확인할 목록
