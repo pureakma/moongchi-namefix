@@ -180,16 +180,16 @@ struct MainView: View {
                 .help(model.t("StaleHelp")).accessibilityLabel(model.t("PreviewStale")).accessibilityHint(model.t("StaleHelp")).accessibilityIdentifier("updatePreview")
         }
     }
-    /// Lines that appear only when they apply: the added locations while the sidebar is hidden, and the folder filter.
+    /// Stand-ins for the sidebar tree while it is hidden (narrow window): the added locations and,
+    /// if a folder is still selected, what the list is narrowed to. With the tree in view they are not shown.
     @ViewBuilder private var overview: some View {
-        if model.sidebarCollapsed || model.folderFilter != nil {
+        if model.sidebarCollapsed {
             VStack(alignment: .leading, spacing: Metrics.control) {
-                // The sidebar tree owns the added locations; this fallback exists only while the sidebar is hidden.
-                if model.sidebarCollapsed { locationsToggle; if locationsExpanded { locations } }
+                locationsToggle; if locationsExpanded { locations }
                 if let folder = model.folderFilter {
                     HStack(spacing: 6) {
                         Image(systemName: "folder").foregroundStyle(palette.secondary).accessibilityHidden(true)
-                        Text(model.t("TreeFiltered", String(data: folder.leaf, encoding: .utf8) ?? folder.display)).font(.callout).lineLimit(1).truncationMode(.middle)
+                        Text(model.t("TreeFiltered", String(data: folder.leaf, encoding: .utf8) ?? folder.display)).lineLimit(1).truncationMode(.middle)
                         Button(model.t("TreeAll")) { model.folderFilter = nil }.buttonStyle(.link)
                     }
                 }
@@ -200,7 +200,7 @@ struct MainView: View {
         Button { locationsExpanded.toggle() } label: {
             HStack(spacing: 6) {
                 Image(systemName: "chevron.right").font(.caption).rotationEffect(.degrees(locationsExpanded ? 90 : 0)).accessibilityHidden(true)
-                Text(model.t("InputSummary", model.n(model.roots.count))).fontWeight(.medium)
+                Text(model.t("InputSummary", model.n(model.roots.count)))
             }.contentShape(Rectangle())
         }.buttonStyle(.plain).fixedSize().accessibilityAddTraits(locationsExpanded ? .isSelected : []).accessibilityIdentifier("locations").disabled(model.busy)
     }
