@@ -5,7 +5,7 @@ The input candidate is never modified, no identifier is changed, and the product
 build, source commit) are carried over from the input manifest. The app and the CLI are signed
 once here; later steps notarize these same signed binaries. --dry-run stops before signing."""
 from pathlib import Path
-import argparse, hashlib, json, plistlib, re, shutil, subprocess, tempfile
+import argparse, hashlib, json, plistlib, re, shutil, struct, subprocess, tempfile
 root = Path(__file__).resolve().parent.parent
 RELEASE_BUNDLE_ID = 'com.ailoworks.namefix'
 PRODUCT = ['version', 'build', 'configuration', 'architecture', 'minimumOS', 'bundleID', 'developer', 'support', 'distribution', 'pricing', 'sourceCommit']
@@ -21,13 +21,21 @@ def sha(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 def run(*command, timeout=300): subprocess.run(list(map(str, command)), check=True, timeout=timeout)
 def text(*command): return subprocess.run(list(map(str, command)), check=True, capture_output=True, text=True)
 def bundle(app): return {str(p.relative_to(app)): sha(p) for p in sorted(app.rglob('*')) if p.is_file()}
-def unsigned(binary):
-    """Hash of a Mach-O with its signature removed: the code itself, whoever signed it."""
+def code(binary):
+    """The Mach-O with its signature removed, split into load commands and everything after them.
+    Removing a signature leaves the size it had reserved in one header field (__LINKEDIT vmsize),
+    so the code itself is compared from the end of the load commands on."""
     with tempfile.TemporaryDirectory(prefix='namefix-unsigned-', dir='/private/tmp') as temporary:
         copy = Path(temporary)/'binary'
         shutil.copy2(binary, copy)
         run('codesign', '--remove-signature', copy)
-        return sha(copy)
+        data = copy.read_bytes()
+    assert struct.unpack_from('<I', data, 0)[0] == 0xfeedfacf, 'Expected a thin 64-bit Mach-O'
+    end = 32 + struct.unpack_from('<I', data, 20)[0]
+    return data[:end], hashlib.sha256(data[end:]).hexdigest(), len(data)
+def same_code(a, b):
+    (head_a, body_a, size_a), (head_b, body_b, size_b) = code(a), code(b)
+    return size_a == size_b and body_a == body_b and len(head_a) == len(head_b) and sum(x != y for x, y in zip(head_a, head_b)) <= 8
 manifest = json.loads((source/'ARTIFACT_MANIFEST.json').read_text())
 source_app, source_cli = source/'Moongchi NameFix.app', source/'namefix'
 assert manifest['signing'] == 'PRE_SIGN' and manifest['bundleID'] == RELEASE_BUNDLE_ID
@@ -69,8 +77,8 @@ signed_files = bundle(app)
 changed = {name for name in signed_files if signed_files[name] != manifest['bundleFiles'].get(name)} | (set(manifest['bundleFiles']) - set(signed_files))
 allowed = {'_CodeSignature/CodeResources', 'Contents/_CodeSignature/CodeResources', f"Contents/MacOS/{info['CFBundleExecutable']}"}
 assert changed <= allowed, f'Signing changed more than the signature: {sorted(changed - allowed)}'
-assert unsigned(executable) == unsigned(source_app/'Contents/MacOS'/info['CFBundleExecutable']), 'App code differs from the candidate'
-assert unsigned(cli) == unsigned(source_cli), 'CLI code differs from the candidate'
+assert same_code(executable, source_app/'Contents/MacOS'/info['CFBundleExecutable']), 'App code differs from the candidate'
+assert same_code(cli, source_cli), 'CLI code differs from the candidate'
 state = {'signing': 'Developer ID', 'developerID': 'SIGNED', 'notarization': 'NOT_RUN', 'stapled': False, 'publicRelease': False}
 product = {key: manifest[key] for key in PRODUCT}
 (out/'BUILD_INFO.json').write_text(json.dumps({**product, **state}, ensure_ascii=False, indent=2)+'\n')
@@ -83,7 +91,7 @@ signed = {
     'schemaVersion': 3, **product, **state,
     'signingIdentity': args.identity, 'teamID': team,
     'provenance': {'preSignCandidate': str(source.relative_to(root)), 'preSignManifestSHA256': sha(source/'ARTIFACT_MANIFEST.json'),
-                   'unsignedAppCodeSHA256': unsigned(executable), 'unsignedCLICodeSHA256': unsigned(cli)},
+                   'appCodeSHA256': code(executable)[1], 'cliCodeSHA256': code(cli)[1]},
     'releaseToolingCommit': text('git', '-C', root, 'rev-parse', 'HEAD').stdout.strip(),
     'bundleFiles': signed_files, 'cliSHA256': sha(cli),
     'documents': {name: sha(out/name) for name in [*DOCUMENTS, 'BUILD_INFO.json']},
