@@ -24,6 +24,12 @@
 
 의존 방향은 App/CLI → Application → Core와 Infrastructure다. Core는 UI에 의존하지 않는다. 새 기능이 이 경계를 바꾸면 구조 변경 Gate로 취급한다.
 
+## 외부 입력
+
+파일/폴더 picker, Finder drag & drop, Dock/Open With/Services 입력은 하나의 입력 정규화 경로로 모은다. 입력은 사용자가 선택한 실제 file URL로 제한하며 HTTP URL이나 임의 문자열을 shell command로 해석하지 않는다. Rename/Undo/Recovery 중 새 mutation 입력은 안전 상태를 우회하지 않는다.
+
+Clipboard는 사용자가 붙여넣기/분석을 명시했을 때만 읽고 자동 감시하지 않으며 파일 경로로 추측해 Rename하지 않는다.
+
 ## Scan과 Preview
 
 Scanner는 실제 디렉터리 entry의 raw 이름과 identity를 보존한다. Swift String의 canonical equality만으로 NFC/NFD 차이를 판단하지 않는다. 규칙/필터/정렬/대형 parse는 가능한 한 background worker에서 수행하고 generation/cancellation으로 늦은 결과를 버린다.
