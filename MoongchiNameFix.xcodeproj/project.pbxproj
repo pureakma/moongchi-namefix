@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		056F21FE9FBC737B5595B0D9 /* MarketingFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE2E735830D60DEB536B9CC /* MarketingFixtures.swift */; };
 		0771BC46789193340DD612A3 /* NameFixApplication in Frameworks */ = {isa = PBXBuildFile; productRef = 2B550F1BB583B8B08178FD8E /* NameFixApplication */; };
 		0B376627B91FB5D63D03511A /* WindowChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB7C995BCFE90BDFDD10762 /* WindowChrome.swift */; };
 		1859AF7F20AE2BCEC21A9347 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C97AF31D59F59E35F1CA70E0 /* MainView.swift */; };
@@ -58,6 +59,7 @@
 		00326C1F7542D4729A773981 /* MoongchiNameFix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoongchiNameFix.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		04C4B02BB0C941977F014217 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		06E25869F1AF69DBFC3CA718 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
+		0AE2E735830D60DEB536B9CC /* MarketingFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketingFixtures.swift; sourceTree = "<group>"; };
 		1ADAF9C7A5A3710DCA525001 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		21683583079C0D07C3E3AEBB /* ShellFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellFixtures.swift; sourceTree = "<group>"; };
 		21CE1AE72DD3EC9A04694A90 /* ResponsiveFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponsiveFixtures.swift; sourceTree = "<group>"; };
@@ -147,6 +149,7 @@
 				04C4B02BB0C941977F014217 /* Main.swift */,
 				C97AF31D59F59E35F1CA70E0 /* MainView.swift */,
 				566CE7135BCEB7372C3B64D1 /* MappingView.swift */,
+				0AE2E735830D60DEB536B9CC /* MarketingFixtures.swift */,
 				7058F4A14D4C8CCFB7745084 /* Onboarding.swift */,
 				BE07319F4D79BAD635708E6D /* RenderFixtures.swift */,
 				21CE1AE72DD3EC9A04694A90 /* ResponsiveFixtures.swift */,
@@ -320,6 +323,7 @@
 				4C29A4A934CAEA2E59FE19BB /* Main.swift in Sources */,
 				1859AF7F20AE2BCEC21A9347 /* MainView.swift in Sources */,
 				EE6B7124F704971AD0BE7513 /* MappingView.swift in Sources */,
+				056F21FE9FBC737B5595B0D9 /* MarketingFixtures.swift in Sources */,
 				2A374A853EEBA7FCB7A0BC62 /* Onboarding.swift in Sources */,
 				8691E6495E8EF60184E071EB /* RenderFixtures.swift in Sources */,
 				5CCC87462BDAFC26D5F959C8 /* ResponsiveFixtures.swift in Sources */,

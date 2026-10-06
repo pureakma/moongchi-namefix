@@ -1,0 +1,172 @@
+{
+  "schema": 1,
+  "product": {
+    "name": "Moongchi NameFix",
+    "developer": "AILO WORKS",
+    "version": "1.0.0",
+    "price": "free",
+    "account": "none",
+    "ads": "none",
+    "minimumSystem": "macOS 14",
+    "architecture": "Apple silicon (arm64)",
+    "languages": [
+      "ko",
+      "en",
+      "ja"
+    ],
+    "supportEmail": "ailo@ailoworks.com"
+  },
+  "urls": {
+    "marketing": "https://moongchi.ailoworks.com/namefix/",
+    "support": "https://moongchi.ailoworks.com/support/",
+    "privacy": "https://moongchi.ailoworks.com/namefix/privacy/"
+  },
+  "limits": {
+    "name": 30,
+    "subtitle": 30,
+    "promotionalText": 170,
+    "description": 4000,
+    "keywords": 100,
+    "source": "App Store Connect Help: App information, Platform version information, Screenshot specifications (read 2026-10-07)",
+    "keywordsNote": "Checked as characters. The help page words the keyword limit as bytes; if App Store Connect rejects the Korean or Japanese list at entry, shorten it there and here."
+  },
+  "appStore": {
+    "bundleId": "com.ailoworks.namefix",
+    "sku": "AILOWORKS-NAMEFIX-MAC-100",
+    "primaryLocale": "ko",
+    "primaryCategory": "Utilities",
+    "secondaryCategory": "Productivity",
+    "price": "Free",
+    "availability": "All territories",
+    "releaseAfterApproval": "automatic",
+    "copyright": "2026 AILO WORKS",
+    "ageRating": "4+ (no restricted content, no web access, no user-generated content)",
+    "exportCompliance": "Uses no encryption other than hashing (SHA-256) from the operating system; ITSAppUsesNonExemptEncryption is false.",
+    "appPrivacy": {
+      "dataCollected": "none",
+      "tracking": "none",
+      "basis": "No networking code in the app; settings, favourites, presets, watch list and history are stored on the Mac. Support mail is sent by the user from their own mail app."
+    },
+    "reviewNotes": "Moongchi NameFix renames files and folders only; it never changes file contents. To try it: drop a folder on the window, review the list, press the button at the bottom right, and confirm. Every run is kept in History, where it can be undone. All features are free; there is no account, purchase or network use. Renaming is limited to items on the Mac's internal APFS disk; other locations are shown but left unchanged.",
+    "whatsNew": null
+  },
+  "locales": {
+    "ko": {
+      "appStoreLocale": "ko",
+      "name": "Moongchi NameFix",
+      "subtitle": "깨진 파일 이름을 한 번에 정리",
+      "promotionalText": "자소가 풀어진 파일 이름을 바로잡고, 텍스트와 번호 규칙으로 여러 이름을 한 번에 바꾸세요. 바뀔 이름을 먼저 확인하고, 필요하면 작업 기록에서 되돌릴 수 있습니다.",
+      "keywords": "파일이름,이름변경,일괄변경,자소분리,한글깨짐,파일명,이름바꾸기,파일정리,번호매기기,폴더정리,rename",
+      "description": "다른 기기에서 받은 파일 이름이 ‘ㅎㅏㄴㄱㅡㄹ’처럼 풀어져 보인 적이 있나요? Moongchi NameFix는 깨져 보이는 파일 이름을 한 번에 바로잡고, 여러 파일의 이름을 원하는 규칙으로 정리하는 Mac 앱입니다.\n\n■ 자소 분리된 이름을 한 번에\n파일이나 폴더를 끌어다 놓으면 글자가 풀어진 이름을 찾아 보여 줍니다. 어떤 글자가 어떻게 합쳐지는지 확인하고, 선택한 이름만 정리하세요.\n\n■ 여러 이름을 규칙으로 일괄 변경\n텍스트 바꾸기, 앞뒤에 글자 붙이기, 번호 매기기, 날짜와 파일 정보 넣기, 대소문자 정리 같은 규칙을 조합해 한 번에 바꿉니다. 자주 쓰는 규칙은 프리셋으로 저장할 수 있습니다.\n\n■ 바꾸기 전에 먼저 확인\n바뀔 이름을 목록에서 미리 보고, 이름이 겹치는 항목은 실행 전에 알려 줍니다. 확인 화면에서 승인한 뒤에만 이름이 바뀝니다. 파일 내용은 바꾸지 않습니다.\n\n■ 작업 기록에서 되돌리기\n실행한 작업은 기록에 남습니다. 필요하면 작업 기록에서 원래 이름으로 되돌릴 수 있습니다.\n\n■ 자주 쓰는 폴더는 더 빠르게\n즐겨찾기 폴더를 한 번에 불러오세요. 폴더 감시를 켜면 새로 생긴 파일을 검토 목록에 모아 두고, 직접 확인한 뒤에 바꿉니다.\n\n■ 내 Mac에서 처리\n파일 이름 검사와 변경은 Mac 안에서 이루어집니다. 계정이 필요 없고, 광고와 사용자 추적이 없으며, 파일 이름이나 경로를 서버로 보내지 않습니다.\n\n■ 무료\n모든 기능을 무료로 제공합니다. 앱 내 구입이 없습니다.\n\n지원 언어: 한국어, 영어, 일본어\n요구 사항: macOS 14 이상, Apple Silicon Mac\n이름 변경은 이 Mac의 내장 디스크(APFS)에 있는 항목을 대상으로 합니다. 클라우드 폴더, 앱, 링크는 바꾸지 않고 보호합니다."
+    },
+    "en": {
+      "appStoreLocale": "en-US",
+      "name": "Moongchi NameFix",
+      "subtitle": "Fix & batch rename filenames",
+      "promotionalText": "Fix filenames whose characters have come apart, and batch-rename with text and numbering rules. Preview every change first, and undo from History when you need to.",
+      "keywords": "rename,batch rename,filename,file renamer,bulk rename,fix filename,accents,unicode,folder,undo",
+      "description": "Ever received files whose names look broken, with accents floating beside letters or Korean characters split into pieces? Moongchi NameFix fixes those names in one pass and batch-renames files with rules you choose.\n\nFIX BROKEN FILENAMES\nDrop files or folders and NameFix finds the names whose characters have come apart. See exactly which characters will be joined, then fix only the names you select.\n\nBATCH RENAME\nCombine rules to replace text, add a prefix or suffix, number files, insert dates and file details, or tidy capitalization. Save the rule sets you use often as presets.\n\nPREVIEW BEFORE RENAMING\nEvery new name is listed before anything changes, and name conflicts are flagged up front. Nothing is renamed until you confirm. File contents are never modified.\n\nUNDO FROM HISTORY\nFinished runs are kept in History, so you can restore the original names later.\n\nFAVORITES AND FOLDER WATCH\nOpen the folders you use most with one click. Folder Watch collects new files in a review list, and they are renamed only after you review and confirm.\n\nPROCESSED ON YOUR MAC\nNames are checked and changed locally. No account, no ads, no tracking. File names and paths are not sent to any server.\n\nFREE\nAll features are free, with no in-app purchases.\n\nLanguages: English, Korean, Japanese\nRequires macOS 14 or later on a Mac with Apple silicon.\nRenaming applies to items on your Mac's internal disk (APFS). Cloud folders, apps, and links are protected and left unchanged."
+    },
+    "ja": {
+      "appStoreLocale": "ja",
+      "name": "Moongchi NameFix",
+      "subtitle": "ファイル名の修正と一括変更",
+      "promotionalText": "文字が分かれたファイル名を整え、テキストや連番のルールで一括変更。変更後の名前を先に確認でき、必要なら履歴から元に戻せます。",
+      "keywords": "ファイル名,一括変更,リネーム,名前変更,濁点,半濁点,連番,ファイル整理,フォルダ,rename",
+      "description": "ほかの機器から受け取ったファイルで、濁点や半濁点が文字から離れて見えたり、名前で検索しても見つからなかったりしたことはありませんか。Moongchi NameFixは、そうしたファイル名をまとめて整え、複数のファイル名をルールで一括変更できるMacアプリです。\n\n■ 分かれた文字をまとめて修正\nファイルやフォルダをドロップすると、文字が分かれているファイル名を見つけて表示します。どの文字がどう結合されるかを確認して、選んだ名前だけを整えられます。\n\n■ ファイル名を一括変更\nテキストの置き換え、前後への文字の追加、連番、日付やファイル情報の挿入、大文字と小文字の整理などのルールを組み合わせて、まとめて変更できます。よく使うルールはプリセットとして保存できます。\n\n■ 変更前にプレビュー\n変更後の名前を一覧で確認でき、名前の重複は実行前にお知らせします。確認画面で承認するまで、名前は変わりません。ファイルの内容は変更しません。\n\n■ 履歴から元に戻す\n実行した作業は履歴に残り、必要なときに元の名前へ戻せます。\n\n■ よく使うフォルダをすばやく\nお気に入りのフォルダをワンクリックで開けます。フォルダ監視をオンにすると、新しいファイルを確認リストに集め、確認してから変更します。\n\n■ Macの中で処理\nファイル名のチェックと変更はMacの中で行います。アカウント不要、広告なし、トラッキングなし。ファイル名やパスをサーバーに送信しません。\n\n■ 無料\nすべての機能を無料で使えます。アプリ内課金はありません。\n\n対応言語：日本語、英語、韓国語\n動作環境：macOS 14以降、Appleシリコン搭載Mac\n名前の変更は、このMacの内蔵ディスク（APFS）にある項目が対象です。クラウドフォルダ、アプリ、リンクは変更せずに保護します。"
+    }
+  },
+  "screenshots": {
+    "size": [
+      2880,
+      1800
+    ],
+    "scenes": [
+      {
+        "id": "1-repair",
+        "caption": {
+          "ko": [
+            "깨진 파일 이름을 한 번에 정리",
+            "자소가 풀어진 이름을 찾아 바로잡습니다"
+          ],
+          "en": [
+            "Fix broken filenames in one pass",
+            "Finds the names whose characters have come apart"
+          ],
+          "ja": [
+            "分かれた文字のファイル名をまとめて修正",
+            "濁点や文字が離れた名前を見つけて整えます"
+          ]
+        }
+      },
+      {
+        "id": "2-preview",
+        "caption": {
+          "ko": [
+            "바뀔 이름을 먼저 확인하세요",
+            "확인한 뒤에만 이름이 바뀝니다"
+          ],
+          "en": [
+            "Preview before renaming",
+            "Nothing changes until you confirm"
+          ],
+          "ja": [
+            "変更する前に、名前を確認",
+            "承認するまで名前は変わりません"
+          ]
+        }
+      },
+      {
+        "id": "3-batch",
+        "caption": {
+          "ko": [
+            "텍스트부터 번호까지 한 번에",
+            "규칙을 조합해 여러 이름을 일괄 변경"
+          ],
+          "en": [
+            "Batch rename with rules",
+            "Replace text and number files in one go"
+          ],
+          "ja": [
+            "テキストも連番もまとめて変更",
+            "ルールを組み合わせてファイル名を一括変更"
+          ]
+        }
+      },
+      {
+        "id": "4-favorites",
+        "caption": {
+          "ko": [
+            "자주 쓰는 폴더는 더 빠르게",
+            "즐겨찾기에서 한 번에 불러오기"
+          ],
+          "en": [
+            "Your folders, one click away",
+            "Pin the folders you use most"
+          ],
+          "ja": [
+            "よく使うフォルダをすばやく",
+            "お気に入りからワンクリックで開く"
+          ]
+        }
+      },
+      {
+        "id": "5-history",
+        "caption": {
+          "ko": [
+            "작업 기록에서 되돌리기",
+            "실행한 작업은 기록에 남습니다"
+          ],
+          "en": [
+            "Undo from History",
+            "Restore the original names later"
+          ],
+          "ja": [
+            "履歴から元に戻せる",
+            "実行した作業は履歴に残ります"
+          ]
+        }
+      }
+    ]
+  }
+}
