@@ -93,7 +93,7 @@ struct OnboardingView: View {
         .frame(height: 214).frame(maxWidth: .infinity).clipped()
         .overlay(alignment: .topTrailing) {
             Button { close() } label: { Image(systemName: "xmark").font(.system(size: 11, weight: .bold)).foregroundStyle(soft).frame(width: 26, height: 26).background(Color.white.opacity(0.85), in: Circle()) }
-                .buttonStyle(.plain).keyboardShortcut(.cancelAction).padding(12).help(model.t("Close")).accessibilityLabel(model.t("Close"))
+                .buttonStyle(.plain).keyboardShortcut(.cancelAction).hoverTip(model.t("Close")).padding(12).accessibilityLabel(model.t("Close"))
         }
     }
     private func tiles(main: String, left: (String, [Color]), right: (String, [Color])) -> some View {

@@ -112,7 +112,7 @@ struct RuleEditor: View {
             Spacer(minLength: Metrics.control)
             if !draft.rules.isEmpty || !configured.isEmpty {
                 Button { draft = RulePipeline(); selected = nil } label: { Image(systemName: "trash") }
-                    .buttonStyle(.borderless).help(model.t("ResetRules")).accessibilityLabel(model.t("ResetRules"))
+                    .buttonStyle(.borderless).hoverTip(model.t("ResetRules")).accessibilityLabel(model.t("ResetRules"))
             }
             Button { adding = true } label: { Label(model.t("AddRule"), systemImage: "plus") }
                 .controlSize(.small).accessibilityIdentifier("addRule")
@@ -141,7 +141,7 @@ struct RuleEditor: View {
                     }.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
                 }.buttonStyle(.plain).accessibilityHint(model.t("EditRule")).accessibilityAddTraits(open ? .isSelected : [])
                 Menu { ruleActions(index) } label: { Image(systemName: "ellipsis") }
-                    .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize().accessibilityLabel(model.t("RuleMore")).help(model.t("RuleMore"))
+                    .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize().accessibilityLabel(model.t("RuleMore")).hoverTip(model.t("RuleMore"))
             }
             if open {
                 VStack(alignment: .leading, spacing: Metrics.control) {
@@ -174,7 +174,7 @@ struct RuleEditor: View {
                     Text(optionSummary(choice)).font(.caption).foregroundStyle(palette.secondary).lineLimit(1).truncationMode(.middle)
                 }.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
             }.buttonStyle(.plain).accessibilityHint(model.t("EditRule"))
-            Button { clear(choice) } label: { Image(systemName: "minus.circle") }.buttonStyle(.borderless).help(model.t("Remove")).accessibilityLabel(model.t("Remove"))
+            Button { clear(choice) } label: { Image(systemName: "minus.circle") }.buttonStyle(.borderless).hoverTip(model.t("Remove")).accessibilityLabel(model.t("Remove"))
         }.padding(8)
     }
     private func optionSummary(_ choice: AdvancedOption) -> String {

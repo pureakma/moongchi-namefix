@@ -152,7 +152,7 @@ struct MainView: View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: Metrics.control) { chips; searchField; viewOptions; selectionMenu }
             // Tighter panes keep the single line by showing the two menus as icons.
-            HStack(spacing: Metrics.control) { chips; searchField; viewOptions.labelStyle(.iconOnly).help(model.t("ViewOptions")); selectionMenu.labelStyle(.iconOnly).help(model.t("SelectMenu")) }
+            HStack(spacing: Metrics.control) { chips; searchField; viewOptions.labelStyle(.iconOnly).hoverTip(model.t("ViewOptions")); selectionMenu.labelStyle(.iconOnly).hoverTip(model.t("SelectMenu")) }
             VStack(alignment: .leading, spacing: Metrics.control) {
                 HStack(spacing: Metrics.control) { chips; Spacer(minLength: 0) }
                 HStack(spacing: Metrics.control) { searchField; viewOptions; selectionMenu }
@@ -216,7 +216,7 @@ struct MainView: View {
                         HStack {
                             Image(systemName: "folder").foregroundStyle(palette.secondary).accessibilityHidden(true)
                             Text(String(data: root.leaf, encoding: .utf8) ?? root.display).lineLimit(1).truncationMode(.middle).frame(maxWidth: .infinity, alignment: .leading).help(root.display)
-                            Button { model.remove(root) } label: { Image(systemName: "minus.circle") }.buttonStyle(.plain).help(model.t("RemoveInput")).accessibilityLabel(model.t("RemoveInput"))
+                            Button { model.remove(root) } label: { Image(systemName: "minus.circle") }.buttonStyle(.plain).hoverTip(model.t("RemoveInput")).accessibilityLabel(model.t("RemoveInput"))
                         }.padding(.vertical, 3)
                     }
                 }
@@ -377,7 +377,7 @@ struct StatusLine: View {
                         Text(model.t(message)).textSelection(.enabled).fixedSize(horizontal: false, vertical: true).padding(14).frame(width: 340, alignment: .leading)
                     }
                 Button { model.message = nil } label: { Image(systemName: "xmark").font(.caption) }.buttonStyle(.plain).foregroundStyle(palette.secondary)
-                    .help(model.t("Close")).accessibilityLabel(model.t("Close"))
+                    .hoverTip(model.t("Close"), below: false).accessibilityLabel(model.t("Close"))
             }
         }
     }

@@ -90,6 +90,7 @@ import Combine
         let palette = Palette(model.settings.theme, systemDark: dark)
         brand.update(text: NSColor(palette.text))
         backdrop.fill = NSColor(palette.sidebar); surface.fill = NSColor(palette.sidebar)
+        HoverTip.shared.fill = NSColor(palette.text); HoverTip.shared.ink = NSColor(palette.canvas)
     }
     /// Only the real window remembers the tree width. Render fixtures run the same binary and
     /// must not write their throwaway layouts into the user's saved state.
@@ -256,10 +257,10 @@ struct SidebarNavigation: View {
                 Menu {
                     Toggle(model.t("Recursive"), isOn: Binding(get: { model.settings.recursive }, set: { value in model.changeSettings { $0.recursive = value } }))
                 } label: { Image(systemName: "ellipsis.circle") }.menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
-                    .help(model.t("TreeOptions")).accessibilityLabel(model.t("TreeOptions"))
+                    .hoverTip(model.t("TreeOptions")).accessibilityLabel(model.t("TreeOptions"))
                 // The way back to the first screen is always in sight.
                 Button { model.remove(nil) } label: { Image(systemName: "xmark.circle") }.buttonStyle(.plain).foregroundStyle(palette.secondary)
-                    .help(model.t("ResetInputs") + " — " + model.t("CloseAllHelp")).accessibilityLabel(model.t("ResetInputs")).accessibilityIdentifier("closeAll")
+                    .hoverTip(model.t("ResetInputs")).accessibilityLabel(model.t("ResetInputs")).accessibilityHint(model.t("CloseAllHelp")).accessibilityIdentifier("closeAll")
             }.frame(height: Metrics.paneHeader).padding(.horizontal, 6)
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 1) {
@@ -340,7 +341,7 @@ private struct FolderRow: View {
             // Added items can be closed one by one; the button shows while the pointer is on the row.
             if let closeLabel, hovering || selected {
                 Button(action: close) { Image(systemName: "xmark").font(.system(size: 9, weight: .semibold)).frame(width: 16, height: 22).contentShape(Rectangle()) }
-                    .buttonStyle(.plain).foregroundStyle(palette.secondary).help(closeLabel).accessibilityLabel(closeLabel + " " + name)
+                    .buttonStyle(.plain).foregroundStyle(palette.secondary).hoverTip(closeLabel).accessibilityLabel(closeLabel + " " + name)
             }
         }
         .onHover { hovering = $0 }
