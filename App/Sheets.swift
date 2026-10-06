@@ -53,14 +53,28 @@ struct SheetRouter: View {
     @Environment(\.colorScheme) private var scheme
     private var palette: Palette { Palette(model.settings.theme, systemDark: scheme == .dark) }
     var availableSize = CGSize(width: 1180, height: 780)
+    /// The sheet keeps showing what it had while it closes: `model.sheet` is already nil then,
+    /// and falling back to another screen would flash that screen during the closing animation.
+    @State private var last: String?
+    /// Where the introduction was opened from, so closing it returns there instead of closing everything.
+    @State private var origin: String?
+    private var name: String { model.sheet ?? last ?? "help" }
     var body: some View {
-        // The introduction brings its own frame and light colours.
-        if model.sheet == "onboarding" {
-            FlexibleSheet(preferred: CGSize(width: 620, height: 560), available: availableSize) { OnboardingView(model: model) }
-        } else { standard }
+        Group {
+            // The introduction brings its own frame and light colours.
+            if name == "onboarding" {
+                FlexibleSheet(preferred: CGSize(width: 620, height: 560), available: availableSize) { OnboardingView(model: model, returnTo: origin) }
+            } else { standard }
+        }
+        .onAppear { last = model.sheet }
+        .onChange(of: model.sheet) { old, new in
+            guard let new else { return }
+            if new == "onboarding" { origin = old }
+            last = new
+        }
     }
     private var standard: some View {
-        FlexibleSheet(preferred: CGSize(width: model.sheet == "history" ? 840 : 680, height: model.sheet == "history" ? 580 : 560), available: availableSize) {
+        FlexibleSheet(preferred: CGSize(width: name == "history" ? 840 : 680, height: name == "history" ? 580 : 560), available: availableSize) {
         VStack(spacing: 0) {
             HStack {
                 Text(title).font(.title2).fontWeight(.semibold)
@@ -69,7 +83,7 @@ struct SheetRouter: View {
             }.padding(.horizontal, 24).padding(.vertical, 18)
             Divider()
             Group {
-                switch model.sheet {
+                switch name {
                 case "formatHelp": CharacterFormatView(model: model, palette: palette)
                 case "tools": AdditionalToolsView(model: model, palette: palette)
                 case "settings": SettingsView(model: model, palette: palette)
@@ -87,7 +101,7 @@ struct SheetRouter: View {
     }
     private var title: String {
         let keys = ["formatHelp":"FormatGuide", "tools":"ExportReport", "watch":"FolderWatch", "settings":"Settings", "history":"History", "inspector":"Inspector", "clipboard":"TextTool", "diagnostics":"DiagnosticsPreview", "about":"About", "help":"HelpTitle"]
-        return model.t(keys[model.sheet ?? "help"] ?? "HelpTitle")
+        return model.t(keys[name] ?? "HelpTitle")
     }
     @ViewBuilder private var inspector: some View {
         if let entry = model.entries.first(where: { $0.id == model.focused }) {

@@ -33,8 +33,10 @@ struct OnboardingView: View {
     @State private var hide: Bool
     static let hiddenKey = "NameFix.Onboarding.Hidden"
     static let pageCount = 4
-    init(model: AppModel, page: Int = 0) {
-        self.model = model
+    /// The sheet the introduction was opened from (Settings or the guide); closing goes back to it.
+    private let returnTo: String?
+    init(model: AppModel, page: Int = 0, returnTo: String? = nil) {
+        self.model = model; self.returnTo = returnTo
         _page = State(initialValue: page)
         _hide = State(initialValue: UserDefaults.standard.bool(forKey: Self.hiddenKey))
     }
@@ -159,7 +161,8 @@ struct OnboardingView: View {
     }
     private func close() {
         UserDefaults.standard.set(hide, forKey: Self.hiddenKey)
-        model.sheet = nil; model.flushQueued()
+        model.sheet = returnTo
+        if returnTo == nil { model.flushQueued() }
     }
 }
 
