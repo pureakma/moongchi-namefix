@@ -55,7 +55,9 @@ def verify_app(base):
     for word in ['URLSession', 'NWConnection']:
         assert word not in app_strings and word not in cli_strings, word
     run(executable, '--self-test')
-    run(base/'namefix', '--help')
+    usage = text(base/'namefix', '--help').stdout
+    for option in ['--no-recurse', '--include-folders', '--include-hidden', '--prefix', '--replace', '--number', '--csv', '--recipe', '--execute', '--json', '--undo', 'Dry-run is the default']:
+        assert option in usage, 'CLI help lacks ' + option
     run(sys.executable, root/'eng/test-release-cli.py', base/'namefix')
 
 verify_app(out)

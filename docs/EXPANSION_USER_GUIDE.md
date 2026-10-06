@@ -84,6 +84,8 @@ CSV/TSV는 UTF-8만 읽고 BOM·따옴표·개행을 지원한다. 원본 열은
 ./namefix --undo TRANSACTION-UUID --execute
 ```
 
+규칙이나 `--csv`를 쓰면 앱과 같이 보이는 일반 파일만 대상이며, `--include-folders`와 `--include-hidden`으로 폴더 이름과 숨김 항목을 포함한다. 규칙 없이 실행하면 글자 구성만 맞추며 폴더 이름도 대상이다.
+
 기본 dry-run, 실제 실행은 터미널에서 `RENAME` 입력이 필요하다. non-TTY 실행/무확인 force는 차단한다. 앱과 History 및 process lock을 공유한다. exit 0 성공/미리보기, 1 오류, 2 제외/부분 실패, 3 취소다. JSON 출력은 raw bytes base64를 포함한다. `--rules-json`으로 규칙 조합을, `--recipe`로 저장한 프리셋을 전달할 수 있다. 모든 규칙을 제한 없이 쓸 수 있다.
 
 ## 남은 조건

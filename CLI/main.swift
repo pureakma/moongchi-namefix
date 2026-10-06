@@ -17,6 +17,11 @@ import NameFixApplication
             Dry-run is the default. Files are never changed without interactive confirmation.
             --nfd / --keep-form           Output NFD / preserve form (default NFC)
             --no-recurse                 Scan selected folders and immediate children
+            --include-folders            With rename rules or --csv: also rename folders, the given ones included
+            --include-hidden             With rename rules or --csv: also rename hidden items (names starting
+                                         with a dot, and everything inside such folders)
+                                         Rules and --csv change visible files only unless these are given.
+                                         Without rules, names are only normalized, folders included.
             --prefix TEXT --suffix TEXT  Basic rules (may repeat)
             --upper / --lower / --title / --spaces
             --insert POSITION TEXT       Grapheme-safe insertion
