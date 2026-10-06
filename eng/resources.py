@@ -23,7 +23,7 @@ for language in languages:
         json.dumps(key) + " = " + json.dumps(value_for(key, language), ensure_ascii=False) + ";"
         for key in sorted(catalog)
     ]
-    (target / "Localizable.strings").write_text("\n".join(lines))
+    (target / "Localizable.strings").write_text("\n".join(lines) + "\n")
     (target / "InfoPlist.strings").write_text(
         '"Inspect Names with NameFix" = '
         + json.dumps(value_for("FinderServiceTitle", language), ensure_ascii=False)

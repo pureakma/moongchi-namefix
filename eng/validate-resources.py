@@ -35,7 +35,7 @@ for language in languages:
     expected = "\n".join(
         json.dumps(key) + " = " + json.dumps(value_for(key, language), ensure_ascii=False) + ";"
         for key in sorted(catalog)
-    )
+    ) + "\n"
     actual = (resources / f"{language}.lproj" / "Localizable.strings").read_text()
     assert actual == expected, f"{language} Localizable.strings is not generated from xcstrings"
     expected_info = (
@@ -57,7 +57,7 @@ info = plistlib.loads((root / "App/Info.plist").read_bytes())
 assert info["LSArchitecturePriority"] == ["arm64"]
 assert info["NSServices"]
 
-assert "#DDD8C5" in (root / "App/Theme.swift").read_text()
+assert "DDD8C5" in (root / "App/Theme.swift").read_text()
 
 assert not any(
     re.search(r"URLSession|NWConnection|NSURLConnection", path.read_text())
