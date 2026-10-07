@@ -2,23 +2,29 @@
 
 <!-- HOT:START -->
 ## 지금
-- 단계: APP STORE FEATURE PARITY 완료 — APPSTORE_GUI_PARITY_READY. Final User QA는 USER_QA_COMPLETE_WITH_EXTERNAL_PENDING. 출시 보류. 현재 source는 1.0.0 build 6. Release Candidate는 아직 만들지 않았고 서명·공증·제출도 하지 않았다. build 5는 공개하지 않는 과거 후보(D-026)
-- 현재 Task: T-011 (verificationPending)
-- 다음: 사용자가 Release Candidate Phase를 승인하면 build 6 기준으로 최종 RC 생성·검증 단계로 간다. 스토어 제출에는 T-007의 외부 입력이 필요
+- 단계: APP STORE ONLY 정리 완료 — APPSTORE_ONLY_READY. 공개 제품은 Mac App Store build 하나(D-038). Final User QA는 USER_QA_COMPLETE_WITH_EXTERNAL_PENDING. 출시 보류. 현재 source는 1.0.0 build 6. Release Candidate는 아직 만들지 않았고 스토어 서명·archive·업로드·제출도 하지 않았다
+- 현재 Task: 없음 (다음 Task는 사용자 승인 대기)
+- 다음: 사용자가 Release Candidate Phase를 승인하면 build 6 기준으로 스토어용 최종 RC 생성·검증 단계로 간다. T-007의 외부 입력(배포 인증서, App Store Connect 접근)이 필요
 - 위험·막힘: 확인된 P0·P1 없음. 스토어 제출용 인증서와 App Store Connect 접근 없음(T-007). D-003의 비협조 writer source-race 알려진 제한
-- 검증 대기: 제품 blocker는 없다. 추가 확인으로 남긴 것(실제로 하지 않았고 PASS로 적지 않음): 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인. 상세는 docs/QA.md
+- 검증 대기: 제품 blocker는 없다. 추가 확인으로 남긴 것(실제로 하지 않았고 PASS로 적지 않음): 스토어 build에서 폴더 선택 창을 사람이 직접 누르는 것(‘상위 폴더 선택…’ 포함), 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인. 상세는 docs/QA.md
 - 마지막 갱신: 2026-10-07
 <!-- HOT:END -->
 
 ## 현재 Milestone
 
-Global Product Hardening Phase 1·2와 그 최종 QA. 한국·영어권·일본 시장 수준의 제품 품질과, 직접 배포판과 Mac App Store판이 같은 코드로 같은 GUI 기능을 내는 공통 기반. 출시, DMG 공개, 웹사이트 수정, App Store 업로드·제출은 하지 않는다. 이 Milestone의 Task는 모두 끝났고, 다음은 사용자가 승인하는 Release Candidate Phase다.
+Global Product Hardening Phase 1·2, 최종 QA, 그리고 공개 배포를 Mac App Store 하나로 정리하는 것까지. 출시, 스토어 업로드·제출, 웹사이트 수정은 하지 않는다. 이 Milestone의 Task는 모두 끝났고, 다음은 사용자가 승인하는 Release Candidate Phase다. 아래 완료된 Task에 나오는 ‘직접 배포판’은 그때의 구성이며 지금은 없다(D-038).
 
-### T-011 App Store Feature Parity Polish [verificationPending]
+### T-012 App Store Only Distribution Simplification [completed]
+- 근원: R-017
+- 범위: 공개 배포를 Mac App Store 하나로(D-038). 구성을 Debug와 AppStore 둘로 줄이고, 직접 배포 구성·에디션 분기·‘업데이트 확인…’ 메뉴·사용자용 CLI와 그 test·직접 배포 후보 도구를 없앤다. GUI 기능과 파일 안전 계약은 그대로. 문서와 스토어 문구를 한 채널로 통일. Release Candidate 생성은 포함하지 않는다.
+- 완료기준: 구성 Debug + AppStore(달성), GUI 기능 유지(달성: 실제 sandbox 15개), CLI·업데이트 메뉴·직접 배포 도구 제거(달성), arm64 전용·macOS 14 이상(달성), P0·P1 없음(달성), 문서·스토어 문구 일치(달성)
+- 근거: QA.md의 App Store Only Gate, 영수증 MAC-APPSTORE-ONLY-GATE-20261007. build 5의 과거 후보는 손대지 않았다(RELEASE.md)
+
+### T-011 App Store Feature Parity Polish [completed]
 - 근원: R-016
 - 범위: 스토어판의 GUI 기능을 직접 배포판과 같게(D-037). 추가한 폴더 자체의 이름 변경(필요한 순간에 상위 폴더 요청), 파일 하나·여러 파일, 필요한 폴더만 요청, 남겨 둔 접근 재사용, 다른 폴더 거부, 재실행 뒤 Undo, ko/en/ja 문구, 심사 메모. Release Candidate 생성은 포함하지 않는다.
-- 완료기준: 직접 배포판 회귀 없음(달성), 스토어판에서 추가한 폴더·파일 하나·여러 파일의 이름 변경(달성: 실제 sandbox), 필요한 때만 요청(달성), 취소 안전과 재시도(달성), 남겨 둔 접근 재사용(달성), 재실행 뒤 Undo(달성), P0·P1 없음(달성), 남은 차이는 CLI와 업데이트 방식뿐(달성), 사용자가 폴더 선택 창을 직접 눌러 확인(대기)
-- 대기: 사용자가 스토어판에서 ‘상위 폴더 선택…’과 파일 추가 뒤의 폴더 선택 창을 직접 눌러 보는 것. AI는 실제 sandbox에서 macOS가 허용한 폴더로 요청에 답하는 방식으로 실행했고 창을 누르지는 않았다. Engineering Verification이며 User QA PASS가 아니다.
+- 완료기준: 직접 배포판 회귀 없음(달성), 스토어판에서 추가한 폴더·파일 하나·여러 파일의 이름 변경(달성: 실제 sandbox), 필요한 때만 요청(달성), 취소 안전과 재시도(달성), 남겨 둔 접근 재사용(달성), 재실행 뒤 Undo(달성), P0·P1 없음(달성), 남은 차이는 CLI와 업데이트 방식뿐(달성), 사람이 ‘상위 폴더 선택…’을 직접 누르는 것(하지 않음: 추가 확인 목록)
+- 근거: QA.md의 App Store Feature Parity Gate(153 test, 실제 sandbox 15개 PASS). 폴더 선택 창 자체는 사용자가 R2에서 눌러 확인한 같은 창이다(파일 추가 뒤의 폴더 선택, 재실행 뒤 Undo). 새로 생긴 ‘상위 폴더 선택…’ 버튼과 그 창의 문구를 사람이 누르는 것은 하지 않았고, blocker가 아닌 추가 확인 목록에 넣었다
 - 검증: docs/QA.md의 App Store Feature Parity Gate
 
 ### T-010 Global Product Final QA / Release Candidate Gate [completed]
@@ -60,17 +66,17 @@ Global Product Hardening Phase 1·2와 그 최종 QA. 한국·영어권·일본 
 - 근원: R-010
 - 범위: AppStore 구성 archive, 배포 서명, App Store Connect 기록·메타데이터·스크린샷·App Privacy 입력, 업로드와 심사 제출. sandbox 구성과 권한 흐름은 T-009에서 끝났고 스토어 문구는 marketing/appstore.json에 있다.
 - 사유: 제출용 배포 인증서(Apple Distribution, Mac Installer Distribution)와 App Store Connect 접근이 이 Mac에 없다. 새 private key 생성과 로그인(2FA), 약관 동의는 사용자가 한다. 출시 자체도 보류 중이다(D-026).
-- 조건: 사용자가 Release Phase를 승인하고 docs/RELEASE.md ‘Mac App Store 트랙’의 외부 입력을 준비한다.
+- 조건: 사용자가 Release Candidate Phase를 승인하고 docs/RELEASE.md ‘Mac App Store 제출’의 외부 입력을 준비한다.
 
 ## 현재 상태 요약
 
 - 구현: 현재 승인된 앱 기능 범위에서 추가 필수 구현 Task 없음. P0 0건, P1 0건(User QA에서 나온 1건은 수정하고 사용자가 확인), P2 2건은 의도적으로 남겼다(QA.md). 작업 기록의 확정 수준은 사용자가 고른다(D-036).
-- 에디션: 직접 배포판(sandbox 없음, CLI 포함)과 Mac App Store판(App Sandbox)이 같은 코드이고 GUI 기능이 같다(D-032, D-037). 스토어판은 사용자가 고른 폴더 안에서 작업하며, 모자란 폴더는 필요한 순간에 한 번 요청한다. 남은 차이는 CLI와 업데이트 방식뿐이다.
+- 제품: Mac App Store의 앱 하나이며 무료다(D-038). App Sandbox 안에서 사용자가 고른 폴더에서만 작업하고, 모자란 폴더는 필요한 순간에 한 번 요청한다(D-037). 직접 배포판, CLI, 앱 자체의 업데이트 확인은 없다. 구성은 Debug와 AppStore 둘.
 - 지원 위치: 로컬 writable APFS(내장·외장)에서만 이름을 바꾼다. exFAT·FAT·HFS+·네트워크·cloud 위치는 나열하고 이유를 알린 뒤 그대로 둔다(D-027).
 - 알려진 제한: 비협조 외부 writer의 source 교체를 expected-inode 조건으로 원자 차단하지 못한다. 감지·중단·보존·복구 안내는 구현돼 있다. swap/cycle/묶음 파일 그룹은 그룹 도중 취소하면 복구 확인이 필요할 수 있다. 읽을 수 없는 작업 기록이 있으면 Undo/Recovery를 막는다.
 - 유료 등급: 없음. 모든 기능을 무료로 제공한다(D-014).
-- Release: 출시 보류. 1.0.0 build 5의 공증된 DMG(artifacts/release-candidate/1.0.0/build5-final)는 공개하지 않는 과거 후보로 보존한다(D-026). 현재 source는 build 6이며 후보 생성·서명·공증은 하지 않았다. 웹사이트는 뭉치페이지스가 맡는다(D-025). Mac App Store는 시작하지 않았다(T-007).
+- Release: 출시 보류. Release Candidate와 스토어 제출은 시작하지 않았다(T-007). 1.0.0 build 5의 서명·공증된 직접 배포 후보(artifacts/release-candidate/1.0.0/build5-final)는 공개하지 않는 역사적 근거로만 보존한다(D-026, D-038). 웹사이트는 뭉치페이지스가 맡는다(D-025).
 - User QA: Final User QA Session 완료(2026-10-07). Q1~Q5, F1~F5, R1~R4는 사용자 PASS. R5·R7은 PARTIAL, R6은 사용자 결정으로 AI 전체 검수로 대체했다. 판정 USER_QA_COMPLETE_WITH_EXTERNAL_PENDING. Release Candidate 단계에 들어갈 수 있다.
-- 추가 확인(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인. 깨끗한 Mac 설치와 실제 macOS 14 Apple Silicon 장비 확인은 서명된 Release Candidate가 생긴 뒤에 한다.
+- 추가 확인(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 스토어 build에서 폴더 선택 창을 사람이 직접 누르는 것(‘상위 폴더 선택…’ 포함), 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인. 깨끗한 Mac 설치와 실제 macOS 14 Apple Silicon 장비 확인은 스토어용으로 서명한 build가 생긴 뒤에 한다.
 
 과거 완료 Task와 날짜별 개발 기록은 이 파일에 누적하지 않는다. 필요하면 Git 이력과 .ai/validation-cache.json의 evidence path를 확인한다.

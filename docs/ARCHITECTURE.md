@@ -8,8 +8,8 @@
 - Swift 6 strict concurrency
 - SwiftUI + AppKit
 - Foundation/Darwin 파일시스템 API
-- 구성 셋: Debug, Release(직접 배포, App Sandbox OFF), AppStore(App Sandbox ON). 모두 Hardened Runtime ON. 원본은 project.yml 하나(D-032)
-- 제품 version 설정 1.0.0 build 6. bundle ID는 Release·AppStore 구성 com.ailoworks.namefix, Debug 구성 com.moongchi.namefix.dev(project.yml이 원본). 앱 정보 화면과 진단 보고서는 번들의 version/build 값을 읽는다. 설정·작업 기록 폴더는 bundle ID와 무관하게 Application Support/Moongchi/NameFix다.
+- 구성 둘: Debug(개발·QA, App Sandbox OFF), AppStore(공개 배포, App Sandbox ON). 둘 다 Hardened Runtime ON. 원본은 project.yml 하나(D-038)
+- 제품 version 설정 1.0.0 build 6. bundle ID는 AppStore 구성 com.ailoworks.namefix, Debug 구성 com.moongchi.namefix.dev(project.yml이 원본). 앱 정보 화면과 진단 보고서는 번들의 version/build 값을 읽는다. 설정·작업 기록 폴더는 bundle ID와 무관하게 Application Support/Moongchi/NameFix다.
 
 ## 책임 경계
 
@@ -17,14 +17,13 @@
 |---|---|---|---|
 | App | SwiftUI 화면, AppKit 창/toolbar/sidebar/menu, 입력, sheet, 접근성·표시 상태 | AppModel/Application API | UIModelTests, focused render/build |
 
-App의 render·창 진단 fixture(App/*Fixtures.swift)와 그 실행 flag는 Debug build에서만 compile된다. Release binary에는 리소스 self-test(--self-test)만 남는다. 결과 목록의 표시 순서는 목록과 정렬 기준이 바뀔 때만 main thread 밖에서 계산하고, 필터·검색은 그 순서를 재사용한다.
+App의 render·창 진단 fixture(App/*Fixtures.swift)와 그 실행 flag는 Debug build에서만 compile된다. AppStore binary에는 리소스 self-test(--self-test)만 남는다. 결과 목록의 표시 순서는 목록과 정렬 기준이 바뀔 때만 main thread 밖에서 계산하고, 필터·검색은 그 순서를 재사용한다.
 | Application | fresh Plan, Rule Preview, selection/numbering, Undo/Recovery preview, watch snapshot | NameFixCore 모델 + Infrastructure 서비스 | Integration/UI model |
 | Packages/NameFixCore | raw 이름/경로 모델, Unicode 정규화, RulePipeline, entitlement, CSV/name mapping 순수 로직 | Foundation 값 모델 | NameFixCore tests |
 | Infrastructure | scan, raw filesystem access, FileCoordination, transaction/graph transaction, journal, metadata, settings, recipe/watch store, diagnostics | Application이 호출하는 저장/실행 API | Integration/Safety/Transaction |
-| CLI | dry-run, 구조화 출력, 대화형 실행/Undo | Application/Infrastructure와 동일 safety/capability | CLI fixture |
 | Resources | Localizable.xcstrings, ko/en/ja runtime strings, fonts, asset catalog | App UI | validate-resources.py |
 
-의존 방향은 App/CLI → Application → Core와 Infrastructure다. Core는 UI에 의존하지 않는다. 새 기능이 이 경계를 바꾸면 구조 변경 Gate로 취급한다.
+의존 방향은 App → Application → Core와 Infrastructure다. Core는 UI에 의존하지 않는다. 새 기능이 이 경계를 바꾸면 구조 변경 Gate로 취급한다.
 
 ## 외부 입력
 
@@ -42,13 +41,13 @@ Infrastructure의 FS.support(fd)가 디렉터리가 놓인 volume의 VolumeSuppo
 
 Infrastructure의 AccessRoots가 이 프로세스가 작업할 수 있는 폴더와 walk의 시작점을 정한다(D-033).
 
-- 직접 배포판: 제한 없음. FS.openDirectory는 "/"에서 시작해 모든 경로 요소를 O_NOFOLLOW로 연다.
-- sandbox(스토어판, 실행 중에 APP_SANDBOX_CONTAINER_ID로 판별): 사용자가 허용한 폴더(AuthorizedRoot: raw 경로, 폴더 identity, volume UUID)만 열 수 있다. FS.openDirectory는 경로를 포함하는 가장 깊은 허용 폴더의 FD에서 시작해 나머지 요소를 O_NOFOLLOW로 연다. 포함하는 폴더가 없으면 FolderAccessNeeded를 던진다. 허용 폴더의 identity나 실제 경로가 달라졌으면 쓰지 않는다.
+- sandbox 밖(Debug 구성, test): 제한 없음. FS.openDirectory는 "/"에서 시작해 모든 경로 요소를 O_NOFOLLOW로 연다. 제품은 이 갈래로 출시하지 않는다.
+- sandbox(제품, 실행 중에 APP_SANDBOX_CONTAINER_ID로 판별): 사용자가 허용한 폴더(AuthorizedRoot: raw 경로, 폴더 identity, volume UUID)만 열 수 있다. FS.openDirectory는 경로를 포함하는 가장 깊은 허용 폴더의 FD에서 시작해 나머지 요소를 O_NOFOLLOW로 연다. 포함하는 폴더가 없으면 FolderAccessNeeded를 던진다. 허용 폴더의 identity나 실제 경로가 달라졌으면 쓰지 않는다.
 - 허용 폴더가 생기는 곳: 사용자가 고르거나 끌어다 놓거나 Finder에서 넘긴 폴더(AppModel.add), 즐겨찾기·최근 폴더·감시 폴더의 bookmark, 작업 기록용으로 남긴 bookmark(GrantStore, access.json), 앱 자신의 데이터 폴더. grant는 횟수를 세고 release로 돌려준다. security scope의 시작과 끝은 AccessLease가 짝을 맞춘다.
 - 앱은 접근 여부를 직접 판단하지 않는다. FolderAccessNeeded가 나오면 AppModel이 folderRequest를 올리고 App이 그 폴더 하나를 고르는 창을 띄운다. 고르면 같은 일을 다시 한다.
 - Scanner.protectedReason은 허용 폴더 안에서는 항목의 속성을 읽고, 그 위로는 이름만 본다.
 
-에디션에 따라 달라지는 것은 Info.plist의 NameFixDistribution(직접 배포판의 ‘업데이트 확인’ 메뉴 유무)과 위 접근 규칙뿐이다.
+제품 코드에는 에디션을 가르는 분기가 없다(D-038). sandbox 안팎에서 달라지는 것은 위 접근 규칙 하나이고, 그 판별은 실행 환경에서 한다.
 
 ## Scan과 Preview
 
@@ -99,9 +98,9 @@ Journal schema 2는 swap/group 이벤트를 표현한다. schema 1은 읽기 호
 - watch: FSEvents는 발견/대기열 역할이며 이벤트만으로 rename하지 않는다. 사용자 review snapshot 이후 mutation한다.
 - 진단 로그와 mutation journal은 별개다. 기본 진단에 경로/clipboard/파일 내용을 넣지 않는다.
 
-## Access와 CLI
+## Access
 
-제품에는 유료 등급이 없다. 앱과 CLI는 FullAccessEntitlementProvider로 항상 전체 access를 받는다. 규칙 집합을 access 수준에 대해 검증하는 capability 검사는 Application/CLI/watch/preset 경로에 그대로 남아 있으며, test는 다른 provider를 주입해 이 검사를 확인한다. access가 낮아지는 경우에도 Undo와 기존 데이터 보존은 영향을 받지 않는다.
+제품에는 유료 등급이 없다. 앱은 FullAccessEntitlementProvider로 항상 전체 access를 받는다. 규칙 집합을 access 수준에 대해 검증하는 capability 검사는 Application/watch/preset 경로에 그대로 남아 있으며, test는 다른 provider를 주입해 이 검사를 확인한다. access가 낮아지는 경우에도 Undo와 기존 데이터 보존은 영향을 받지 않는다.
 
 ## 결과 목록
 
@@ -110,8 +109,6 @@ Journal schema 2는 swap/group 이벤트를 표현한다. schema 1은 읽기 호
 ## sidebar 트리
 
 FolderTree는 scan 결과의 폴더 항목과 추가한 위치로 트리를 만든다. 각 노드는 그 아래의 변경 가능한 항목 수를 가진다. 트리는 scan 결과를 만드는 background 작업에서 함께 계산한다. 노드 선택은 목록 필터(folderFilter)일 뿐이며 선택 집합과 Plan에는 영향을 주지 않는다. 폴더 밖의 선택 항목은 ‘숨은 선택’으로 집계돼 확인 시트에 그대로 경고된다.
-
-CLI는 기본 dry-run이며 실제 변경은 execute 요청과 터미널 최종 확인을 요구한다. 무인 force mutation 경로를 제공하지 않고 GUI와 process lock/History를 공유한다.
 
 ## 리소스 생성
 

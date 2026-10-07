@@ -14,9 +14,26 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 ## 현재 source의 Engineering Verification 상태
 
-현재 판정: USER_QA_COMPLETE_WITH_EXTERNAL_PENDING (2026-10-07, Final User QA Session, T-010). P0 0건, P1 0건, P2 2건은 의도적으로 남겼다. R1~R4는 사용자 PASS, R5·R7은 PARTIAL, R6은 사용자 결정으로 AI 전체 검수로 대체했다(원어민 확인 아님). 항목별 결과와 세션에서 고친 것은 아래 ‘User QA’의 ‘남은 확인 일곱 가지’에 있다. Release Candidate 단계에 들어갈 수 있고, 사용자가 승인하기 전에는 후보를 만들지 않는다. 세션 뒤 source의 영수증은 .ai/validation-cache.json의 MAC-USER-QA-SESSION-20261007(로컬 evidence artifacts/evidence/user-qa)이다.
+현재 판정: USER_QA_COMPLETE_WITH_EXTERNAL_PENDING (2026-10-07, Final User QA Session, T-010). P0 0건, P1 0건, P2 2건은 의도적으로 남겼다. R1~R4는 사용자 PASS, R5·R7은 PARTIAL, R6은 사용자 결정으로 AI 전체 검수로 대체했다(원어민 확인 아님). 항목별 결과와 세션에서 고친 것은 아래 ‘User QA’의 ‘남은 확인 일곱 가지’에 있다. Release Candidate 단계에 들어갈 수 있고, 사용자가 승인하기 전에는 후보를 만들지 않는다. 세션 뒤 source의 영수증은 .ai/validation-cache.json의 MAC-USER-QA-SESSION-20261007(로컬 evidence artifacts/evidence/user-qa)이다. 그 뒤 공개 배포를 Mac App Store 하나로 줄였고(D-038, T-012) 현재 source의 Engineering 기준은 바로 아래 ‘App Store Only Gate’다.
 
 추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인.
+
+### App Store Only Gate (2026-10-07, T-012) — 현재 값
+
+판정 APPSTORE_ONLY_READY. 영수증 MAC-APPSTORE-ONLY-GATE-20261007, 로컬 evidence artifacts/evidence/storeonly. 공개 제품은 Mac App Store build 하나이고(D-038) 이 Gate가 현재 source의 기준이다. 이 아래의 Gate들에 나오는 ‘직접 배포 구성’·‘Release 구성’·CLI 항목은 그때의 사실이며 지금은 없는 구성이다. AI가 실행한 Engineering Verification이며 User QA PASS가 아니다.
+
+| 항목 | 명령 | 결과 |
+|---|---|---|
+| Runtime·UI model·Core test | eng/test.sh --level 3 | 153개 실행, 실패 0 (통합 75 중 11 skip, UI model 49 중 1 skip, Core 29). CLI target을 지워도 test 수는 같다 |
+| 실제 App Sandbox | eng/test-sandbox.py | 15개 PASS. 앱 메뉴에 업데이트 명령 없음 확인 포함 |
+| sandbox 밖 회귀(제품 gate 아님) | eng/test-sandbox.py --direct | 15개 PASS. 제한 없는 접근 규칙이 그대로임을 보는 architecture 근거 |
+| AppStore build | eng/build.sh --configuration AppStore --arch arm64 | BUILD SUCCEEDED. com.ailoworks.namefix, 1.0.0 build 6, arm64만, macOS 14.0 이상, Hardened Runtime, entitlement 셋(app-sandbox · files.user-selected.read-write · files.bookmarks.app-scope), ko/en/ja, self-test PASS. probe·render fixture 문자열 0건, 업데이트 명령 문자열 0건, 번들 안 CLI 0개. ad-hoc 서명이며 제출용 서명이 아님 |
+| 구성 | project.yml, eng/build.sh | Debug와 AppStore 둘. Release 구성은 없고 요청하면 거부한다 |
+| 대표 화면 | --render-ux, --render-shell | 129장(78+51), assertion PASS |
+| 리소스·스토어 문구 | eng/validate-resources.py; eng/validate-marketing.py | 571 keys × ko/en/ja PASS(‘업데이트 확인’ 문자열 제거), 스토어 문구 PASS. 스토어 문구에 직접 다운로드·CLI 언급 없음 |
+| 문서 | python3 tools/doccheck.py; git diff --check | PASS |
+
+이 Gate에서 다시 돌리지 않은 것: 일회용 volume matrix(eng/test-volumes.py), 반응형·확장 화면 render, 성능 측정. Infrastructure의 파일 안전 코드는 이번에 바뀌지 않았고 직전 Gate들의 결과가 근거다.
 
 ### App Store Feature Parity Gate (2026-10-07, T-011)
 

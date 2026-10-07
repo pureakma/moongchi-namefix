@@ -2246,6 +2246,35 @@
       "command": "eng/test.sh --level 3; eng/test-sandbox.py; eng/test-sandbox.py --direct; --render-ux/shell/responsive/expansion; eng/validate-resources.py; eng/validate-marketing.py; eng/build.sh Debug, Release and AppStore",
       "evidencePath": "artifacts/evidence/parity",
       "notes": "App Store Feature Parity gate (T-011, D-037), 1.0.0 build 6 source. Verdict APPSTORE_GUI_PARITY_READY. 153 tests, 0 failures, incl. 5 store-parity model tests. Real App Sandbox, 15 scenarios PASS, each step a new launch: an added folder whose own name needs fixing is renamed after the folder above is chosen (nothing asked before, cancel changes nothing, undo after a new launch exact); one file; three files of one folder (one request); files of two folders (one request per folder); a file in a favourite folder (no request). The same 15 outside the sandbox PASS with no request anywhere. 237 screens render; 572 keys x 3 languages; Debug, Release and AppStore build. The folder panel was not clicked: requests were answered with folders macOS had granted the process. Batch rules on the added folder and Recovery rely on model and contract tests. Not User QA."
+    },
+    {
+      "validationId": "MAC-APPSTORE-ONLY-GATE-20261007",
+      "status": "PASS",
+      "configuration": "AppStore",
+      "architecture": "arm64",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "App/Info.plist",
+        "App/NameFix-AppStore.entitlements",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "Package.swift",
+        "project.yml",
+        "eng/test-sandbox.py",
+        "eng/test.sh",
+        "eng/build.sh",
+        "eng/verify-release.sh",
+        "marketing/appstore.json"
+      ],
+      "sourceFingerprint": "fd55777d47c6612bc397724d0694ffcf7562001af8f25e9707e3881286fdd7b9",
+      "testFingerprint": "c6f0670c67818daf9fa79c15f84feef31ce16f37e3d74700446fb44b21670172",
+      "timestamp": "2026-10-07T07:20:48.525179+00:00",
+      "command": "eng/test.sh --level 3; eng/test-sandbox.py; eng/test-sandbox.py --direct; eng/build.sh Debug and AppStore; --render-ux/shell; eng/validate-resources.py; eng/validate-marketing.py",
+      "evidencePath": "artifacts/evidence/storeonly",
+      "notes": "App Store Only gate (T-012, D-038), 1.0.0 build 6 source. Verdict APPSTORE_ONLY_READY. Configurations Debug and AppStore; the Release configuration, the edition key, the update menu, the namefix command-line target with its tests and the direct candidate tools are removed. 153 tests, 0 failures. Real App Sandbox, 15 scenarios PASS incl. no update command in the app menu; the same 15 outside the sandbox PASS as architecture evidence only. AppStore build: com.ailoworks.namefix, arm64 only, macOS 14.0, hardened runtime, three entitlements, ko/en/ja, self-test PASS, no probe, fixture or update strings, no executable named namefix in the bundle; ad hoc signature, not a submission signature. 571 keys x 3 languages; store metadata valid. Not rerun: the disposable volume matrix, responsive and expansion renders, performance. No candidate, archive, upload or submission. Not User QA."
     }
   ]
 }

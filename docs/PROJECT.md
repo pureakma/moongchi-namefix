@@ -13,21 +13,22 @@ Moongchi NameFix는 파일과 폴더 이름의 Unicode 정규화 차이와 이�
 - R-003 지원 mutation 범위는 검증된 로컬 writable APFS다. symlink/alias, 앱/package, 알려진 cloud/FileProvider 위치, 확인되지 않은 파일시스템은 보호하거나 변경을 차단해야 한다.
 - R-004 앱은 macOS 14 이상 Apple Silicon arm64 네이티브 앱이며 Swift 6 strict concurrency와 SwiftUI + AppKit 현재 구조를 유지한다.
 - R-005 모든 기능을 무료로 제공한다. 유료 등급, 구매, 계정, 라이선스 인증을 두지 않으며 인위적인 속도/개수 제한도 두지 않는다. 분리된 글자 합치기·분리하기, 글자 구성 설명, 일괄 변경 규칙(패턴·조건·고급 번호 포함), 프리셋, CSV/TSV 목록, 지원 파일 정보, 묶음 파일, 폴더 감시, 결과 저장, CLI, Preview/Undo/Recovery가 모두 같은 조건으로 열려 있다.
-- R-006 capability 검사 구조(규칙 집합을 access 수준에 대해 검증하는 코드)는 내부에 남기되 앱과 CLI는 항상 전체 access로 동작한다. 화면과 문구에 Pro·유료·구매를 표시하지 않는다. 유료 등급을 다시 도입하려면 사용자 승인과 새 결정이 필요하다.
+- R-006 capability 검사 구조(규칙 집합을 access 수준에 대해 검증하는 코드)는 내부에 남기되 앱은 항상 전체 access로 동작한다. 화면과 문구에 Pro·유료·구매를 표시하지 않는다. 유료 등급을 다시 도입하려면 사용자 승인과 새 결정이 필요하다.
 - R-007 이름 검사와 모든 기능은 계정·서버·텔레메트리 없이 동작해야 한다. 파일 정보는 사용자가 해당 규칙을 선택한 지원 형식에서만 읽기 전용으로 추출하며, AI/OCR/RAG는 현재 제품 범위가 아니다.
 - R-008 UI는 간단한 자소 분리 해결 화면과 별도 이름 일괄 변경 작업실을 분리하고, native macOS 상호작용·네 테마·반응형 창·ko/en/ja·키보드/접근성 원칙을 유지해야 한다.
 - R-009 성능과 검증은 변경 영향 기반으로 관리한다. 기존 PASS는 source/test/dependency/toolchain/environment 또는 계약이 바뀌면 무효화하며, Engineering Verification과 User QA를 구분한다.
-- R-010 Store 실제 동작 검증, 새 Release 후보, 공증, 실제 배포는 현재 자동 개발 범위가 아니다. 사용자가 별도 출시 단계를 승인하고 필요한 외부 입력을 제공해야 시작한다. 무료 제품이므로 판매 공급자 연결은 필요하지 않다.
+- R-010 Release Candidate 생성, 스토어 archive·업로드·심사 제출은 현재 자동 개발 범위가 아니다. 사용자가 별도 출시 단계를 승인하고 필요한 외부 입력(배포 인증서, App Store Connect 접근)을 제공해야 시작한다.
 - R-011 설정·Journal·프리셋·watch 데이터의 기존 호환과 손상 원본 보존을 유지하고, 새 schema를 모르는 구버전이 새 기록을 잘못 Undo하지 않도록 해야 한다.
 - R-012 Git/AI 협업은 한 working tree 한 writer, 안전한 Preflight/Finish, 최소 충분 Context, Task 영향 기반 검증을 사용하고 과거 개발 문서는 Git 이력으로 보존한다.
 - R-013 자주 쓰는 폴더를 즐겨찾기로 고정해 한 번에 입력에 추가하고 그 시점에 검사할 수 있어야 한다. 즐겨찾기는 로컬 설정에 경로와 접근 정보를 저장하는 shortcut이며, 등록만으로 감시를 시작하지 않고, 제거해도 실제 폴더·파일을 건드리지 않으며, 열 수 없게 된 즐겨찾기는 상태를 표시하고 다시 선택하게 한다.
 - R-015 한국어·영어·일본어 사용자가 각자의 언어로 자연스럽게 쓸 수 있는 글로벌 제품 품질을 갖춘다. 지원하는 파일시스템과 그 이유는 실험으로 확정해 코드·화면·문서가 같은 사실을 쓰고, 지원 밖의 위치는 앱이 실패하지 않고 이유를 알려 준다. 이름 진단과 검증은 한글·라틴·가나·emoji를 포함한 글로벌 Unicode 사례를 다룬다. 경쟁 제품에 있다는 이유만으로 기능을 늘리지 않는다.
-- R-016 Mac App Store 에디션은 App Sandbox 안에서 직접 배포판과 같은 GUI 기능을 제공한다. 사용자가 고르거나 넘겨준 폴더 안에서만 작업하고, 다시 실행한 뒤의 접근은 필요한 곳에만 남기며, 직접 배포판의 안전 계약을 줄이지 않는다. 두 에디션의 차이는 문서에 적는다(FILESYSTEM_CAPABILITIES.md).
+- R-016 앱은 App Sandbox 안에서 모든 GUI 기능을 제공한다. 사용자가 고르거나 넘겨준 폴더 안에서만 작업하고, 다시 실행한 뒤의 접근은 필요한 곳에만 남긴다. 접근이 모자라 할 수 없는 일은 기능을 빼지 않고, 필요한 순간에 필요한 폴더 하나를 요청한 뒤 같은 일을 한다(D-033, D-034, D-037).
+- R-017 v1.0의 공개 배포는 Mac App Store 하나이며 무료다. 직접 배포판, 사용자용 CLI, 앱 자체의 업데이트 확인은 제공하지 않는다(D-038).
 - R-014 파일 이름 일괄 변경의 기본 대상은 보이는 일반 파일이다(하위 폴더 검사가 켜져 있으면 그 안의 파일 포함). 추가한 폴더 자체·하위 폴더의 이름과 숨김 항목은 기본으로 바꾸지 않고, 고급 설정의 ‘폴더 이름도 변경’·‘숨김 파일 포함’을 켠 경우에만 대상이 된다. Finder 관리 파일은 항상 제외한다.
 
 ## 현재 확정 범위
 
-현재 소스에는 Unicode 정리, 기본/고급 일괄 이름 변경, 프리셋/CSV/파일 정보/묶음 파일/감시/CLI, 안전한 Rename·Undo·Recovery, ko/en/ja, 네 테마, 반응형 창, 자소 분리 해결 화면과 파일 이름 일괄 변경 화면, 입력 상태를 따라 펼친 navigation 또는 아이콘 레일 + 폴더 트리로 바뀌는 왼쪽 영역이 구현돼 있다. 즐겨찾기 폴더(R-013)와 일괄 변경의 기본 대상 정책(R-014)도 v1.0 범위로 구현돼 있다. 모든 기능은 무료다.
+현재 소스에는 Unicode 정리, 기본/고급 일괄 이름 변경, 프리셋/CSV/파일 정보/묶음 파일/감시, 안전한 Rename·Undo·Recovery, ko/en/ja, 네 테마, 반응형 창, 자소 분리 해결 화면과 파일 이름 일괄 변경 화면, 입력 상태를 따라 펼친 navigation 또는 아이콘 레일 + 폴더 트리로 바뀌는 왼쪽 영역이 구현돼 있다. 즐겨찾기 폴더(R-013)와 일괄 변경의 기본 대상 정책(R-014)도 v1.0 범위로 구현돼 있다. 모든 기능은 무료다.
 
 현재 지원/구현 사실과 세부 책임은 ARCHITECTURE.md, DESIGN.md, FILESYSTEM_CAPABILITIES.md가 원본이다. 제품 완성과 공개 출시 완료는 같은 상태가 아니다.
 
@@ -58,7 +59,9 @@ T-002의 구현과 Engineering Verification은 끝났고 User QA만 남았다. �
 
 2026-10-07 사용자가 ‘Global Product Hardening Phase 2’를 승인했다(T-009, R-016). 범위는 Mac App Store sandbox에서도 같은 GUI 기능이 되도록 하는 공통 구조(D-032~D-035)와 업데이트 방식 확정(D-029)이다. App Store Connect 기록 생성·업로드·심사 제출, 배포 인증서 발급, 웹사이트 수정, DMG 공개, build 6 공증, Sparkle, SMB/cloud mutation은 이 Phase에 넣지 않는다.
 
-다음 개발은 사용자가 새 범위를 승인하면 그 범위의 Milestone/Task를 STATUS에 만들고 진행한다. Release를 승인할 경우 첫 순서는 현재 소스에 대한 영향 검증 → 현재 source 기준 새 Release 후보 → 출시 식별자/공증 입력 연결 → User QA/깨끗한 Mac Gate다.
+2026-10-07 사용자가 ‘App Store Feature Parity Polish’(T-011, D-037)와 ‘App Store Only Distribution Simplification’(T-012, R-017, D-038)을 승인했다. 앞의 것은 sandbox 안에서 모든 GUI 기능을 내는 것, 뒤의 것은 공개 배포를 Mac App Store 하나로 줄이고 직접 배포판·CLI·업데이트 확인 메뉴와 그 도구를 없애는 것이다. Release Candidate 생성, 스토어 archive·업로드·제출은 포함하지 않는다.
+
+다음 개발은 사용자가 새 범위를 승인하면 그 범위의 Milestone/Task를 STATUS에 만들고 진행한다. 출시를 승인할 경우의 순서는 docs/RELEASE.md의 ‘Release Candidate 진입 조건’과 ‘Mac App Store 제출’을 따른다.
 
 ## 환경과 의존성
 
@@ -67,8 +70,8 @@ T-002의 구현과 Engineering Verification은 끝났고 User QA만 남았다. �
 - language: Swift 6, strict concurrency complete
 - UI: SwiftUI + AppKit
 - build project: project.yml → MoongchiNameFix.xcodeproj
-- 구성: Debug, Release(직접 배포), AppStore(Mac App Store). bundle ID는 Release·AppStore com.ailoworks.namefix, Debug com.moongchi.namefix.dev (D-032)
-- app sandbox: Debug·Release OFF, AppStore ON(entitlement 셋: app-sandbox, user-selected read-write, app-scope bookmark)
+- 구성: Debug(개발·QA), AppStore(공개 배포). bundle ID는 AppStore com.ailoworks.namefix, Debug com.moongchi.namefix.dev (D-038)
+- app sandbox: Debug OFF(실제 sandbox 검증은 eng/build.sh --sandbox-debug), AppStore ON(entitlement 셋: app-sandbox, user-selected read-write, app-scope bookmark)
 - hardened runtime: 프로젝트 설정 ON
 - local packages: NameFixCore / NameFixRuntime / NameFixApplication
 - bundled fonts: Pretendard Variable / Pretendard JP Variable, SIL OFL 1.1
@@ -89,6 +92,6 @@ T-002의 구현과 Engineering Verification은 끝났고 User QA만 남았다. �
 응답성 목표는 로컬 작업 시작 표시 500ms 이내, 일반 UI 상호작용 100ms 이내, 취소 요청 피드백 200ms 이내다. I/O 완료시간은 장비/볼륨에 따라 측정한다. 과거 10k Preview 300ms 내부 목표는 실제 FS 포함 측정에서 미달한 이력이 있으므로 현재 PASS로 주장하지 않는다.
 
 - 정상 제품 경로에서 사용자 파일 내용을 변환하거나 일반 scan을 위해 hash하지 않는다.
-- mutation은 동시에 하나의 transaction 흐름으로 제한하고 앱/CLI가 process lock을 공유한다.
+- mutation은 동시에 하나의 transaction 흐름으로 제한하고 process lock으로 지킨다.
 - MainActor에서 전체 디렉터리 순회·대형 parse·반복 전체 sort를 수행하지 않는다.
 - 데이터 손실, 잘못된 덮어쓰기, 확인 없는 mutation을 성능 개선보다 우선해 막는다.

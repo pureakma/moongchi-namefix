@@ -41,7 +41,7 @@ macOS 파일 조정에 참여하는 프로그램과 실제 이동을 조율한�
 - 패턴 바꾸기(정규식·와일드카드), 악센트 제거, 규칙별 확장자 조건
 - 프리셋 저장/복제/수정/가져오기/내보내기, 예제
 - CSV/TSV 목록으로 이름 바꾸기, 파일 정보(촬영 날짜 등), 묶음 파일, 폴더 감시
-- 결과를 CSV로 저장, CLI, 메뉴바, Finder 서비스, 로그인 시 실행, 완료 알림
+- 결과를 CSV로 저장, 메뉴바, Finder 서비스, 로그인 시 실행, 완료 알림
 - Preview, 충돌 검사, 확인, 되돌리기, 복구
 
 스캔 200,000개, 규칙 1,024단계, 텍스트 4,096 UTF-16, CSV 32MB 등 방어 한계는 모든 사용자에게 같다. 다음 실행 때 자동 복원하는 마지막 규칙에는 기본 규칙 조합만 저장하며, 입력 파일 경로와 수동 순서 경로는 프리셋·감시 폴더 규칙에도 저장하지 않는다. 패턴·파일 정보 등을 포함한 규칙을 다시 쓰려면 프리셋으로 저장한다.
@@ -74,24 +74,10 @@ CSV/TSV는 UTF-8만 읽고 BOM·따옴표·개행을 지원한다. 원본 열은
 
 처리한 raw 경로의 SHA-256 키와 identity/size/mtime를 앱 소유 설정에 저장하여 재시작 후에도 같은 파일을 재제안하지 않는다. hash는 입력을 선택하는 대신 동일한 처리 상태를 건너뛰는 데만 사용한다. 새 유입은 기존 확인 plan에 들어가지 않는다. 규칙 갱신 시 baseline을 비워 전체를 재검토한다. 권한 만료/위치 변경 시 다시 선택하고, 오류 또는 overflow는 전체 재검사를 안내한다. 저장 오류/새 schema 원본은 보존한다. 처리 기록은 공통 200,000개 한계를 두며 저장 실패는 안내한다.
 
-## CLI
-
-개발 빌드 또는 패키지에 포함된 `namefix` executable은 `--help`에 기본 문법을 제공한다.
-
-```sh
-./namefix --prefix 'Project_' --number 1 --json /absolute/path
-./namefix --nfd --execute /absolute/path
-./namefix --undo TRANSACTION-UUID --execute
-```
-
-규칙이나 `--csv`를 쓰면 앱과 같이 보이는 일반 파일만 대상이며, `--include-folders`와 `--include-hidden`으로 폴더 이름과 숨김 항목을 포함한다. 규칙 없이 실행하면 글자 구성만 맞추며 폴더 이름도 대상이다.
-
-기본 dry-run, 실제 실행은 터미널에서 `RENAME` 입력이 필요하다. non-TTY 실행/무확인 force는 차단한다. 앱과 History 및 process lock을 공유한다. exit 0 성공/미리보기, 1 오류, 2 제외/부분 실패, 3 취소다. JSON 출력은 raw bytes base64를 포함한다. `--rules-json`으로 규칙 조합을, `--recipe`로 저장한 프리셋을 전달할 수 있다. 모든 규칙을 제한 없이 쓸 수 있다.
-
 ## 남은 조건
 
 SOURCE_RACE는 마지막 source 확인과 rename 사이 비협조 외부 프로세스가 파일을 교체하는 경우다. no-replace는 덮어쓰기를 막지만 expected-inode를 원자 조건으로 받지 않아 다른 항목의 임시 rename까지 완전히 예방하지 못한다. post-check 중단과 증거 보존은 구현했으며 해결 완료로 표시하지 않는다.
 
-별도 단계: 출시 QA·서명·공증·배포 준비.
+별도 단계: Release Candidate와 Mac App Store 제출(docs/RELEASE.md).
 
 새 journal event는 schema 2로 기록하고 기존 schema 1은 변경 없이 읽는다. schema 2를 모르는 이전 앱은 해당 기록을 유효하지 않다고 판단하므로 새 swap/group 기록을 구식 Undo로 해석하지 않는다. 새 기록의 Undo/Recovery에는 최신 확장 개발본을 사용한다.
