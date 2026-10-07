@@ -57,6 +57,8 @@
 "ClipboardTruncated" = "Only part of the text is shown because it exceeds the analysis limit.";
 "Close" = "Close";
 "CloseAllHelp" = "Closes everything you added and returns to the first screen. Your files are not changed.";
+"CloudLocationExcluded" = "Items in iCloud Drive and other cloud-synced folders are left out, because their sync state can change while they are being renamed. Copy them to a folder that is not synced to fix their names.";
+"CloudLocationExcludedShort" = "Cloud-synced folder: names not changed";
 "CloudWarning" = "Renaming inside a synced folder may also change the name on your other devices.";
 "ColumnWidth" = "Current name column width";
 "ColumnWidthHelp" = "Applies to the results table in wide windows. Narrow windows show the two names vertically.";
@@ -133,7 +135,7 @@
 "File" = "File";
 "FileCoordinationFailed" = "Could not coordinate access with another app. Finish saving or moving the files in that app, then scan again.";
 "FileMenu" = "File";
-"FilesystemHelp" = "Only items on this Mac's internal disk (APFS) are renamed. Apps, links, cloud folders and unverified disks are protected and left unchanged.";
+"FilesystemHelp" = "Only items on APFS disks (your Mac's internal disk and external APFS drives) are renamed. Apps, links, cloud-synced folders, network drives, and exFAT or FAT drives are protected and left unchanged.";
 "Filter" = "Filter";
 "FinalRenamed" = "Final name applied";
 "FinderServiceTitle" = "Inspect Names with NameFix";
@@ -437,6 +439,9 @@
 "SourceColumn" = "Source column";
 "StaleHelp" = "The rules have changed. Click to recompute the list with them; then you can rename.";
 "Status" = "Status";
+"StatusCloudExcluded" = "— Cloud folder skipped";
+"StatusDriveExcluded" = "— Drive not supported";
+"StatusReadOnly" = "— Read-only";
 "Stem" = "Name without extension";
 "SumCount" = "{0} characters";
 "SumInsert" = "“{1}” after {0} characters";
@@ -470,6 +475,8 @@
 "Unavailable" = "× Unavailable";
 "UnavailableHelp" = "This item is no longer available. Reconnect the device or rescan its current location.";
 "Undo" = "Undo selected operation";
+"UndoAfterReconnect" = "This record cannot be undone after the disk was reconnected. The files were left as they are because they can no longer be matched with certainty. You can find the earlier names in History and rename the files yourself.";
+"UndoAfterReconnectShort" = "Cannot undo after reconnecting the disk";
 "UndoAvailable" = "You can restore the original names later from History.";
 "UndoConfirm" = "Restore {0} original names. {1} conflicts will be skipped. Files changed or replaced since the operation are excluded.";
 "UndoLatest" = "Undo latest operation…";
@@ -479,7 +486,17 @@
 "Verified" = "Verified";
 "ViewMenu" = "View";
 "ViewOptions" = "Filter & Sort";
-"VolumeNormalizationUnsupported" = "This disk format cannot keep the requested character form.";
+"VolumeFATUnsupported" = "Items on exFAT and FAT drives are not renamed. On these drives macOS does not show names exactly as they are stored (it shows the characters separated), so the stored name cannot be checked. Nothing is wrong with the files. Copy them to your Mac or to an APFS drive to fix their names.";
+"VolumeFATUnsupportedShort" = "exFAT/FAT drive: names not changed";
+"VolumeFormatUnsupported" = "Items on this disk format are not renamed. Safe renaming has been verified only on APFS; nothing is wrong with the files. Copy them to your Mac to fix their names.";
+"VolumeFormatUnsupportedShort" = "This disk format: names not changed";
+"VolumeNetworkUnsupported" = "Items on network drives (servers, NAS) are not renamed. Nothing is wrong with the files; safe renaming has not been verified there. Copy them to your Mac to fix their names.";
+"VolumeNetworkUnsupportedShort" = "Network drive: names not changed";
+"VolumeNormalizationUnsupported" = "Mac OS Extended (HFS+) disks store every name with its characters separated, so a combined name cannot be kept. Items on this disk are not renamed.";
+"VolumeNormalizationUnsupportedShort" = "Mac OS Extended disk: names not changed";
+"VolumeReadOnly" = "These items are on a read-only disk, so their names can be reviewed but not changed. Nothing is wrong with the files. Copy them somewhere writable to fix their names.";
+"VolumeReadOnlyShort" = "Read-only disk: review only";
+"VolumeRootExcluded" = "The disk's own name is not changed here. The items inside it are checked.";
 "VolumeSafetyUnsupported" = "This location was skipped because safe renaming could not be verified.";
 "WatchActive" = "Watching for changes";
 "WatchAdd" = "Add watched folder with current rules";

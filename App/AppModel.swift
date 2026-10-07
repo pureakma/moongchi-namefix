@@ -337,6 +337,9 @@ import NameFixApplication
             counts = presentation.2
             phase = ""; scanned = entries.count
             if scan.limited { message = "ScanLimit" } else if scan.cancelled { message = "Cancelled" }
+            // Say once, in the status line, why a whole location is left alone. Nothing is shown for supported places.
+            else if let place = scan.entries.first(where: { VolumeSupport.locationReasons.contains($0.reason) })?.reason { message = place }
+            else if let shown = message, VolumeSupport.locationReasons.contains(shown) { message = nil }
             if settings.rememberRecentFolders {
                 let directories = scan.entries.filter { $0.isDirectory && scan.roots.contains($0.path) }.map { $0.path.display }
                 var list = directories + settings.recentFolders

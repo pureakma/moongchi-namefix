@@ -2767,19 +2767,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 디스크 형식에서는 바꾼 글자 형식이 유지되지 않습니다."
+            "value": "Mac OS 확장(HFS+) 디스크는 모든 이름을 풀어진 글자로 저장해서 합친 이름이 유지되지 않습니다. 이 디스크의 항목은 이름을 바꾸지 않습니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This disk format cannot keep the requested character form."
+            "value": "Mac OS Extended (HFS+) disks store every name with its characters separated, so a combined name cannot be kept. Items on this disk are not renamed."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このディスク形式では、変更した文字形式を保持できません。"
+            "value": "Mac OS拡張（HFS+）のディスクは、すべての名前を文字が分かれた形で保存するため、結合した名前を保持できません。このディスクの項目の名前は変更しません。"
           }
         }
       }
@@ -4009,19 +4009,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 Mac의 내장 디스크(APFS)에 있는 항목만 바꿉니다. 앱, 링크, 클라우드 폴더, 확인되지 않은 디스크의 항목은 바꾸지 않고 보호합니다."
+            "value": "APFS 형식 디스크(Mac의 내장 디스크와 외장 APFS 드라이브)에 있는 항목만 이름을 바꿉니다. 앱, 링크, 클라우드 동기화 폴더, 네트워크 드라이브, exFAT·FAT 드라이브의 항목은 바꾸지 않고 보호합니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Only items on this Mac's internal disk (APFS) are renamed. Apps, links, cloud folders and unverified disks are protected and left unchanged."
+            "value": "Only items on APFS disks (your Mac's internal disk and external APFS drives) are renamed. Apps, links, cloud-synced folders, network drives, and exFAT or FAT drives are protected and left unchanged."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このMacの内蔵ディスク（APFS）にある項目だけを変更します。アプリ、リンク、クラウドフォルダ、未確認のディスクの項目は変更せずに保護します。"
+            "value": "APFS形式のディスク（Mac本体の内蔵ディスクと外付けのAPFSドライブ）にある項目だけ、名前を変更します。アプリ、リンク、クラウド同期フォルダ、ネットワークドライブ、exFAT・FATのドライブの項目は変更せずに保護します。"
           }
         }
       }
@@ -11865,6 +11865,397 @@
           "stringUnit": {
             "state": "translated",
             "value": "最近使ったフォルダが見つかりません"
+          }
+        }
+      }
+    },
+    "VolumeReadOnly": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "읽기 전용 디스크의 항목이라 이름을 확인만 할 수 있습니다. 파일에 문제가 있는 것은 아닙니다. 쓸 수 있는 위치로 복사하면 정리할 수 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These items are on a read-only disk, so their names can be reviewed but not changed. Nothing is wrong with the files. Copy them somewhere writable to fix their names."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "読み出し専用のディスクにある項目のため、名前の確認だけができます。ファイルに問題があるわけではありません。書き込みできる場所にコピーすると整えられます。"
+          }
+        }
+      }
+    },
+    "VolumeReadOnlyShort": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "읽기 전용 디스크: 확인만 가능"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read-only disk: review only"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "読み出し専用ディスク：確認のみ"
+          }
+        }
+      }
+    },
+    "VolumeFATUnsupported": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "exFAT·FAT 드라이브의 항목은 이름을 바꾸지 않습니다. macOS는 이 형식의 드라이브에서 저장된 이름을 그대로 보여 주지 않고 글자를 풀어서 보여 주므로, 실제 이름을 확인할 수 없기 때문입니다. 파일에 문제가 있는 것은 아닙니다. Mac의 디스크나 APFS 드라이브로 복사하면 정리할 수 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Items on exFAT and FAT drives are not renamed. On these drives macOS does not show names exactly as they are stored (it shows the characters separated), so the stored name cannot be checked. Nothing is wrong with the files. Copy them to your Mac or to an APFS drive to fix their names."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "exFAT・FATのドライブにある項目の名前は変更しません。macOSはこの形式のドライブでは保存された名前をそのまま表示せず、文字を分けて表示するため、実際の名前を確認できないからです。ファイルに問題があるわけではありません。Mac本体やAPFSのドライブにコピーすると整えられます。"
+          }
+        }
+      }
+    },
+    "VolumeFATUnsupportedShort": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "exFAT·FAT 드라이브: 이름 변경 제외"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "exFAT/FAT drive: names not changed"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "exFAT・FATドライブ：名前の変更は対象外"
+          }
+        }
+      }
+    },
+    "VolumeNetworkUnsupported": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "네트워크 드라이브(서버·NAS)의 항목은 이름을 바꾸지 않습니다. 파일에 문제가 있는 것이 아니라, 안전한 변경을 확인한 범위 밖이기 때문입니다. Mac의 디스크로 복사하면 정리할 수 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Items on network drives (servers, NAS) are not renamed. Nothing is wrong with the files; safe renaming has not been verified there. Copy them to your Mac to fix their names."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ネットワークドライブ（サーバー・NAS）にある項目の名前は変更しません。ファイルに問題があるのではなく、安全に変更できることを確認していない場所のためです。Mac本体にコピーすると整えられます。"
+          }
+        }
+      }
+    },
+    "VolumeNetworkUnsupportedShort": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "네트워크 드라이브: 이름 변경 제외"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network drive: names not changed"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ネットワークドライブ：名前の変更は対象外"
+          }
+        }
+      }
+    },
+    "VolumeFormatUnsupported": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 디스크 형식의 항목은 이름을 바꾸지 않습니다. 안전한 변경을 확인한 형식(APFS)이 아니기 때문이며, 파일에 문제가 있는 것은 아닙니다. Mac의 디스크로 복사하면 정리할 수 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Items on this disk format are not renamed. Safe renaming has been verified only on APFS; nothing is wrong with the files. Copy them to your Mac to fix their names."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このディスク形式にある項目の名前は変更しません。安全に変更できることを確認した形式（APFS）ではないためで、ファイルに問題があるわけではありません。Mac本体にコピーすると整えられます。"
+          }
+        }
+      }
+    },
+    "VolumeFormatUnsupportedShort": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 디스크 형식: 이름 변경 제외"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This disk format: names not changed"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このディスク形式：名前の変更は対象外"
+          }
+        }
+      }
+    },
+    "VolumeNormalizationUnsupportedShort": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac OS 확장 디스크: 이름 변경 제외"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac OS Extended disk: names not changed"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac OS拡張ディスク：名前の変更は対象外"
+          }
+        }
+      }
+    },
+    "CloudLocationExcluded": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud Drive 같은 클라우드 동기화 폴더의 항목은 동기화 상태가 바뀔 수 있어 이름 변경에서 제외했습니다. 동기화하지 않는 폴더로 복사하면 정리할 수 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Items in iCloud Drive and other cloud-synced folders are left out, because their sync state can change while they are being renamed. Copy them to a folder that is not synced to fix their names."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud Driveなどクラウドと同期するフォルダの項目は、同期の状態が変わることがあるため、名前の変更から除外しました。同期していないフォルダにコピーすると整えられます。"
+          }
+        }
+      }
+    },
+    "CloudLocationExcludedShort": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "클라우드 동기화 폴더: 이름 변경 제외"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloud-synced folder: names not changed"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クラウド同期フォルダ：名前の変更は対象外"
+          }
+        }
+      }
+    },
+    "VolumeRootExcluded": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디스크 자체의 이름은 여기서 바꾸지 않습니다. 안에 있는 항목은 검사합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The disk's own name is not changed here. The items inside it are checked."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ディスク自体の名前はここでは変更しません。中にある項目は確認します。"
+          }
+        }
+      }
+    },
+    "UndoAfterReconnect": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디스크를 다시 연결한 뒤에는 이 기록으로 되돌릴 수 없습니다. 같은 파일인지 확실하게 확인할 수 없어 그대로 두었습니다. 기록에서 바뀌기 전 이름을 확인해 직접 고칠 수 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This record cannot be undone after the disk was reconnected. The files were left as they are because they can no longer be matched with certainty. You can find the earlier names in History and rename the files yourself."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ディスクを接続し直した後は、この履歴から元に戻せません。同じファイルかどうかを確実に確認できないため、そのままにしました。履歴で変更前の名前を確認して、手動で直せます。"
+          }
+        }
+      }
+    },
+    "UndoAfterReconnectShort": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디스크를 다시 연결해 되돌릴 수 없음"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cannot undo after reconnecting the disk"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ディスクを接続し直したため元に戻せません"
+          }
+        }
+      }
+    },
+    "StatusReadOnly": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— 읽기 전용"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— Read-only"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— 読み出し専用"
+          }
+        }
+      }
+    },
+    "StatusDriveExcluded": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— 이 드라이브는 제외"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— Drive not supported"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— このドライブは対象外"
+          }
+        }
+      }
+    },
+    "StatusCloudExcluded": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— 동기화 폴더는 제외"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— Cloud folder skipped"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— 同期フォルダは対象外"
           }
         }
       }

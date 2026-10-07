@@ -57,6 +57,8 @@
 "ClipboardTruncated" = "解析できる長さを超えているため、一部のみ表示しています。";
 "Close" = "閉じる";
 "CloseAllHelp" = "追加したファイル・フォルダをすべて閉じて最初の画面に戻ります。ファイルは変更されません。";
+"CloudLocationExcluded" = "iCloud Driveなどクラウドと同期するフォルダの項目は、同期の状態が変わることがあるため、名前の変更から除外しました。同期していないフォルダにコピーすると整えられます。";
+"CloudLocationExcludedShort" = "クラウド同期フォルダ：名前の変更は対象外";
 "CloudWarning" = "同期フォルダでの変更は他のデバイスにも反映される場合があります。";
 "ColumnWidth" = "現在の名前の列幅";
 "ColumnWidthHelp" = "広いウインドウの結果表に適用されます。狭い場合は2つの名前を縦に表示します。";
@@ -133,7 +135,7 @@
 "File" = "ファイル";
 "FileCoordinationFailed" = "他のアプリとのファイルアクセス調整が完了しませんでした。保存・移動を終えてから再検査してください。";
 "FileMenu" = "ファイル";
-"FilesystemHelp" = "このMacの内蔵ディスク（APFS）にある項目だけを変更します。アプリ、リンク、クラウドフォルダ、未確認のディスクの項目は変更せずに保護します。";
+"FilesystemHelp" = "APFS形式のディスク（Mac本体の内蔵ディスクと外付けのAPFSドライブ）にある項目だけ、名前を変更します。アプリ、リンク、クラウド同期フォルダ、ネットワークドライブ、exFAT・FATのドライブの項目は変更せずに保護します。";
 "Filter" = "フィルター";
 "FinalRenamed" = "最終名に変更済み";
 "FinderServiceTitle" = "NameFixでファイル名を検査";
@@ -437,6 +439,9 @@
 "SourceColumn" = "元の名前の列";
 "StaleHelp" = "ルールが変更されました。押すと新しいルールで一覧を計算し直します。その後に名前を変更できます。";
 "Status" = "状態";
+"StatusCloudExcluded" = "— 同期フォルダは対象外";
+"StatusDriveExcluded" = "— このドライブは対象外";
+"StatusReadOnly" = "— 読み出し専用";
 "Stem" = "拡張子を除く名前";
 "SumCount" = "{0}文字";
 "SumInsert" = "{0}文字の後に「{1}」";
@@ -470,6 +475,8 @@
 "Unavailable" = "× 利用不可";
 "UnavailableHelp" = "この項目にアクセスできません。デバイスの接続や現在の場所を確認し、再検査してください。";
 "Undo" = "選択した処理を元に戻す";
+"UndoAfterReconnect" = "ディスクを接続し直した後は、この履歴から元に戻せません。同じファイルかどうかを確実に確認できないため、そのままにしました。履歴で変更前の名前を確認して、手動で直せます。";
+"UndoAfterReconnectShort" = "ディスクを接続し直したため元に戻せません";
 "UndoAvailable" = "変更した名前は、履歴から元に戻せます。";
 "UndoConfirm" = "元の名前を{0}件復元します。競合する{1}件と処理後に置換・移動された項目を除外します。";
 "UndoLatest" = "最近の操作を元に戻す…";
@@ -479,7 +486,17 @@
 "Verified" = "確認済み";
 "ViewMenu" = "表示";
 "ViewOptions" = "絞り込み・並べ替え";
-"VolumeNormalizationUnsupported" = "このディスク形式では、変更した文字形式を保持できません。";
+"VolumeFATUnsupported" = "exFAT・FATのドライブにある項目の名前は変更しません。macOSはこの形式のドライブでは保存された名前をそのまま表示せず、文字を分けて表示するため、実際の名前を確認できないからです。ファイルに問題があるわけではありません。Mac本体やAPFSのドライブにコピーすると整えられます。";
+"VolumeFATUnsupportedShort" = "exFAT・FATドライブ：名前の変更は対象外";
+"VolumeFormatUnsupported" = "このディスク形式にある項目の名前は変更しません。安全に変更できることを確認した形式（APFS）ではないためで、ファイルに問題があるわけではありません。Mac本体にコピーすると整えられます。";
+"VolumeFormatUnsupportedShort" = "このディスク形式：名前の変更は対象外";
+"VolumeNetworkUnsupported" = "ネットワークドライブ（サーバー・NAS）にある項目の名前は変更しません。ファイルに問題があるのではなく、安全に変更できることを確認していない場所のためです。Mac本体にコピーすると整えられます。";
+"VolumeNetworkUnsupportedShort" = "ネットワークドライブ：名前の変更は対象外";
+"VolumeNormalizationUnsupported" = "Mac OS拡張（HFS+）のディスクは、すべての名前を文字が分かれた形で保存するため、結合した名前を保持できません。このディスクの項目の名前は変更しません。";
+"VolumeNormalizationUnsupportedShort" = "Mac OS拡張ディスク：名前の変更は対象外";
+"VolumeReadOnly" = "読み出し専用のディスクにある項目のため、名前の確認だけができます。ファイルに問題があるわけではありません。書き込みできる場所にコピーすると整えられます。";
+"VolumeReadOnlyShort" = "読み出し専用ディスク：確認のみ";
+"VolumeRootExcluded" = "ディスク自体の名前はここでは変更しません。中にある項目は確認します。";
 "VolumeSafetyUnsupported" = "この場所で安全な名前変更を確認できないため、対象から除外しました。";
 "WatchActive" = "変更を監視中";
 "WatchAdd" = "現在のルールで監視フォルダを追加";

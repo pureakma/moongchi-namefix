@@ -55,6 +55,13 @@ final class CharacterPresentationTests: XCTestCase {
         XCTAssertTrue(CharacterPresentation.comparison(original: "한글", proposed: "Project_한글").isEmpty)
         XCTAssertEqual(CharacterPresentation.statusKey(.needsNormalization, name: "한글", reason: "RuleChangeHelp"), "PlannedChange")
         XCTAssertEqual(CharacterPresentation.statusKey(.needsNormalization, name: "한글", reason: "NFDChangeHelp"), "NFDPlannedChange")
+        // An item left alone because of where it is says so, instead of looking broken.
+        XCTAssertEqual(CharacterPresentation.statusKey(.unsupported, name: "한글", reason: "VolumeReadOnly"), "StatusReadOnly")
+        XCTAssertEqual(CharacterPresentation.statusKey(.unsupported, name: "한글", reason: "CloudLocationExcluded"), "StatusCloudExcluded")
+        for reason in ["VolumeFATUnsupported", "VolumeNetworkUnsupported", "VolumeFormatUnsupported", "VolumeNormalizationUnsupported"] {
+            XCTAssertEqual(CharacterPresentation.statusKey(.unsupported, name: "한글", reason: reason), "StatusDriveExcluded")
+        }
+        XCTAssertEqual(CharacterPresentation.statusKey(.unsupported, name: "한글", reason: "LinkedPathHelp"), "Unsupported")
     }
 
     func testItemsBatchRenameLeavesAloneAreLabelledAsNotTargets() {

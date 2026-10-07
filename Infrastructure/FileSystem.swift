@@ -8,6 +8,27 @@ public struct FSError: Error, Sendable, CustomStringConvertible {
     public init(_ code: String, _ number: Int32 = errno) { self.code = code; self.number = number }
     public var description: String { "\(code) (\(number))" }
 }
+/// What NameFix can do on the volume behind a directory, and why. Scanning, planning,
+/// the transaction and the interface all read this one answer.
+public struct VolumeSupport: Sendable, Equatable {
+    public enum Level: String, Sendable {
+        /// Names can be checked and changed: every safety contract was verified here.
+        case supported
+        /// Names are reported exactly as stored and can be reviewed, but cannot be changed.
+        case previewOnly
+        /// The stored spelling or the safety contracts cannot be relied on; items are listed and left alone.
+        case unsupported
+    }
+    public var filesystem: String
+    public var local: Bool
+    public var writable: Bool
+    public var caseSensitive: Bool
+    public var level: Level
+    /// Message key shown for items that cannot be changed here; nil when supported.
+    public var reason: String?
+    /// Reasons that describe the place an item is in rather than the item itself.
+    public static let locationReasons: Set<String> = ["VolumeReadOnly", "VolumeFATUnsupported", "VolumeNormalizationUnsupported", "VolumeNetworkUnsupported", "VolumeFormatUnsupported", "CloudLocationExcluded"]
+}
 public enum FS {
     public static func version(_ value: stat) -> FileVersion { FileVersion(size: value.st_size, modifiedSeconds: Int64(value.st_mtimespec.tv_sec), modifiedNanoseconds: Int64(value.st_mtimespec.tv_nsec)) }
     public static func verifyVersion(_ fd: Int32, raw: Data, expected: FileVersion?) throws {
@@ -74,12 +95,39 @@ public enum FS {
         guard result == 0 else { throw FSError("AccessHelp") }
         return buffer[12] & 0x80 != 0
     }
-    public static func capability(_ fd: Int32) throws -> String {
+    /// Measured on disposable volumes (docs/FILESYSTEM_CAPABILITIES.md):
+    /// - APFS, internal or external, either case mode, keeps the stored spelling, has an exclusive
+    ///   rename and keeps a file's identity while mounted. Writable: supported. Read-only: review only.
+    /// - exFAT and FAT are shown by macOS in decomposed form whatever is stored (macOS itself stores
+    ///   composed names there), so the stored spelling cannot be observed. exFAT has no exclusive
+    ///   rename and a file's number changes on remount; on FAT it changes on every rename.
+    /// - HFS+ stores every name decomposed, so a composed name cannot be kept.
+    /// - Network volumes and other formats were not verified.
+    public static func support(_ fd: Int32) throws -> VolumeSupport {
         var info = statfs()
-        guard fstatfs(fd, &info) == 0 else { throw FSError("VolumeSafetyUnsupported") }
+        guard fstatfs(fd, &info) == 0 else { throw FSError("VolumeFormatUnsupported") }
         let type = withUnsafeBytes(of: info.f_fstypename) { String(cString: $0.baseAddress!.assumingMemoryBound(to: CChar.self)) }
-        guard type == "apfs", info.f_flags & UInt32(MNT_LOCAL) != 0, info.f_flags & UInt32(MNT_RDONLY) == 0 else { throw FSError(type == "hfs" ? "VolumeNormalizationUnsupported" : "VolumeSafetyUnsupported", ENOTSUP) }
-        return type
+        let local = info.f_flags & UInt32(MNT_LOCAL) != 0, writable = info.f_flags & UInt32(MNT_RDONLY) == 0
+        var support = VolumeSupport(filesystem: type, local: local, writable: writable, caseSensitive: fpathconf(fd, _PC_CASE_SENSITIVE) == 1, level: .unsupported, reason: "VolumeFormatUnsupported")
+        if !local { support.reason = "VolumeNetworkUnsupported" }
+        else if type == "apfs" { support.level = writable ? .supported : .previewOnly; support.reason = writable ? nil : "VolumeReadOnly" }
+        else if type == "exfat" || type == "msdos" { support.reason = "VolumeFATUnsupported" }
+        else if type == "hfs" { support.reason = "VolumeNormalizationUnsupported" }
+        return support
+    }
+    /// The UUID of the volume this directory is on, or nil when the volume has none.
+    public static func volumeUUID(_ fd: Int32) -> String? {
+        var attributes = attrlist(); attributes.bitmapcount = UInt16(ATTR_BIT_MAP_COUNT); attributes.volattr = attrgroup_t(ATTR_VOL_INFO) | attrgroup_t(ATTR_VOL_UUID)
+        var buffer = [UInt8](repeating: 0, count: 20)
+        let result = buffer.withUnsafeMutableBytes { fgetattrlist(fd, &attributes, $0.baseAddress, $0.count, 0) }
+        guard result == 0, buffer.withUnsafeBytes({ $0.loadUnaligned(as: UInt32.self) }) == 20, buffer[4...].contains(where: { $0 != 0 }) else { return nil }
+        return NSUUID(uuidBytes: Array(buffer[4...])).uuidString
+    }
+    /// The gate every mutation path passes: throws the volume's reason unless names can be changed there.
+    @discardableResult public static func capability(_ fd: Int32) throws -> String {
+        let support = try support(fd)
+        guard support.level == .supported else { throw FSError(support.reason ?? "VolumeFormatUnsupported", ENOTSUP) }
+        return support.filesystem
     }
     public static func noReplace(_ fd: Int32, from: Data, to: Data) throws {
         guard NameRules.valid(from), NameRules.valid(to, limit: Int(fpathconf(fd, _PC_NAME_MAX))) else { throw FSError("InvalidUnicodeHelp", EINVAL) }

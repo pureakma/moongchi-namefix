@@ -1,5 +1,6 @@
 import Foundation
 import NameFixCore
+import NameFixRuntime
 
 /// Read-only explanation. Display glyphs must never be used as filesystem names.
 struct CharacterToken: Equatable, Sendable {
@@ -29,6 +30,12 @@ struct CharacterPresentation: Sendable {
     }
     static func statusKey(_ status: EntryStatus, name: String, reason: String? = nil) -> String {
         if reason == "FolderExcluded" || reason == "HiddenExcluded" { return "NotTarget" }
+        // The place the item is in, not the item, is why it is left alone.
+        if status == .unsupported, let reason {
+            if reason == "VolumeReadOnly" { return "StatusReadOnly" }
+            if reason == "CloudLocationExcluded" { return "StatusCloudExcluded" }
+            if VolumeSupport.locationReasons.contains(reason) { return "StatusDriveExcluded" }
+        }
         if status.fixable, reason == "RuleChangeHelp" { return "PlannedChange" }
         if status.fixable, reason == "NFDChangeHelp" { return "NFDPlannedChange" }
         // Non-NFC also includes canonical singleton/reordering cases, not only NFD.

@@ -30,7 +30,7 @@ public enum Scanner {
     public static func protectedReason(_ path: RawPath) -> String? {
         let s = path.display
         if ["/", "/System", "/bin", "/sbin", "/usr", "/dev", "/Library"].contains(s) || ["/System/", "/Library/", "/bin/", "/sbin/", "/usr/", "/dev/"].contains(where: s.hasPrefix) { return "VolumeSafetyUnsupported" }
-        if s.contains("/Library/CloudStorage/") || s.contains("/Library/Mobile Documents/") { return "VolumeSafetyUnsupported" }
+        if s.contains("/Library/CloudStorage/") || s.contains("/Library/Mobile Documents/") { return "CloudLocationExcluded" }
         var url = URL(fileURLWithPath: s)
         while url.path != "/" {
             if url.lastPathComponent == ".git" { return "PackageExcluded" }
@@ -38,7 +38,7 @@ public enum Scanner {
                 let values = try url.resourceValues(forKeys: [.isPackageKey, .isAliasFileKey, .isUbiquitousItemKey])
                 if values.isPackage == true { return "PackageExcluded" }
                 if values.isAliasFile == true { return "LinkedPathHelp" }
-                if values.isUbiquitousItem == true { return "VolumeSafetyUnsupported" }
+                if values.isUbiquitousItem == true { return "CloudLocationExcluded" }
             } catch { return "AccessHelp" }
             url.deleteLastPathComponent()
         }
@@ -67,12 +67,12 @@ public enum Scanner {
             else { parentReason = protectedReason(path.parent) ?? ""; protection[path.parent] = parentReason }
             if !parentReason.isEmpty { return parentReason }
             if path.leaf == Data(".git".utf8) { return "PackageExcluded" }
-            if metadata.st_flags & UInt32(SF_DATALESS) != 0 { return "VolumeSafetyUnsupported" }
+            if metadata.st_flags & UInt32(SF_DATALESS) != 0 { return "CloudLocationExcluded" }
             if !directory { return try FS.isFinderAlias(fd, name: path.leaf) ? "LinkedPathHelp" : nil }
             let values = try URL(fileURLWithPath: path.display).resourceValues(forKeys: [.isPackageKey, .isAliasFileKey, .isUbiquitousItemKey])
             if values.isPackage == true { return "PackageExcluded" }
             if values.isAliasFile == true { return "LinkedPathHelp" }
-            if values.isUbiquitousItem == true { return "VolumeSafetyUnsupported" }
+            if values.isUbiquitousItem == true { return "CloudLocationExcluded" }
             return nil
         }
         var indices: [RawPath: ([Data], Set<Data>)] = [:]
@@ -116,9 +116,14 @@ public enum Scanner {
                 else if s.st_mode & S_IFMT != S_IFREG && !dir { entry.status = .unsupported; entry.reason = "Unsupported" }
                 else {
                     mayTraverse = true
-                    if dir && s.st_dev != parent.device { entry.status = .unsupported; entry.reason = "MountBoundaryExcluded" }
-                    do { _ = try FS.capability(fd) }
-                    catch let error as FSError { entry.status = .unsupported; entry.reason = error.code }
+                    // A disk the user added is scanned; its own name is the mount point and is left alone.
+                    if dir && s.st_dev != parent.device { entry.status = .unsupported; entry.reason = level == 0 ? "VolumeRootExcluded" : "MountBoundaryExcluded" }
+                    else {
+                        do {
+                            let volume = try FS.support(fd)
+                            if volume.level != .supported { entry.status = .unsupported; entry.reason = volume.reason ?? "VolumeFormatUnsupported" }
+                        } catch let error as FSError { entry.status = .unsupported; entry.reason = error.code }
+                    }
                     if entry.status.fixable {
                         if !NameRules.valid(entry.proposed, limit: Int(fpathconf(fd, _PC_NAME_MAX))) { entry.status = .unsupported; entry.reason = "InvalidUnicodeHelp" }
                         else if try !FS.destinationAvailable(fd, source: raw, dest: entry.proposed, expected: identity, names: index.1) { entry.status = .conflict; entry.reason = "ConflictHelp" }

@@ -32,6 +32,27 @@ import NameFixRuntime
         XCTAssertEqual(model.message, "SettingsSaveFailed")
         XCTAssertEqual(try Data(contentsOf: blocked), Data("preserved".utf8))
     }
+    func testCloudFolderIsListedWithANoticeAndLeftAlone() async throws {
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        // A cloud provider's folder is recognized by where it is.
+        let cloud = root.appendingPathComponent("Library/CloudStorage/Provider/Documents"); try FileManager.default.createDirectory(at: cloud, withIntermediateDirectories: true)
+        let file = cloud.appendingPathComponent("e\u{301}.txt"); try Data("contents".utf8).write(to: file)
+        let model = AppModel(dataRoot: root.appendingPathComponent("support")); await model.start()
+        // The folder is listed and explained; its contents are not read, so nothing is fetched from the cloud.
+        model.add([cloud]); try await settled(model, condition: { model.entries.count == 1 })
+        XCTAssertTrue(model.entries.allSatisfy { $0.status == .unsupported && $0.reason == "CloudLocationExcluded" })
+        XCTAssertEqual(model.message, "CloudLocationExcluded"); XCTAssertTrue(model.selected.isEmpty)
+        model.prepare(); try await settled(model)
+        XCTAssertNil(model.plan); XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: cloud.path), ["e\u{301}.txt"])
+        model.message = nil
+        // The notice goes away with the location; a supported folder shows none.
+        let local = root.appendingPathComponent("local"); try FileManager.default.createDirectory(at: local, withIntermediateDirectories: true)
+        try Data("contents".utf8).write(to: local.appendingPathComponent("e\u{301}.txt"))
+        model.remove(nil); try await settled(model, condition: { model.roots.isEmpty })
+        model.add([local]); try await settled(model, condition: { model.entries.count == 2 })
+        XCTAssertNil(model.message); XCTAssertEqual(model.counts["NeededCaption"], 1)
+        await model.shutdown()
+    }
     func testReadOnlyPreviewConfirmationRenameAndUndo() async throws {
         let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
         let input = root.appendingPathComponent("inputs"); try FileManager.default.createDirectory(at: input, withIntermediateDirectories: true)

@@ -10,7 +10,7 @@ public enum Planning {
         let incompleteGroups = Set(groups.filter { _, rows in rows.contains { !$0.status.fixable || !selected.contains($0.id) } }.keys)
         let candidates = entries.filter { selected.contains($0.id) && $0.status.fixable && ($0.groupID == nil || !incompleteGroups.contains(RawPath(bytes: $0.groupID!))) }
         excluded += entries.filter { selected.contains($0.id) && $0.status.fixable && $0.groupID.map { incompleteGroups.contains(RawPath(bytes: $0)) } == true }.count
-        var snapshots: [RawPath: Set<Data>] = [:]
+        var snapshots: [RawPath: Set<Data>] = [:], volumes: [RawPath: String?] = [:]
         let directories = DirectoryReadSession()
         for entry in candidates.sorted(by: { $0.path.depth == $1.path.depth ? $0.path.bytes.lexicographicallyPrecedes($1.path.bytes) : $0.path.depth > $1.path.depth }) {
             guard let identity = entry.identity, let parent = entry.parentIdentity else { excluded += 1; continue }
@@ -27,7 +27,9 @@ public enum Planning {
                 guard FS.identity(metadata) == identity else { throw FSError("SourceChanged") }
                 if let expected = entry.contentVersion, expected != FS.version(metadata) { throw FSError("SourceChanged") }
                 if metadata.st_mode & S_IFMT == S_IFREG { fresh.contentVersion = FS.version(metadata) }
-                operations.append(try RenameOperation(entry: fresh))
+                var operation = try RenameOperation(entry: fresh)
+                if let known = volumes[entry.path.parent] { operation.volume = known } else { operation.volume = FS.volumeUUID(fd); volumes[entry.path.parent] = operation.volume }
+                operations.append(operation)
             } catch { excluded += 1 }
         }
         // Remove every duplicate destination, never select an arbitrary winner.
@@ -111,6 +113,26 @@ public enum History {
         }
     }
     private static func timeline(store: JournalStore) throws -> [RenameOperation] { try batches(store: store).flatMap { $0.1 } }
+    /// The identities an operation's item and folder must have now, or nil when the record must not be used.
+    /// A volume gets a new device number each time it is mounted. When the record names its volume
+    /// and that same volume is the one mounted here, the recorded device number is replaced by the
+    /// current one; the file number and creation time must still match exactly. A record that names
+    /// a different volume is never used, even if the numbers happen to match.
+    static func expected(_ operation: RenameOperation, in fd: Int32) -> (identity: FileIdentity, parent: FileIdentity)? {
+        guard let recorded = operation.volume else { return (operation.identity, operation.parentIdentity) }
+        guard FS.volumeUUID(fd) == recorded, let here = try? FS.directoryIdentity(fd) else { return nil }
+        var identity = operation.identity, parent = operation.parentIdentity
+        identity.device = here.device; parent.device = here.device
+        return (identity, parent)
+    }
+    /// An older record without a volume name, on a volume that was mounted again: the file number
+    /// and creation time match but the device number differs. It is not used; the user is told why.
+    private static func mountedAgain(_ path: RawPath, recorded: FileIdentity) -> Bool {
+        guard let fd = try? FS.openDirectory(path.parent) else { return false }
+        defer { close(fd) }
+        guard let now = try? FS.identity(FS.metadata(fd, path.leaf)) else { return false }
+        return now.device != recorded.device && now.inode == recorded.inode && now.birthSeconds == recorded.birthSeconds && now.birthNanoseconds == recorded.birthNanoseconds
+    }
     private static func mapped(_ path: RawPath, through operations: [RenameOperation]) -> RawPath {
         let groups = Dictionary(grouping: operations, by: { $0.source.parent }).sorted { $0.key.depth > $1.key.depth }
         return groups.reduce(path) { path, group in HistoryPathMap.apply(path, moves: group.value.map { ($0.source, $0.finalPath) }) }
@@ -123,20 +145,22 @@ public enum History {
         let batchList = try batches(store: store)
         guard let batchIndex = batchList.firstIndex(where: { $0.0 == id }) else { throw FSError("HistoryWarning") }
         let originals = replay.events.compactMap { $0.state == "Verified" ? $0.operation : nil }
-        var operations: [RenameOperation] = [], excluded = 0
+        var operations: [RenameOperation] = [], excluded = 0, remounted = 0
         for original in replay.events.compactMap({ $0.state == "Verified" ? $0.operation : nil }).reversed() {
             if completed.contains(original.id) { continue }
             var current = mapped(original.finalPath, through: originals.filter { $0.source.depth < original.source.depth })
             for batch in batchList.dropFirst(batchIndex + 1) { current = mapped(current, through: batch.1) }
             do {
                 let fd = try FS.openDirectory(current.parent); defer { close(fd) }
-                try FS.verify(fd, raw: current.leaf, identity: original.identity)
-                guard try FS.directoryIdentity(fd) == original.parentIdentity else { throw FSError("SourceChanged") }
+                guard let now = expected(original, in: fd) else { throw FSError("SourceChanged") }
+                try FS.verify(fd, raw: current.leaf, identity: now.identity)
+                guard try FS.directoryIdentity(fd) == now.parent else { throw FSError("SourceChanged") }
                 // Destination occupancy is validated for the entire reverse plan below.
-                let e = FileEntry(path: current, identity: original.identity, parentIdentity: original.parentIdentity, status: .needsNormalization, reason: "Undo", proposed: original.source.leaf)
+                let e = FileEntry(path: current, identity: now.identity, parentIdentity: now.parent, status: .needsNormalization, reason: "Undo", proposed: original.source.leaf)
                 operations.append(try RenameOperation(entry: e, undoOf: original.id))
-            } catch { excluded += 1 }
+            } catch { excluded += 1; if original.volume == nil, mountedAgain(current, recorded: original.identity) { remounted += 1 } }
         }
+        if operations.isEmpty, remounted > 0 { throw FSError("UndoAfterReconnect", ESTALE) }
         let entries = operations.map { FileEntry(id: $0.entryID, path: $0.source, identity: $0.identity, parentIdentity: $0.parentIdentity, status: .needsNormalization, reason: "Undo", proposed: $0.destination) }
         var plan = try Planning.make(entries: entries, selected: Set(entries.map(\.id)), generation: generation)
         let byEntry = Dictionary(operations.map { ($0.entryID, $0) }, uniquingKeysWith: { first, _ in first })
@@ -151,9 +175,11 @@ public enum History {
         let all = try timeline(store: store), completed = Set(all.compactMap(\.undoOf))
         let unfinished = !replay.events.contains { ["Completed", "CompletedWithErrors", "Cancelled"].contains($0.state) }
         return rows.filter { !completed.contains($0.id) && (unfinished || $0.state != "Verified") }.map { row in
-            let op = row.operation
+            var op = row.operation
             do {
                 let fd = try FS.openDirectory(op.source.parent); defer { close(fd) }
+                guard let now = expected(op, in: fd) else { throw FSError("SourceChanged") }
+                op.identity = now.identity; op.parentIdentity = now.parent
                 guard try FS.directoryIdentity(fd) == op.parentIdentity else { throw FSError("SourceChanged") }
                 let names = Set(try FS.names(fd))
                 let candidates = [op.source.leaf, op.temporary, op.destination].filter { names.contains($0) }

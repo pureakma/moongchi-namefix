@@ -113,6 +113,9 @@ public struct RenameOperation: Codable, Sendable, Identifiable {
     public var undoOf: UUID?
     public var groupID: Data?
     public var contentVersion: FileVersion?
+    /// UUID of the volume the item was on when the operation was planned. A device number is
+    /// only valid while a volume stays mounted; this names the volume itself. Absent in older records.
+    public var volume: String?
     public init(entry: FileEntry, destination: Data? = nil, undoOf: UUID? = nil) throws {
         guard let identity = entry.identity, let parent = entry.parentIdentity else { throw PlanError.missingIdentity }
         groupID = entry.groupID; contentVersion = entry.contentVersion; entryID = entry.id; source = entry.path; self.destination = destination ?? entry.proposed; self.identity = identity; parentIdentity = parent; self.undoOf = undoOf

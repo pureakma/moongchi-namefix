@@ -14,7 +14,8 @@ final class FilesystemTests: XCTestCase {
         let b = openat(fd, "case.txt", O_CREAT | O_EXCL | O_WRONLY, 0o600)
         let error = errno
         if b >= 0 { close(b) }
-        if ProcessInfo.processInfo.environment["NAMEFIX_FIXTURE_ROOT"] != nil { XCTAssertGreaterThanOrEqual(b, 0) }
+        // The volume says which it is; the fixture may be either kind of APFS.
+        if try FS.support(fd).caseSensitive { XCTAssertGreaterThanOrEqual(b, 0) }
         else { XCTAssertEqual(b, -1); XCTAssertEqual(error, EEXIST) }
         print("CASE_SENSITIVE", b >= 0)
     }
