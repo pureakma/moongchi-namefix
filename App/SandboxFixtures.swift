@@ -67,7 +67,6 @@ import NameFixApplication
         if let started = processStart(), let readyAt { all["startup"] = (readyAt.timeIntervalSince(started) * 1000).rounded() / 1000 }
         all["sandboxed"] = ProcessInfo.processInfo.environment["APP_SANDBOX_CONTAINER_ID"] != nil
         all["restricted"] = AccessRoots.shared.restricted
-        all["edition"] = Bundle.main.object(forInfoDictionaryKey: "NameFixDistribution") as? String ?? ""
         let data = (try? JSONSerialization.data(withJSONObject: all, options: [.sortedKeys])) ?? Data()
         say("REPORT " + String(decoding: data, as: UTF8.self))
         exit(0)
@@ -335,10 +334,8 @@ import NameFixApplication
             let menus = NSApp.mainMenu?.items ?? []
             let appMenu = menus.first?.submenu?.items.map(\.title).filter { !$0.isEmpty } ?? []
             facts["appMenu"] = appMenu
-            facts["hasUpdateCheck"] = appMenu.contains { $0.hasPrefix(model.t("CheckForUpdates")) }
             facts["menuTitles"] = menus.compactMap { $0.submenu?.title }
-            facts["updatePage"] = AppInfo.productPage?.absoluteString ?? ""; facts["supportAddress"] = AppInfo.support?.absoluteString ?? ""
-            facts["isAppStoreEdition"] = AppInfo.isAppStore
+            facts["supportAddress"] = AppInfo.support?.absoluteString ?? ""
             await model.shutdown()
         case "unicode":
             // Names from many scripts in the real app: what is offered, what is left, rename and undo.

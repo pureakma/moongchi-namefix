@@ -46,7 +46,6 @@
 "ChangeHelp" = "ファイルが壊れているわけではありません。分かれて保存されている文字を1文字にまとめられます。ファイルの内容は変わりません。";
 "CharacterCount" = "文字数：{0}";
 "CharacterPosition" = "{0}文字目";
-"CheckForUpdates" = "アップデートを確認";
 "ChooseField" = "情報を選択";
 "ChooseFiles" = "ファイルを選択";
 "ChooseFolderToAllow" = "フォルダを選択…";

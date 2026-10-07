@@ -46,7 +46,6 @@
 "ChangeHelp" = "파일이 손상된 것은 아닙니다. 분리 저장된 글자를 하나로 합칠 수 있으며 파일 내용은 바뀌지 않습니다.";
 "CharacterCount" = "글자 수: {0}";
 "CharacterPosition" = "{0}번째 글자";
-"CheckForUpdates" = "업데이트 확인";
 "ChooseField" = "정보 선택";
 "ChooseFiles" = "파일 선택";
 "ChooseFolderToAllow" = "폴더 선택…";

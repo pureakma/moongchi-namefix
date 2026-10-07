@@ -289,7 +289,6 @@ import NameFixCore
         let app = menu("Moongchi NameFix")
         app.addItem(ActionItem(model.t("About")) { [weak self] in self?.model.present("about") })
         // The app itself makes no connection: the browser opens the product page (D-029).
-        if !AppInfo.isAppStore, let page = AppInfo.productPage { app.addItem(ActionItem(model.t("CheckForUpdates") + "…") { NSWorkspace.shared.open(page) }) }
         app.addItem(ActionItem(model.t("Settings"), key: ",") { [weak self] in self?.model.present("settings") })
         let services = NSMenuItem(title: model.t("Services"), action: nil, keyEquivalent: ""); services.submenu = NSMenu(title: model.t("Services")); app.addItem(services); NSApp.servicesMenu = services.submenu
         app.addItem(.separator())

@@ -11,7 +11,7 @@ it creates are attached or detached.
 
   eng/test-sandbox.py              build, then run every step
   eng/test-sandbox.py --no-build   reuse the sandboxed Debug app
-  eng/test-sandbox.py --direct     the same steps with the Debug app outside the sandbox (the direct edition's rules);
+  eng/test-sandbox.py --direct     the same steps with the Debug app outside the sandbox (the unrestricted rule the tests and fixtures run under);
                                    its records go to a folder this script makes, never to the user's
   eng/test-sandbox.py --scroll     scroll a 1,200-row list in the Debug app and print the time per step
   eng/test-sandbox.py --large      100,000 names: search, filter, reload and scroll times of the list
@@ -76,7 +76,7 @@ def step(work, phase, target=None, ready=None, application=None, shown=False, mo
     lines = [l for l in out.read_text().splitlines() if l.startswith("REPORT ")] if out.exists() else []
     assert lines, f"{phase}: no report"
     facts = json.loads(lines[-1][7:]); log.append((phase, facts))
-    if application == app: assert facts["sandboxed"] and facts["restricted"] and facts["edition"] == "appstore", (phase, facts)
+    if application == app: assert facts["sandboxed"] and facts["restricted"], (phase, facts)
     else: assert not facts["sandboxed"] and not facts["restricted"], (phase, facts)
     return facts
 
@@ -281,9 +281,9 @@ with tempfile.TemporaryDirectory(prefix="namefix-sandbox-", dir="/private/tmp") 
     expect(f["selected"] == 4 and f["ticked"] == 4 and f["selectedAfterRename"] == 0, "names to fix start selected and ticked; the selection is cleared after the rename", f)
     expect(f["fixableAfterUndo"] == 4 and f["selectedAfterUndo"] == 4 and f["tickedAfterUndo"] == 4, "after an undo the names are selected again", f)
     expect(f["otherSheets"] == ["settings", "help", "onboarding"], "settings, help and the introduction open on the window", f)
-    expect(f["hasUpdateCheck"] == (not sandboxed) and f["isAppStoreEdition"] == sandboxed, "the update check is in the direct edition only", f)
-    expect(f["updatePage"].startswith("https://") and f["supportAddress"].startswith("mailto:"), "product page and contact address", f)
-    results.append("real window: confirmation, result, history, settings, help and introduction sheets, Windows-name filter, rename and undo; update check " + ("absent" if sandboxed else "present") + " in the app menu")
+    expect(not any("pdate" in title or "업데이트" in title or "アップデート" in title for title in f["appMenu"]), "the app has no update command of its own: the App Store updates it", f)
+    expect(f["supportAddress"].startswith("mailto:"), "contact address", f)
+    results.append("real window: confirmation, result, history, settings, help and introduction sheets, Windows-name filter, rename and undo; no update command in the app menu")
 
     # 10. Names from many scripts, byte for byte: what is fixed, what is left, and the exact way back.
     step(work, "reset")

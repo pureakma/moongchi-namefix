@@ -13,8 +13,6 @@
 | Engineering Verification·User QA | [QA.md](QA.md) | 검증 범위·QA 판단 | 검증 상태/QA 항목 변경 | On-demand | - |
 | 빌드·서명·공증·배포 | [RELEASE.md](RELEASE.md) | Release Task | 배포 사실/정책 변경 | On-demand | - |
 | 사용자 기능 안내·패키징 입력 | [EXPANSION_USER_GUIDE.md](EXPANSION_USER_GUIDE.md) | 사용자 문구/패키징 Task | 사용자 동작 변경 | On-demand | - |
-| 로컬 QA 패키지 안내 | `QA_README.txt` | 로컬 QA 패키징 Task | 패키지 안내 변경 | Cold | - |
-| 배포 패키지에 넣는 사용자 안내 | `PACKAGE_README.txt` | Release 패키징 Task | 사용자 안내 변경 | Cold | - |
 
 루트 README.md는 프로젝트 진입점, AGENTS.md는 AI 실행 규칙이다. ThirdPartyNotices.md와 Resources의 라이선스는 법적 자산, assets/branding/NameFix-Original.png는 현재 앱 아이콘 원본이다. 과거 Windows→macOS handoff와 이전 아이콘은 Git 이력에서만 조회한다.
 

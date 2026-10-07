@@ -46,7 +46,6 @@
 "ChangeHelp" = "Nothing is wrong with the file. Some characters in its name are stored in pieces (or in another nonstandard way), which can look broken or fail to match on other devices. Fixing stores them in the standard form; file contents stay the same.";
 "CharacterCount" = "Character count: {0}";
 "CharacterPosition" = "Character {0}";
-"CheckForUpdates" = "Check for Updates";
 "ChooseField" = "Choose file info";
 "ChooseFiles" = "Choose Files";
 "ChooseFolderToAllow" = "Choose Folder…";
