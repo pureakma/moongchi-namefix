@@ -32,6 +32,8 @@ public struct AppSettings: Codable, Sendable, Equatable {
     public var compactRows = false
     public var nameColumnRatio = 50.0
     public var favoriteFolders: [FavoriteFolder]? = nil // Optional for existing schema-1 settings.
+    /// For a sandboxed app: the way back to each remembered recent folder, by its path. Optional for existing settings.
+    public var recentAccess: [String: Data]? = nil
     public init() {}
     public var valid: Bool { schemaVersion == 1 && platform == "macOS" && ["system", "ko-KR", "en-US", "ja-JP"].contains(language) && ["dark", "light", "olive", "system"].contains(theme) && (1...1000).contains(historyLimit) && nameColumnRatio.isFinite && (25...75).contains(nameColumnRatio) && recentFolders.count <= 10 && (favoriteFolders ?? []).count <= AppSettings.favoriteLimit && Set((favoriteFolders ?? []).map(\.id)).count == (favoriteFolders ?? []).count }
     public static let favoriteLimit = 100

@@ -133,6 +133,19 @@ public enum History {
         guard let now = try? FS.identity(FS.metadata(fd, path.leaf)) else { return false }
         return now.device != recorded.device && now.inode == recorded.inode && now.birthSeconds == recorded.birthSeconds && now.birthNanoseconds == recorded.birthNanoseconds
     }
+    /// The folder the user has to allow before this record can be undone or recovered, or nil.
+    /// Only a sandboxed app is ever without access. The folder that was allowed when the
+    /// operation ran is preferred, so one choice covers the whole record.
+    public static func folderNeeded(store: JournalStore, id: UUID, kept: [StoredGrant] = []) throws -> RawPath? {
+        guard AccessRoots.shared.restricted else { return nil }
+        let replay = try store.replay(id)
+        guard replay.valid else { throw FSError("HistoryWarning") }
+        let uncovered = replay.events.compactMap(\.operation).map(\.source.parent).filter { AccessRoots.shared.root(containing: $0) == nil }
+        guard let highest = uncovered.min(by: { $0.depth == $1.depth ? $0.bytes.count < $1.bytes.count : $0.depth < $1.depth }) else { return nil }
+        let parent = highest.display
+        if let grant = kept.filter({ $0.transactions.contains(id) && (parent == $0.path || parent.hasPrefix($0.path + "/")) }).max(by: { $0.path.count < $1.path.count }) { return RawPath(grant.path) }
+        return highest
+    }
     private static func mapped(_ path: RawPath, through operations: [RenameOperation]) -> RawPath {
         let groups = Dictionary(grouping: operations, by: { $0.source.parent }).sorted { $0.key.depth > $1.key.depth }
         return groups.reduce(path) { path, group in HistoryPathMap.apply(path, moves: group.value.map { ($0.source, $0.finalPath) }) }

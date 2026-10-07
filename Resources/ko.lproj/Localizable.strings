@@ -28,6 +28,7 @@
 "AdvTargets" = "대상 범위";
 "Advanced" = "글자 구성 자세히";
 "All" = "전체";
+"AllowFolder" = "이 폴더 선택";
 "Ambiguous" = "직접 확인 필요";
 "AppTagline" = "AILO WORKS가 만드는 Mac용 파일 이름 정리 도구";
 "BasicExample" = "기본 예제";
@@ -45,8 +46,10 @@
 "ChangeHelp" = "파일이 손상된 것은 아닙니다. 분리 저장된 글자를 하나로 합칠 수 있으며 파일 내용은 바뀌지 않습니다.";
 "CharacterCount" = "글자 수: {0}";
 "CharacterPosition" = "{0}번째 글자";
+"CheckForUpdates" = "업데이트 확인";
 "ChooseField" = "정보 선택";
 "ChooseFiles" = "파일 선택";
+"ChooseFolderToAllow" = "폴더 선택…";
 "ChooseFolders" = "폴더 선택";
 "ClearAfterRun" = "완료 후 선택 해제";
 "ClearAll" = "전체 선택 해제";
@@ -142,6 +145,9 @@
 "Filter" = "필터";
 "FinalRenamed" = "최종 이름 적용";
 "FinderServiceTitle" = "NameFix로 파일 이름 검사";
+"FolderAccessMessage" = "‘{0}’ 폴더를 선택하면 그 안의 이름을 확인하고 바꿀 수 있습니다. 파일 내용은 바꾸지 않습니다.";
+"FolderAccessNeeded" = "이 항목의 이름을 확인하고 바꾸려면 항목이 들어 있는 폴더를 선택해 주세요. macOS는 사용자가 고른 폴더 안에서만 앱이 이름을 바꿀 수 있게 합니다.";
+"FolderAccessNeededShort" = "폴더 선택 필요";
 "FolderAccessPurpose" = "직접 선택한 파일과 폴더의 이름만 검사하고 바꿉니다.";
 "FolderExcluded" = "폴더 이름은 일괄 변경의 기본 대상이 아닙니다. 규칙 추가 → 고급 → 대상 범위에서 ‘폴더 이름도 변경’을 켤 수 있습니다.";
 "FolderWatch" = "폴더 감시";
@@ -375,6 +381,7 @@
 "ResultCancelled" = "작업이 중단되었습니다. 그때까지 바꾼 이름은 작업 기록에 남아 있습니다.";
 "ResultSummary" = "성공 {0} · 건너뜀 {1} · 오류 {2}";
 "RolledBack" = "원래 이름 복구됨";
+"RootNameExcluded" = "추가한 폴더 자체의 이름은 여기서 바꾸지 않습니다. 안에 있는 항목은 검사합니다. 이 폴더의 이름도 바꾸려면 한 단계 위의 폴더를 추가하세요.";
 "RuleAccents" = "악센트 제거";
 "RuleBudgetExceeded" = "처리할 수 있는 한도를 넘었습니다. 패턴을 단순하게 하거나 목록·파일 크기를 줄여 다시 시도하세요.";
 "RuleBudgetExceededShort" = "처리 한도 초과";
@@ -485,7 +492,10 @@
 "UndoAvailable" = "바꾼 이름은 작업 기록에서 원래대로 되돌릴 수 있습니다.";
 "UndoConfirm" = "{0}개 항목을 원래 이름으로 되돌립니다. 되돌릴 수 없는 {1}개는 제외합니다. 이름이 충돌하거나, 작업 이후 교체되거나 이동된 항목이 여기에 해당합니다.";
 "UndoConfirmOne" = "1개 항목을 원래 이름으로 되돌립니다. 되돌릴 수 없는 {1}개는 제외합니다. 이름이 충돌하거나, 작업 이후 교체되거나 이동된 항목이 여기에 해당합니다.";
+"UndoFolderMessage" = "이 작업을 되돌리려면 ‘{0}’ 폴더를 다시 선택해 주세요.";
 "UndoLatest" = "최근 작업 되돌리기…";
+"UndoNeedsFolder" = "이 작업을 되돌리려면 해당 폴더를 다시 선택해야 합니다. 작업 기록에서 되돌리기를 다시 누르면 폴더를 고를 수 있습니다.";
+"UndoNeedsFolderShort" = "되돌리려면 폴더를 다시 선택";
 "UndoNow" = "이 작업 되돌리기";
 "Unsupported" = "— 지원하지 않는 항목";
 "UseMapping" = "목록 적용";

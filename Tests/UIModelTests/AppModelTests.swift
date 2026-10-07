@@ -32,6 +32,55 @@ import NameFixRuntime
         XCTAssertEqual(model.message, "SettingsSaveFailed")
         XCTAssertEqual(try Data(contentsOf: blocked), Data("preserved".utf8))
     }
+    /// The rule of a sandboxed app, switched on here: the model asks for a folder when it needs one,
+    /// keeps the way back to a folder an operation ran in, and uses it after a restart.
+    func testRestrictedAppAsksForAFolderAndUndoesAfterARestart() async throws {
+        AccessRoots.shared.releaseAll(); AccessRoots.shared.restrict(true)
+        defer { AccessRoots.shared.releaseAll(); AccessRoots.shared.restrict(false) }
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        let input = root.appendingPathComponent("inputs"), support = root.appendingPathComponent("support")
+        try FileManager.default.createDirectory(at: input, withIntermediateDirectories: true)
+        let file = input.appendingPathComponent("e\u{301}.txt"); try Data("contents".utf8).write(to: file)
+        func stored() throws -> [String] { try FileManager.default.contentsOfDirectory(atPath: input.path).map { $0.unicodeScalars.map { String($0.value, radix: 16) }.joined(separator: " ") } }
+        let decomposed = try stored()
+        let model = AppModel(dataRoot: support); await model.start()
+        // A file on its own: the model asks for exactly its folder and changes nothing meanwhile.
+        model.add([file]); try await settled(model, condition: { model.entries.count == 1 })
+        XCTAssertEqual(model.folderRequest?.folder.path, input.path); XCTAssertEqual(model.folderRequest?.purpose, .input)
+        XCTAssertEqual(model.entries[0].reason, "FolderAccessNeeded"); XCTAssertEqual(model.message, "FolderAccessNeeded")
+        model.declineFolder(); XCTAssertNil(model.folderRequest); XCTAssertEqual(try stored(), decomposed)
+        model.requestFolderForLooseItems(); XCTAssertNotNil(model.folderRequest)
+        model.allowFolder(input); try await settled(model, condition: { model.entries.first?.status == .needsNormalization })
+        XCTAssertNil(model.folderRequest); XCTAssertNil(model.message)
+        model.prepare(); try await settled(model, condition: { model.plan != nil })
+        model.execute(); try await settled(model, condition: { model.result != nil })
+        XCTAssertEqual(model.result?.succeeded, 1); XCTAssertNotEqual(try stored(), decomposed)
+        model.dismissResult(); try await settled(model)
+        let kept = support.appendingPathComponent("access.json")
+        for _ in 0..<200 where !FileManager.default.fileExists(atPath: kept.path) { try await Task.sleep(for: .milliseconds(10)) }
+        XCTAssertTrue(FileManager.default.fileExists(atPath: kept.path), "The way back to the folder is kept with the record")
+        await model.shutdown()
+        // A new launch: nothing is allowed until the kept bookmark is used.
+        AccessRoots.shared.releaseAll()
+        let again = AppModel(dataRoot: support); await again.start()
+        XCTAssertEqual(again.history.count, 1)
+        again.prepare(mode: "undo", historyID: again.history[0].id); try await settled(again, condition: { again.plan != nil || again.message != nil })
+        XCTAssertNil(again.folderRequest); XCTAssertEqual(again.plan?.operations.count, 1)
+        again.execute(); try await settled(again, condition: { again.result != nil })
+        XCTAssertEqual(try stored(), decomposed, "Undo after a restart is exact")
+        again.dismissResult(); try await settled(again)
+        await again.shutdown()
+        // The kept access is lost: the next launch asks for the folder instead of guessing.
+        AccessRoots.shared.releaseAll(); try FileManager.default.removeItem(at: kept)
+        let third = AppModel(dataRoot: support); await third.start()
+        let undo = try XCTUnwrap(third.history.first { $0.mode == "undo" })
+        third.prepare(mode: "undo", historyID: undo.id); try await settled(third, condition: { third.folderRequest != nil || third.plan != nil })
+        XCTAssertEqual(third.folderRequest?.folder.path, input.path); XCTAssertEqual(third.folderRequest?.purpose, .history(mode: "undo", id: undo.id))
+        XCTAssertEqual(third.message, "UndoNeedsFolder"); XCTAssertNil(third.plan); XCTAssertEqual(try stored(), decomposed)
+        third.allowFolder(input); try await settled(third, condition: { third.plan != nil })
+        XCTAssertEqual(third.plan?.operations.count, 1)
+        third.cancelPreview(); await third.shutdown()
+    }
     func testCloudFolderIsListedWithANoticeAndLeftAlone() async throws {
         let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
         // A cloud provider's folder is recognized by where it is.

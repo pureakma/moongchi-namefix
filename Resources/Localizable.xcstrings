@@ -12535,6 +12535,236 @@
           }
         }
       }
+    },
+    "FolderAccessNeeded": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 항목의 이름을 확인하고 바꾸려면 항목이 들어 있는 폴더를 선택해 주세요. macOS는 사용자가 고른 폴더 안에서만 앱이 이름을 바꿀 수 있게 합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To check and rename this item, choose the folder that contains it. macOS lets the app rename items only inside a folder you have chosen."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この項目の名前を確認して変更するには、項目が入っているフォルダを選択してください。macOSでは、選択したフォルダの中でのみ、アプリが名前を変更できます。"
+          }
+        }
+      }
+    },
+    "FolderAccessNeededShort": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더 선택 필요"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the folder to continue"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォルダの選択が必要です"
+          }
+        }
+      }
+    },
+    "FolderAccessMessage": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘{0}’ 폴더를 선택하면 그 안의 이름을 확인하고 바꿀 수 있습니다. 파일 내용은 바꾸지 않습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the “{0}” folder to check and rename the names inside it. File contents are never changed."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「{0}」フォルダを選択すると、その中の名前を確認して変更できます。ファイルの内容は変更しません。"
+          }
+        }
+      }
+    },
+    "UndoFolderMessage": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 작업을 되돌리려면 ‘{0}’ 폴더를 다시 선택해 주세요."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To undo this operation, choose the “{0}” folder again."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この操作を元に戻すには、「{0}」フォルダをもう一度選択してください。"
+          }
+        }
+      }
+    },
+    "UndoNeedsFolder": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 작업을 되돌리려면 해당 폴더를 다시 선택해야 합니다. 작업 기록에서 되돌리기를 다시 누르면 폴더를 고를 수 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To undo this operation, its folder has to be chosen again. Choose Undo in History once more to pick the folder."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この操作を元に戻すには、フォルダをもう一度選択する必要があります。履歴で「元に戻す」をもう一度選ぶと、フォルダを選択できます。"
+          }
+        }
+      }
+    },
+    "UndoNeedsFolderShort": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "되돌리려면 폴더를 다시 선택"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the folder again to undo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "元に戻すにはフォルダの再選択が必要です"
+          }
+        }
+      }
+    },
+    "AllowFolder": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 폴더 선택"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose Folder"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このフォルダを選択"
+          }
+        }
+      }
+    },
+    "ChooseFolderToAllow": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더 선택…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose Folder…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォルダを選択…"
+          }
+        }
+      }
+    },
+    "RootNameExcluded": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추가한 폴더 자체의 이름은 여기서 바꾸지 않습니다. 안에 있는 항목은 검사합니다. 이 폴더의 이름도 바꾸려면 한 단계 위의 폴더를 추가하세요."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The name of the folder you added is not changed here. The items inside it are scanned. To rename this folder too, add the folder that contains it."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "追加したフォルダ自体の名前はここでは変更しません。中の項目はスキャンします。このフォルダの名前も変更するには、1つ上のフォルダを追加してください。"
+          }
+        }
+      }
+    },
+    "CheckForUpdates": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "업데이트 확인"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for Updates"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アップデートを確認"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

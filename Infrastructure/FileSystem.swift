@@ -39,18 +39,30 @@ public enum FS {
         try (Array(data) + [0]).withUnsafeBytes { try body($0.baseAddress!.assumingMemoryBound(to: CChar.self)) }
     }
     public static func identity(_ s: stat) -> FileIdentity { FileIdentity(device: s.st_dev, inode: s.st_ino, birthSeconds: Int64(s.st_birthtimespec.tv_sec), birthNanoseconds: Int64(s.st_birthtimespec.tv_nsec)) }
-    // Walk every component with O_NOFOLLOW, including ancestors. Never resolve through a link.
+    // Walk every component with O_NOFOLLOW. Never resolve through a link.
+    // A directly distributed app starts at "/" and so checks every ancestor. A sandboxed app
+    // cannot open the ancestors of what the user allowed; there the walk starts at the allowed
+    // folder (AccessRoots) and a folder outside every allowed one is reported, not guessed at.
     public static func openDirectory(_ path: RawPath) throws -> Int32 {
         guard path.bytes.first == 47, !path.bytes.contains(0) else { throw FSError("InvalidPath", EINVAL) }
-        var fd = open("/", O_RDONLY | O_DIRECTORY | O_CLOEXEC)
+        var fd: Int32, parts: [Data]
+        if AccessRoots.shared.restricted {
+            guard let anchor = AccessRoots.shared.anchor(path) else { throw FSError("FolderAccessNeeded", EPERM) }
+            (fd, parts) = anchor
+        } else {
+            fd = open("/", O_RDONLY | O_DIRECTORY | O_CLOEXEC); parts = path.bytes.split(separator: 47).map { Data($0) }
+        }
         guard fd >= 0 else { throw FSError("AccessDenied") }
         do {
-            for part in path.bytes.split(separator: 47) {
-                let leaf = Data(part)
+            for leaf in parts {
                 guard leaf != Data("..".utf8), leaf != Data(".".utf8) else { throw FSError("LinkedPathHelp", EINVAL) }
                 let next = cPath(leaf) { openat(fd, $0, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC) }
                 guard next >= 0 else {
-                    throw FSError(errno == ELOOP ? "LinkedPathHelp" : "AccessDenied") }
+                    // A link is reported as a link whichever error the system chose for it.
+                    let code = errno
+                    var s = stat()
+                    let link = cPath(leaf) { fstatat(fd, $0, &s, AT_SYMLINK_NOFOLLOW) } == 0 && s.st_mode & S_IFMT == S_IFLNK
+                    throw FSError(code == ELOOP || link ? "LinkedPathHelp" : "AccessDenied", code) }
                 close(fd); fd = next
             }
             return fd

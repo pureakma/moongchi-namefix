@@ -28,6 +28,7 @@
 "AdvTargets" = "What to rename";
 "Advanced" = "Technical details";
 "All" = "All";
+"AllowFolder" = "Choose Folder";
 "Ambiguous" = "Manual review required";
 "AppTagline" = "A filename fixer and batch renamer for Mac, by AILO WORKS";
 "BasicExample" = "Basic Example";
@@ -45,8 +46,10 @@
 "ChangeHelp" = "Nothing is wrong with the file. Some characters in its name are stored in pieces (or in another nonstandard way), which can look broken or fail to match on other devices. Fixing stores them in the standard form; file contents stay the same.";
 "CharacterCount" = "Character count: {0}";
 "CharacterPosition" = "Character {0}";
+"CheckForUpdates" = "Check for Updates";
 "ChooseField" = "Choose file info";
 "ChooseFiles" = "Choose Files";
+"ChooseFolderToAllow" = "Choose Folder…";
 "ChooseFolders" = "Choose Folder";
 "ClearAfterRun" = "Clear selection after renaming";
 "ClearAll" = "Deselect All";
@@ -142,6 +145,9 @@
 "Filter" = "Filter";
 "FinalRenamed" = "Final name applied";
 "FinderServiceTitle" = "Scan Names with NameFix";
+"FolderAccessMessage" = "Choose the “{0}” folder to check and rename the names inside it. File contents are never changed.";
+"FolderAccessNeeded" = "To check and rename this item, choose the folder that contains it. macOS lets the app rename items only inside a folder you have chosen.";
+"FolderAccessNeededShort" = "Choose the folder to continue";
 "FolderAccessPurpose" = "NameFix scans and renames only the files and folders you choose.";
 "FolderExcluded" = "Folder names are not renamed by default. Turn on “Also rename folders” under Add Rule → Advanced → What to rename.";
 "FolderWatch" = "Watch a Folder";
@@ -375,6 +381,7 @@
 "ResultCancelled" = "Operation stopped. Completed changes are kept in History.";
 "ResultSummary" = "Renamed {0} · Skipped {1} · Failed {2}";
 "RolledBack" = "Original name restored";
+"RootNameExcluded" = "The name of the folder you added is not changed here. The items inside it are scanned. To rename this folder too, add the folder that contains it.";
 "RuleAccents" = "Remove accents";
 "RuleBudgetExceeded" = "This is more than NameFix can process. Simplify the pattern, or use a shorter name or a smaller file.";
 "RuleBudgetExceededShort" = "Rule limit exceeded";
@@ -485,7 +492,10 @@
 "UndoAvailable" = "You can restore the original names later from History.";
 "UndoConfirm" = "Restore {0} original names; {1} will be skipped. Items that conflict, or that were moved or replaced since the operation, are skipped.";
 "UndoConfirmOne" = "Restore 1 original name; {1} will be skipped. Items that conflict, or that were moved or replaced since the operation, are skipped.";
+"UndoFolderMessage" = "To undo this operation, choose the “{0}” folder again.";
 "UndoLatest" = "Undo Last Rename…";
+"UndoNeedsFolder" = "To undo this operation, its folder has to be chosen again. Choose Undo in History once more to pick the folder.";
+"UndoNeedsFolderShort" = "Choose the folder again to undo";
 "UndoNow" = "Undo This Rename";
 "Unsupported" = "— Unsupported item";
 "UseMapping" = "Use List";

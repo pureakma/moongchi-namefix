@@ -1,5 +1,6 @@
 import Foundation
 import Darwin
+import UniformTypeIdentifiers
 import NameFixCore
 
 public final class CancellationToken: @unchecked Sendable {
@@ -31,15 +32,23 @@ public enum Scanner {
         let s = path.display
         if ["/", "/System", "/bin", "/sbin", "/usr", "/dev", "/Library"].contains(s) || ["/System/", "/Library/", "/bin/", "/sbin/", "/usr/", "/dev/"].contains(where: s.hasPrefix) { return "VolumeSafetyUnsupported" }
         if s.contains("/Library/CloudStorage/") || s.contains("/Library/Mobile Documents/") { return "CloudLocationExcluded" }
-        var url = URL(fileURLWithPath: s)
+        // A sandboxed app cannot read anything above the folder the user allowed.
+        // Up to that folder the items themselves are asked; above it only the name can tell.
+        let boundary = AccessRoots.shared.restricted ? AccessRoots.shared.root(containing: path)?.path.display : nil
+        var url = URL(fileURLWithPath: s), outside = false
         while url.path != "/" {
             if url.lastPathComponent == ".git" { return "PackageExcluded" }
-            do {
-                let values = try url.resourceValues(forKeys: [.isPackageKey, .isAliasFileKey, .isUbiquitousItemKey])
-                if values.isPackage == true { return "PackageExcluded" }
-                if values.isAliasFile == true { return "LinkedPathHelp" }
-                if values.isUbiquitousItem == true { return "CloudLocationExcluded" }
-            } catch { return "AccessHelp" }
+            if outside {
+                if let type = UTType(filenameExtension: url.pathExtension), type.conforms(to: .package) { return "PackageExcluded" }
+            } else {
+                do {
+                    let values = try url.resourceValues(forKeys: [.isPackageKey, .isAliasFileKey, .isUbiquitousItemKey])
+                    if values.isPackage == true { return "PackageExcluded" }
+                    if values.isAliasFile == true { return "LinkedPathHelp" }
+                    if values.isUbiquitousItem == true { return "CloudLocationExcluded" }
+                } catch { return "AccessHelp" }
+            }
+            if url.path == boundary { outside = true }
             url.deleteLastPathComponent()
         }
         return nil
@@ -82,6 +91,18 @@ public enum Scanner {
         while !token.cancelled, result.count < limit, let (requested, level, device) = work.popLast() {
             if seen.contains(requested) { continue }
             do {
+                // Sandboxed: the name of the folder the user allowed lives in a folder the app may
+                // not open. The folder is listed, its contents are scanned, and its own name is left alone.
+                if level == 0, AccessRoots.shared.restricted, AccessRoots.shared.root(containing: requested.parent) == nil, AccessRoots.shared.root(containing: requested) != nil {
+                    let rootFD = try FS.openDirectory(requested); defer { close(rootFD) }
+                    let path = try FS.rawDirectoryPath(rootFD), identity = try FS.directoryIdentity(rootFD)
+                    resolvedRoots[requested] = path
+                    guard seen.insert(path).inserted else { continue }
+                    let blocked = protectedReason(path)
+                    result.append(FileEntry(path: path, identity: identity, isDirectory: true, status: .unsupported, reason: blocked ?? "RootNameExcluded", proposed: NormalizationAnalysis(raw: path.leaf, target: target).proposed))
+                    if blocked == nil { work.append(contentsOf: try FS.names(rootFD).map { (path.appending($0), 1, identity.device) }) }
+                    continue
+                }
                 let opened = try parentFD(requested.parent), fd = opened.fd
                 let index: ([Data], Set<Data>)
                 if let cached = indices[requested.parent] { index = cached } else { let names = try FS.names(fd); index = (names, Set(names)); indices[requested.parent] = index }

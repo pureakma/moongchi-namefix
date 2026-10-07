@@ -6,13 +6,16 @@ import NameFixCore
 import NameFixRuntime
 import NameFixApplication
 
+/// Planning stops here when a sandboxed app has to be let into a folder first.
+struct FolderNeeded: Error, Sendable { let folder: RawPath }
 @MainActor final class AppModel: ObservableObject {
     @Published var settings = AppSettings()
     @Published var watches = WatchLibrary()
     @Published var watchPending: Set<UUID> = []
     @Published var watchErrors: [UUID: String] = [:]
     private var watchers: [UUID: FolderWatcher] = [:]
-    private var watchLeases: [UUID: AccessLease] = [:]
+    /// The allowed folder behind each running watch.
+    private var watchGrants: [UUID: RawPath] = [:]
     private var activeWatchID: UUID?
     private var watchBaselines: [UUID: [Data: WatchedFile]] = [:]
     private var watchStore: WatchStore?
@@ -115,6 +118,20 @@ import NameFixApplication
     private(set) var viewComputationCount = 0
     private var settingsTask: Task<Void, Never>?
     private var leases: [AccessLease] = []
+    /// Folders the user handed over for the current input; given back when the input is closed.
+    private var inputGrants: [RawPath] = []
+    /// Folders kept across launches because a finished operation there can still be undone.
+    private var grantStore: GrantStore?
+    private var grantLibrary = GrantLibrary()
+    private var grantTask: Task<Void, Never>?
+    /// A folder the user has to choose before something can go on. Only a sandboxed app asks:
+    /// macOS lets it work in a folder only after the user picked that folder.
+    struct FolderRequest: Equatable {
+        enum Purpose: Equatable { case input, history(mode: String, id: UUID) }
+        var folder: URL
+        var purpose: Purpose
+    }
+    @Published var folderRequest: FolderRequest?
     private var queuedURLs: [URL] = []
     private var settingsStore: SettingsStore
     private(set) var store: JournalStore?
@@ -150,6 +167,9 @@ import NameFixApplication
     func n(_ number: Int) -> String { number.formatted(.number.locale(Locale(identifier: L10n.language(settings.language)))) }
     func start() async {
         do { entitlement = try await entitlementProvider.verifiedEntitlement(); productAccess = entitlement.access() } catch { productAccess = .free; message = "EntitlementUnavailable" }
+        // The app's own data folder is always its to use; records and settings are synced through it.
+        try? FileManager.default.createDirectory(at: dataRoot, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+        _ = try? AccessRoots.shared.grant(dataRoot)
         do { settings = try await settingsStore.load() } catch { message = (error as? FSError)?.code ?? "SettingsWarning" }
         // The app always opens on the repair screen, whichever screen was showing when it quit.
         settings.workbenchEnabled = false
@@ -159,6 +179,9 @@ import NameFixApplication
             self.store = store; coordinator = TransactionCoordinator(store: store)
             await reloadHistory()
         } catch { message = "JournalWriteFailed" }
+        let grantStore = GrantStore(url: dataRoot.appendingPathComponent("access.json")); self.grantStore = grantStore
+        do { grantLibrary = try await grantStore.load() } catch { message = "HistoryWarning" }
+        restoreGrants(); pruneGrants()
         let recipeStore = RecipeStore(url: dataRoot.appendingPathComponent("recipes.json"))
         self.recipeStore = recipeStore
         do { recipes = try await recipeStore.load(); workbenchDraft = recipes.lastFree; pipeline = isWorkbench ? recipes.lastFree : RulePipeline(); if isWorkbench { markWorkbenchPreviewApplied() } else { appliedDraftRevision = nil } }
@@ -173,7 +196,7 @@ import NameFixApplication
         edit(&settings)
         // A confirmed preview must not silently change its input traversal policy.
         if busy || plan != nil { settings.recursive = old.recursive }
-        if !settings.rememberRecentFolders { settings.recentFolders = [] }
+        if !settings.rememberRecentFolders { settings.recentFolders = []; settings.recentAccess = nil }
         persist()
         if old.recursive != settings.recursive { scan() }
         if old.hideNormal != settings.hideNormal || old.language != settings.language { refreshVisible() }
@@ -199,13 +222,14 @@ import NameFixApplication
     }
     func isFavorite(_ path: RawPath) -> Bool { favorites.contains { Data($0.path.utf8) == path.bytes } }
     /// The folder a favourite points to now, or nil when it cannot be opened.
-    nonisolated static func resolve(_ favorite: FavoriteFolder) -> URL? {
-        var url = URL(fileURLWithPath: favorite.path)
-        if let bookmark = favorite.bookmark {
-            var stale = false
-            if let found = try? URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope, .withoutUI, .withoutMounting], relativeTo: nil, bookmarkDataIsStale: &stale) { url = found }
-        }
-        return usableFolder(url) ? url : nil
+    nonisolated static func resolve(_ favorite: FavoriteFolder) -> URL? { open(favorite)?.url }
+    /// The folder, and whether its saved bookmark should be replaced by a fresh one.
+    nonisolated static func open(_ favorite: FavoriteFolder) -> (url: URL, stale: Bool)? {
+        var url = URL(fileURLWithPath: favorite.path), stale = false
+        if let bookmark = favorite.bookmark, let found = try? URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope, .withoutUI, .withoutMounting], relativeTo: nil, bookmarkDataIsStale: &stale) { url = found }
+        // A bookmarked folder can be looked at only while its access is in use.
+        let lease = AccessLease(url); defer { withExtendedLifetime(lease) {} }
+        return usableFolder(url) ? (url, stale) : nil
     }
     nonisolated static func usableFolder(_ url: URL) -> Bool {
         var directory: ObjCBool = false
@@ -237,16 +261,26 @@ import NameFixApplication
     /// opened is marked and reported instead of being skipped.
     func openFavorite(_ favorite: FavoriteFolder) {
         guard canInput else { message = "BusyDropRejected"; return }
-        guard let url = Self.resolve(favorite) else { favoriteProblems.insert(favorite.id); message = "FavoriteUnavailable"; return }
+        guard let (url, stale) = Self.open(favorite) else { favoriteProblems.insert(favorite.id); message = "FavoriteUnavailable"; return }
         favoriteProblems.remove(favorite.id)
-        if url.path != favorite.path { changeSettings { settings in if let index = settings.favoriteFolders?.firstIndex(where: { $0.id == favorite.id }) { settings.favoriteFolders?[index].path = url.path } } }
         add([url])
+        // The folder moved, or the system says the bookmark is getting old: keep the shortcut current.
+        let fresh = stale ? AccessRoots.shared.bookmark(for: RawPath(url.path)) : nil
+        if url.path != favorite.path || fresh != nil {
+            changeSettings { settings in
+                guard let index = settings.favoriteFolders?.firstIndex(where: { $0.id == favorite.id }) else { return }
+                settings.favoriteFolders?[index].path = url.path
+                if let fresh { settings.favoriteFolders?[index].bookmark = fresh }
+            }
+        }
     }
     func openRecent(_ path: String) {
-        let url = URL(fileURLWithPath: path)
+        var url = URL(fileURLWithPath: path), stale = false
+        if let bookmark = settings.recentAccess?[path], let found = try? URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope, .withoutUI, .withoutMounting], relativeTo: nil, bookmarkDataIsStale: &stale) { url = found }
+        let lease = AccessLease(url); defer { withExtendedLifetime(lease) {} }
         guard Self.usableFolder(url) else {
             message = "RecentUnavailable"
-            changeSettings { $0.recentFolders.removeAll { Data($0.utf8) == Data(path.utf8) } }
+            changeSettings { $0.recentFolders.removeAll { Data($0.utf8) == Data(path.utf8) }; $0.recentAccess?[path] = nil }
             return
         }
         add([url])
@@ -271,8 +305,69 @@ import NameFixApplication
         activeWatchID = nil
         leases.append(contentsOf: local.map(AccessLease.init))
         var seen = Set(roots)
-        for url in local { let path = RawPath(url.path); if seen.insert(path).inserted { roots.append(path) } }
+        for url in local {
+            var path = RawPath(url.path)
+            // A folder the user handed over is a place the app may work in.
+            if (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true, let root = try? AccessRoots.shared.grant(url) {
+                inputGrants.append(root.path)
+                if AccessRoots.shared.restricted { path = root.path }
+            }
+            if seen.insert(path).inserted { roots.append(path) }
+        }
+        requestFolderForLooseItems()
         scan()
+    }
+    /// A sandboxed app can read and rename an item only through a folder the user allowed.
+    /// A file handed over on its own needs its folder; the user is asked for exactly that one.
+    func requestFolderForLooseItems() {
+        guard AccessRoots.shared.restricted, folderRequest == nil,
+              let loose = roots.first(where: { AccessRoots.shared.root(containing: $0.parent) == nil && !AccessRoots.shared.isRoot($0) }) else { return }
+        folderRequest = FolderRequest(folder: URL(fileURLWithPath: loose.parent.display, isDirectory: true), purpose: .input)
+    }
+    /// The user chose the folder that was asked for.
+    func allowFolder(_ url: URL) {
+        let request = folderRequest; folderRequest = nil
+        guard let root = try? AccessRoots.shared.grant(url) else { message = "FolderAccessNeeded"; return }
+        inputGrants.append(root.path)
+        if ["FolderAccessNeeded", "UndoNeedsFolder"].contains(message) { message = nil }
+        if case .history(let mode, let id) = request?.purpose { prepare(mode: mode, historyID: id) } else { requestFolderForLooseItems(); scan() }
+    }
+    func declineFolder() { folderRequest = nil }
+    /// Reaches again the folders that finished operations may still be undone in.
+    private func restoreGrants() {
+        guard AccessRoots.shared.restricted else { return }
+        var changed = false
+        for index in grantLibrary.grants.indices {
+            let (result, renewed) = GrantLibrary.resolve(grantLibrary.grants[index])
+            if case .granted = result, let renewed { grantLibrary.grants[index].bookmark = renewed; changed = true }
+        }
+        if changed { saveGrants() }
+    }
+    private func saveGrants() {
+        guard let grantStore else { return }
+        let library = grantLibrary, previous = grantTask
+        // Saved in order, and finished before the app quits.
+        grantTask = Task { [weak self] in await previous?.value; do { try await grantStore.save(library) } catch { self?.message = "HistoryWarning" } }
+    }
+    /// Keeps the way back to the folders an operation ran in, for as long as its record is kept.
+    private func keepGrants(for transaction: UUID, operations: [RenameOperation]) {
+        guard AccessRoots.shared.restricted else { return }
+        var seen = Set<RawPath>()
+        for operation in operations {
+            guard let root = AccessRoots.shared.root(containing: operation.source.parent), seen.insert(root.path).inserted else { continue }
+            if let index = grantLibrary.grants.firstIndex(where: { $0.path == root.path.display && $0.identity == root.identity }) {
+                if !grantLibrary.grants[index].transactions.contains(transaction) { grantLibrary.grants[index].transactions.append(transaction) }
+            } else if let bookmark = AccessRoots.shared.bookmark(for: root.path) {
+                grantLibrary.grants.append(StoredGrant(root: root, bookmark: bookmark, transaction: transaction))
+            }
+        }
+        if !seen.isEmpty { saveGrants() }
+    }
+    /// Access is kept only while a record that needs it exists.
+    private func pruneGrants() {
+        let kept = Set(history.map(\.id)), before = grantLibrary.grants
+        grantLibrary.grants = before.compactMap { grant in var g = grant; g.transactions.removeAll { !kept.contains($0) }; return g.transactions.isEmpty ? nil : g }
+        if grantLibrary.grants != before { saveGrants() }
     }
     /// Menu and menu-bar commands must not stack a sheet on a confirmation, result or running rename.
     func present(_ name: String) { guard plan == nil, result == nil, !mutating else { return }; sheet = name }
@@ -285,7 +380,14 @@ import NameFixApplication
     func remove(_ path: RawPath?) {
         guard !busy, plan == nil else { return }
         activeWatchID = nil
-        if let path { roots.removeAll { $0 == path } } else { roots = []; leases = [] }
+        if let path {
+            roots.removeAll { $0 == path }
+            if let index = inputGrants.firstIndex(of: path) { AccessRoots.shared.release(inputGrants.remove(at: index)) }
+        } else {
+            roots = []; leases = []
+            inputGrants.forEach(AccessRoots.shared.release); inputGrants = []
+        }
+        if folderRequest?.purpose == .input { folderRequest = nil }
         scan()
     }
     func scan(clearSelection: Bool = false) {
@@ -339,12 +441,20 @@ import NameFixApplication
             if scan.limited { message = "ScanLimit" } else if scan.cancelled { message = "Cancelled" }
             // Say once, in the status line, why a whole location is left alone. Nothing is shown for supported places.
             else if let place = scan.entries.first(where: { VolumeSupport.locationReasons.contains($0.reason) })?.reason { message = place }
-            else if let shown = message, VolumeSupport.locationReasons.contains(shown) { message = nil }
+            else if scan.entries.contains(where: { $0.reason == "FolderAccessNeeded" }) { message = "FolderAccessNeeded" }
+            else if let shown = message, VolumeSupport.locationReasons.contains(shown) || shown == "FolderAccessNeeded" { message = nil }
             if settings.rememberRecentFolders {
                 let directories = scan.entries.filter { $0.isDirectory && scan.roots.contains($0.path) }.map { $0.path.display }
                 var list = directories + settings.recentFolders
                 var unique = Set<Data>(); list = list.filter { unique.insert(Data($0.utf8)).inserted }
-                settings.recentFolders = Array(list.prefix(10)); persist()
+                settings.recentFolders = Array(list.prefix(10))
+                // A sandboxed app can reopen a remembered folder only with a bookmark; it is kept exactly as long as the entry.
+                if AccessRoots.shared.restricted {
+                    var access = settings.recentAccess ?? [:]
+                    for directory in directories where access[directory] == nil { access[directory] = AccessRoots.shared.bookmark(for: RawPath(directory)) }
+                    settings.recentAccess = access.filter { settings.recentFolders.contains($0.key) }
+                }
+                persist()
             }
             refreshVisible(); flushQueued()
         }
@@ -457,15 +567,26 @@ import NameFixApplication
         if mode == "rename", pipeline.requiresPro && entitlement.access() != .pro { message = "ProRequired"; return }
         phase = "ActivityPreview"; started = Date()
         let items = entries, selection = selected, gen = generation
+        // A volume may have been connected again since the app opened: try the kept folders once more.
+        if historyID != nil { restoreGrants() }
+        let kept = grantLibrary.grants
         worker = Task { [weak self] in
             do {
                 let fresh = try await Task.detached {
-                    if let historyID { return try mode == "recovery" ? History.recovery(store: store, id: historyID, generation: gen) : History.undo(store: store, id: historyID, generation: gen) }
+                    if let historyID {
+                        // A sandboxed app can undo only inside a folder it is allowed in. Ask for that folder instead of calling the items changed.
+                        if let folder = try History.folderNeeded(store: store, id: historyID, kept: kept) { throw FolderNeeded(folder: folder) }
+                        return try mode == "recovery" ? History.recovery(store: store, id: historyID, generation: gen) : History.undo(store: store, id: historyID, generation: gen)
+                    }
                     return try Planning.make(entries: items, selected: selection, generation: gen)
                 }.value
                 guard let self else { return }
                 phase = ""; sheet = nil
                 if fresh.operations.isEmpty { message = fresh.excluded > 0 ? "NoChangesExcluded" : "NoChanges" } else { plan = fresh }
+            } catch let needed as FolderNeeded {
+                guard let self, let historyID else { return }
+                phase = ""; sheet = nil; message = "UndoNeedsFolder"
+                folderRequest = FolderRequest(folder: URL(fileURLWithPath: needed.folder.display, isDirectory: true), purpose: .history(mode: mode, id: historyID))
             } catch { self?.phase = ""; self?.message = (error as? FSError)?.code ?? "OperationError" }
         }
     }
@@ -499,6 +620,7 @@ import NameFixApplication
                         if settings.rememberRecentFolders { settings.recentFolders = remapped.dropFirst(oldRoots.count).map(\.display); persist() }
                     } catch { message = (error as? FSError)?.code ?? "HistoryWarning" }
                 }
+                keepGrants(for: summary.id, operations: plan.operations)
                 phase = ""; result = summary; transactionFinished?(summary)
                 if settings.diagnostics { do { try await diagnosticLog.record(code: summary.status, transaction: summary.id, count: summary.succeeded) } catch { message = "DiagnosticsError" } }
                 await reloadHistory()
@@ -507,7 +629,7 @@ import NameFixApplication
         }
     }
     func cancel() { cancelled = true; scanToken.cancel(); transactionToken.cancel() }
-    func shutdown() async { shuttingDown = true; ready = false; watchers.values.forEach { $0.stop() }; watchers = [:]; cancel(); searchTask?.cancel(); filterWorker?.cancel(); await worker?.value; await settingsTask?.value; await recipeTask?.value; await watchTask?.value }
+    func shutdown() async { shuttingDown = true; ready = false; watchers.values.forEach { $0.stop() }; watchers = [:]; cancel(); searchTask?.cancel(); filterWorker?.cancel(); await worker?.value; await settingsTask?.value; await grantTask?.value; await recipeTask?.value; await watchTask?.value }
     func numberConflicts() {
         guard !busy, plan == nil else { return }; phase = "ActivityPreview"
         let items = entries
@@ -527,6 +649,7 @@ import NameFixApplication
             let limit = settings.historyLimit
             history = try await Task.detached { try store.pruneUnneeded(limit: limit); return try store.summaries() }.value
             if history.contains(where: { !["Completed", "CompletedWithErrors", "Cancelled"].contains($0.status) }) { message = "RecoveryNeedsReview" }
+            pruneGrants()
         } catch { message = "HistoryWarning" }
     }
     func loadDetails(_ id: UUID) {
@@ -633,15 +756,21 @@ import NameFixApplication
         watchTask = Task { [weak self] in await previous?.value; do { try await store.save(value) } catch { self?.message = "WatchReadOnly" } }
     }
     func restartWatches() {
-        watchers.values.forEach { $0.stop() }; watchers = [:]; watchLeases = [:]; watchErrors = [:]
+        watchers.values.forEach { $0.stop() }; watchers = [:]; watchErrors = [:]
+        watchGrants.values.forEach(AccessRoots.shared.release); watchGrants = [:]
         guard productAccess == .pro else { return }
-        for folder in watches.folders where folder.enabled {
+        var renewed = false
+        for index in watches.folders.indices where watches.folders[index].enabled {
+            let folder = watches.folders[index]
             do {
                 var stale = false
                 let url = try URL(resolvingBookmarkData: folder.bookmark, options: [.withSecurityScope, .withoutUI, .withoutMounting], relativeTo: nil, bookmarkDataIsStale: &stale)
-                guard !stale, url.path == folder.path else { throw FSError("WatchReauthorize") }
-                let lease = AccessLease(url)
-                let fd = try FS.openDirectory(RawPath(url.path)); close(fd)
+                // A moved folder is not followed silently; the user picks it again.
+                guard url.path == folder.path, let root = try? AccessRoots.shared.grant(url) else { throw FSError("WatchReauthorize") }
+                watchGrants[folder.id] = root.path
+                // The system calls the bookmark stale but it still opened the folder: replace it with a fresh one.
+                if stale, let fresh = AccessRoots.shared.bookmark(for: root.path) { watches.folders[index].bookmark = fresh; renewed = true }
+                let fd = try FS.openDirectory(root.path); close(fd)
                 let watcher = FolderWatcher(), id = folder.id
                 try watcher.start(path: url.path) { [weak self] rescan in
                     Task { @MainActor [weak self] in
@@ -650,9 +779,10 @@ import NameFixApplication
                         if rescan { self.watchErrors[id] = "WatchRescan" }
                     }
                 }
-                watchers[id] = watcher; watchLeases[id] = lease; watchPending.insert(id)
+                watchers[id] = watcher; watchPending.insert(id)
             } catch { watchErrors[folder.id] = (error as? FSError)?.code ?? "WatchReauthorize" }
         }
+        if renewed { saveWatches() }
     }
     func addWatch(_ url: URL) {
         guard productAccess == .pro, !busy, plan == nil else { message = "ProRequired"; return }
@@ -678,7 +808,7 @@ import NameFixApplication
         guard productAccess == .pro, !busy, plan == nil, result == nil, let folder = watches.folders.first(where: { $0.id == id }) else { message = "BusyDropRejected"; return }
         guard watchErrors[id] != "WatchReauthorize" else { message = "WatchReauthorize"; return }
         // Snapshot the folder and rules now; later events only enter the pending set.
-        watchPending.remove(id); activeWatchID = id; pipeline = folder.pipeline; workbenchDraft = folder.pipeline; markWorkbenchPreviewApplied(); changeSettings { $0.workbenchEnabled = true }; roots = [RawPath(folder.path)]; sheet = nil; scan()
+        watchPending.remove(id); activeWatchID = id; pipeline = folder.pipeline; workbenchDraft = folder.pipeline; markWorkbenchPreviewApplied(); changeSettings { $0.workbenchEnabled = true }; roots = [watchGrants[id] ?? RawPath(folder.path)]; sheet = nil; scan()
     }
     func diagnostics() {
         var report: [String: Any] = ["version": AppInfo.version, "build": AppInfo.build, "architecture": "arm64", "os": ProcessInfo.processInfo.operatingSystemVersionString, "counts": counts, "history": history.map { ["id": $0.id.uuidString, "status": $0.status, "succeeded": String($0.succeeded), "failed": String($0.failed)] }, "theme": settings.theme, "language": settings.language, "masked": maskPaths]

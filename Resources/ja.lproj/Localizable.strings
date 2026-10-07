@@ -28,6 +28,7 @@
 "AdvTargets" = "変更する対象";
 "Advanced" = "文字コードの詳細";
 "All" = "すべて";
+"AllowFolder" = "このフォルダを選択";
 "Ambiguous" = "手動確認が必要";
 "AppTagline" = "AILO WORKSがつくるMac用ファイル名整理ツール";
 "BasicExample" = "基本の例";
@@ -45,8 +46,10 @@
 "ChangeHelp" = "ファイルが壊れているわけではありません。分かれて保存されている文字を1文字にまとめられます。ファイルの内容は変わりません。";
 "CharacterCount" = "文字数: {0}";
 "CharacterPosition" = "{0}文字目";
+"CheckForUpdates" = "アップデートを確認";
 "ChooseField" = "情報を選択";
 "ChooseFiles" = "ファイルを選択";
+"ChooseFolderToAllow" = "フォルダを選択…";
 "ChooseFolders" = "フォルダを選択";
 "ClearAfterRun" = "完了後に選択を解除";
 "ClearAll" = "すべての選択を解除";
@@ -142,6 +145,9 @@
 "Filter" = "絞り込み";
 "FinalRenamed" = "新しい名前に変更済み";
 "FinderServiceTitle" = "NameFixでファイル名をスキャン";
+"FolderAccessMessage" = "「{0}」フォルダを選択すると、その中の名前を確認して変更できます。ファイルの内容は変更しません。";
+"FolderAccessNeeded" = "この項目の名前を確認して変更するには、項目が入っているフォルダを選択してください。macOSでは、選択したフォルダの中でのみ、アプリが名前を変更できます。";
+"FolderAccessNeededShort" = "フォルダの選択が必要です";
 "FolderAccessPurpose" = "選択したファイルとフォルダの名前だけをスキャンし、変更します。";
 "FolderExcluded" = "フォルダ名は、デフォルトでは一括変更の対象外です。「ルールを追加」>「詳細」>「変更する対象」で「フォルダ名も変更」をオンにできます。";
 "FolderWatch" = "フォルダを監視";
@@ -375,6 +381,7 @@
 "ResultCancelled" = "処理を停止しました。すでに完了した変更は履歴に残ります。";
 "ResultSummary" = "成功 {0} · スキップ {1} · エラー {2}";
 "RolledBack" = "復元済み";
+"RootNameExcluded" = "追加したフォルダ自体の名前はここでは変更しません。中の項目はスキャンします。このフォルダの名前も変更するには、1つ上のフォルダを追加してください。";
 "RuleAccents" = "アクセント記号を削除";
 "RuleBudgetExceeded" = "このルールの処理上限を超えました。パターンや入力を短くしてください。";
 "RuleBudgetExceededShort" = "ルールの処理上限を超過";
@@ -485,7 +492,10 @@
 "UndoAvailable" = "変更した名前は、履歴から元に戻せます。";
 "UndoConfirm" = "{0}件を元の名前に戻します。戻せない{1}件は除外します。名前が競合する項目や、操作のあとに置き換えまたは移動された項目が該当します。";
 "UndoConfirmOne" = "1件を元の名前に戻します。戻せない{1}件は除外します。名前が競合する項目や、操作のあとに置き換えまたは移動された項目が該当します。";
+"UndoFolderMessage" = "この操作を元に戻すには、「{0}」フォルダをもう一度選択してください。";
 "UndoLatest" = "直前の操作を元に戻す…";
+"UndoNeedsFolder" = "この操作を元に戻すには、フォルダをもう一度選択する必要があります。履歴で「元に戻す」をもう一度選ぶと、フォルダを選択できます。";
+"UndoNeedsFolderShort" = "元に戻すにはフォルダの再選択が必要です";
 "UndoNow" = "この操作を元に戻す";
 "Unsupported" = "— 非対応の項目";
 "UseMapping" = "リストを適用";

@@ -29,7 +29,7 @@ struct CharacterPresentation: Sendable {
         return zip(original, proposed).enumerated().map { index, pair in CharacterUnit(id: index, original: String(pair.0), composed: String(pair.1)) }.filter(\.changed)
     }
     static func statusKey(_ status: EntryStatus, name: String, reason: String? = nil) -> String {
-        if reason == "FolderExcluded" || reason == "HiddenExcluded" { return "NotTarget" }
+        if reason == "FolderExcluded" || reason == "HiddenExcluded" || reason == "RootNameExcluded" || reason == "VolumeRootExcluded" { return "NotTarget" }
         // The place the item is in, not the item, is why it is left alone.
         if status == .unsupported, let reason {
             if reason == "VolumeReadOnly" { return "StatusReadOnly" }

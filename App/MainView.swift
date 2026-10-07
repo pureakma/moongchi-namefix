@@ -354,7 +354,7 @@ struct StatusLine: View {
     let palette: Palette
     var showsCounts = true
     @State private var showsNotice = false
-    private static let informational: Set<String> = Set(["Exported", "RecipeSaved", "QueuedInputs", "CancelBeforeClose"]).union(VolumeSupport.locationReasons)
+    private static let informational: Set<String> = Set(["Exported", "RecipeSaved", "QueuedInputs", "CancelBeforeClose", "FolderAccessNeeded", "UndoNeedsFolder"]).union(VolumeSupport.locationReasons)
     var body: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: Metrics.gap) { parts }
@@ -380,7 +380,10 @@ struct StatusLine: View {
                 Button { showsNotice = true } label: { Text(model.notice(message)).lineLimit(1).truncationMode(.tail).contentShape(Rectangle()) }
                     .buttonStyle(.plain).help(model.t(message)).accessibilityLabel(model.t(message))
                     .popover(isPresented: $showsNotice, arrowEdge: .top) {
-                        Text(model.t(message)).textSelection(.enabled).fixedSize(horizontal: false, vertical: true).padding(14).frame(width: 340, alignment: .leading)
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text(model.t(message)).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
+                            if message == "FolderAccessNeeded" { Button(model.t("ChooseFolderToAllow")) { showsNotice = false; model.requestFolderForLooseItems() } }
+                        }.padding(14).frame(width: 340, alignment: .leading)
                     }
                 Button { model.message = nil } label: { Image(systemName: "xmark").font(.caption) }.buttonStyle(.plain).foregroundStyle(palette.secondary)
                     .hoverTip(model.t("Close"), below: false).accessibilityLabel(model.t("Close"))
