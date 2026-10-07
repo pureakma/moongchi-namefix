@@ -4,8 +4,8 @@
 ## 지금
 - 단계: STORE RELEASE PHASE 1 완료 — HUMAN_ACTION_REQUIRED. 현재 source 1.0.0 build 6이 최종 Gate를 통과했고 archive preflight까지 됐다. 남은 것은 Apple 계정에서 사용자가 할 일이다. 출시 보류. 스토어용 서명·업로드·심사 제출은 하지 않았다
 - 현재 Task: 없음 (다음 Task는 사용자 승인 대기)
-- 다음: 사용자가 Xcode Organizer에서 archive를 Distribute App › App Store Connect로 서명·내보내기 한다(명령줄 export는 계정 단계에서 멈춘다) → App Store Connect 앱 기록 생성(지금 0개) → 업로드·제출 단계
-- 위험·막힘: 확인된 P0·P1 없음. App ID와 App Store Connect 앱 기록의 상태는 로그인 없이 읽을 수 없어 미확인(T-007). D-003의 비협조 writer source-race 알려진 제한
+- 다음: 사용자의 개발자 계정 전환(개인 → 조직)이 끝나기를 기다린다. 끝나면 Xcode에 다시 로그인하고 Organizer에서 Distribute App › Custom › App Store Connect › Export로 서명·내보내기 → App Store Connect 앱 기록 생성(지금 0개) → 업로드·제출 단계
+- 위험·막힘: 확인된 P0·P1 없음. 스토어용 서명이 ‘No Account for Team’으로 멈춘다(명령줄과 Xcode 둘 다). 사용자가 개인 계정을 조직 계정으로 전환 신청 중이며 그것이 원인일 가능성이 높다(미확인). 전환 뒤 Team ID와 판매자 이름을 확인해야 한다(T-007). D-003의 비협조 writer source-race 알려진 제한
 - 검증 대기: 제품 blocker는 없다. 추가 확인으로 남긴 것(실제로 하지 않았고 PASS로 적지 않음): 스토어 build에서 폴더 선택 창을 사람이 직접 누르는 것(‘상위 폴더 선택…’ 포함), 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인. 상세는 docs/QA.md
 - 마지막 갱신: 2026-10-07
 <!-- HOT:END -->
@@ -65,8 +65,8 @@ Global Product Hardening Phase 1·2, 최종 QA, 그리고 공개 배포를 Mac A
 ### T-007 Mac App Store 제출 [onHold]
 - 근원: R-010
 - 범위: AppStore 구성의 자동 서명 archive(D-039), App Store Connect 기록·메타데이터·스크린샷·App Privacy 입력, 업로드와 심사 제출. sandbox 구성과 권한 흐름은 T-009에서 끝났고 스토어 문구는 marketing/appstore.json에 있다.
-- 사유: 사용자 조작이 필요하다. Xcode 계정 로그인 확인, App Store Connect 약관 확인, 앱 기록 생성. 자동 서명 archive는 개발자 계정에 App ID와 profile을 만들므로 사용자가 요청할 때만 실행한다(D-039). 배포 인증서를 따로 만들 필요는 없다. 출시 자체도 보류 중이다(D-026).
-- 조건: 사용자가 docs/RELEASE.md ‘Mac App Store 제출’의 순서대로 진행하고 서명 archive를 요청한다. 제품 쪽 준비는 Store Release Phase 1 Gate에서 끝났다(QA.md).
+- 사유: 사용자의 개발자 계정이 개인에서 조직으로 전환 중이다(2026-10-07 신청). 그동안 Xcode의 자동 서명이 ‘No Account for Team’으로 멈추고, 판매자 이름도 전환 뒤에 확정된다. App Store Connect 앱 기록은 아직 없다. 출시 자체도 보류 중이다(D-026).
+- 조건: 계정 전환이 끝나고 사용자가 docs/RELEASE.md ‘Mac App Store 제출’의 순서대로 진행한다. 제품 쪽 준비는 Store Release Phase 1 Gate에서 끝났다(QA.md).
 
 ## 현재 상태 요약
 
