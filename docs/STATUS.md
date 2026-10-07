@@ -4,7 +4,7 @@
 ## 지금
 - 단계: STORE RELEASE PHASE 1 완료 — HUMAN_ACTION_REQUIRED. 현재 source 1.0.0 build 6이 최종 Gate를 통과했고 archive preflight까지 됐다. 남은 것은 Apple 계정에서 사용자가 할 일이다. 출시 보류. 스토어용 서명·업로드·심사 제출은 하지 않았다
 - 현재 Task: 없음 (다음 Task는 사용자 승인 대기)
-- 다음: 사용자가 docs/RELEASE.md ‘Mac App Store 제출’의 1~2(Xcode 계정 로그인 확인, 약관 확인)를 하고 “서명 archive 진행”을 말하면 자동 서명 archive(D-039) → 사용자가 App Store Connect 앱 기록 생성 → 업로드·제출 단계
+- 다음: 사용자가 Xcode › Settings › Accounts에 Apple 계정을 로그인한다(지금은 로그인된 계정이 없어 서명 export가 멈췄다) → “서명 archive 진행” → 자동 서명 archive와 export(D-039) → 사용자가 App Store Connect 앱 기록 생성 → 업로드·제출 단계
 - 위험·막힘: 확인된 P0·P1 없음. App ID와 App Store Connect 앱 기록의 상태는 로그인 없이 읽을 수 없어 미확인(T-007). D-003의 비협조 writer source-race 알려진 제한
 - 검증 대기: 제품 blocker는 없다. 추가 확인으로 남긴 것(실제로 하지 않았고 PASS로 적지 않음): 스토어 build에서 폴더 선택 창을 사람이 직접 누르는 것(‘상위 폴더 선택…’ 포함), 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인. 상세는 docs/QA.md
 - 마지막 갱신: 2026-10-07

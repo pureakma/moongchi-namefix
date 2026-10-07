@@ -41,7 +41,7 @@ Final User QA Session(T-010)의 판정은 USER_QA_COMPLETE_WITH_EXTERNAL_PENDING
 - Developer ID Application: AVAILABLE (과거 직접 배포용, 지금은 쓰지 않음)
 - Apple Distribution / Mac App Distribution / Mac Installer Distribution: MISSING — 자동 서명에서는 필요 없다
 - com.ailoworks.namefix의 provisioning profile: MISSING — 자동 서명이 만든다
-- Xcode 계정: 팀 25373G7846(개인) 등록됨. 로그인이 지금 유효한지는 확인하지 못했다
+- Xcode 계정: MISSING — 팀 25373G7846은 기억돼 있지만 로그인된 Apple 계정이 없다. 2026-10-07에 eng/archive-store.sh --signed를 실행하니 archive는 됐고(로컬의 Apple Development 서명) export가 ‘No Account for Team’으로 멈췄다. 개발자 계정에는 아무것도 만들어지지 않았다
 - App ID와 App Store Connect 앱 기록: 로그인 없이는 읽을 수 없어 확인하지 못했다
 
 사용자가 해야 하는 일(순서대로):
