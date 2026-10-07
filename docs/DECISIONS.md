@@ -132,7 +132,7 @@
 
 ### D-027 이름을 바꾸는 범위는 로컬 writable APFS(내장·외장), 그 밖은 이유와 함께 그대로 둔다 [accepted]
 - 날짜: 2026-10-07
-- 결정: 지원 수준을 supported / previewOnly / unsupported로 나누고 FS.support 하나가 판정한다. 외장 APFS는 일회용 volume의 모든 계약을 통과해 supported다(실제 장치 확인은 EXTERNAL_APFS_HARDWARE_QA_PENDING). 읽기 전용 APFS는 previewOnly. exFAT·FAT는 unsupported다(macOS가 저장된 이름을 분리형으로만 보여 줘 저장된 spelling을 관찰할 수 없고, exFAT은 덮어쓰지 않는 rename이 없으며 identity가 불안정하다). HFS+, 네트워크, 그 밖의 형식, cloud 동기화 위치는 mutation하지 않는다. 지원 밖의 위치는 앱이 실패하지 않고 위치 때문임을 알린다. 형식별 근거는 FILESYSTEM_CAPABILITIES.md가 원본이다.
+- 결정: 지원 수준을 supported / previewOnly / unsupported로 나누고 FS.support 하나가 판정한다. 외장 APFS는 일회용 volume의 모든 계약을 통과해 supported다(실제 외장 USB APFS 디스크에서의 확인은 QA.md R5, 케이블 분리는 미확인). 읽기 전용 APFS는 previewOnly. exFAT·FAT는 unsupported다(macOS가 저장된 이름을 분리형으로만 보여 줘 저장된 spelling을 관찰할 수 없고, exFAT은 덮어쓰지 않는 rename이 없으며 identity가 불안정하다). HFS+, 네트워크, 그 밖의 형식, cloud 동기화 위치는 mutation하지 않는다. 지원 밖의 위치는 앱이 실패하지 않고 위치 때문임을 알린다. 형식별 근거는 FILESYSTEM_CAPABILITIES.md가 원본이다.
 - 이유: 문서는 ‘내장 디스크만’이라고 했지만 코드는 로컬 writable APFS 전체를 허용하고 있었다. 실험으로 계약을 확정해 코드·화면·문서를 맞췄다. 경쟁력을 이유로 계약을 통과하지 못한 형식을 올리지 않는다.
 
 ### D-028 작업 기록에 volume UUID를 남기고 다시 연결한 volume을 UUID로 확인한다 [accepted]

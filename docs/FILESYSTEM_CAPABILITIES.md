@@ -41,7 +41,7 @@ APFS 두 종류에서 통과하는 계약(2026-10-07, macOS 27.0.1):
 
 대소문자 구분 volume에서는 대소문자만 다른 이름이 서로 다른 이름이라 충돌이 아니고, 미구분 volume에서는 충돌이다. 합침형과 분리형은 두 종류 모두에서 같은 이름이다(둘이 함께 존재할 수 없다). 계획의 중복 대상 판정은 두 종류 모두에서 대소문자를 무시해 보수적으로 제외한다.
 
-disk image는 macOS에 External·Removable volume으로 보이지만 실제 외장 장치는 아니다. 실제 외장 APFS 장치에서의 확인은 EXTERNAL_APFS_HARDWARE_QA_PENDING이다(전원·케이블 분리 timing, 장치별 flush 동작은 image로 재현되지 않는다).
+disk image는 macOS에 External·Removable volume으로 보이지만 실제 외장 장치는 아니다. 실제 외장 USB APFS 디스크에서는 2026-10-07에 두 에디션으로 이름 정리 → unmount → 다시 mount → 되돌리기와 읽기 전용 mount를 확인했다(QA.md R5). 케이블을 실제로 뽑는 것(작업 중 포함)과 장치별 flush 동작은 확인하지 않았다.
 
 ## volume identity와 다시 연결
 
@@ -136,7 +136,7 @@ Undo와 Recovery는 전체 작업 기록으로 현재 경로를 추적한다. �
 - Finder Services/Dock/Open With
 - 실제 process kill/전원 차단의 모든 timing
 - macOS 14 실제 하한 OS
-- 실제 외장 APFS 장치(EXTERNAL_APFS_HARDWARE_QA_PENDING), SMB/cloud 환경에서의 안내 문구
+- 실제 외장 장치에서 케이블을 뽑는 것(작업 중 포함), 네트워크 드라이브·iCloud Drive 환경에서의 안내 문구
 - 깨끗한 Mac에서 서명·공증 패키지
 
 현재 대기 항목은 QA.md가 원본이다.

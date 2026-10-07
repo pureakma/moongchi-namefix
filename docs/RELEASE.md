@@ -56,13 +56,15 @@ SUPERSEDED_FOR_PUBLIC_RELEASE (2026-10-07, D-026). 아래 build 5 산출물은 �
 
 ## Release Candidate 진입 조건
 
-Final QA Gate(T-010, 2026-10-07)의 판정은 NEEDS_USER_QA다. 자동 검증에서 P0·P1은 없고 build 6을 유지한다. 다음이 끝나면 Release Candidate 단계로 간다.
+Final User QA Session(T-010, 2026-10-07)이 끝났다. 판정은 USER_QA_COMPLETE_WITH_EXTERNAL_PENDING이고 P0·P1은 없다. build 6을 유지한다. Release Candidate 단계에 들어갈 수 있으며, 사용자가 승인하기 전에는 후보를 만들지 않는다.
 
-1. 사용자가 QA.md의 R1~R7을 확인한다. R2(스토어판에서 폴더 선택 창을 눌러 받는 권한)가 가장 먼저다.
-2. 사용자가 Release Candidate 단계를 승인한다. 그때 build 번호를 정하고(지금은 6), 직접 배포판은 아래 ‘순서’대로 후보·서명·공증을, 스토어판은 ‘Mac App Store 트랙’의 외부 입력을 준비해 archive·업로드를 한다.
-3. 서명된 후보로 깨끗한 Mac 설치와 macOS 14 장비 확인을 한다.
+1. 사용자가 Release Candidate Phase를 승인한다. 그때 build 번호를 정하고(지금은 6), 직접 배포판은 아래 ‘순서’대로 후보·서명·공증을, 스토어판은 ‘Mac App Store 트랙’의 외부 입력을 준비해 archive·업로드를 한다.
+2. 후보를 만들기 전에 현재 source로 통합 Gate를 다시 실행한다(스토어 구성의 실제 실행 12개 포함. QA.md).
+3. 서명된 후보로 깨끗한 Mac 설치와 실제 macOS 14 Apple Silicon 장비 확인을 한다. 이 둘은 서명된 후보가 있어야 할 수 있다.
 
-이 Gate에서는 후보 생성, Developer ID 서명, 공증, 스토어 서명·업로드·제출을 하지 않았다.
+추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인. 출시 전에 할지 뒤로 미룰지는 사용자가 정한다. 항목별 상태는 QA.md의 R5·R6·R7.
+
+지금까지 후보 생성, Developer ID 서명, 공증, DMG 생성, 스토어 서명·업로드·제출은 하지 않았다.
 
 ## Mac App Store 트랙
 

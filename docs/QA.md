@@ -14,9 +14,13 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 ## 현재 source의 Engineering Verification 상태
 
-현재 판정: NEEDS_USER_QA (2026-10-07, Final QA / Release Candidate Gate, T-010). 자동으로 확인할 수 있는 범위에서 P0·P1은 없다. 스토어판에서 창을 눌러 받는 권한 흐름과 실제 장치·VoiceOver는 사람만 확인할 수 있어 아래 ‘User QA’의 일곱 가지가 남았다. 영수증은 .ai/validation-cache.json의 MAC-FINAL-RC-GATE-20261007, 로컬 evidence는 artifacts/evidence/final-rc다.
+현재 판정: USER_QA_COMPLETE_WITH_EXTERNAL_PENDING (2026-10-07, Final User QA Session, T-010). P0 0건, P1 0건, P2 2건은 의도적으로 남겼다. R1~R4는 사용자 PASS, R5·R7은 PARTIAL, R6은 사용자 결정으로 AI 전체 검수로 대체했다(원어민 확인 아님). 항목별 결과와 세션에서 고친 것은 아래 ‘User QA’의 ‘남은 확인 일곱 가지’에 있다. Release Candidate 단계에 들어갈 수 있고, 사용자가 승인하기 전에는 후보를 만들지 않는다. 세션 뒤 source의 영수증은 .ai/validation-cache.json의 MAC-USER-QA-SESSION-20261007(로컬 evidence artifacts/evidence/user-qa)이다.
 
-이 Gate에서 제품 source는 바뀌지 않았다. 바뀐 것은 Debug 전용 확인 코드(App/SandboxFixtures.swift)와 eng/test-sandbox.py뿐이며 Release·AppStore binary에는 들어가지 않는다(probe 문자열 0건). 그래서 volume matrix, CLI, 대표 화면 render, 성능 수치는 아래 Phase 2 Gate의 결과를 그대로 쓴다.
+추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인.
+
+아래 표는 세션 직전의 Final QA / Release Candidate Gate(2026-10-07) 결과다. 그때의 판정은 NEEDS_USER_QA였고 영수증은 MAC-FINAL-RC-GATE-20261007, 로컬 evidence는 artifacts/evidence/final-rc다. 세션에서 제품 source가 바뀌었으므로(결과 목록, 빠른 기록 D-036, 일괄 변경 안내, 문구) 세션 뒤에 다시 실행한 것은 MAC-USER-QA-SESSION-20261007의 범위가 현재 값이다. 스토어 구성의 실제 실행 12개 전체는 세션 뒤에 다시 돌리지 않았고 Release Candidate 단계의 통합 Gate에서 다시 실행한다.
+
+이 Gate(세션 직전)에서는 제품 source가 바뀌지 않았다. 바뀐 것은 Debug 전용 확인 코드(App/SandboxFixtures.swift)와 eng/test-sandbox.py뿐이며 Release·AppStore binary에는 들어가지 않는다(probe 문자열 0건). 그래서 volume matrix, CLI, 대표 화면 render, 성능 수치는 아래 Phase 2 Gate의 결과를 그대로 쓴다.
 
 | 항목 | 명령 | 결과 |
 |---|---|---|
@@ -108,7 +112,7 @@ sandbox 때문에 계산이 느려진 곳은 없다. 차이는 폴더를 열 때
 volume별 성능(Debug, 같은 장비): 내장 APFS와 일회용 APFS image에서 1,000개 scan 0.064초 / 0.064초, 계획 0.146 / 0.180초, 이름 변경 30.7 / 29.0초, Undo 계획 4.6 / 6.0초, Undo 30.3 / 30.3초. 작업 기록은 앱과 같이 내장 디스크에 둔 구성이다. 이름 변경 시간은 항목마다 journal과 폴더를 fsync하는 비용이며 기존 기준선(1,000건 약 31초)과 같다. 성능을 위해 identity 확인·no-replace·journal·fsync를 줄이지 않았다. exFAT·FAT는 지원하지 않으므로 측정하지 않았다.
 
 이 Phase에서 확인한 내용:
-- 외장 APFS: 일회용 image에서 모든 계약 PASS → 지원(D-027). 실제 외장 장치 확인은 EXTERNAL_APFS_HARDWARE_QA_PENDING.
+- 외장 APFS: 일회용 image에서 모든 계약 PASS → 지원(D-027). 실제 외장 USB APFS 디스크는 2026-10-07 User QA에서 확인했다(R5). 작업 중 케이블을 실제로 뽑는 것은 하지 않았다.
 - 다시 연결: device 번호가 바뀌어도 같은 volume이면 Undo가 byte 단위로 복원하고, 다른 디스크는 거부한다(D-028).
 - exFAT·FAT: UNSUPPORTED(D-027, FILESYSTEM_CAPABILITIES.md의 실험).
 - 글로벌 Unicode: Core test 29개(한글·라틴·가나·그리스·키릴 합치기, 혼합, emoji·ZWJ·피부색·variation selector·BMP 밖, 호환 형태 미적용, 이체자 한자 보존(D-031), 잘못된 UTF-8, grapheme 단위 자르기)와 volume 위 왕복 test.
@@ -323,7 +327,7 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 
 실제 업무 원본이 아닌 복사본 폴더에서 진행한다. 결과는 사용자가 말한 PASS/FAIL을 그대로 기록하고, 실패가 제품 수정의 근원이 되면 STATUS에 bug Task로 올린다. 이전의 화면 S1~S5와 U01~U30은 이 일곱 가지로 묶었다(괄호 안이 묶인 번호). 위에서 사용자가 PASS한 F1~F5, Q1~Q5와 title bar band drag는 그 뒤 해당 화면 source가 바뀌지 않아 다시 묻지 않는다.
 
-사용자 QA 세션(2026-10-07) 진행 중. R2부터 시작했다. 사용자는 준비한 폴더를 찾지 못해 직접 만든 시험 파일로 진행했고 “qa는 모두 정상”이라고 알린 뒤 세 가지를 말했다. 아래 표의 R2만 PASS로 적었고, 나머지는 수정한 build로 이어서 확인한다.
+사용자 QA 세션(2026-10-07)은 끝났다. 판정 USER_QA_COMPLETE_WITH_EXTERNAL_PENDING. R2부터 시작했고, 사용자는 준비한 폴더를 처음에 찾지 못해 직접 만든 시험 파일로 진행했다. 아래 첫 표는 세션에서 사용자가 말한 것과 그 처리, 둘째 표는 R1~R7의 결과다.
 
 | 사용자가 말한 것 | 분류 | 처리 |
 |---|---|---|
@@ -348,7 +352,7 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 | R2 | 스토어판의 권한 흐름: ‘폴더 추가’ 창으로 폴더 선택 → 정리 → 앱 종료 → 다시 실행 → 작업 기록에서 되돌리기. 파일 하나만 끌어다 놓았을 때 뜨는 폴더 선택 창, 취소했을 때의 ‘폴더 선택 필요’ 안내와 다시 고르기. 추가한 폴더 자체가 ‘대상 아님’으로 나올 때 안내가 이해되는지 (U08, U26, U27) | PASS (사용자, 2026-10-07, 직접 만든 시험 파일로 진행) |
 | R3 | macOS 연동, 두 에디션 모두: Finder의 다음으로 열기와 서비스 메뉴, Dock·메뉴 막대 아이콘에 끌어다 놓기, 로그인 시 열기, 완료 알림의 허용·거절, 결과 CSV 저장, 설정의 문의 버튼(메일). 직접 배포판 앱 메뉴의 ‘업데이트 확인…’이 브라우저로 제품 페이지를 열고 스토어판에는 없는지 (U12, U19, U29, U30) | PASS, 남은 P2 2건 (사용자, 2026-10-07: Dock에 놓기·서비스 메뉴·메뉴 막대 표시·로그인 시 열기·알림·CSV 저장·문의 메일·업데이트 확인 정상. 메뉴 막대에 끌어다 놓기와 ‘다음으로 열기’는 위 표의 P2) |
 | R4 | 오래 쓰는 기능: 즐겨찾기·최근 폴더·폴더 감시가 재실행, 잠자기·깨우기 뒤에도 이어지는지, 폴더를 옮기거나 지웠을 때 ‘다시 선택’이 나오는지. 작업 중 취소, 강제 종료 뒤 다시 열었을 때의 복구 안내, 다른 앱이 같은 파일을 건드릴 때의 중단 안내 (U09, U28) | PASS (사용자, 2026-10-07: 즐겨찾기·최근 폴더·폴더 감시의 재실행, 잠자기, 폴더 이동 뒤 ‘다시 선택’, 작업 중 취소, 강제 종료 뒤 복구를 안내한 일곱 단계로 진행하고 “모두 완료 정상”) |
-| R5 | 실제 디스크: 외장 APFS 드라이브에서 정리 → 꺼내기 → 다시 연결 → 되돌리기, 작업 중 케이블을 뽑았을 때. exFAT·FAT USB, 네트워크 드라이브, iCloud Drive 폴더, 읽기 전용 디스크를 넣었을 때 안내가 이해되고 아무것도 바뀌지 않는지 (U21, U22, EXTERNAL_APFS_HARDWARE_QA_PENDING) | PARTIAL (2026-10-07). 사용자가 외장 디스크 ‘HDD 1TB’(USB, APFS)와 USB ‘무제’(exFAT)를 시험용으로 지정하고 AI에게 직접 진행하라고 했다. AI가 실제 앱으로 실행한 결과(Engineering Verification, evidence artifacts/evidence/user-qa/hardware-*.txt): 외장 APFS에서 두 에디션 모두 이름 4개 정리 → volume unmount → 다시 mount → 되돌리기, 이름이 byte 단위로 처음과 같음. exFAT USB에서 두 에디션 모두 나열·안내만 하고 제안 0, 변경 0. 시험 폴더는 지웠다. 같은 외장 디스크를 읽기 전용으로 mount했을 때도 두 에디션 모두 나열·안내만 하고 계획 0, 변경 0(hardware-readonly.txt). 하지 않은 것: 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive. 이 셋은 AI가 만들 수 없는 환경이라 PASS로 적지 않는다 |
+| R5 | 실제 디스크: 외장 APFS 드라이브에서 정리 → 꺼내기 → 다시 연결 → 되돌리기, 작업 중 케이블을 뽑았을 때. exFAT·FAT USB, 네트워크 드라이브, iCloud Drive 폴더, 읽기 전용 디스크를 넣었을 때 안내가 이해되고 아무것도 바뀌지 않는지 (U21, U22) | PARTIAL (2026-10-07). 사용자가 외장 디스크 ‘HDD 1TB’(USB, APFS)와 USB ‘무제’(exFAT)를 시험용으로 지정하고 AI에게 직접 진행하라고 했다. AI가 실제 앱으로 실행한 결과(Engineering Verification, evidence artifacts/evidence/user-qa/hardware-*.txt): 외장 APFS에서 두 에디션 모두 이름 4개 정리 → volume unmount → 다시 mount → 되돌리기, 이름이 byte 단위로 처음과 같음. exFAT USB에서 두 에디션 모두 나열·안내만 하고 제안 0, 변경 0. 시험 폴더는 지웠다. 같은 외장 디스크를 읽기 전용으로 mount했을 때도 두 에디션 모두 나열·안내만 하고 계획 0, 변경 0(hardware-readonly.txt). 하지 않은 것: 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive. 이 셋은 AI가 만들 수 없는 환경이라 PASS로 적지 않는다 |
 | R6 | 언어: 한국어·영어·일본어 화면(첫 화면, 소개, 사용 방법, 설정, 확인 창, 오류·지원하지 않는 드라이브·폴더 선택 안내)이 그 언어 사용자에게 자연스러운지. ‘Windows에서 쓸 수 없는 이름’ 안내, 일본어 이름의 옛 글자체 한자(神, 隆 등)가 그대로인지, 스토어 문구와 화면 15장 (U02, U20, U23~U25) | AI 검수로 대체 (2026-10-07, 사용자 결정: “일본어·영어는 판단하기 어렵다, 현지에서 쓰는 단어로 검수해서 통과시켜라”). 앱 문자열 563개 × 영어·일본어와 스토어 문구를 한국어 원문과 대조해 전부 읽고 영어 32건, 일본어 54건, 스토어 문구 15곳을 고쳤다(주로 원문에 있는 해결 방법 안내가 빠진 문장, 용어 불일치, 표기 통일). 고친 뒤 화면 231장 render와 스토어 화면 15장을 다시 만들었다. 옛 글자체 한자는 실제 앱 실행에서 5자가 byte 그대로 남는 것을 확인. 원어민이 본 것은 아니다 |
 | R7 | 접근성과 큰 목록: VoiceOver로 목록·버튼·상태 읽기, 키보드만으로 조작(Tab, Space, 단축키, 확인 창의 Return·Esc), 대비 증가·큰 글자. 약 100,000개 목록의 검사·스크롤·검색·취소 (U05, U06, U10) | PARTIAL (2026-10-07). 큰 목록은 AI가 실제 앱으로 측정(eng/test-sandbox.py --large, 100,001줄): 검색 0.77초, 필터 0.16초, 목록 전체 다시 그리기 0.05초, 스크롤 한 단계 중앙값 8ms(3,000단계 중 16ms 초과 14회). 사용자는 1,200개 목록의 스크롤과 일괄 변경의 Tab 이동을 직접 확인했다. 하지 않은 것: VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작 |
 
