@@ -631,7 +631,9 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
                 phase = ""; result = summary; transactionFinished?(summary)
                 if settings.diagnostics { do { try await diagnosticLog.record(code: summary.status, transaction: summary.id, count: summary.succeeded) } catch { message = "DiagnosticsError" } }
                 await reloadHistory()
-                scan(clearSelection: settings.clearSelectionAfterRun)
+                // "Clear selection when done" is about a finished rename. After an undo or a recovery the names
+                // need fixing again, and they come back selected, as they were when first scanned.
+                scan(clearSelection: settings.clearSelectionAfterRun && plan.mode == "rename")
             } catch { self?.phase = ""; self?.message = (error as? FSError)?.code ?? "OperationError"; await self?.reloadHistory() }
         }
     }

@@ -212,6 +212,11 @@ import NameFixApplication
             facts["hasWindow"] = window != nil; facts["windowTitle"] = window?.title ?? ""
             facts["entries"] = model.entries.count; facts["fixable"] = model.entries.filter { $0.status.fixable }.count
             facts["toolbarItems"] = window?.toolbar?.items.count ?? 0
+            // The list shows what the model selected: ticked boxes on screen against the selection.
+            func boxes(_ view: NSView) -> [CheckCell] { (view as? CheckCell).map { [$0] } ?? view.subviews.flatMap(boxes) }
+            try? await Task.sleep(for: .milliseconds(600))
+            let shown = window?.contentView.map(boxes) ?? []
+            facts["selected"] = model.selected.count; facts["ticked"] = shown.filter { $0.box.state == .on }.count; facts["boxes"] = shown.count
             let all = model.visible.count
             model.filter = "WindowsNames"; _ = await settle(model) { model.visible.count != all }
             facts["windowsFilter"] = model.visible.map(\.name).sorted()
@@ -222,6 +227,7 @@ import NameFixApplication
             model.execute(); _ = await settle(model) { model.result != nil }
             try? await Task.sleep(for: .milliseconds(900))
             facts["resultSheet"] = window?.attachedSheet != nil; facts["renamed"] = model.result?.succeeded ?? 0
+            facts["selectedAfterRename"] = model.selected.count
             model.dismissResult(); _ = await settle(model) { !model.history.isEmpty }
             try? await Task.sleep(for: .milliseconds(700))
             model.present("history"); try? await Task.sleep(for: .milliseconds(900))
@@ -239,6 +245,10 @@ import NameFixApplication
                 model.execute(); _ = await settle(model) { model.result != nil }
                 facts["undone"] = model.result?.succeeded ?? 0
                 model.dismissResult(); _ = await settle(model)
+                try? await Task.sleep(for: .seconds(1.5))
+                let after = window?.contentView.map(boxes) ?? []
+                facts["fixableAfterUndo"] = model.entries.filter { $0.status.fixable }.count
+                facts["selectedAfterUndo"] = model.selected.count; facts["tickedAfterUndo"] = after.filter { $0.box.state == .on }.count; facts["enabledAfterUndo"] = after.filter { $0.box.isEnabled }.count
             }
             // What the menus offer in this edition.
             let menus = NSApp.mainMenu?.items ?? []
