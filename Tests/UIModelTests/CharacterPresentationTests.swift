@@ -62,6 +62,8 @@ final class CharacterPresentationTests: XCTestCase {
             XCTAssertEqual(CharacterPresentation.statusKey(.unsupported, name: "한글", reason: reason), "StatusDriveExcluded")
         }
         XCTAssertEqual(CharacterPresentation.statusKey(.unsupported, name: "한글", reason: "LinkedPathHelp"), "Unsupported")
+        XCTAssertEqual(CharacterPresentation.statusKey(.accessDenied, name: "한글", reason: "FolderAccessNeeded"), "StatusFolderNeeded")
+        XCTAssertEqual(CharacterPresentation.statusKey(.accessDenied, name: "한글", reason: "AccessHelp"), "AccessDenied")
         // The folder that was added, or a whole disk: listed, and its own name is simply not a target.
         for reason in ["RootNameExcluded", "VolumeRootExcluded"] { XCTAssertEqual(CharacterPresentation.statusKey(.unsupported, name: "한글", reason: reason), "NotTarget") }
     }

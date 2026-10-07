@@ -12765,6 +12765,29 @@
           }
         }
       }
+    },
+    "StatusFolderNeeded": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— 폴더 선택 필요"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— Folder needed"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— フォルダの選択が必要"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

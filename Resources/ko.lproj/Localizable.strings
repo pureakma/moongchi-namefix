@@ -452,6 +452,7 @@
 "Status" = "상태";
 "StatusCloudExcluded" = "— 동기화 폴더는 제외";
 "StatusDriveExcluded" = "— 이 드라이브는 제외";
+"StatusFolderNeeded" = "— 폴더 선택 필요";
 "StatusReadOnly" = "— 읽기 전용";
 "Stem" = "확장자 제외 이름";
 "SumCount" = "{0}자";

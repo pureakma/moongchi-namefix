@@ -159,6 +159,17 @@ import NameFixRuntime
                     model.selected = []; model.counts["NeededCaption"] = 0; model.message = "VolumeFATUnsupported"
                 }
             }
+            // The store edition before a folder is allowed: the added folder's own row, an item that
+            // needs its folder, and the notice that offers to choose it.
+            let waiting = rows(conflict: false).enumerated().map { index, entry -> FileEntry in
+                var e = entry
+                if e.isDirectory && index == 0 { e.status = .unsupported; e.reason = "RootNameExcluded" }
+                if !e.isDirectory && index % 2 == 1 { e.status = .accessDenied; e.reason = "FolderAccessNeeded" }
+                return e
+            }
+            for (name, size) in [("V-access", wide), ("V-access-narrow", narrow)] {
+                try render("\(name)-\(language)", language: language, theme: "olive", size: size, entries: waiting) { model in model.message = "FolderAccessNeeded" }
+            }
             // One item: the count reads naturally in every language.
             try render("U-single-\(language)", language: language, theme: "olive", size: wide, entries: Array(rows(conflict: false).filter { !$0.isDirectory }.prefix(1)))
             let model = makeModel(language: language, theme: "olive", workbench: false, entries: [], rules: [], applied: true)

@@ -452,6 +452,7 @@
 "Status" = "状態";
 "StatusCloudExcluded" = "— 同期フォルダは対象外";
 "StatusDriveExcluded" = "— このドライブは対象外";
+"StatusFolderNeeded" = "— フォルダの選択が必要";
 "StatusReadOnly" = "— 読み出し専用";
 "Stem" = "拡張子を除く名前";
 "SumCount" = "{0}文字";

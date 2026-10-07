@@ -452,6 +452,7 @@
 "Status" = "Status";
 "StatusCloudExcluded" = "— Cloud folder skipped";
 "StatusDriveExcluded" = "— Drive not supported";
+"StatusFolderNeeded" = "— Folder needed";
 "StatusReadOnly" = "— Read-only";
 "Stem" = "Name without extension";
 "SumCount" = "{0} characters";
