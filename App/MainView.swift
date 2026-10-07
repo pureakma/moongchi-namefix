@@ -183,7 +183,7 @@ struct MainView: View {
                     .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(palette.warning, lineWidth: 1))
                     .contentShape(Rectangle())
             }.buttonStyle(.plain).fixedSize().disabled(model.busy || model.plan != nil)
-                .help(model.t("StaleHelp")).accessibilityLabel(model.t("PreviewStale")).accessibilityHint(model.t("StaleHelp")).accessibilityIdentifier("updatePreview")
+                .hoverTip(model.t("StaleTip")).accessibilityLabel(model.t("PreviewStale")).accessibilityHint(model.t("StaleHelp")).accessibilityIdentifier("updatePreview")
         }
     }
     /// Stand-ins for the sidebar tree while it is hidden (narrow window): the added locations and,
@@ -254,7 +254,7 @@ struct MainView: View {
         }.buttonStyle(.plain).fixedSize().accessibilityLabel(model.t(key) + " " + model.n(count)).accessibilityAddTraits(active ? .isSelected : [])
             // With nothing to show, narrowing the list would only empty it; a chip that is on can always be turned off.
             .disabled(count == 0 && !active)
-            .help(model.t(active ? "SummaryFilterOn" : "SummaryFilterHelp"))
+            .hoverTip(model.t(active ? "SummaryFilterOn" : "SummaryFilterHelp"))
             .accessibilityHint(model.t(active ? "SummaryFilterOn" : "SummaryFilterHelp"))
     }
     private var searchField: some View {

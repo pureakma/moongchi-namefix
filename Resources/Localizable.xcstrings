@@ -12926,6 +12926,29 @@
           }
         }
       }
+    },
+    "StaleTip": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "규칙이 바뀌었습니다. 누르면 바뀐 규칙으로 목록을 다시 계산합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The rules have changed. Click to update the list with them."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルールが変更されています。クリックすると、新しいルールで一覧を更新します。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
