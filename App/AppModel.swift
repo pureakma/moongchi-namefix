@@ -75,7 +75,9 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
     /// list and does not depend on the filter or the search text, so it is kept until either changes.
     private var order: (sort: String, indices: [Int])?
     private var entriesRevision: UInt64 = 0
-    @Published var visible: [FileEntry] = []
+    @Published var visible: [FileEntry] = [] { didSet { visibleRevision &+= 1 } }
+    /// Counts replacements of the visible rows, so the list reloads only when they change.
+    private(set) var visibleRevision: UInt64 = 0
     @Published var selected: Set<UUID> = []
     @Published var focused: UUID?
     @Published var query = "" { didSet { refreshVisible(debounce: true) } }

@@ -410,64 +410,271 @@ struct StatusLine: View {
     }
 }
 
-struct ResultTable: View {
+/// The result list. An AppKit table with cells that draw themselves: a row costs a few
+/// drawing calls, so a long list scrolls without building a view tree for every row.
+struct ResultTable: NSViewRepresentable {
     @ObservedObject var model: AppModel
     let palette: Palette
-    var body: some View {
-        Table(model.visible, selection: $model.focused) {
-            TableColumn("") { entry in
-                Toggle(model.t("SelectedCaption"), isOn: Binding(get: { model.selected.contains(entry.id) }, set: { _ in model.toggle(entry) })).labelsHidden().disabled(!entry.status.fixable || model.busy).accessibilityLabel(model.t("SelectedCaption") + " " + entry.name)
-            }.width(28)
-            TableColumn(model.t("Name")) { entry in
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Image(systemName: entry.isDirectory ? "folder" : "doc").foregroundStyle(palette.secondary).frame(width: 16).help(model.t(entry.isDirectory ? "Directory" : "File")).accessibilityLabel(model.t(entry.isDirectory ? "Directory" : "File"))
-                    NameCompositionCell(entry: entry, preview: false, compact: model.settings.compactRows, palette: palette, language: model.settings.language)
-                }
-            }.width(min: 110, ideal: CGFloat(model.settings.nameColumnRatio * 3), max: .infinity)
-            TableColumn(model.t("Preview")) { entry in NameCompositionCell(entry: entry, preview: true, compact: model.settings.compactRows, palette: palette, language: model.settings.language) }.width(min: 110, ideal: CGFloat((100 - model.settings.nameColumnRatio) * 3), max: .infinity)
-            TableColumn(model.t("Status")) { entry in Text(model.t(CharacterPresentation.statusKey(entry.status, name: entry.name, reason: entry.reason))).font(.caption).foregroundStyle(entry.status.isError || entry.status == .conflict ? palette.warning : palette.secondary).help(model.t(entry.reason)) }.width(min: 90, ideal: 125, max: 170)
+    func makeCoordinator() -> ResultList { ResultList(model: model) }
+    // The scroll view sits in a plain container and takes the size it is offered, so nothing the
+    // table does while scrolling asks SwiftUI to lay the window out again.
+    func makeNSView(context: Context) -> NSView {
+        let box = NSView(), scroll = context.coordinator.build(palette)
+        scroll.frame = box.bounds; scroll.autoresizingMask = [.width, .height]; box.addSubview(scroll)
+        return box
+    }
+    func updateNSView(_ view: NSView, context: Context) { context.coordinator.update(palette) }
+    func sizeThatFits(_ proposal: ProposedViewSize, nsView: NSView, context: Context) -> CGSize? { proposal.replacingUnspecifiedDimensions(by: CGSize(width: 600, height: 400)) }
+}
+
+@MainActor final class ResultList: NSObject, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate {
+    /// Colours and fonts of one theme, resolved once for all cells.
+    struct Look {
+        let text, secondary, preview, warning, control, border: NSColor
+        let compact: Bool
+        let body = NSFont.systemFont(ofSize: NSFont.systemFontSize), caption = NSFont.systemFont(ofSize: 10), chip = NSFont.systemFont(ofSize: 12, weight: .medium)
+        init(_ palette: Palette, compact: Bool) {
+            text = NSColor(palette.text); secondary = NSColor(palette.secondary); preview = NSColor(palette.preview); warning = NSColor(palette.warning)
+            control = NSColor(palette.control); border = NSColor(palette.border); self.compact = compact
         }
-        .alternatingRowBackgrounds(.disabled)
-        .scrollContentBackground(.hidden)
-        // Columns share the available width; a horizontal scroller would only add a bar under the list.
-        .background(NoHorizontalScroller())
-        .background(palette.surface)
-        .contextMenu(forSelectionType: UUID.self) { ids in
-            Button(model.t("InspectShort")) { model.focused = ids.first; model.sheet = "inspector" }
-            Button(model.t("CopyPath")) { if let e = model.entries.first(where: { $0.id == ids.first }) { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(e.path.display, forType: .string) } }
-        } primaryAction: { ids in model.focused = ids.first; model.sheet = "inspector" }
-        .onKeyPress(keys: [.space]) { _ in
-            guard let entry = model.visible.first(where: { $0.id == model.focused }), entry.status.fixable, !model.busy else { return .ignored }
-            model.toggle(entry); return .handled
+        var padding: CGFloat { compact ? 3 : 7 }
+    }
+    private let model: AppModel
+    private let table = KeyTable()
+    private var rows: [FileEntry] = []
+    private var look = Look(Palette("light", systemDark: false), compact: false)
+    private var state: [String] = []
+    private var revision: UInt64 = .max, selected: Set<UUID> = [], busy = false, ratio = -1.0, syncing = false
+    init(model: AppModel) { self.model = model }
+
+    func build(_ palette: Palette) -> NSScrollView {
+        let scroll = NSScrollView()
+        scroll.drawsBackground = false; scroll.hasVerticalScroller = true; scroll.hasHorizontalScroller = false; scroll.horizontalScrollElasticity = .none; scroll.autohidesScrollers = true
+        for (id, width, low, high) in [("check", 28, 28, 28), ("name", 300, 110, 10_000), ("preview", 300, 110, 10_000), ("status", 125, 90, 170)] as [(String, CGFloat, CGFloat, CGFloat)] {
+            let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier(id))
+            column.width = width; column.minWidth = low; column.maxWidth = high
+            column.resizingMask = id == "check" ? [] : id == "status" ? .userResizingMask : [.autoresizingMask, .userResizingMask]
+            table.addTableColumn(column)
         }
-        .onKeyPress(keys: ["a"]) { event in if event.modifiers.contains(.command) { model.select("visible"); return .handled }; return .ignored }
-        .onKeyPress(keys: ["z"]) { event in if event.modifiers.contains(.command), let h = model.history.first(where: { $0.mode == "rename" && $0.succeeded > 0 }) { model.prepare(mode: "undo", historyID: h.id); return .handled }; return .ignored }
-        .accessibilityIdentifier("resultsTable")
+        table.style = .inset; table.backgroundColor = .clear; table.usesAlternatingRowBackgroundColors = false
+        table.columnAutoresizingStyle = .uniformColumnAutoresizingStyle; table.allowsColumnReordering = false
+        table.allowsMultipleSelection = false; table.allowsEmptySelection = true; table.gridStyleMask = .solidHorizontalGridLineMask
+        table.dataSource = self; table.delegate = self; table.target = self; table.doubleAction = #selector(inspect)
+        table.setAccessibilityIdentifier("resultsTable")
+        let menu = NSMenu(); menu.delegate = self; table.menu = menu
+        table.space = { [weak self] in self?.toggleFocused() ?? false }
+        table.all = { [weak self] in self?.model.select("visible") }
+        table.undo = { [weak self] in
+            guard let model = self?.model, let record = model.history.first(where: { $0.mode == "rename" && $0.succeeded > 0 }) else { return false }
+            model.prepare(mode: "undo", historyID: record.id); return true
+        }
+        scroll.documentView = table
+        update(palette)
+        return scroll
+    }
+
+    func update(_ palette: Palette) {
+        let settings = model.settings
+        let now = [settings.language, palette.dark ? "d" : "l", palette.olive ? "o" : "", settings.compactRows ? "c" : ""]
+        let restyled = now != state
+        if restyled {
+            state = now; look = Look(palette, compact: settings.compactRows); table.gridColor = look.border.withAlphaComponent(0.6)
+            for (column, key) in zip(table.tableColumns, ["", "Name", "Preview", "Status"]) { column.title = key.isEmpty ? "" : model.t(key) }
+            table.headerView?.needsDisplay = true
+        }
+        if model.visibleRevision != revision || restyled {
+            revision = model.visibleRevision; rows = model.visible; selected = model.selected; busy = model.busy
+            syncing = true; table.reloadData(); syncing = false
+        } else if selected != model.selected || busy != model.busy {
+            selected = model.selected; busy = model.busy
+            table.enumerateAvailableRowViews { view, row in
+                guard row < self.rows.count, let cell = view.view(atColumn: 0) as? CheckCell else { return }
+                self.fill(cell, self.rows[row])
+            }
+        }
+        if settings.nameColumnRatio != ratio, table.enclosingScrollView.map({ $0.contentSize.width > 200 }) == true { ratio = settings.nameColumnRatio; share() }
+        else if ratio < 0 { DispatchQueue.main.async { [weak self] in guard let self, self.ratio < 0, let scroll = self.table.enclosingScrollView, scroll.contentSize.width > 200 else { return }; self.ratio = self.model.settings.nameColumnRatio; self.share() } }
+        // The focused row follows the model (the inspector and the keyboard both read it).
+        let current = table.selectedRow >= 0 && table.selectedRow < rows.count ? rows[table.selectedRow].id : nil
+        if current != model.focused {
+            syncing = true
+            if let id = model.focused, let index = rows.firstIndex(where: { $0.id == id }) { table.selectRowIndexes([index], byExtendingSelection: false) } else { table.deselectAll(nil) }
+            syncing = false
+        }
+    }
+    /// Name and New name share the width left by the other two columns, by the ratio in Settings.
+    private func share() {
+        guard let scroll = table.enclosingScrollView, table.tableColumns.count == 4 else { return }
+        let free = scroll.contentSize.width - table.tableColumns[0].width - table.tableColumns[3].width - table.intercellSpacing.width * 4 - 32
+        guard free > 220 else { return }
+        let name = max(110, min(free - 110, free * ratio / 100))
+        table.tableColumns[1].width = name; table.tableColumns[2].width = free - name
+    }
+
+    private func changes(_ entry: FileEntry) -> Bool { entry.path.leaf != entry.proposed && entry.name == entry.preview }
+    func numberOfRows(in tableView: NSTableView) -> Int { rows.count }
+    func tableView(_ tableView: NSTableView, heightOfRow row: Int) -> CGFloat {
+        let entry = rows[row]
+        return 20 + look.padding * 2 + (changes(entry) ? 24 : 0) + (entry.groupID != nil ? 17 : 0)
+    }
+    func tableView(_ tableView: NSTableView, viewFor column: NSTableColumn?, row: Int) -> NSView? {
+        guard let id = column?.identifier, row < rows.count else { return nil }
+        let entry = rows[row]
+        if id.rawValue == "check" {
+            let cell = tableView.makeView(withIdentifier: id, owner: nil) as? CheckCell ?? CheckCell(id) { [weak self] cell in
+                guard let self else { return }
+                let row = self.table.row(for: cell)
+                if row >= 0, row < self.rows.count { self.model.toggle(self.rows[row]) }
+            }
+            fill(cell, entry); return cell
+        }
+        let cell = tableView.makeView(withIdentifier: id, owner: nil) as? NameCell ?? NameCell(id)
+        let language = model.settings.language
+        switch id.rawValue {
+        case "status":
+            cell.show(.init(text: model.t(CharacterPresentation.statusKey(entry.status, name: entry.name, reason: entry.reason)), color: entry.status.isError || entry.status == .conflict ? look.warning : look.secondary, small: true, tip: model.t(entry.reason)), look)
+        default:
+            let preview = id.rawValue == "preview", unit = changes(entry) ? CharacterPresentation.comparison(original: entry.name, proposed: entry.preview) : []
+            let tokens = unit.first.map { preview ? $0.after : $0.before } ?? []
+            cell.show(.init(text: preview ? entry.preview : entry.name, color: preview ? (entry.status.fixable ? look.preview : look.secondary) : look.text,
+                            icon: preview ? nil : (entry.isDirectory ? "folder" : "doc"), iconLabel: preview ? "" : model.t(entry.isDirectory ? "Directory" : "File"),
+                            pair: entry.groupID != nil && !preview ? L10n.text("PairMember", language: language) : nil,
+                            chips: tokens, more: max(0, unit.count - 1), tip: preview ? entry.preview : entry.path.display,
+                            chipTip: L10n.text("CompositionLegend", language: language), moreTip: unit.count > 1 ? L10n.text("MoreCharacterChanges", language: language, [String(unit.count - 1)]) : ""), look)
+        }
+        return cell
+    }
+    private func fill(_ cell: CheckCell, _ entry: FileEntry) {
+        cell.box.state = selected.contains(entry.id) ? .on : .off
+        cell.box.isEnabled = entry.status.fixable && !busy
+        cell.box.setAccessibilityLabel(model.t("SelectedCaption") + " " + entry.name)
+    }
+    func tableViewSelectionDidChange(_ notification: Notification) {
+        guard !syncing else { return }
+        let id = table.selectedRow >= 0 && table.selectedRow < rows.count ? rows[table.selectedRow].id : nil
+        if model.focused != id { model.focused = id }
+    }
+    private func toggleFocused() -> Bool {
+        guard table.selectedRow >= 0, table.selectedRow < rows.count, rows[table.selectedRow].status.fixable, !model.busy else { return false }
+        model.toggle(rows[table.selectedRow]); return true
+    }
+    @objc private func inspect() {
+        let row = table.clickedRow >= 0 ? table.clickedRow : table.selectedRow
+        guard row >= 0, row < rows.count else { return }
+        model.focused = rows[row].id; model.sheet = "inspector"
+    }
+    @objc private func copyPath() {
+        guard table.clickedRow >= 0, table.clickedRow < rows.count else { return }
+        NSPasteboard.general.clearContents(); NSPasteboard.general.setString(rows[table.clickedRow].path.display, forType: .string)
+    }
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        menu.removeAllItems()
+        guard table.clickedRow >= 0 else { return }
+        menu.addItem(withTitle: model.t("InspectShort"), action: #selector(inspect), keyEquivalent: "").target = self
+        menu.addItem(withTitle: model.t("CopyPath"), action: #selector(copyPath), keyEquivalent: "").target = self
     }
 }
 
-/// Table keeps its AppKit horizontal scroller whatever `scrollIndicators` says, and with
-/// "always show scroll bars" that is a permanent bar under the list. This turns it off.
-private struct NoHorizontalScroller: NSViewRepresentable {
-    final class Probe: NSView {
-        override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); DispatchQueue.main.async { [weak self] in self?.apply() } }
-        override func layout() { super.layout(); apply() }
-        func apply() {
-            var ancestor = superview
-            while let view = ancestor {
-                if let scroll = Self.listScroll(in: view) {
-                    if scroll.hasHorizontalScroller { scroll.hasHorizontalScroller = false; scroll.horizontalScrollElasticity = .none }
-                    return
-                }
-                ancestor = view.superview
-            }
+/// The table's own keys: Space ticks the focused row, ⌘A selects what is listed, ⌘Z offers the last rename for undo.
+final class KeyTable: NSTableView {
+    var space: () -> Bool = { false }, undo: () -> Bool = { false }, all: () -> Void = {}
+    override func keyDown(with event: NSEvent) {
+        if event.charactersIgnoringModifiers == " ", event.modifierFlags.intersection([.command, .option, .control]).isEmpty, space() { return }
+        super.keyDown(with: event)
+    }
+    override func selectAll(_ sender: Any?) { all() }
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        if window?.firstResponder === self, event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command, event.charactersIgnoringModifiers == "z", undo() { return true }
+        return super.performKeyEquivalent(with: event)
+    }
+}
+
+final class CheckCell: NSTableCellView {
+    let box = NSButton(checkboxWithTitle: "", target: nil, action: nil)
+    private let toggled: (CheckCell) -> Void
+    init(_ id: NSUserInterfaceItemIdentifier, toggled: @escaping (CheckCell) -> Void) {
+        self.toggled = toggled; super.init(frame: .zero); identifier = id
+        box.target = self; box.action = #selector(pressed); box.refusesFirstResponder = true; box.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(box)
+        NSLayoutConstraint.activate([box.centerXAnchor.constraint(equalTo: centerXAnchor), box.centerYAnchor.constraint(equalTo: centerYAnchor)])
+    }
+    required init?(coder: NSCoder) { nil }
+    // The model decides; the box shows what the model says after the list is refreshed.
+    @objc private func pressed() { box.state = box.state == .on ? .off : .on; toggled(self) }
+}
+
+/// A name with the pieces of its first changed character under it, or a status word. Drawn directly.
+final class NameCell: NSTableCellView, NSViewToolTipOwner {
+    struct Content {
+        var text = "", color = NSColor.labelColor, small = false
+        var icon: String? = nil, iconLabel = "", pair: String? = nil
+        var chips: [CharacterToken] = [], more = 0
+        var tip = "", chipTip = "", moreTip = ""
+    }
+    private var content = Content()
+    private var look: ResultList.Look?
+    private var chipArea = NSRect.zero, moreArea = NSRect.zero, chipRects: [NSRect] = []
+    init(_ id: NSUserInterfaceItemIdentifier) { super.init(frame: .zero); identifier = id; setAccessibilityElement(true); setAccessibilityRole(.staticText) }
+    required init?(coder: NSCoder) { nil }
+    override var isFlipped: Bool { true }
+    override var backgroundStyle: NSView.BackgroundStyle { didSet { needsDisplay = true } }
+    func show(_ content: Content, _ look: ResultList.Look) {
+        self.content = content; self.look = look; needsDisplay = true
+        let shown = content.chips.prefix(3).map { $0.glyph + " " + $0.code }.joined(separator: ", ")
+        setAccessibilityLabel(content.iconLabel.isEmpty ? content.text : content.iconLabel + ", " + content.text)
+        setAccessibilityValue(shown.isEmpty ? nil : shown); setAccessibilityHelp(content.small ? content.tip : nil)
+        removeAllToolTips(); addToolTip(NSRect(x: 0, y: 0, width: 10_000, height: 10_000), owner: self, userData: nil)
+    }
+    func view(_ view: NSView, stringForToolTip tag: NSView.ToolTipTag, point: NSPoint, userData data: UnsafeMutableRawPointer?) -> String {
+        if let index = chipRects.firstIndex(where: { $0.contains(point) }), index < content.chips.count { return content.chips[index].code }
+        if moreArea.contains(point) { return content.moreTip }
+        if chipArea.contains(point) { return content.chipTip }
+        return content.tip
+    }
+    override func draw(_ dirtyRect: NSRect) {
+        guard let look else { return }
+        let lit = backgroundStyle == .emphasized
+        let color = lit ? NSColor.alternateSelectedControlTextColor : content.color, quiet = lit ? NSColor.alternateSelectedControlTextColor.withAlphaComponent(0.8) : look.secondary
+        let style = NSMutableParagraphStyle(); style.lineBreakMode = .byTruncatingTail
+        chipRects = []; chipArea = .zero; moreArea = .zero
+        if content.small {
+            let text = NSAttributedString(string: content.text, attributes: [.font: look.caption, .foregroundColor: color, .paragraphStyle: style])
+            let height = ceil(text.size().height)
+            text.draw(with: NSRect(x: 0, y: floor((bounds.height - height) / 2), width: bounds.width, height: height), options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine])
+            return
         }
-        private static func listScroll(in view: NSView) -> NSScrollView? {
-            if let scroll = view as? NSScrollView, scroll.documentView is NSTableView { return scroll }
-            for child in view.subviews { if let found = listScroll(in: child) { return found } }
-            return nil
+        var y = look.padding + 2, x: CGFloat = 0
+        let line = ceil(look.body.ascender - look.body.descender + look.body.leading)
+        if let icon = content.icon, let image = NSImage(systemSymbolName: icon, accessibilityDescription: nil)?.withSymbolConfiguration(.init(pointSize: 13, weight: .regular).applying(.init(paletteColors: [quiet]))) {
+            let size = image.size
+            image.draw(in: NSRect(x: (16 - size.width) / 2, y: y + (line - size.height) / 2, width: size.width, height: size.height), from: .zero, operation: .sourceOver, fraction: 1, respectFlipped: true, hints: nil)
+            x = 22
+        }
+        NSAttributedString(string: content.text, attributes: [.font: look.body, .foregroundColor: color, .paragraphStyle: style])
+            .draw(with: NSRect(x: x, y: y, width: max(0, bounds.width - x), height: line), options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine])
+        y += line + 4
+        if let pair = content.pair {
+            NSAttributedString(string: "🔗 " + pair, attributes: [.font: look.caption, .foregroundColor: quiet, .paragraphStyle: style])
+                .draw(with: NSRect(x: x, y: y, width: max(0, bounds.width - x), height: 13), options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine])
+            y += 17
+        }
+        guard !content.chips.isEmpty else { return }
+        var left = x
+        for token in content.chips.prefix(3) {
+            let glyph = NSAttributedString(string: token.glyph, attributes: [.font: look.chip, .foregroundColor: lit ? NSColor.alternateSelectedControlTextColor : content.color])
+            let size = glyph.size(), box = NSRect(x: left, y: y, width: ceil(max(size.width, 8)) + 8, height: 20)
+            let path = NSBezierPath(roundedRect: box.insetBy(dx: 0.5, dy: 0.5), xRadius: 4, yRadius: 4)
+            (lit ? NSColor.white.withAlphaComponent(0.18) : look.control).setFill(); path.fill()
+            (lit ? NSColor.white.withAlphaComponent(0.5) : look.border).setStroke(); path.lineWidth = 1; path.stroke()
+            glyph.draw(at: NSPoint(x: box.minX + (box.width - size.width) / 2, y: box.minY + (box.height - size.height) / 2))
+            chipRects.append(box); left = box.maxX + 3
+        }
+        if content.chips.count > 3 { let dots = NSAttributedString(string: "…", attributes: [.font: look.body, .foregroundColor: color]); dots.draw(at: NSPoint(x: left, y: y + 1)); left += dots.size().width + 3 }
+        chipArea = NSRect(x: x, y: y, width: left - x, height: 20)
+        if content.more > 0 {
+            let more = NSAttributedString(string: "+\(content.more)", attributes: [.font: look.caption, .foregroundColor: quiet])
+            more.draw(at: NSPoint(x: left + 1, y: y + (20 - more.size().height) / 2))
+            moreArea = NSRect(x: left, y: y, width: more.size().width + 4, height: 20)
         }
     }
-    func makeNSView(context: Context) -> Probe { Probe() }
-    func updateNSView(_ view: Probe, context: Context) { view.apply() }
 }

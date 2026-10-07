@@ -103,6 +103,10 @@ Journal schema 2는 swap/group 이벤트를 표현한다. schema 1은 읽기 호
 
 제품에는 유료 등급이 없다. 앱과 CLI는 FullAccessEntitlementProvider로 항상 전체 access를 받는다. 규칙 집합을 access 수준에 대해 검증하는 capability 검사는 Application/CLI/watch/preset 경로에 그대로 남아 있으며, test는 다른 provider를 주입해 이 검사를 확인한다. access가 낮아지는 경우에도 Undo와 기존 데이터 보존은 영향을 받지 않는다.
 
+## 결과 목록
+
+결과 목록(App/MainView.swift의 ResultTable)은 AppKit NSTableView이고 cell이 이름·글자 조각·상태를 직접 그린다. SwiftUI Table은 줄마다 hosting view 넷을 만들고 스크롤할 때마다 key view loop와 창 전체 layout을 다시 계산해 1,200줄에서도 끊겼다. 표는 일반 NSView 안에 두고 제안받은 크기를 그대로 써서, 스크롤 중에 SwiftUI layout이 다시 돌지 않게 한다. 줄 높이는 항목에서 바로 계산한다(측정 없음). 보이는 줄은 AppModel.visibleRevision이 바뀔 때만 다시 읽는다.
+
 ## sidebar 트리
 
 FolderTree는 scan 결과의 폴더 항목과 추가한 위치로 트리를 만든다. 각 노드는 그 아래의 변경 가능한 항목 수를 가진다. 트리는 scan 결과를 만드는 background 작업에서 함께 계산한다. 노드 선택은 목록 필터(folderFilter)일 뿐이며 선택 집합과 Plan에는 영향을 주지 않는다. 폴더 밖의 선택 항목은 ‘숨은 선택’으로 집계돼 확인 시트에 그대로 경고된다.

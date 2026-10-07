@@ -2140,6 +2140,30 @@
       "command": "eng/test-sandbox.py --direct; eng/test-sandbox.py; eng/test.sh --level 3; eng/build.sh Debug, Release and AppStore",
       "evidencePath": "artifacts/evidence/final-rc",
       "notes": "Final QA / Release Candidate gate (T-010), 1.0.0 build 6 source. Verdict NEEDS_USER_QA: no P0 or P1 found, 2 P2 left; seven user QA items remain (R1-R7). Product source unchanged since the Phase 2 gate; only the Debug-only probe (App/SandboxFixtures.swift) and eng/test-sandbox.py changed, so the volume matrix, CLI tests, renders and performance numbers of MAC-GLOBAL-HARDENING-2-GATE-20261007 are reused. Real runs, 12 scenarios each, PASS for the Debug app outside the sandbox and for the Debug app signed ad hoc with the store entitlements inside the real App Sandbox: folder handed over with open -a, undo after a new launch, undo without kept access, favourite and recent, Folder Watch, single file, external APFS image reconnect and twin, exFAT image, folder with a decomposed name, the real window with its sheets and menus, 26 names from many scripts byte for byte incl. CJK compatibility ideographs. Inside the sandbox the system itself refuses to rename the handed-over folder and a file handed over without its folder. 147 tests, 0 failures. Release and AppStore configurations build, build 6, no probe strings. No clicks or keystrokes synthesised; no candidate, signing, notarization or upload. Not User QA."
+    },
+    {
+      "validationId": "MAC-USER-QA-FIX-LIST-20261007",
+      "status": "PASS",
+      "configuration": "Debug",
+      "architecture": "arm64",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/*.xcstrings",
+        "Package.swift",
+        "project.yml",
+        "eng/test-sandbox.py",
+        "eng/test.sh",
+        "eng/build.sh"
+      ],
+      "sourceFingerprint": "8adfa39342a77767d148f1f870c1f8e8e320566ce400e753f2c897fcd74e79a5",
+      "testFingerprint": "d0474453cb918097ac75eae6e6560e1c71256dbea38f7cffe9fe1265eb32aa16",
+      "timestamp": "2026-10-07T03:47:41.294875+00:00",
+      "command": "eng/test.sh --level 3; eng/test-sandbox.py --scroll; --render-ux; eng/build.sh Debug, Release and AppStore",
+      "evidencePath": "artifacts/evidence/user-qa",
+      "notes": "Fixes from the user QA session (T-010): the result list is an AppKit table with self-drawing cells instead of a SwiftUI Table, and a tree folder opens or closes on double-click. Scroll measurement by the app itself over 1,200 rows (Debug): median step 42 ms -> 8 ms, steps over 16 ms 983 -> 2-3, longest 11.7 s -> 0.07 s. 147 tests, 0 failures; 72 representative screens render; Debug, Release and AppStore build. Keyboard, context menu and column resizing of the new list are not exercised by automation and wait for the user. The eleven real-run scenarios of MAC-FINAL-RC-GATE-20261007 were not rerun. Not User QA."
     }
   ]
 }

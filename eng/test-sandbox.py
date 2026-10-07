@@ -13,6 +13,7 @@ it creates are attached or detached.
   eng/test-sandbox.py --no-build   reuse the sandboxed Debug app
   eng/test-sandbox.py --direct     the same steps with the Debug app outside the sandbox (the direct edition's rules);
                                    its records go to a folder this script makes, never to the user's
+  eng/test-sandbox.py --scroll     scroll a 1,200-row list in the Debug app and print the time per step
   eng/test-sandbox.py --compare    time the same work inside and outside the sandbox (both Debug apps must be built)
 """
 from pathlib import Path
@@ -20,9 +21,10 @@ import argparse, json, os, plistlib, subprocess, sys, tempfile, time, unicodedat
 
 root = Path(__file__).resolve().parent.parent
 app = root / ".build/xcode-sandbox/Build/Products/Debug/Moongchi NameFix.app"
-parser = argparse.ArgumentParser(); parser.add_argument("--no-build", action="store_true"); parser.add_argument("--compare", action="store_true"); parser.add_argument("--direct", action="store_true"); options = parser.parse_args()
+parser = argparse.ArgumentParser(); parser.add_argument("--no-build", action="store_true"); parser.add_argument("--compare", action="store_true"); parser.add_argument("--direct", action="store_true"); parser.add_argument("--scroll", action="store_true"); options = parser.parse_args()
 plain = root / ".build/xcode/Build/Products/Debug/Moongchi NameFix.app"
 sandboxed = not options.direct
+if options.scroll: options.direct = True; sandboxed = False
 if not options.no_build and not options.compare:
     subprocess.run([str(root / "eng/build.sh"), "--configuration", "Debug", "--arch", "arm64"] + (["--sandbox-debug"] if sandboxed else []), cwd=root, check=True, stdout=subprocess.DEVNULL)
 def granted(application):
@@ -87,6 +89,19 @@ def detach(device): subprocess.run(["hdiutil", "detach", device], check=True, st
 def image(path, megabytes=64):
     subprocess.run(["hdiutil", "create", "-size", f"{megabytes}m", "-fs", "APFS", "-volname", "NFSANDBOX", "-type", "SPARSE", str(path)], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
+if options.scroll:
+    # 1,200 rows, most of them with names to fix, scrolled by the app itself; milliseconds per step.
+    with tempfile.TemporaryDirectory(prefix="namefix-sandbox-", dir="/private/tmp") as temporary:
+        work = Path(temporary); many = work / "many"; many.mkdir()
+        samples = ["보고서 최종본", "여행 사진 모음", "café menu", "ガイドブック", "회의록 정리", "Việt Nam trip"]
+        for i in range(1200):
+            name = f"{samples[i % len(samples)]} {i:04d}.txt"
+            touch(many, name.encode() if i % 4 == 3 else nfd(name))
+        sandboxed = False
+        f = step(work, "scroll", many, application=plain, shown=True)
+        for key in ("draw", "between", "both"): print(key.ljust(8), json.dumps(f.get(key)))
+        print("rows", f.get("rows"), "height", f.get("height"))
+    sys.exit(0)
 if options.compare:
     # The same folders, the same steps, once inside the sandbox and once outside it.
     rows = {}

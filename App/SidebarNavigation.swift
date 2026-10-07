@@ -400,6 +400,8 @@ private struct FolderRow: View {
                     if pending > 0 { Text(String(pending)).font(.caption).monospacedDigit().foregroundStyle(palette.preview).accessibilityLabel(pendingLabel) }
                 }.frame(maxWidth: .infinity, minHeight: 22, alignment: .leading).contentShape(Rectangle())
             }.buttonStyle(.plain).accessibilityAddTraits(selected ? .isSelected : [])
+                // Double-clicking a folder opens or closes it, as in Finder's sidebar lists.
+                .simultaneousGesture(TapGesture(count: 2).onEnded { expanded?.wrappedValue.toggle() })
             // Added items can be closed one by one; the button shows while the pointer is on the row.
             if let closeLabel, hovering || selected {
                 Button(action: close) { Image(systemName: "xmark").font(.system(size: 9, weight: .semibold)).frame(width: 16, height: 22).contentShape(Rectangle()) }

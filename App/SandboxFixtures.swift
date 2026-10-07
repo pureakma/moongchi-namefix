@@ -157,6 +157,44 @@ import NameFixApplication
             model.declineFolder(); facts["declinedKeepsNotice"] = model.folderRequest == nil && (model.message == "FolderAccessNeeded" || !AccessRoots.shared.restricted)
             model.requestFolderForLooseItems(); facts["offeredAgain"] = model.folderRequest != nil
             await model.shutdown()
+        case "scroll":
+            // The list is scrolled from top to bottom and back by the app itself, a row and a half at a
+            // time, and the time each step takes to lay out and draw is measured. No events are synthesised.
+            _ = await settle(model) { !model.entries.isEmpty && model.visible.count == model.entries.count }
+            try? await Task.sleep(for: .seconds(1.5))
+            func table(_ view: NSView) -> NSScrollView? {
+                if let scroll = view as? NSScrollView, scroll.documentView is NSTableView { return scroll }
+                for child in view.subviews { if let found = table(child) { return found } }
+                return nil
+            }
+            guard let window = NSApp.windows.first(where: { $0.contentViewController is MainSidebarController }), let content = window.contentView, let scroll = table(content), let document = scroll.documentView else { finish(facts) }
+            facts["rows"] = model.visible.count
+            // The window is behind other apps; without this the system slows a background app down and the times mean nothing.
+            let awake = ProcessInfo.processInfo.beginActivity(options: [.userInitiated, .latencyCritical], reason: "scroll measurement")
+            defer { ProcessInfo.processInfo.endActivity(awake) }
+            var draw: [Double] = [], wait: [Double] = []
+            let step: CGFloat = 60, pause = 0.008
+            for pass in 0..<2 {
+                let bottom = max(0, document.frame.height - scroll.contentView.bounds.height)
+                var y: CGFloat = pass == 0 ? 0 : bottom
+                while pass == 0 ? y < bottom : y > 0 {
+                    y = pass == 0 ? min(bottom, y + step) : max(0, y - step)
+                    let began = CFAbsoluteTimeGetCurrent()
+                    scroll.contentView.scroll(to: NSPoint(x: 0, y: y)); scroll.reflectScrolledClipView(scroll.contentView)
+                    window.displayIfNeeded(); CATransaction.flush()
+                    let drawn = CFAbsoluteTimeGetCurrent()
+                    try? await Task.sleep(for: .seconds(pause))
+                    draw.append(drawn - began); wait.append(max(0, CFAbsoluteTimeGetCurrent() - drawn - pause))
+                }
+            }
+            func summary(_ values: [Double]) -> [String: Any] {
+                let sorted = values.sorted(), ms = { (v: Double) in (v * 10_000).rounded() / 10 }
+                guard !sorted.isEmpty else { return [:] }
+                return ["steps": sorted.count, "median": ms(sorted[sorted.count / 2]), "p95": ms(sorted[sorted.count * 95 / 100]), "p99": ms(sorted[sorted.count * 99 / 100]), "max": ms(sorted.last!), "over16": sorted.filter { $0 > 0.0167 }.count, "over33": sorted.filter { $0 > 0.0333 }.count, "total": ms(sorted.reduce(0, +))]
+            }
+            facts["draw"] = summary(draw); facts["between"] = summary(wait); facts["both"] = summary(zip(draw, wait).map { $0 + $1 })
+            facts["height"] = Double(document.frame.height)
+            await model.shutdown()
         case "look":
             // A folder on a drive the app does not rename on: it is listed, explained, and nothing is offered.
             _ = await settle(model) { !model.entries.isEmpty }

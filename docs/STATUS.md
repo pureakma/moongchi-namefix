@@ -6,7 +6,7 @@
 - 현재 Task: T-010 (verificationPending)
 - 다음: 사용자가 QA.md의 R1~R7 확인 → 결과에 따라 Release Candidate 단계(직접 배포 build 6 후보, Mac App Store 제출)를 사용자가 따로 승인. 스토어 제출에는 T-007의 외부 입력이 필요
 - 위험·막힘: 스토어판에서 폴더 선택 창을 눌러 받는 권한은 아직 아무도 확인하지 않았다(R2). 스토어 제출용 인증서와 App Store Connect 접근 없음(T-007). D-003의 비협조 writer source-race 알려진 제한
-- 검증 대기: docs/QA.md의 User QA R1~R7(이전 S1~S5와 U01~U30을 묶음)
+- 검증 대기: docs/QA.md의 User QA R1, R3~R7. R2는 사용자 PASS. 사용자가 찾은 목록 스크롤 끊김과 트리 더블클릭은 고쳤고 재확인 대기. 이름 변경 속도는 사용자 판단 대기
 - 마지막 갱신: 2026-10-07
 <!-- HOT:END -->
 
