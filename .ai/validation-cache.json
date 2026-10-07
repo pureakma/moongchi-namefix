@@ -2048,6 +2048,38 @@
       "command": "eng/build.sh Debug; app --render-marketing; eng/build.sh Release + strings check; eng/test.sh --scope ui-model; eng/validate-marketing.py; eng/marketing-shots.py",
       "evidencePath": "artifacts/marketing/namefix/1.0.0/manifest.json",
       "notes": "Marketing captures and store metadata for 1.0.0 (ko/en/ja): 15 store screenshots at 2880x1800. Product source for direct build 5 is unchanged (76972c7); the capture fixture is DEBUG-only and absent from the Release binary. After the build and tests, only a comment in the fixture and the removal of website outputs from the compositor changed; the compositor was run again. The website is owned by the Moongchi Pages project and is not verified here (D-025)."
+    },
+    {
+      "validationId": "MAC-GLOBAL-HARDENING-GATE-20261007",
+      "status": "PASS",
+      "configuration": "Debug",
+      "architecture": "arm64",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "CLI/**/*.swift",
+        "App/**/*.swift",
+        "App/Info.plist",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "Package.swift",
+        "project.yml",
+        "eng/test-volumes.py",
+        "eng/test.sh",
+        "eng/build.sh",
+        "eng/resources.py",
+        "eng/validate-resources.py",
+        "marketing/appstore.json",
+        "eng/marketing-shots.py",
+        "eng/validate-marketing.py"
+      ],
+      "sourceFingerprint": "a909aeb0536f6162eac389dd5661210d3ae084fcfed2da5666ad0571a4ea2212",
+      "testFingerprint": "5a467be8a2d6cd2ff7189127baa4ef9d95bc42343de82d161a3798c1d8abff70",
+      "timestamp": "2026-10-07T01:10:34.461826+00:00",
+      "command": "NAMEFIX_PERFORMANCE=1 NAMEFIX_EXPANSION_PERF=1 eng/test.sh --level 3; eng/test-volumes.py; eng/resources.py + eng/validate-resources.py; eng/validate-marketing.py; eng/build-cli.sh debug|release + CLI tests; eng/build.sh Debug and Release; --render-ux/shell/responsive/expansion; --diagnose-window; --render-marketing + eng/marketing-shots.py",
+      "evidencePath": "artifacts/evidence/global-hardening",
+      "notes": "Global Product Hardening gate (T-008). 138 tests, 0 failures (66 integration, 43 UI model, 29 core). Disposable volume matrix PASS on APFS, case-sensitive APFS (65 contract tests each plus detach, reattach under a new device number, another disk in its place, read-only), exFAT and FAT32 (listed, never planned). 545 keys x ko/en/ja. 225 representative renders. Scan 100,000 items 2.94 s; 10,000 preview median 2.214 s. 1,000 renames about 30 s on internal APFS and on an APFS image with the journal on the internal disk. macOS 27.0.1. Direct Release configuration builds; no candidate, signing or packaging. Real external hardware not tested (EXTERNAL_APFS_HARDWARE_QA_PENDING). Store screenshots recaptured with the new wording; this supersedes MAC-MARKETING-20261007 for the current source."
     }
   ]
 }

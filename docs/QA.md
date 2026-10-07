@@ -14,7 +14,35 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 ## 현재 source의 Engineering Verification 상태
 
-2026-10-06 출시 전 코드 정리·성능 최적화(T-004)의 통합 Engineering Gate 결과다. 영수증은 .ai/validation-cache.json의 MAC-OPTIMIZATION-GATE-20261006, 로컬 evidence는 artifacts/development/optimization이다. 이 Gate가 이전 MAC-RELEASE-READINESS-20261006과 MAC-FIRST-USE-UX-20261006을 대체한다.
+현재 source의 통합 Gate는 2026-10-07 Global Product Hardening(T-008)의 결과다. 영수증은 .ai/validation-cache.json의 MAC-GLOBAL-HARDENING-GATE-20261007, 로컬 evidence는 artifacts/evidence/global-hardening이다. AI가 실행·렌더로 확인한 Engineering Verification이며 User QA PASS가 아니다. App Store archive·서명은 이 Gate에 없다.
+
+| 항목 | 명령 | 결과 |
+|---|---|---|
+| Runtime·UI model·Core test | NAMEFIX_PERFORMANCE=1 NAMEFIX_EXPANSION_PERF=1 eng/test.sh --level 3 | 138개 실행, 실패 0 (통합 66 중 opt-in·volume 단계 9 skip, UI model 43 중 1 skip, Core 29) |
+| 지원 volume | eng/test-volumes.py (APFS, 대소문자 구분 APFS, exFAT, FAT32 일회용 image) | 4종 PASS. APFS 두 종류: 계약 test 65개(opt-in 9 skip) + 분리·다른 device 번호로 재연결·다른 디스크·읽기 전용 단계. exFAT·FAT: 나열만 하고 계획하지 않음. 실행 뒤 남은 mount·임시 폴더 0 |
+| 리소스 | eng/resources.py; eng/validate-resources.py | 545 keys × ko/en/ja, 재생성 diff 0 PASS |
+| 스토어 문구 | eng/validate-marketing.py | PASS |
+| CLI | eng/build-cli.sh debug + eng/test-expansion-cli.py; eng/build-cli.sh release + eng/test-release-cli.py | 둘 다 PASS |
+| Debug build | eng/build.sh --configuration Debug --arch arm64 | BUILD SUCCEEDED |
+| 직접 배포 Release 구성 build | eng/build.sh --configuration Release --arch arm64 | BUILD SUCCEEDED, arm64, 리소스 self-test PASS, render·촬영 fixture 문자열 0건. 후보 생성·서명·패키징은 하지 않음 |
+| 대표 화면 (Debug) | --render-ux, --render-shell, --render-responsive, --render-expansion | 225장(66+51+75+33), assertion PASS. ko/en/ja 첫 화면·결과 목록·일괄 변경·소개·사용 방법·설정·규칙 추가·확인 창·좁은 창·위치 제외 화면을 직접 보고 잘림 없음 확인 |
+| 창 동작 진단 | --diagnose-window | PASS |
+| 성능 smoke | 위 test의 profile | scan 100,000건 2.94초(직전 3.18), 10,000건 scan+rule Preview+plan 중앙값 2.214초 · p95 2.235초(직전 2.174 · 2.210). 회귀 없음 |
+| 문서 | python3 tools/doccheck.py; git diff --check | PASS |
+
+volume별 성능(Debug, 같은 장비): 내장 APFS와 일회용 APFS image에서 1,000개 scan 0.064초 / 0.064초, 계획 0.146 / 0.180초, 이름 변경 30.7 / 29.0초, Undo 계획 4.6 / 6.0초, Undo 30.3 / 30.3초. 작업 기록은 앱과 같이 내장 디스크에 둔 구성이다. 이름 변경 시간은 항목마다 journal과 폴더를 fsync하는 비용이며 기존 기준선(1,000건 약 31초)과 같다. 성능을 위해 identity 확인·no-replace·journal·fsync를 줄이지 않았다. exFAT·FAT는 지원하지 않으므로 측정하지 않았다.
+
+이 Phase에서 확인한 내용:
+- 외장 APFS: 일회용 image에서 모든 계약 PASS → 지원(D-027). 실제 외장 장치 확인은 EXTERNAL_APFS_HARDWARE_QA_PENDING.
+- 다시 연결: device 번호가 바뀌어도 같은 volume이면 Undo가 byte 단위로 복원하고, 다른 디스크는 거부한다(D-028).
+- exFAT·FAT: UNSUPPORTED(D-027, FILESYSTEM_CAPABILITIES.md의 실험).
+- 글로벌 Unicode: Core test 29개(한글·라틴·가나·그리스·키릴 합치기, 혼합, emoji·ZWJ·피부색·variation selector·BMP 밖, 호환 형태 미적용, 이체자 한자 보존(D-031), 잘못된 UTF-8, grapheme 단위 자르기)와 volume 위 왕복 test.
+- Windows에서 쓸 수 없는 이름: read-only 진단과 필터(D-030), Core test.
+- 문구: ko 94건, en 159건, ja 198건 수정과 하나일 때의 문구 6건 추가. 원칙은 DESIGN.md의 사용자 용어.
+
+### 이전 Gate (2026-10-06, T-004) — 성능 기준선으로 참조
+
+아래 표와 수치는 그 시점 source의 결과다. 현재 source의 PASS 근거가 아니며 성능 비교 기준으로만 쓴다.
 
 | 항목 | 명령 | 결과 |
 |---|---|---|
@@ -47,7 +75,7 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 바꾼 것: 정렬 순서를 목록·정렬 기준이 바뀔 때만 계산해 필터·검색이 재사용한다. 정렬 key를 비교마다가 아니라 한 번만 만든다. 글자 검색은 여러 조각으로 나눠 병렬로 돌리고, 경로에 이미 들어 있는 이름을 따로 한 번 더 검색하지 않는다. Release 구성의 수치와 실제 화면 scroll 체감은 측정하지 않았다.
 
-유휴 상태 확인: 반복 timer·polling·상시 animation이 없다. 1초 주기 갱신은 작업 중 경과 시간 표시뿐이고, 폴더 감시(FSEvents)는 사용자가 ‘폴더 자동 감시’에 등록한 폴더에만 걸린다. 최근 폴더 기록은 감시를 시작하지 않는다.
+유휴 상태 확인: 반복 timer·polling·상시 animation이 없다. 1초 주기 갱신은 작업 중 경과 시간 표시뿐이고, 폴더 감시(FSEvents)는 사용자가 ‘폴더 감시’에 등록한 폴더에만 걸린다. 최근 폴더 기록은 감시를 시작하지 않는다.
 
 코드 정리: Swift product source 48개 파일 유지, 6,270 → 6,387줄(아이콘 전용 control의 이름 label 약 +95, 목록 갱신 재구성 약 +45, 제거 약 −50). 제거한 것은 쓰지 않는 문자열 91개(580 → 489 keys), 예전 hero 화면용 테마 값과 button style, 쓰지 않는 model 상태 1개, 화면에서 열 수 없는 sheet 2종과 그 전용 코드, test만 쓰던 layout helper. render·진단 fixture 5개 파일은 Debug build에서만 compile한다. 새 파일·새 의존성은 없다.
 
@@ -242,14 +270,19 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 | U10 | 대량 목록(약 100,000개) 검사·스크롤·검색·필터·취소 응답성 | PENDING |
 | U11 | 실제 macOS 14 Apple Silicon에서 U01과 U10 | PENDING |
 | U12 | Finder 서비스, Dock/다음으로 열기, 메뉴바 아이콘 drop·메뉴, 로그인 시 실행, 완료 알림의 실제 OS 승인·거절 | PENDING |
-| U13 | 고급 기능 흐름: 패턴·조건 규칙, 프리셋 저장·불러오기, CSV 목록, 파일 정보(실제 사진/음악/영상), 묶음 파일, 폴더 자동 감시(잠자기·재시작·권한 철회 포함) | PENDING |
-| U14 | 공증된 DMG(artifacts/release-candidate/1.0.0/build5-final)를 깨끗한 Mac에 설치·실행: Gatekeeper 경고 없이 열리는지, Finder 서비스·다음으로 열기·폴더 접근 권한 요청, 기본 이름 바꾸기 → 되돌리기 | PENDING |
+| U13 | 고급 기능 흐름: 패턴·조건 규칙, 프리셋 저장·불러오기, CSV 목록, 파일 정보(실제 사진/음악/영상), 묶음 파일, 폴더 감시(잠자기·재시작·권한 철회 포함) | PENDING |
+| U14 | 새 Release 후보(build 6 이상, D-026)의 공증된 DMG를 깨끗한 Mac에 설치·실행: Gatekeeper 경고 없이 열리는지, Finder 서비스·다음으로 열기·폴더 접근 권한 요청, 기본 이름 바꾸기 → 되돌리기 | PENDING |
 | U15 | 화면 어디에도 Pro·구매 표시가 없고 모든 기능이 바로 동작하는지 | PENDING |
 | U16 | Dock·Finder·앱 전환기(⌘Tab)에서 앱 아이콘이 회색 판 없이 다른 앱과 같은 크기로 보이는지 | PENDING |
 | U17 | 첫 실행 소개: 4쪽 내용과 그림, 어두운 테마에서도 밝게 보이는지, ‘다시 보지 않기’ 후 다시 실행하면 안 나오는지, 설정·도움말 메뉴에서 다시 열리는지 | PENDING |
 | U18 | 사용 방법 화면과 설정(제목 없는 첫 묶음, 오른쪽 정렬 switch, 맨 아래 개발자 카드)의 모양 | PENDING |
 | U19 | 설정의 ‘버그 신고 및 문의’ 버튼이 메일 앱에서 ailo@ailoworks.com으로 새 메일을 여는지 | PENDING |
 | U20 | 스토어용 화면 15장(artifacts/marketing/namefix/1.0.0/store)과 문구(marketing/appstore.json)의 ko/en/ja 표현과 장면 | PENDING |
+| U21 | 실제 외장 APFS 드라이브에서: 폴더 추가 → 정리 → 추출(꺼내기) → 다시 연결 → 작업 기록에서 되돌리기. 작업 중 케이블을 뽑았을 때 안내와 복구 (EXTERNAL_APFS_HARDWARE_QA_PENDING) | PENDING |
+| U22 | exFAT·FAT USB, 네트워크 드라이브, iCloud Drive 폴더, 읽기 전용 디스크를 넣었을 때 상태 문구(‘이 드라이브는 제외’ 등)와 아래 한 줄 안내가 이해되는지, 앱이 멈추지 않는지 | PENDING |
+| U23 | 영어·일본어 화면(첫 화면, 소개, 사용 방법, 확인 창, 오류 안내)이 그 언어 사용자에게 자연스러운지. 한국어의 바뀐 용어(선택한 N개 이름 정리, 폴더 감시, 분리된 글자 합치기, 변경 완료 등) | PENDING |
+| U24 | ‘필터·정렬 → Windows에서 쓸 수 없는 이름’과 자세히 보기의 안내가 쓸모 있는지 | PENDING |
+| U25 | 일본어 이름의 옛 글자체 한자(예: 神, 隆)가 정리 뒤에도 그대로인지 | PENDING |
 
 ## 문서/도구 검증
 

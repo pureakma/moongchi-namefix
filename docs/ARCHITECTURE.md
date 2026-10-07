@@ -40,6 +40,8 @@ Infrastructure의 FS.support(fd)가 디렉터리가 놓인 volume의 VolumeSuppo
 
 ## Scan과 Preview
 
+이름의 글자를 합치거나 분리하는 곳은 Core의 NameForm 하나다(NormalizationTarget, NormalizationAnalysis, 글자 구성 표시가 모두 이것을 쓴다). 표준 NFC/NFD와 같되 CJK 호환 한자는 저장된 그대로 둔다(D-031). 충돌·동등성 key는 파일시스템과 같은 표준 형태를 쓴다. Windows에서 쓸 수 없는 이름의 진단(NameRules.windowsIssues)도 Core의 순수 함수이며 mutation과 무관하다.
+
 Scanner는 실제 디렉터리 entry의 raw 이름과 identity를 보존한다. Swift String의 canonical equality만으로 NFC/NFD 차이를 판단하지 않는다. 규칙/필터/정렬/대형 parse는 가능한 한 background worker에서 수행하고 generation/cancellation으로 늦은 결과를 버린다.
 
 경로를 키로 쓰는 집합·사전은 RawPath의 전체 바이트 해시를 사용한다. 같은 폴더의 형제 경로는 앞부분이 같으므로 앞쪽 일부만 해시하는 키를 쓰지 않는다.
