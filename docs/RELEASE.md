@@ -41,15 +41,15 @@ Final User QA Session(T-010)의 판정은 USER_QA_COMPLETE_WITH_EXTERNAL_PENDING
 - Developer ID Application: AVAILABLE (과거 직접 배포용, 지금은 쓰지 않음)
 - Apple Distribution / Mac App Distribution / Mac Installer Distribution: MISSING — 자동 서명에서는 필요 없다
 - com.ailoworks.namefix의 provisioning profile: MISSING — 자동 서명이 만든다
-- Xcode 계정: 로그인돼 있고 App Store Connect는 읽힌다(팀 25373G7846). 서명에 필요한 개발자 포털 쪽은 연결되지 않아, 명령줄 export와 Xcode Organizer 둘 다 ‘No Account for Team’으로 멈췄다(2026-10-07). 개발자 계정에는 아무것도 만들어지지 않았다
-- 계정 전환: 사용자가 기존 개인 계정을 조직(팀) 계정으로 전환 신청 중이다(2026-10-07). 위 오류와 관련 있을 가능성이 높지만 확인하지는 못했다. 전환이 끝나면 판매자 이름이 조직 이름으로 바뀐다. Team ID는 유지되는 것으로 알고 있으며 전환 뒤에 확인한다
+- Xcode 계정: 로그인돼 있고 App Store Connect는 읽힌다(팀 25373G7846). 프로파일 다운로드에서 DeveloperAPIServiceErrorDomain Code=5 및 해당 Team에 속하지 않는다는 오류를 확인했다(2026-10-07). 계정 연결만 해제·재로그인한 뒤에도 Certificates, Identifiers & Profiles가 실패 표시다. 기존 인증서·private key는 삭제하지 않았고 새 signing asset은 만들지 않았다
+- 계정 전환: 사용자가 기존 개인 계정을 조직(팀) 계정으로 전환 신청 중이다(2026-10-07). Apple Developer 계정 페이지에서 조직 전환 요청 및 처리 중 멤버십 혜택 일시 비활성화 안내를 직접 확인했다. 현재 Team ID는 25373G7846이고 등록 유형은 아직 개인이다. ‘마이그레이션 계속’은 조직 정보·법적 권한·웹사이트·직장 이메일·D-U-N-S 요구 안내로 연결된다. 사용자의 정보 입력·필요한 동의/제출과 Apple 처리 후 멤버십 활성화를 기다린다. 전환 뒤 판매자 이름과 Team ID를 다시 확인한다
 - App Store Connect 앱 기록: MISSING — 2026-10-07에 Xcode의 조회에서 bundle ID com.ailoworks.namefix의 앱이 0개였다. 사용자가 만든다
 - App ID: 확인하지 못했다(자동 서명이 없으면 만든다)
 
 전환이 끝날 때까지 서명과 앱 기록 생성을 멈춘다. 판매자 이름이 스토어 문구의 개발사(AILO WORKS)와 맞아야 하고, 전환 중에는 포털 작업이 되지 않기 때문이다. 제품 쪽 준비는 끝나 있어 기다리는 동안 할 일은 없다.
 
 전환이 끝난 뒤 사용자가 해야 하는 일(순서대로):
-1. developer.apple.com/account에서 전환이 끝났는지, Team ID가 25373G7846 그대로인지, 동의할 약관이 없는지 확인한다. Xcode › Settings › Apple Accounts에서 계정을 제거했다가 다시 로그인한다.
+1. 현재 Chrome에 열어 둔 developer.apple.com/enroll/type/edit의 ‘계속’에서 조직 전환에 필요한 정보 입력·동의/제출을 직접 완료한다(이미 별도 처리 중이면 Apple과 상태 확인). 멤버십 활성화 뒤 Team ID와 판매자 이름·약관을 다시 확인한다. Xcode 계정 재로그인은 2026-10-07에 이미 수행했으므로 그것만 반복해 해결됐다고 판단하지 않는다.
 2. App Store Connect(appstoreconnect.apple.com) › 계약에서 필요한 약관이 모두 동의 상태인지 확인한다. 무료 앱이면 무료 앱 계약만 있으면 된다.
 3. 서명과 내보내기는 Xcode Organizer에서 한다. eng/archive-store.sh --signed가 만든 archive(artifacts/store/1.0.0/build6-signed/MoongchiNameFix.xcarchive)를 Xcode로 열고 Distribute App › App Store Connect를 고른다. Xcode가 App ID와 스토어용 profile을 만들고 cloud-managed 인증서로 서명한다. 명령줄 export는 계정 단계에서 멈추므로 쓰지 않는다.
 4. App Store Connect › 앱 › + › 신규 앱: 플랫폼 macOS, 이름 Moongchi NameFix, 기본 언어 한국어, 번들 ID com.ailoworks.namefix(3번 뒤에 목록에 나온다), SKU AILOWORKS-NAMEFIX-MAC-100.
