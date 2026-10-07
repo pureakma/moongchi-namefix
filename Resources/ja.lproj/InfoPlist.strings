@@ -1,4 +1,4 @@
-"Inspect Names with NameFix" = "NameFixでファイル名を検査";
-"NSDesktopFolderUsageDescription" = "選択したファイルとフォルダの名前だけを検査・変更します。";
-"NSDocumentsFolderUsageDescription" = "選択したファイルとフォルダの名前だけを検査・変更します。";
-"NSDownloadsFolderUsageDescription" = "選択したファイルとフォルダの名前だけを検査・変更します。";
+"Inspect Names with NameFix" = "NameFixでファイル名をスキャン";
+"NSDesktopFolderUsageDescription" = "選択したファイルとフォルダの名前だけをスキャンし、変更します。";
+"NSDocumentsFolderUsageDescription" = "選択したファイルとフォルダの名前だけをスキャンし、変更します。";
+"NSDownloadsFolderUsageDescription" = "選択したファイルとフォルダの名前だけをスキャンし、変更します。";

@@ -13,7 +13,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Add files"
+            "value": "Add Files"
           }
         },
         "ja": {
@@ -36,7 +36,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Add folder"
+            "value": "Add Folder"
           }
         },
         "ja": {
@@ -82,13 +82,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Also check inside subfolders"
+            "value": "Include subfolders"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "サブフォルダの中も検査"
+            "value": "サブフォルダの中もスキャン"
           }
         }
       }
@@ -157,7 +157,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フィルター"
+            "value": "絞り込み"
           }
         }
       }
@@ -243,7 +243,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "● Separated"
+            "value": "● Split characters"
           }
         },
         "ja": {
@@ -266,7 +266,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "● Partly separated"
+            "value": "● Partly split"
           }
         },
         "ja": {
@@ -387,7 +387,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "— 未対応の項目"
+            "value": "— 非対応の項目"
           }
         }
       }
@@ -571,7 +571,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "文字構成の詳細"
+            "value": "文字の詳細"
           }
         }
       }
@@ -611,7 +611,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "History / Undo"
+            "value": "History"
           }
         },
         "ja": {
@@ -634,7 +634,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rename {0} items"
+            "value": "Rename {0} Items"
           }
         },
         "ja": {
@@ -703,13 +703,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rename {0} items. File contents stay unchanged. Excluded: {1}."
+            "value": "Rename {0} items. File contents stay unchanged. Skipped: {1}."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "{0}件の名前を変更します。ファイルの内容は変わりません。除外: {1}件。"
+            "value": "{0}件の名前を変更します。ファイルの内容は変わりません。除外した項目：{1}件。"
           }
         }
       }
@@ -732,7 +732,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "同期フォルダでの変更は他のデバイスにも反映される場合があります。"
+            "value": "同期フォルダ内の名前を変更すると、ほかのデバイスにも反映される場合があります。"
           }
         }
       }
@@ -772,7 +772,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Success {0} · Skipped {1} · Errors {2}"
+            "value": "Renamed {0} · Skipped {1} · Failed {2}"
           }
         },
         "ja": {
@@ -812,7 +812,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "실행할 수 있는 변경이 없습니다. 다시 검사해 미리보기를 갱신하세요."
+            "value": "바꿀 수 있는 이름이 없습니다. 다시 검사해 미리보기를 업데이트하세요."
           }
         },
         "en": {
@@ -824,7 +824,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "実行できる変更はありません。再検査してください。"
+            "value": "変更できる項目がありません。再スキャンしてプレビューを更新してください。"
           }
         }
       }
@@ -847,7 +847,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "処理履歴はありません。"
+            "value": "履歴はまだありません。"
           }
         }
       }
@@ -858,7 +858,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "작업을 완료하지 못했습니다. 작업 기록과 로컬 진단 로그를 확인하세요."
+            "value": "작업을 완료하지 못했습니다. 작업 기록에서 결과를 확인한 뒤 다시 검사해 보세요. 문제가 반복되면 도움말 → 진단 보고서 내보내기를 이용할 수 있습니다."
           }
         },
         "en": {
@@ -870,7 +870,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "処理を完了できませんでした。履歴とローカルログを確認してください。"
+            "value": "処理を完了できませんでした。履歴と診断ログを確認してください。"
           }
         }
       }
@@ -887,13 +887,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scan cancelled. Partial results are shown."
+            "value": "Scan canceled. Partial results are shown."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "検査をキャンセルしました。検査済みの項目を表示します。"
+            "value": "スキャンをキャンセルしました。ここまでにスキャンした項目を表示します。"
           }
         }
       }
@@ -910,13 +910,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The 200,000 item safety limit was reached. Scan smaller folders separately."
+            "value": "The safety limit of 200,000 items was reached. Scan smaller folders separately."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "安全上の上限20万件に達しました。フォルダを分けて検査してください。"
+            "value": "安全のための上限（20万件）に達しました。フォルダを分けてスキャンしてください。"
           }
         }
       }
@@ -939,7 +939,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "設定を読み込めないため既定値を使用します。元のファイルは保持されます。"
+            "value": "設定を読み込めないため、デフォルトの設定を使用します。元の設定ファイルはそのまま残しています。"
           }
         }
       }
@@ -962,7 +962,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "作業を安全に停止してから終了します…"
+            "value": "処理を安全に停止してから終了します…"
           }
         }
       }
@@ -1031,7 +1031,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "システムの既定"
+            "value": "システムに合わせる"
           }
         }
       }
@@ -1094,7 +1094,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Clear selection after completion"
+            "value": "Clear selection after renaming"
           }
         },
         "ja": {
@@ -1111,7 +1111,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "완료된 작업 보존 개수"
+            "value": "작업 기록 보관 개수"
           }
         },
         "en": {
@@ -1123,7 +1123,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "完了履歴の保存件数"
+            "value": "保存する履歴の件数"
           }
         }
       }
@@ -1134,19 +1134,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "로컬 진단 로그 사용"
+            "value": "이 Mac에 진단 로그 기록"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enable local diagnostic logs"
+            "value": "Keep diagnostic logs on this Mac"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ローカル診断ログを有効にする"
+            "value": "診断ログをこのMacに記録"
           }
         }
       }
@@ -1163,13 +1163,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Undo selected operation"
+            "value": "Undo Operation"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "選択した処理を元に戻す"
+            "value": "選択した操作を元に戻す"
           }
         }
       }
@@ -1180,19 +1180,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "원래 이름 {0}개를 복원합니다. 충돌 {1}개는 제외합니다. 작업 이후 교체되거나 이동된 항목은 제외됩니다."
+            "value": "{0}개 항목을 원래 이름으로 되돌립니다. 되돌릴 수 없는 {1}개는 제외합니다. 이름이 충돌하거나, 작업 이후 교체되거나 이동된 항목이 여기에 해당합니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restore {0} original names. {1} conflicts will be skipped. Files changed or replaced since the operation are excluded."
+            "value": "Restore {0} original names; {1} will be skipped. Items that conflict, or that were moved or replaced since the operation, are skipped."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "元の名前を{0}件復元します。競合する{1}件と処理後に置換・移動された項目を除外します。"
+            "value": "{0}件を元の名前に戻します。戻せない{1}件は除外します。名前が競合する項目や、操作のあとに置き換えまたは移動された項目が該当します。"
           }
         }
       }
@@ -1203,7 +1203,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "일부 기록을 읽을 수 없습니다. 원본을 보존했으며 되돌리기는 제한됩니다."
+            "value": "일부 작업 기록을 읽을 수 없습니다. 기록 파일은 그대로 두었으며, 해당 작업은 되돌리지 못할 수 있습니다."
           }
         },
         "en": {
@@ -1215,7 +1215,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "一部の履歴を読み込めません。元の履歴を保持し、元に戻す操作を制限します。"
+            "value": "一部の履歴を読み込めません。元のデータはそのまま残し、元に戻す操作を制限しています。"
           }
         }
       }
@@ -1261,7 +1261,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "一時名に変更済み"
+            "value": "仮の名前に変更済み"
           }
         }
       }
@@ -1284,7 +1284,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最終名に変更済み"
+            "value": "新しい名前に変更済み"
           }
         }
       }
@@ -1295,19 +1295,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "검증 완료"
+            "value": "변경 완료"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verified"
+            "value": "Renamed"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "確認済み"
+            "value": "変更完了"
           }
         }
       }
@@ -1370,13 +1370,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recovery inspection (read-only)"
+            "value": "Recovery status (view only)"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "復旧状態の確認（読み取り専用）"
+            "value": "復旧状況の確認（表示のみ）"
           }
         }
       }
@@ -1393,7 +1393,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Matching entry found"
+            "value": "Matching item found"
           }
         },
         "ja": {
@@ -1445,7 +1445,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "{0}件を検査中…"
+            "value": "{0}件をスキャン中…"
           }
         }
       }
@@ -1491,7 +1491,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "検索やフィルターを変更するか、別のファイル・フォルダを追加してください。"
+            "value": "検索や絞り込みの条件を変えるか、別のファイルやフォルダを追加してください。"
           }
         }
       }
@@ -1514,7 +1514,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイル名チェック"
+            "value": "ファイル名のスキャン"
           }
         }
       }
@@ -1571,7 +1571,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "표시할 항목이 없어요"
+            "value": "표시할 항목이 없습니다"
           }
         },
         "en": {
@@ -1646,13 +1646,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fix file names with separated characters"
+            "value": "Fix names that look broken on other devices"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "文字が分離したファイル名を整理"
+            "value": "濁点・半濁点が離れたファイル名を整える"
           }
         }
       }
@@ -1675,7 +1675,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "整理する名前"
+            "value": "整える名前"
           }
         }
       }
@@ -1686,13 +1686,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "상세 보기"
+            "value": "자세히 보기"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Details"
+            "value": "Character Details"
           }
         },
         "ja": {
@@ -1732,7 +1732,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "안심하고 이름만 수정"
+            "value": "이름 변경 안전 장치"
           }
         },
         "en": {
@@ -1744,7 +1744,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "名前だけを安全に修正"
+            "value": "変えるのは名前だけ"
           }
         }
       }
@@ -1761,13 +1761,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drop files or folders in this window to find names with separated characters. Names change only after you review them, and file contents are never changed."
+            "value": "Some names look fine on your Mac but show up on other devices with accents beside the letters or characters split apart, and may not match in search. Drop files or folders in this window to find them. Names change only after you review them, and file contents are never changed."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイルやフォルダをこのウインドウにドロップすると、文字が分離した名前を探します。変更後の名前を確認してから合成し、ファイルの内容は変更しません。"
+            "value": "ファイルやフォルダをこのウインドウにドロップすると、濁点・半濁点などが分かれて保存されている名前を見つけます。変更後の名前を確認してから整えます。ファイルの内容は変更しません。"
           }
         }
       }
@@ -1824,7 +1824,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "현재 항목을 마친 뒤 중지합니다"
+            "value": "현재 항목을 마친 뒤 중단합니다"
           }
         },
         "en": {
@@ -1899,7 +1899,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quick guide"
+            "value": "Quick Guide"
           }
         },
         "ja": {
@@ -1916,7 +1916,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "원래 이름으로 복원 중"
+            "value": "원래 이름으로 되돌리는 중"
           }
         },
         "en": {
@@ -1945,13 +1945,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Checking names"
+            "value": "Scanning names"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "名前を検査中"
+            "value": "名前をスキャン中"
           }
         }
       }
@@ -1968,7 +1968,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copy path"
+            "value": "Copy Path"
           }
         },
         "ja": {
@@ -1991,7 +1991,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Select all changeable items"
+            "value": "Select All Changes"
           }
         },
         "ja": {
@@ -2014,13 +2014,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recent folders"
+            "value": "Recent Folders"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最近のフォルダ"
+            "value": "最近使ったフォルダ"
           }
         }
       }
@@ -2031,7 +2031,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "현재 항목에 접근할 수 없습니다. 장치 연결이나 현재 위치를 확인하고 다시 검사하세요."
+            "value": "지금은 이 항목에 접근할 수 없습니다. 디스크가 연결되어 있는지, 항목이 옮겨지지 않았는지 확인한 뒤 다시 검사하세요."
           }
         },
         "en": {
@@ -2043,7 +2043,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "この項目にアクセスできません。デバイスの接続や現在の場所を確認し、再検査してください。"
+            "value": "この項目にアクセスできません。ディスクの接続や項目の場所を確認して、再スキャンしてください。"
           }
         }
       }
@@ -2060,7 +2060,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Undo this operation"
+            "value": "Undo This Rename"
           }
         },
         "ja": {
@@ -2083,13 +2083,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reset filters"
+            "value": "Reset Filters"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "絞り込み解除"
+            "value": "絞り込みを解除"
           }
         }
       }
@@ -2106,7 +2106,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deselect all items"
+            "value": "Deselect All"
           }
         },
         "ja": {
@@ -2152,13 +2152,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Invert visible selection"
+            "value": "Invert Visible Selection"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "表示分の選択を反転"
+            "value": "表示中の項目の選択を反転"
           }
         }
       }
@@ -2198,13 +2198,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Clear recent folders"
+            "value": "Clear Recent Folders"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最近のフォルダ履歴を消去"
+            "value": "最近使ったフォルダを消去"
           }
         }
       }
@@ -2215,7 +2215,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기본값은 꺼짐입니다. 폴더 경로 최대 10개를 로컬에 저장하며, 끄면 저장된 목록을 지웁니다."
+            "value": "기본으로 꺼져 있습니다. 폴더 경로를 최대 10개까지 이 Mac에 저장하며, 끄면 저장된 목록을 지웁니다."
           }
         },
         "en": {
@@ -2227,7 +2227,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "初期設定はオフです。最大10件のフォルダパスをローカルに保存します。オフにすると保存済みの一覧を消去します。"
+            "value": "初期設定ではオフです。フォルダのパスを最大10件、このMacに保存します。オフにすると、保存した一覧を消去します。"
           }
         }
       }
@@ -2244,13 +2244,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The file is not damaged. Characters stored as separate parts can be combined; file contents stay unchanged."
+            "value": "Nothing is wrong with the file. Some characters in its name are stored in pieces (or in another nonstandard way), which can look broken or fail to match on other devices. Fixing stores them in the standard form; file contents stay the same."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイルの破損ではありません。分離して保存された文字を合成でき、ファイルの内容は変わりません。"
+            "value": "ファイルが壊れているわけではありません。分かれて保存されている文字を1文字にまとめられます。ファイルの内容は変わりません。"
           }
         }
       }
@@ -2267,13 +2267,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Select visible"
+            "value": "Select Visible"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "表示分を選択"
+            "value": "表示中の項目を選択"
           }
         }
       }
@@ -2307,19 +2307,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 기기에 최근 폴더 기억"
+            "value": "이 Mac에 최근 폴더 기억"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remember recent folders on this device"
+            "value": "Remember recent folders on this Mac"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このデバイスに最近のフォルダを保存"
+            "value": "最近使ったフォルダをこのMacに記憶"
           }
         }
       }
@@ -2330,7 +2330,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "현재 검색·필터로 숨겨진 선택 항목 {0}개도 포함됩니다. 확인하려면 취소 후 선택한 항목을 누르세요."
+            "value": "현재 검색·필터에 가려진 선택 항목 {0}개도 함께 바뀝니다. 확인하려면 취소한 뒤 목록 위의 ‘선택’을 누르세요."
           }
         },
         "en": {
@@ -2342,7 +2342,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "検索・フィルターで非表示の選択項目 {0} 件も含まれます。確認するにはキャンセルして「選択した項目」を表示してください。"
+            "value": "検索や絞り込みで表示されていない選択項目{0}件も含まれます。確認するには、キャンセルしてから絞り込みで「選択した項目」を選んでください。"
           }
         }
       }
@@ -2353,19 +2353,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "같은 이름의 대상이 이미 있거나 여러 항목의 변경 후 이름이 같습니다. 이 항목은 수정에서 제외됩니다. 폴더에서 중복을 확인하고 정리한 후 다시 검사하세요."
+            "value": "같은 이름의 항목이 이미 있거나 여러 항목의 변경 후 이름이 같습니다. 덮어쓰지 않도록 이 항목은 이름 변경에서 제외합니다. 폴더에서 겹치는 이름을 정리한 뒤 다시 검사하거나 ‘충돌 이름에 번호 제안’을 사용하세요."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Another item already has this destination name, or multiple items would receive the same name. This item is excluded. Review the folder and rescan after resolving the duplicate."
+            "value": "If another item already has the new name, or several items would end up with the same name, the item is skipped and nothing is overwritten. Rename or move the duplicate in the folder, then rescan."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "同じ名前の項目が存在するか、複数の項目が同じ名前になります。この項目は変更対象外です。フォルダで重複を確認してから再検査してください。"
+            "value": "同じ名前の項目がすでにあるか、複数の項目が同じ名前になります。この項目は変更しません。フォルダで重複を解消してから、再スキャンしてください。"
           }
         }
       }
@@ -2405,13 +2405,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Undo latest operation…"
+            "value": "Undo Last Rename…"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最近の操作を元に戻す…"
+            "value": "直前の操作を元に戻す…"
           }
         }
       }
@@ -2428,13 +2428,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deselect visible"
+            "value": "Deselect Visible"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "表示分を解除"
+            "value": "表示中の項目の選択を解除"
           }
         }
       }
@@ -2480,7 +2480,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "再検査"
+            "value": "再スキャン"
           }
         }
       }
@@ -2503,7 +2503,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "現在の名前の列幅"
+            "value": "「現在の名前」列の幅"
           }
         }
       }
@@ -2543,7 +2543,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hide file names and paths (recommended)"
+            "value": "Hide filenames and paths (recommended)"
           }
         },
         "ja": {
@@ -2589,7 +2589,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Export diagnostic report"
+            "value": "Export Diagnostic Report"
           }
         },
         "ja": {
@@ -2606,19 +2606,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "제안된 이름을 확인하세요. 실행을 눌러야 이름이 변경됩니다."
+            "value": "충돌을 피하도록 번호를 붙인 이름을 제안했습니다. 확인 창에서 ‘이름 바꾸기’를 눌러야 실제로 바뀝니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Review every proposed name below. Nothing changes until you confirm."
+            "value": "A numbered name is suggested to avoid the conflict. Nothing changes until you confirm."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "候補名を確認してください。実行するまで名前は変更されません。"
+            "value": "提案された名前を確認してください。実行するまで名前は変わりません。"
           }
         }
       }
@@ -2658,7 +2658,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suggest numbered names"
+            "value": "Suggest Numbered Names"
           }
         },
         "ja": {
@@ -2687,7 +2687,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイルを受け取りました。現在の処理が終わると検査します。"
+            "value": "ファイルを受け取りました。現在の処理が終わったらスキャンします。"
           }
         }
       }
@@ -2698,19 +2698,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "복사한 글자 분석"
+            "value": "복사한 글자 변환"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Analyze copied text"
+            "value": "Convert Copied Text"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "コピーした文字を分析"
+            "value": "コピーした文字を調べる"
           }
         }
       }
@@ -2733,7 +2733,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "行間を狭くする"
+            "value": "行間を詰める"
           }
         }
       }
@@ -2767,19 +2767,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac OS 확장(HFS+) 디스크는 모든 이름을 풀어진 글자로 저장해서 합친 이름이 유지되지 않습니다. 이 디스크의 항목은 이름을 바꾸지 않습니다."
+            "value": "Mac OS 확장(HFS+) 디스크는 모든 이름을 풀어진 글자로 저장해서 합친 이름이 유지되지 않습니다. 이 디스크의 항목은 이름을 바꾸지 않습니다. 파일에 문제가 있는 것은 아닙니다. Mac의 디스크나 APFS 드라이브로 복사하면 정리할 수 있습니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac OS Extended (HFS+) disks store every name with its characters separated, so a combined name cannot be kept. Items on this disk are not renamed."
+            "value": "Mac OS Extended (HFS+) disks always store names with their characters split, so a fixed name would not stay fixed. Items on this disk are not renamed."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac OS拡張（HFS+）のディスクは、すべての名前を文字が分かれた形で保存するため、結合した名前を保持できません。このディスクの項目の名前は変更しません。"
+            "value": "Mac OS拡張（HFS+）のディスクは、すべての名前を文字が分かれた形で保存するため、1文字にまとめた名前を保てません。このディスクにある項目の名前は変更しません。"
           }
         }
       }
@@ -2802,7 +2802,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "この場所で安全な名前変更を確認できないため、対象から除外しました。"
+            "value": "この場所では名前を安全に変更できることを確認できないため、対象から外しました。"
           }
         }
       }
@@ -2813,19 +2813,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "앱과 패키지는 기본 검사에서 제외됩니다."
+            "value": "앱·패키지와 .git 폴더는 안의 이름이 바뀌면 동작하지 않을 수 있어 검사에서 제외합니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apps and packages are excluded from the default scan."
+            "value": "Apps, packages, and .git folders are skipped, because renaming what is inside them can break them."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "アプリとパッケージは既定の検査対象から除外されます。"
+            "value": "アプリ、パッケージ、.gitフォルダは、中の名前が変わると動作しなくなることがあるため、スキャンの対象外です。"
           }
         }
       }
@@ -2842,13 +2842,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Other disks (volumes) are not scanned automatically. Add one yourself if needed."
+            "value": "Other disks found inside a folder are not scanned automatically. To scan one, add the disk itself."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "別のディスク（ボリューム）の中は自動では検査しません。必要な場合は直接追加してください。"
+            "value": "別のディスク（ボリューム）の中は、自動ではスキャンしません。必要な場合は、そのディスクを追加してください。"
           }
         }
       }
@@ -2871,7 +2871,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "検査後に項目が変更されたため除外しました。再検査してください。"
+            "value": "スキャンのあとに項目が変更されたため、除外しました。再スキャンしてください。"
           }
         }
       }
@@ -2882,7 +2882,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "설정을 저장하지 못했습니다. 변경 사항은 현재 실행에만 적용됩니다."
+            "value": "설정을 저장하지 못했습니다. 바꾼 설정은 앱을 종료하면 유지되지 않습니다."
           }
         },
         "en": {
@@ -2905,7 +2905,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "더 최신 버전의 데이터입니다. 원본을 보존하고 변경을 제한합니다."
+            "value": "더 새로운 버전의 앱에서 만든 데이터입니다. 원본은 그대로 두며, 이 버전에서는 변경 내용을 저장하거나 가져올 수 없습니다."
           }
         },
         "en": {
@@ -2928,7 +2928,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "작업 중에는 항목을 추가할 수 없습니다. 완료 후 다시 놓으세요."
+            "value": "작업 중에는 항목을 추가하거나 다른 작업을 시작할 수 없습니다. 진행 중인 작업이 끝난 뒤 다시 시도하세요."
           }
         },
         "en": {
@@ -2940,7 +2940,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "作業中は項目を追加できません。完了後にもう一度ドロップしてください。"
+            "value": "処理中は項目を追加できません。完了してから、もう一度ドロップしてください。"
           }
         }
       }
@@ -2963,7 +2963,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "見た目は同じですが、文字の構成が異なります。"
+            "value": "見た目が同じでも、文字の表し方が異なります。"
           }
         }
       }
@@ -2974,19 +2974,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "분석 가능한 길이를 초과하여 일부만 표시합니다."
+            "value": "글자가 너무 많아 앞부분만 표시합니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Only part of the text is shown because it exceeds the analysis limit."
+            "value": "The text is too long, so only the first part is shown."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "解析できる長さを超えているため、一部のみ表示しています。"
+            "value": "調べられる長さを超えているため、一部だけを表示しています。"
           }
         }
       }
@@ -3003,13 +3003,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inspect Names with NameFix"
+            "value": "Scan Names with NameFix"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "NameFixでファイル名を検査"
+            "value": "NameFixでファイル名をスキャン"
           }
         }
       }
@@ -3032,7 +3032,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "作業記録を保存できなかったため、名前の変更を停止しました。ディスクの空き容量を確認して、もう一度お試しください。"
+            "value": "履歴を保存できなかったため、名前の変更を中止しました。ディスクの空き領域を確認して、もう一度お試しください。"
           }
         }
       }
@@ -3055,7 +3055,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "前回の作業状態を確認する必要があります。ファイルと記録は保持されています。"
+            "value": "前回の操作の状態を確認する必要があります。ファイルと履歴はそのまま残っています。"
           }
         }
       }
@@ -3072,13 +3072,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "● Different composition"
+            "value": "● Stored differently"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "● 構成が異なる"
+            "value": "● 表し方が異なる"
           }
         }
       }
@@ -3095,13 +3095,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Names can look identical while storing their characters differently. Separated names are not errors; they can be combined into one consistent form. The small boxes explain the characters and are not part of the name."
+            "value": "A character such as é can be stored whole or in pieces (an e plus a separate accent). Both look the same on your Mac, but other devices and apps may show the pieces apart or treat the two names as different. Nothing is wrong with the file, and fixing combines the pieces into one character. The small boxes in the list show the pieces; they are not part of the name."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "見た目が同じでも、保存されている文字の構成が異なることがあります。文字が分離した名前はエラーではなく、合成して統一できます。小さな枠は実際の名前ではなく、文字構成の説明です。"
+            "value": "見た目が同じ文字でも、表し方が2通りある場合があります。たとえば「が」は、1文字として保存される場合と、「か」と濁点に分かれて保存される場合があります。分かれたままほかの環境とやり取りすると、濁点・半濁点が離れて見えたり、検索や並び順が合わなくなったりすることがあります。分かれている名前はエラーではなく、1文字にまとめてそろえられます。一覧の小さな枠は実際の名前の一部ではなく、文字の構成を示す説明です。"
           }
         }
       }
@@ -3112,7 +3112,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "전체 문자 구성 비교"
+            "value": "전체 글자 구성 비교"
           }
         },
         "en": {
@@ -3124,7 +3124,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "すべての文字構成を比較"
+            "value": "文字ごとの比較"
           }
         }
       }
@@ -3135,7 +3135,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "작은 칸은 내부 문자를 풀어 쓴 설명입니다. 파일명 자체에 공백이나 구분 기호를 추가하지 않습니다."
+            "value": "작은 칸은 내부 문자를 풀어 쓴 설명입니다. 파일 이름 자체에는 공백이나 구분 기호를 추가하지 않습니다."
           }
         },
         "en": {
@@ -3147,7 +3147,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "枠は内部の文字を分けた説明です。実際のファイル名に空白や区切り文字は追加しません。"
+            "value": "枠は、文字の構成を1つずつ示した説明です。実際のファイル名に空白や区切り文字を加えることはありません。"
           }
         }
       }
@@ -3164,13 +3164,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hangul letters are shown as standalone shapes and combining marks with a dotted circle. Values starting with U+ are the actual character codes."
+            "value": "Combining marks are shown on a dotted circle, and Hangul letters as standalone shapes. Values starting with U+ are the actual character codes."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ハングル字母は独立した形で、結合記号は点線の丸とともに表示します。U+で始まる値は実際の文字コードです。"
+            "value": "濁点・半濁点やアクセントなどの結合文字は点線の丸と一緒に、ハングルの字母は単独の形で表示します。U+で始まる値は、その文字のコードです。"
           }
         }
       }
@@ -3181,19 +3181,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "다른 {0}개 글자도 달라집니다. 상세 보기에서 전체 구성을 확인하세요."
+            "value": "다른 {0}개 글자도 달라집니다. 자세히 보기에서 전체 구성을 확인하세요."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "{0} more characters change. Open Details for the full comparison."
+            "value": "{0} more characters change. Open Character Details for the full comparison."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ほかに{0}文字が変わります。詳細ですべての構成を確認できます。"
+            "value": "ほかに{0}文字が変わります。「詳細」ですべての文字を確認できます。"
           }
         }
       }
@@ -3239,7 +3239,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "構成を変更"
+            "value": "変更あり"
           }
         }
       }
@@ -3308,7 +3308,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "合成後の構成"
+            "value": "まとめた後の構成"
           }
         }
       }
@@ -3354,7 +3354,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "広いウインドウの結果表に適用されます。狭い場合は2つの名前を縦に表示します。"
+            "value": "ウインドウが広いときの一覧に適用されます。狭いときは、2つの名前を上下に並べて表示します。"
           }
         }
       }
@@ -3388,19 +3388,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "다른 앱의 변경을 감지해 중단했습니다. 항목이 임시 이름에 남아 있을 수 있습니다. 작업 기록의 복구 위치를 확인하세요."
+            "value": "다른 앱이 항목을 바꾼 것을 감지해 중단했습니다. 일부 항목이 임시 이름으로 남아 있을 수 있습니다. 작업 기록에서 위치를 확인하고 복구하세요."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stopped after detecting an external change. An item may remain at a temporary name. Review recovery locations in History."
+            "value": "Stopped because another app changed an item. One item may still have a temporary name. Check the recovery locations in History."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "他のアプリによる変更を検出して停止しました。一時名の項目が残っている場合があります。履歴の復旧場所を確認してください。"
+            "value": "ほかのアプリによる変更を検出したため、停止しました。仮の名前のままの項目が残っている場合があります。履歴で項目の現在の場所を確認してください。"
           }
         }
       }
@@ -3411,19 +3411,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "발견된 위치입니다. 원본과 동일한 파일임을 확인하지 못해 자동 복원하지 않습니다."
+            "value": "같은 이름의 항목이 발견된 위치입니다. 원래 파일과 같은 파일인지 확인하지 못해 자동으로 복구하지 않습니다. Finder에서 직접 확인하세요."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Observed locations. Automatic restoration is blocked because the original identity could not be verified."
+            "value": "Possible locations. NameFix could not confirm that these are the same file, so it does not restore them automatically."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "確認された場所です。元のファイルと同一であることを確認できないため自動復元しません。"
+            "value": "見つかった場所です。元のファイルと同じものか確認できないため、自動では復元しません。"
           }
         }
       }
@@ -3434,19 +3434,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "원래 이름 복원"
+            "value": "원래 이름으로 복구"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restore original names"
+            "value": "Restore Original Names"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "元の名前に復元"
+            "value": "元の名前に戻す"
           }
         }
       }
@@ -3457,19 +3457,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "선택한 항목이 변경되었거나 충돌하여 안전 검사에서 제외했습니다. 다시 검사한 뒤 상태와 경로를 확인하세요."
+            "value": "선택한 항목이 그사이 바뀌었거나 이름이 충돌해 안전을 위해 제외했습니다. 다시 검사한 뒤 상태와 경로를 확인하세요."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Selected items changed or conflict and were excluded by safety checks. Rescan and review their status and paths."
+            "value": "The selected items have changed or have conflicts, so safety checks skipped them. Rescan, then review their status and paths."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "選択した項目が変更されたか競合したため除外しました。再検査して状態とパスを確認してください。"
+            "value": "選択した項目は、変更されたか競合しているため除外しました。再スキャンして、状態とパスを確認してください。"
           }
         }
       }
@@ -3480,7 +3480,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moongchi NameFix 정보"
+            "value": "Moongchi NameFix에 관하여"
           }
         },
         "en": {
@@ -3641,7 +3641,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모두 선택"
+            "value": "전체 선택"
           }
         },
         "en": {
@@ -3739,13 +3739,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Character details"
+            "value": "Technical details"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "文字構成の詳細"
+            "value": "文字コードの詳細"
           }
         }
       }
@@ -3768,7 +3768,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "見える文字 {0} · 内部の文字 {1} · UTF-16単位 {2}"
+            "value": "見た目の文字 {0} · 内部の文字 {1} · UTF-16コード単位 {2}"
           }
         }
       }
@@ -3785,13 +3785,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recover interrupted operation"
+            "value": "Recover Interrupted Operation"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "中断した操作を復旧"
+            "value": "中断された操作を復旧"
           }
         }
       }
@@ -3802,13 +3802,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "안전 검사에서 제외: {0}개"
+            "value": "안전을 위해 제외: {0}개"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Excluded by safety checks: {0}"
+            "value": "Skipped by safety checks: {0}"
           }
         },
         "ja": {
@@ -3963,13 +3963,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "내보낼 진단 정보"
+            "value": "진단 보고서 미리보기"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnostic export preview"
+            "value": "Diagnostic Report Preview"
           }
         },
         "ja": {
@@ -4015,7 +4015,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Only items on APFS disks (your Mac's internal disk and external APFS drives) are renamed. Apps, links, cloud-synced folders, network drives, and exFAT or FAT drives are protected and left unchanged."
+            "value": "Only items on APFS disks (your Mac’s internal disk and external APFS drives) are renamed. Apps, links, cloud-synced folders, network drives, and exFAT or FAT drives are protected and left unchanged."
           }
         },
         "ja": {
@@ -4055,7 +4055,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "작업이 중단되었습니다. 완료된 변경은 기록에 보존됩니다."
+            "value": "작업이 중단되었습니다. 그때까지 바꾼 이름은 작업 기록에 남아 있습니다."
           }
         },
         "en": {
@@ -4067,7 +4067,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "処理を停止しました。完了した変更は履歴に保存されます。"
+            "value": "処理を停止しました。すでに完了した変更は履歴に残ります。"
           }
         }
       }
@@ -4078,7 +4078,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "원래 이름으로 복원할 {0}개 항목을 확인하세요. 확인한 뒤에만 복원합니다."
+            "value": "원래 이름으로 복구할 {0}개 항목을 확인하세요. 확인한 뒤에만 복구합니다."
           }
         },
         "en": {
@@ -4090,7 +4090,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "元の名前に復元する{0}件を確認してください。確認するまで変更しません。"
+            "value": "元の名前に戻す{0}件を確認してください。確認するまで、何も変更しません。"
           }
         }
       }
@@ -4101,7 +4101,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "되돌리기와 복구에 필요한 기록은 설정한 개수를 넘어도 보존합니다."
+            "value": "되돌리기와 복구에 필요한 기록은 설정한 개수를 넘어도 보관합니다."
           }
         },
         "en": {
@@ -4113,7 +4113,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "元に戻す操作や復旧に必要な履歴は上限を超えて保持します。"
+            "value": "元に戻す操作や復旧に必要な履歴は、この件数を超えても残します。"
           }
         }
       }
@@ -4176,7 +4176,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose an item in the list."
+            "value": "Select an item in the list."
           }
         },
         "ja": {
@@ -4216,7 +4216,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "글자 형식 그대로 두기"
+            "value": "저장 형식 그대로 두기"
           }
         },
         "en": {
@@ -4228,7 +4228,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "文字形式をそのまま維持"
+            "value": "変更しない"
           }
         }
       }
@@ -4239,7 +4239,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "자소 분리 합치기 · NFC"
+            "value": "분리된 글자 합치기 · NFC"
           }
         },
         "en": {
@@ -4251,7 +4251,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "分離した文字を合成 · NFC"
+            "value": "1文字にまとめる · NFC"
           }
         }
       }
@@ -4268,13 +4268,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Separate characters · NFD"
+            "value": "Split characters · NFD"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "文字を分離 · NFD"
+            "value": "文字を分ける · NFD"
           }
         }
       }
@@ -4314,7 +4314,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Renames to the separated storage form (NFD). The name may look the same."
+            "value": "Stores the name with its characters split (NFD). The name may look the same."
           }
         },
         "ja": {
@@ -4337,7 +4337,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apply the selected naming rules."
+            "value": "Your rules change this name."
           }
         },
         "ja": {
@@ -4423,19 +4423,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 규칙의 처리 한도를 넘었습니다. 패턴이나 입력을 줄이세요."
+            "value": "처리할 수 있는 한도를 넘었습니다. 패턴을 단순하게 하거나 목록·파일 크기를 줄여 다시 시도하세요."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This rule exceeded its processing budget. Simplify the pattern or input."
+            "value": "This is more than NameFix can process. Simplify the pattern, or use a shorter name or a smaller file."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "処理上限を超えました。パターンや入力を短くしてください。"
+            "value": "このルールの処理上限を超えました。パターンや入力を短くしてください。"
           }
         }
       }
@@ -4446,13 +4446,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "필요한 파일 정보가 없어 제외했습니다."
+            "value": "필요한 파일 정보가 없어 제외했습니다. ‘값이 없을 때 넣을 글자’를 정하면 포함할 수 있습니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This item was excluded because the required file info is missing."
+            "value": "This item was skipped because the file info the rule needs is missing."
           }
         },
         "ja": {
@@ -4469,7 +4469,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "규칙 설정을 읽거나 저장하지 못했습니다. 기존 파일은 보존합니다."
+            "value": "규칙과 프리셋을 읽거나 저장하지 못했습니다. 기존 파일은 보존합니다."
           }
         },
         "en": {
@@ -4481,7 +4481,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ルール設定を読み込みまたは保存できません。既存ファイルは保持します。"
+            "value": "ルールとプリセットを読み込めないか、保存できません。既存のファイルはそのまま残しています。"
           }
         }
       }
@@ -4544,13 +4544,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Move up"
+            "value": "Move Up"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "上へ"
+            "value": "上に移動"
           }
         }
       }
@@ -4567,13 +4567,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Move down"
+            "value": "Move Down"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "下へ"
+            "value": "下に移動"
           }
         }
       }
@@ -4590,7 +4590,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove rule"
+            "value": "Remove Rule"
           }
         },
         "ja": {
@@ -4613,7 +4613,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Basic example"
+            "value": "Basic Example"
           }
         },
         "ja": {
@@ -4682,13 +4682,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Save preset"
+            "value": "Save Preset"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "プリセット保存"
+            "value": "プリセットを保存"
           }
         }
       }
@@ -4711,7 +4711,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "読み込み"
+            "value": "読み込む"
           }
         }
       }
@@ -4722,7 +4722,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "실제 파일은 변경하지 않습니다. 목록에서 미리보기와 확인 후 실행하세요."
+            "value": "이 화면에서는 파일을 바꾸지 않습니다. 이름은 목록에서 미리보기를 확인한 뒤에 바꿉니다."
           }
         },
         "en": {
@@ -4757,7 +4757,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "対象"
+            "value": "適用範囲"
           }
         }
       }
@@ -4906,7 +4906,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "고급 번호"
+            "value": "번호 고급 옵션"
           }
         },
         "en": {
@@ -4918,7 +4918,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "高度な連番"
+            "value": "連番の詳細設定"
           }
         }
       }
@@ -4941,7 +4941,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フォルダごとに再開"
+            "value": "フォルダごとに振り直す"
           }
         }
       }
@@ -4964,7 +4964,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "同じ番号を繰り返す: {0}"
+            "value": "同じ番号を繰り返す回数: {0}"
           }
         }
       }
@@ -4975,7 +4975,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 개수마다 처음 번호로 (0: 사용 안 함): {0}"
+            "value": "이 개수마다 시작 번호로 (0: 사용 안 함): {0}"
           }
         },
         "en": {
@@ -4987,7 +4987,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "この件数ごとに最初の番号へ (0: なし): {0}"
+            "value": "この件数ごとに最初の番号に戻す（0：戻さない）: {0}"
           }
         }
       }
@@ -5027,13 +5027,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Extension condition (e.g. jpg)"
+            "value": "Only this extension (e.g. jpg)"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "拡張子条件 (例: jpg)"
+            "value": "拡張子の条件（例：jpg）"
           }
         }
       }
@@ -5044,19 +5044,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "붙여넣은 텍스트만 변환합니다. 파일은 변경하지 않습니다."
+            "value": "붙여 넣은 글자만 변환합니다. 파일은 바꾸지 않습니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Convert pasted text only. Files are not changed."
+            "value": "Converts only the text you paste. No files are changed."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "貼り付けたテキストのみ変換します。ファイルは変更されません。"
+            "value": "ペーストしたテキストだけを変換します。ファイルは変更しません。"
           }
         }
       }
@@ -5067,19 +5067,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "텍스트 붙여넣기"
+            "value": "글자 붙여넣기"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste text"
+            "value": "Paste Text"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "テキストを貼り付け"
+            "value": "テキストをペースト"
           }
         }
       }
@@ -5096,7 +5096,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copy result"
+            "value": "Copy Result"
           }
         },
         "ja": {
@@ -5148,7 +5148,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "前に付ける"
+            "value": "先頭に追加"
           }
         }
       }
@@ -5171,7 +5171,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "後ろに付ける"
+            "value": "末尾に追加"
           }
         }
       }
@@ -5182,7 +5182,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "위치에 삽입"
+            "value": "지정 위치에 삽입"
           }
         },
         "en": {
@@ -5194,7 +5194,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "位置に挿入"
+            "value": "指定位置に挿入"
           }
         }
       }
@@ -5251,7 +5251,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "앞 글자 유지"
+            "value": "앞 글자만 남기기"
           }
         },
         "en": {
@@ -5263,7 +5263,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "先頭の文字を保持"
+            "value": "先頭の文字を残す"
           }
         }
       }
@@ -5274,7 +5274,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "뒤 글자 유지"
+            "value": "뒤 글자만 남기기"
           }
         },
         "en": {
@@ -5286,7 +5286,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "末尾の文字を保持"
+            "value": "末尾の文字を残す"
           }
         }
       }
@@ -5441,7 +5441,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pattern replace (regex)"
+            "value": "Replace by pattern (regex)"
           }
         },
         "ja": {
@@ -5464,7 +5464,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wildcard replace (*, ?)"
+            "value": "Replace by wildcard (*, ?)"
           }
         },
         "ja": {
@@ -5493,7 +5493,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "アクセントを除去"
+            "value": "アクセント記号を削除"
           }
         }
       }
@@ -5539,7 +5539,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac連携"
+            "value": "Macとの連携"
           }
         }
       }
@@ -5556,13 +5556,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open scan window"
+            "value": "Open NameFix"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "検査ウインドウを開く"
+            "value": "NameFixを開く"
           }
         }
       }
@@ -5579,13 +5579,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drop files to inspect, or click for the menu."
+            "value": "Drop files here to scan them, or click for the menu."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイルをドロップして検査、クリックでメニューを開きます。"
+            "value": "ファイルをドロップするとスキャンします。クリックするとメニューが開きます。"
           }
         }
       }
@@ -5596,7 +5596,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "메뉴바에 표시"
+            "value": "메뉴 막대에 표시"
           }
         },
         "en": {
@@ -5625,13 +5625,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Launch at Mac login"
+            "value": "Open at login"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Macログイン時に起動"
+            "value": "ログイン時に開く"
           }
         }
       }
@@ -5648,13 +5648,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Launch after signing in to your Mac. No service account is needed."
+            "value": "Opens NameFix when you log in to your Mac. No account is needed."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Macのユーザーにログインした際に起動します。サービスの登録は不要です。"
+            "value": "Macにログインしたときに自動で開きます。アカウントの登録は必要ありません。"
           }
         }
       }
@@ -5677,7 +5677,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "完了通知"
+            "value": "完了時に通知"
           }
         }
       }
@@ -5688,13 +5688,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "완료 {0}개 · 실패 {1}개. 자세한 결과는 앱에서 확인하세요."
+            "value": "성공 {0}개 · 오류 {1}개. 자세한 결과는 앱에서 확인하세요."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Completed {0} · Failed {1}. Open the app for details."
+            "value": "Renamed {0} · Failed {1}. Open NameFix for details."
           }
         },
         "ja": {
@@ -5711,7 +5711,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "알림이 허용되지 않았습니다. 결과는 앱에서 확인할 수 있습니다."
+            "value": "알림이 허용되지 않았습니다. 시스템 설정의 알림에서 허용할 수 있으며, 결과는 앱에서도 확인할 수 있습니다."
           }
         },
         "en": {
@@ -5763,7 +5763,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open Login Items settings"
+            "value": "Open Login Items Settings"
           }
         },
         "ja": {
@@ -5786,7 +5786,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Allow the login item in System Settings."
+            "value": "Allow NameFix under Login Items in System Settings."
           }
         },
         "ja": {
@@ -5803,19 +5803,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "자동 실행 설정을 변경하지 못했습니다."
+            "value": "자동 실행 설정을 바꾸지 못했습니다. 시스템 설정의 로그인 항목에서 직접 설정할 수 있습니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Could not change launch-at-login settings."
+            "value": "Could not change the Open at login setting."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ログイン時の起動設定を変更できませんでした。"
+            "value": "ログイン時に開く設定を変更できませんでした。"
           }
         }
       }
@@ -5826,7 +5826,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "UTF-8 형식의 CSV/TSV 파일에서 ‘원래 이름(또는 경로)’ 열과 ‘새 이름’ 열을 고릅니다. 중복되거나 모호한 이름, 일치하지 않는 행이 있으면 실행하지 않습니다."
+            "value": "UTF-8 형식의 CSV/TSV 파일에서 ‘현재 이름(또는 경로)’ 열과 ‘새 이름’ 열을 고릅니다. 이름이 중복되거나 어느 파일인지 분명하지 않은 행, 일치하는 파일이 없는 행이 있으면 이름을 바꾸지 않습니다."
           }
         },
         "en": {
@@ -5838,7 +5838,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "UTF-8のCSV/TSVファイルで「元の名前（またはパス）」の列と「新しい名前」の列を選びます。重複・あいまい・一致しない行があると実行しません。"
+            "value": "UTF-8のCSV/TSVファイルから、「元の名前（またはパス）」の列と「新しい名前」の列を選びます。重複している行、あいまいな行、一致しない行がある場合は実行しません。"
           }
         }
       }
@@ -5855,13 +5855,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tab separated (TSV)"
+            "value": "Tab-separated (TSV)"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "タブ区切り (TSV)"
+            "value": "タブ区切り（TSV）"
           }
         }
       }
@@ -5878,13 +5878,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Import list"
+            "value": "Import List"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "一覧を読み込む"
+            "value": "リストを読み込む"
           }
         }
       }
@@ -5918,13 +5918,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "원래 이름 열"
+            "value": "현재 이름 열"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Source column"
+            "value": "Original name column"
           }
         },
         "ja": {
@@ -5947,7 +5947,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Destination column"
+            "value": "New name column"
           }
         },
         "ja": {
@@ -5970,7 +5970,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Use list"
+            "value": "Use List"
           }
         },
         "ja": {
@@ -5993,7 +5993,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Clear list"
+            "value": "Clear List"
           }
         },
         "ja": {
@@ -6022,7 +6022,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "読み込んだ名前の組: {0}件"
+            "value": "読み込んだ名前のペア: {0}件"
           }
         }
       }
@@ -6033,7 +6033,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "목록에 중복되거나 일치하지 않는 항목이 있습니다. 원래 이름과 경로를 확인하세요."
+            "value": "목록에 중복되거나 일치하지 않는 항목이 있습니다. 현재 이름과 경로를 확인하세요."
           }
         },
         "en": {
@@ -6091,7 +6091,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "一覧を読み込めません。UTF-8形式と列を確認してください。"
+            "value": "リストを読み込めません。UTF-8形式であることと、列の構成を確認してください。"
           }
         }
       }
@@ -6102,13 +6102,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파일 정보(촬영 날짜, 제목 등)는 이 규칙을 켠 경우에만 읽으며 파일을 수정하지 않습니다. JPEG/TIFF/HEIC, MP3/M4A, MOV/MP4, PDF를 지원합니다. 정보가 없는 파일은 제외하거나 지정한 대체 텍스트를 사용합니다. 시간대에는 UTC, Asia/Seoul 같은 이름이나 source(파일에 기록된 시간대, 없으면 UTC)를 입력합니다."
+            "value": "파일 정보(촬영 날짜, 제목 등)는 이 규칙을 켠 경우에만 읽으며, 파일 내용은 바꾸지 않습니다. JPEG/TIFF/HEIC, MP3/M4A, MOV/MP4, PDF를 지원합니다. 정보가 없는 파일은 제외하며, ‘값이 없을 때 넣을 글자’를 정하면 그 글자를 대신 넣습니다. 시간대에는 UTC, Asia/Seoul 같은 이름이나 source(파일에 기록된 시간대, 없으면 UTC)를 입력합니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "File info such as capture date or title is read only when this rule is on, and files are never modified. JPEG/TIFF/HEIC, MP3/M4A, MOV/MP4 and PDF are supported. Files without the info are excluded unless you set fallback text. For the time zone, enter a name such as UTC or Asia/Seoul, or source (the zone recorded in the file, UTC if absent)."
+            "value": "File info such as the date taken or the title is read only while this rule is on, and files are never modified. Supported formats: JPEG, TIFF, HEIC, MP3, M4A, MOV, MP4, and PDF. Files without the info are skipped unless you set fallback text. For the time zone, enter a name such as UTC or Europe/London, or enter source to use the zone recorded in the file (UTC if there is none)."
           }
         },
         "ja": {
@@ -6137,7 +6137,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "日付形式 (例: yyyy-MM-dd)"
+            "value": "日付の形式（例：yyyy-MM-dd）"
           }
         }
       }
@@ -6154,13 +6154,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Time zone (e.g. Asia/Seoul, UTC)"
+            "value": "Time zone (e.g. Europe/London, UTC)"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "時間帯 (例: Asia/Tokyo, UTC)"
+            "value": "時間帯（例：Asia/Tokyo、UTC）"
           }
         }
       }
@@ -6177,7 +6177,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose info"
+            "value": "Choose file info"
           }
         },
         "ja": {
@@ -6309,7 +6309,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "목록에서 드래그하여 순서를 바꿉니다. 검색·표 정렬은 순번에 영향을 주지 않습니다."
+            "value": "목록에서 항목을 끌어 순서를 바꿉니다. 검색·표 정렬은 번호에 영향을 주지 않습니다."
           }
         },
         "en": {
@@ -6321,7 +6321,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ドラッグで並べ替えます。検索や表の並べ替えは連番に影響しません。"
+            "value": "一覧の行をドラッグして順序を変えます。検索や一覧の並べ替えは、連番に影響しません。"
           }
         }
       }
@@ -6344,7 +6344,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "一緒に変更する拡張子（例: jpg,raw,xmp）"
+            "value": "一緒に変更する拡張子（例：jpg,raw,xmp）"
           }
         }
       }
@@ -6361,13 +6361,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Files in one folder that share a name and differ only by extension (such as a photo's jpg and raw) are treated as a set and get the same new name and number. Extensions are kept. Only rules that apply to the name without extension can be used, and CSV lists cannot be combined. A set is excluded if only part of it is selected or it has a conflict or error. Partly renamed sets can be recovered in History."
+            "value": "Files in one folder that share a name and differ only by extension (such as a photo’s jpg and raw) are treated as a set and get the same new name and number. Extensions are kept. Only rules that apply to the name without extension can be used, and a CSV list cannot be used at the same time. A set is skipped if only part of it is selected or if it has a conflict or error. Partly renamed sets can be recovered in History."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "同じフォルダで名前が同じで拡張子だけが異なるファイル（例：写真のjpgとraw）を1組として、同じ新しい名前と連番を付けます。拡張子はそのままです。「拡張子を除く名前」に適用するルールだけ使用でき、CSVリストとは併用できません。一部だけ選択した組や、競合・エラーのある組は全体を除外します。一部だけ変更された場合は履歴から復旧できます。"
+            "value": "同じフォルダにあり、名前が同じで拡張子だけが異なるファイル（例：写真のjpgとraw）を1つのセットとして扱い、同じ新しい名前と連番を付けます。拡張子はそのままです。使用できるのは「拡張子を除く名前」に適用するルールだけで、CSVリストとは併用できません。セットの一部だけを選択した場合や、競合・エラーがある場合は、セット全体を除外します。一部だけ変更された場合は、履歴から復旧できます。"
           }
         }
       }
@@ -6390,7 +6390,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイルの組の一部があいまい、または競合しています。組全体を確認してください。"
+            "value": "セットのファイルの一部があいまいか、競合しています。セット全体を確認してください。"
           }
         }
       }
@@ -6407,7 +6407,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Import preset"
+            "value": "Import Preset"
           }
         },
         "ja": {
@@ -6430,7 +6430,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Preset actions"
+            "value": "Actions"
           }
         },
         "ja": {
@@ -6493,7 +6493,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "폴더 자동 감시"
+            "value": "폴더 감시"
           }
         },
         "en": {
@@ -6505,7 +6505,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フォルダを自動監視"
+            "value": "フォルダを監視"
           }
         }
       }
@@ -6516,19 +6516,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "감시 폴더에 새로 생기거나 바뀐 파일을 검토 목록에 모읍니다. 이름을 자동으로 바꾸지 않으며, ‘검토’를 누른 뒤 미리보기와 확인을 거쳐야 바뀝니다. 이미 처리한 파일은 앱을 다시 실행해도 다시 제안하지 않습니다. 규칙을 갱신하면 폴더 전체를 다시 검토합니다. 감시 폴더와 하위 폴더 자체의 이름은 바꾸지 않습니다."
+            "value": "감시 폴더에 새로 생기거나 바뀐 파일을 검토 목록에 모읍니다. 이름을 자동으로 바꾸지 않으며, ‘검토’를 누른 뒤 미리보기와 확인을 거쳐야 바뀝니다. 이미 처리한 파일은 앱을 다시 실행해도 다시 제안하지 않습니다. ‘현재 규칙으로 업데이트’를 누르면 폴더 전체를 다시 검토합니다. 감시 폴더와 하위 폴더 자체의 이름은 바꾸지 않습니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "New or changed files in a watched folder are collected for review. Nothing is renamed automatically: choose Review, then check the preview and confirm. Files you already handled are not suggested again after a restart. Updating the rules reviews the whole folder again. Watched folders and their subfolders are never renamed themselves."
+            "value": "New or changed files in a watched folder are collected for review. Nothing is renamed automatically: choose Review, then check the preview and confirm. Files you have already handled are not suggested again, even after you reopen the app. Choosing Use Current Rules reviews the whole folder again. Watched folders and their subfolders are never renamed themselves."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "監視フォルダで新しく追加・変更されたファイルを確認リストに集めます。自動では名前を変更せず、「確認」を押してプレビューと確認を経た場合にだけ変更します。処理済みのファイルは再起動後も再提案しません。ルールを更新するとフォルダ全体を再確認します。監視フォルダとサブフォルダ自体の名前は変更しません。"
+            "value": "監視フォルダに追加されたファイルや変更されたファイルを、確認待ちとして集めます。名前を自動で変更することはありません。「確認」をクリックし、プレビューを確かめて実行したときにだけ変更します。処理済みのファイルは、アプリを開き直しても再び提案しません。ルールを更新すると、フォルダ全体を確認し直します。監視フォルダとそのサブフォルダ自体の名前は変更しません。"
           }
         }
       }
@@ -6545,7 +6545,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Add watched folder with current rules"
+            "value": "Add Folder with Current Rules"
           }
         },
         "ja": {
@@ -6568,7 +6568,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changes are awaiting review."
+            "value": "Files are waiting for review."
           }
         },
         "ja": {
@@ -6585,7 +6585,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "변경 감지 중"
+            "value": "감시 중"
           }
         },
         "en": {
@@ -6700,13 +6700,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "현재 규칙으로 갱신"
+            "value": "현재 규칙으로 업데이트"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Use current rules"
+            "value": "Use Current Rules"
           }
         },
         "ja": {
@@ -6746,7 +6746,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "폴더 접근 권한이 만료되었거나 위치가 바뀌었습니다. 기존 항목을 제거하고 폴더를 다시 선택하세요."
+            "value": "폴더 접근 권한이 만료되었거나 폴더 위치가 바뀌었습니다. 이 감시 폴더를 제거한 뒤 다시 추가하세요."
           }
         },
         "en": {
@@ -6758,7 +6758,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "アクセス権が期限切れ、または場所が変わりました。項目を削除してフォルダを選び直してください。"
+            "value": "フォルダへのアクセス権が無効になったか、フォルダの場所が変わりました。この項目を削除して、フォルダを選び直してください。"
           }
         }
       }
@@ -6781,7 +6781,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "監視設定を読み込み・保存できません。元のファイルは保持しました。"
+            "value": "監視の設定を読み込めないか、保存できません。元のファイルはそのまま残しています。"
           }
         }
       }
@@ -6804,7 +6804,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "一部の変更を検出できなかったか、フォルダが変更されました。「確認」を押して全体を再確認してください。"
+            "value": "一部の変更を検出できなかったか、フォルダが変更されました。「確認」をクリックして、全体を確認し直してください。"
           }
         }
       }
@@ -6844,13 +6844,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Export report CSV"
+            "value": "Save Results as CSV"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "検査結果CSVを保存"
+            "value": "スキャン結果をCSVで保存"
           }
         }
       }
@@ -6867,13 +6867,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Export raw CSV"
+            "value": "Save Raw CSV"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "元の文字でCSVを保存"
+            "value": "加工なしのCSVを保存"
           }
         }
       }
@@ -6919,7 +6919,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "元の文字をそのまま保存します。数式として解釈されないよう、表計算アプリにはテキストとして読み込んでください。"
+            "value": "名前をそのまま保存します。表計算アプリで開くと数式として解釈されることがあるため、テキストとして読み込んでください。"
           }
         }
       }
@@ -6942,7 +6942,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "書き出しに失敗しました。保存先の権限と空き容量を確認してください。"
+            "value": "書き出せませんでした。保存先のアクセス権と空き領域を確認してください。"
           }
         }
       }
@@ -6959,13 +6959,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Execution requires interactive terminal confirmation."
+            "value": "To rename, preview and confirm in an interactive terminal."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "実行にはターミナルでの直接確認が必要です。"
+            "value": "実行するには、ターミナルでプレビューを確認し、自分で確定する必要があります。"
           }
         }
       }
@@ -6982,7 +6982,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Created date"
+            "value": "Date created"
           }
         },
         "ja": {
@@ -7005,13 +7005,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modified date"
+            "value": "Date modified"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "更新日"
+            "value": "変更日"
           }
         }
       }
@@ -7051,7 +7051,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Photo capture date"
+            "value": "Date taken"
           }
         },
         "ja": {
@@ -7097,7 +7097,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Music title"
+            "value": "Track title"
           }
         },
         "ja": {
@@ -7241,7 +7241,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "文書タイトル"
+            "value": "書類のタイトル"
           }
         }
       }
@@ -7264,7 +7264,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "文書作成者"
+            "value": "書類の作成者"
           }
         }
       }
@@ -7298,19 +7298,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "앱 구성을 확인할 수 없습니다. 이름 확인과 되돌리기는 계속 사용할 수 있습니다."
+            "value": "앱 구성을 확인하지 못해 일부 기능을 사용할 수 없습니다. 이름 검사와 되돌리기는 계속 사용할 수 있습니다. 앱을 다시 실행해 보세요."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The app’s configuration couldn’t be checked. Checking names and undo remain available."
+            "value": "NameFix couldn’t check its configuration. You can still scan names and undo."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "アプリの構成を確認できません。名前の確認と取り消しは引き続き利用できます。"
+            "value": "アプリの構成を確認できませんでした。名前のスキャンと、元に戻す操作は引き続き利用できます。"
           }
         }
       }
@@ -7350,7 +7350,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Convert to separated form (NFD)"
+            "value": "Convert to split form (NFD)"
           }
         },
         "ja": {
@@ -7367,7 +7367,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파일이 쓰이는 중이거나 바뀌었습니다. 쓰기가 끝나면 다시 검토하세요."
+            "value": "파일이 아직 저장되는 중이거나 그사이 바뀌었습니다. 저장이 끝난 뒤 다시 검토하세요."
           }
         },
         "en": {
@@ -7379,7 +7379,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイルが書き込み中、または変更されました。完了後に再確認してください。"
+            "value": "ファイルが書き込み中か、変更されています。書き込みが終わってから、もう一度確認してください。"
           }
         }
       }
@@ -7402,7 +7402,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイルの組 · 一緒に選択"
+            "value": "セットのファイル · 一緒に選択"
           }
         }
       }
@@ -7413,19 +7413,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "값이 없을 때 사용할 텍스트 (비우면 제외)"
+            "value": "값이 없을 때 넣을 글자 (비우면 제외)"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fallback text if absent (empty excludes)"
+            "value": "Fallback text (empty: skip the file)"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "値がない場合のテキスト（空欄は除外）"
+            "value": "情報がない場合に使うテキスト（空欄の場合は除外）"
           }
         }
       }
@@ -7448,7 +7448,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "CSV {0}行: {1}"
+            "value": "CSVの{0}行目: {1}"
           }
         }
       }
@@ -7465,7 +7465,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "More examples"
+            "value": "More Examples"
           }
         },
         "ja": {
@@ -7482,13 +7482,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "촬영 날짜 + 순번"
+            "value": "촬영 날짜 + 번호"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Capture date + number"
+            "value": "Date taken + number"
           }
         },
         "ja": {
@@ -7511,7 +7511,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Normalize photo prefixes"
+            "value": "Replace IMG/DSC prefix"
           }
         },
         "ja": {
@@ -7563,7 +7563,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "先頭から{0}文字の後に挿入"
+            "value": "先頭から{0}文字目の後ろに挿入"
           }
         }
       }
@@ -7574,7 +7574,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "문자 수: {0}"
+            "value": "글자 수: {0}"
           }
         },
         "en": {
@@ -7603,13 +7603,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Could not coordinate access with another app. Finish saving or moving the files in that app, then scan again."
+            "value": "Another app is still using these files. Finish saving or moving them in that app, then rescan."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "他のアプリとのファイルアクセス調整が完了しませんでした。保存・移動を終えてから再検査してください。"
+            "value": "ほかのアプリがファイルを使用しているため、アクセスできませんでした。そのアプリでの保存や移動が終わってから、再スキャンしてください。"
           }
         }
       }
@@ -7632,7 +7632,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "処理中は、ほかのアプリで同じ項目を保存・移動しないでください。外部の変更を検出するとすぐに停止し、移動した項目の場所は履歴で確認できます。"
+            "value": "処理中は、ほかのアプリで同じ項目を保存したり移動したりしないでください。ほかのアプリによる変更を検出すると、すぐに停止します。すでに移動した項目の場所は、履歴で確認できます。"
           }
         }
       }
@@ -7672,7 +7672,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "About character forms"
+            "value": "About Character Forms"
           }
         },
         "ja": {
@@ -7689,19 +7689,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "한글 자소 분리, 일본어 탁점·반탁점, 악센트가 있는 문자 등 이름의 문자 구성을 정리합니다. 겉모양이 같아도 저장된 구성은 다를 수 있습니다."
+            "value": "한글 자소 분리, 일본어 탁점·반탁점, 악센트가 있는 글자 등 이름의 글자 구성을 정리합니다. 겉모양이 같아도 저장된 구성은 다를 수 있습니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Combine separated Hangul letters, Japanese voicing marks, and accented characters in names. Names can look identical while storing characters differently."
+            "value": "A character such as an accented letter, a Japanese kana with a voicing mark, or a Korean syllable can be stored whole or in pieces. Two names can look identical and still be stored differently."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ハングルの字母や、日本語の濁点・半濁点、アクセント付き文字の構成を整えます。見た目が同じでも、保存されている文字の構成が異なる場合があります。"
+            "value": "名前の中の濁点・半濁点（が、ぱ など）、アクセント付きの文字（é など）、ハングルの表し方をそろえます。見た目が同じでも、保存されている形が異なることがあります。全角と半角の違いはこれとは別のもので、変換しません。"
           }
         }
       }
@@ -7712,19 +7712,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "일반적으로 이 옵션을 사용하세요. 분리 저장된 문자를 가능한 경우 하나로 합칩니다. 예: ᄀ + ᅡ → 가, か + ゙ → が. 따로 입력된 ㄱㅏ 같은 호환 자모나 깨진 인코딩을 복원하는 기능은 아닙니다."
+            "value": "일반적으로 이 옵션을 사용하세요. 분리 저장된 글자를 가능한 경우 하나로 합칩니다. 예: ᄀ + ᅡ → 가, か + ゙ → が. 처음부터 낱자로 입력한 ㄱㅏ 같은 글자나 인코딩이 깨진 글자를 되살리는 기능은 아닙니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Use this for everyday names. Combines separately stored characters where possible, such as e + ◌́ → é. It does not repair corrupted text encoding or transliterate separately typed letters."
+            "value": "Use this for everyday names. Combines characters that are stored in pieces wherever possible, such as e + ◌́ → é. It does not repair garbled text from a wrong encoding, and it does not join letters that were typed as separate characters."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "通常はこちらを使います。分離して保存された文字を、可能な場合に合成します。例：か + ゙ → が。文字化けや、別々に入力された互換字母の復元はできません。"
+            "value": "通常はこちらを使います。分かれて保存されている文字を、可能な場合は1文字にまとめます。例：か + ゙ → が。半角カタカナ（ｶﾞ）、単独の濁点（゛）、別々に入力されたハングル字母（ㄱㅏ）などは対象外です。文字化けを直す機能ではありません。"
           }
         }
       }
@@ -7741,7 +7741,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Use only when another tool requires the separated form. Characters are stored as separate parts and may still look identical."
+            "value": "Use this only when another tool requires the split form. Characters are stored in pieces and may still look identical."
           }
         },
         "ja": {
@@ -7781,7 +7781,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "변환할 텍스트"
+            "value": "변환할 글자"
           }
         },
         "en": {
@@ -7827,19 +7827,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "선택한 {0}개 이름 합치기"
+            "value": "선택한 {0}개 이름 정리"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Combine {0} selected names"
+            "value": "Fix {0} Names"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "選択した{0}件の名前を合成"
+            "value": "選択した{0}件の名前を整える"
           }
         }
       }
@@ -7850,7 +7850,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "규칙이 바뀌었습니다. 미리보기를 갱신한 뒤 이름을 바꿀 수 있습니다."
+            "value": "규칙이 바뀌었습니다. ‘업데이트 필요’를 눌러 미리보기를 업데이트한 뒤 이름을 바꾸세요."
           }
         },
         "en": {
@@ -7862,7 +7862,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ルールが変更されました。プレビューを更新してから名前を変更できます。"
+            "value": "ルールが変更されています。プレビューを更新すると、名前を変更できます。"
           }
         }
       }
@@ -7879,13 +7879,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repair separated characters"
+            "value": "Fix Broken Names"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "分離した文字を修復"
+            "value": "文字を整える"
           }
         }
       }
@@ -7902,13 +7902,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Combine separated characters in file names."
+            "value": "Find and fix names that look broken on other devices because their characters are stored in pieces."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイル名の分離した文字を合成します。"
+            "value": "ファイル名の中で分かれている濁点・半濁点などを、1文字にまとめます。"
           }
         }
       }
@@ -7919,13 +7919,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "글자 바꾸기, 번호 붙이기 등으로 여러 파일 이름을 한 번에 바꿉니다."
+            "value": "텍스트 바꾸기, 번호 붙이기 등으로 여러 파일 이름을 한 번에 바꿉니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Replace text, add numbers and more across many file names."
+            "value": "Replace text, add numbers, and more across many filenames."
           }
         },
         "ja": {
@@ -7942,19 +7942,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "복사한 글자를 붙여 넣어 자소 분리를 합치거나 분리한 뒤 다시 복사합니다. 파일은 바꾸지 않습니다."
+            "value": "복사한 글자를 붙여 넣으면 분리된 글자를 합치거나 반대로 분리해 다시 복사할 수 있습니다. 파일은 바꾸지 않습니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste copied text, combine or separate its characters, and copy the result. No files are changed."
+            "value": "Paste copied text, combine or split its characters, and copy the result. No files are changed."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "コピーした文字を貼り付けて合成または分離し、結果をコピーします。ファイルは変更しません。"
+            "value": "コピーしたテキストをペーストし、文字を1文字にまとめた形か分けた形に変換して、結果をコピーできます。ファイルは変更しません。"
           }
         }
       }
@@ -7988,7 +7988,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "현재 목록의 기존 이름·변경 후 이름·결과를 CSV 파일로 저장합니다. 파일 이름은 바꾸지 않습니다. 원문 CSV는 다른 도구에서 이름을 그대로 읽어야 할 때 사용하세요."
+            "value": "목록에 있는 현재 이름·변경 후 이름·상태를 CSV 파일로 저장합니다. 파일 이름은 바꾸지 않습니다. 원문 CSV는 다른 도구에서 이름을 그대로 읽어야 할 때 사용하세요."
           }
         },
         "en": {
@@ -8000,7 +8000,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "現在の名前・変更後の名前・結果をCSVファイルに保存します。ファイル名は変更しません。元の文字のCSVは、ほかのツールで名前をそのまま読み込む場合に使います。"
+            "value": "一覧の現在の名前・変更後の名前・結果をCSVファイルに保存します。ファイルの名前は変更しません。「加工なしのCSV」は、ほかのツールで名前をそのまま読み込みたい場合に使います。"
           }
         }
       }
@@ -8092,7 +8092,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "中断した操作を復旧中"
+            "value": "中断された操作を復旧中"
           }
         }
       }
@@ -8132,13 +8132,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "What are separated characters?"
+            "value": "Why do names look broken?"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "「文字の分離」とは？"
+            "value": "濁点・半濁点が離れて見えるのはなぜ？"
           }
         }
       }
@@ -8149,7 +8149,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "작업이 중간에 멈추면 다음에 앱을 열 때 알려 드립니다. 작업 기록에서 각 항목의 현재 위치를 확인하고 원래 이름으로 복원할 수 있습니다. 확인 없이 자동으로 복구하지는 않습니다."
+            "value": "작업이 중간에 멈추면 다음에 앱을 열 때 알려 드립니다. 작업 기록에서 각 항목의 현재 위치를 확인하고 원래 이름으로 복구할 수 있습니다. 확인 없이 자동으로 복구하지는 않습니다."
           }
         },
         "en": {
@@ -8178,13 +8178,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inspect and rename only the files and folders you explicitly select."
+            "value": "NameFix scans and renames only the files and folders you choose."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "選択したファイルとフォルダの名前だけを検査・変更します。"
+            "value": "選択したファイルとフォルダの名前だけをスキャンし、変更します。"
           }
         }
       }
@@ -8414,7 +8414,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "変更した名前を確認して元に戻します。"
+            "value": "変更した名前を確認して、元に戻せます。"
           }
         }
       }
@@ -8448,7 +8448,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이름만 확인하며 파일 내용은 바꾸지 않습니다."
+            "value": "이름만 검사하며 파일 내용은 바꾸지 않습니다."
           }
         },
         "en": {
@@ -8460,7 +8460,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "名前だけを確認し、ファイルの内容は変更しません。"
+            "value": "名前だけをスキャンします。ファイルの内容は変更しません。"
           }
         }
       }
@@ -8655,7 +8655,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "숨은 선택 {0}개"
+            "value": "가려진 선택 {0}개"
           }
         },
         "en": {
@@ -8799,7 +8799,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "More Options"
+            "value": "More options"
           }
         },
         "ja": {
@@ -8851,7 +8851,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "置き換える文字"
+            "value": "置き換え後の文字"
           }
         }
       }
@@ -8977,19 +8977,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파일 이름 일괄 변경에서는 작업을 고르고 값을 입력한 뒤 미리보기를 갱신합니다. 규칙은 먼저 목록의 ‘변경 후 이름’에만 반영되며, 확인한 뒤에만 실제 이름을 바꿉니다. 확장자를 편집해도 파일 형식은 변환되지 않습니다. 모든 기능을 무료로 쓸 수 있습니다."
+            "value": "파일 이름 일괄 변경에서는 규칙을 추가하고 값을 입력한 뒤 ‘업데이트 필요’를 눌러 미리보기를 업데이트합니다. 규칙은 먼저 목록의 ‘변경 후 이름’에만 반영되며, 확인한 뒤에만 실제 이름을 바꿉니다. 확장자를 편집해도 파일 형식은 변환되지 않습니다. 모든 기능을 무료로 쓸 수 있습니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "In Batch Rename Files, choose a step, enter its value and update the preview. Rules only change the New name column first; real names change only after you confirm. Editing an extension does not convert the file format. Every feature is free."
+            "value": "In Batch Rename Files, add a rule, fill in its values, and update the preview. Rules change only the New name column at first; the actual names change after you confirm. Changing an extension does not convert the file to another format. Every feature is free."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "「ファイル名を一括変更」では、操作を選んで値を入力し、プレビューを更新します。ルールはまず一覧の「変更後の名前」にだけ反映され、確認した後にだけ実際の名前を変更します。拡張子を編集してもファイル形式は変換されません。すべての機能を無料で利用できます。"
+            "value": "「ファイル名を一括変更」では、ルールを選んで値を入力し、プレビューを更新します。ルールの結果は、まず一覧の「変更後の名前」にだけ表示されます。実際の名前は、確認してから変更します。拡張子を書き換えても、ファイルの形式は変換されません。すべての機能を無料で利用できます。"
           }
         }
       }
@@ -9000,19 +9000,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "자소 분리 해결은 분리 저장된 글자를 항상 하나로 합칩니다(NFC). 따로 형식을 고를 필요가 없습니다. 반대로 분리해 저장해야 하는 드문 경우에는 파일 이름 일괄 변경의 고급 규칙에서 글자 저장 형식을 바꿉니다."
+            "value": "자소 분리 해결은 분리 저장된 글자를 항상 하나로 합칩니다(NFC). 따로 형식을 고를 필요가 없습니다. 반대로 분리해 저장해야 하는 드문 경우에는 파일 이름 일괄 변경의 규칙 추가 → 고급 → 글자 저장 형식에서 바꿀 수 있습니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repair separated characters always combines them into one form (NFC), so there is nothing to choose. In the rare case you need the separated form, change the character form under Advanced Rules in Batch Rename Files."
+            "value": "Fix Broken Names always combines split characters into whole ones, so there is nothing to choose. In the rare case that you need the split form, switch to Batch Rename Files and choose Add Rule → Advanced → Character form."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "「分離した文字を修復」は、分離して保存された文字を常に合成します（NFC）。形式を選ぶ必要はありません。まれに分離形式が必要な場合は、「ファイル名を一括変更」の高度なルールで文字の保存形式を変更します。"
+            "value": "「文字を整える」は、分かれて保存されている文字を常に1文字にまとめます（NFC）。形式を選ぶ必要はありません。まれに分離形式が必要な場合は、「ファイル名を一括変更」の「ルールを追加」>「詳細」>「文字の保存形式」で変更できます。"
           }
         }
       }
@@ -9029,13 +9029,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Added Files and Folders"
+            "value": "Added Items"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "追加したファイル・フォルダ"
+            "value": "追加した項目"
           }
         }
       }
@@ -9081,7 +9081,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "リストのオプション"
+            "value": "一覧のオプション"
           }
         }
       }
@@ -9092,7 +9092,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "정리할 이름 {0}개"
+            "value": "바꿀 이름 {0}개"
           }
         },
         "en": {
@@ -9127,7 +9127,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "{0} 内の項目だけを表示中"
+            "value": "“{0}”内の項目だけを表示中"
           }
         }
       }
@@ -9150,7 +9150,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "変更ルール"
+            "value": "ルール"
           }
         }
       }
@@ -9196,7 +9196,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "高度"
+            "value": "詳細"
           }
         }
       }
@@ -9236,7 +9236,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Needs update"
+            "value": "Update preview"
           }
         },
         "ja": {
@@ -9253,19 +9253,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "규칙이 바뀌었습니다. 누르면 바뀐 규칙으로 목록을 다시 계산합니다. 그 뒤에 이름을 바꿀 수 있습니다."
+            "value": "규칙이 바뀌었습니다. ‘업데이트 필요’를 누르면 바뀐 규칙으로 미리보기를 업데이트합니다. 그 뒤에 이름을 바꿀 수 있습니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The rules have changed. Click to recompute the list with them; then you can rename."
+            "value": "The rules have changed. Update the preview to apply them; then you can rename."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ルールが変更されました。押すと新しいルールで一覧を計算し直します。その後に名前を変更できます。"
+            "value": "ルールが変更されています。クリックすると、新しいルールで一覧を更新します。そのあとで名前を変更できます。"
           }
         }
       }
@@ -9288,7 +9288,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "高度なパターン"
+            "value": "パターンで置換"
           }
         }
       }
@@ -9345,7 +9345,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "순서 지정"
+            "value": "번호 순서"
           }
         },
         "en": {
@@ -9357,7 +9357,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "順序を指定"
+            "value": "連番の順序"
           }
         }
       }
@@ -9403,7 +9403,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイルの組"
+            "value": "ファイルのセット"
           }
         }
       }
@@ -9449,7 +9449,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "「ルールを追加」で変更方法を選びます。"
+            "value": "「ルールを追加」をクリックして、変更方法を選んでください。"
           }
         }
       }
@@ -9495,7 +9495,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "前に「{0}」"
+            "value": "先頭に「{0}」"
           }
         }
       }
@@ -9518,7 +9518,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "後ろに「{0}」"
+            "value": "末尾に「{0}」"
           }
         }
       }
@@ -9587,7 +9587,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "{0}文字の後に「{1}」"
+            "value": "{0}文字目の後ろに「{1}」"
           }
         }
       }
@@ -9690,13 +9690,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "규칙 동작"
+            "value": "규칙 관리"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rule actions"
+            "value": "Rule Actions"
           }
         },
         "ja": {
@@ -9811,13 +9811,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fix broken-up file names in one go"
+            "value": "Fix names that look broken on other devices"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ばらばらになるファイル名を、まとめて解決"
+            "value": "ファイル名の文字を、まとめて整える"
           }
         }
       }
@@ -9834,13 +9834,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Some file names fall apart into separate characters when sent to other computers or through messengers. NameFix finds them and joins the characters before you share."
+            "value": "Some names look fine on your Mac but show up on other devices with accents beside the letters or characters split apart, and may not match in search. NameFix finds them and fixes them before you share."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ほかのパソコンやメッセンジャーに送ると文字が分かれてしまうファイル名を見つけ、送る前に元の文字へまとめます。"
+            "value": "ほかの環境とやり取りすると、濁点や半濁点が離れて見えたり、検索で見つからなかったりするファイル名があります。そうした名前を見つけて、受け渡す前に整えます。"
           }
         }
       }
@@ -9857,13 +9857,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Korean syllables, Japanese voiced marks and accented letters"
+            "value": "Accented letters, Japanese kana, Korean Hangul, and more"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ハングルの字母分離、日本語の濁点、アクセント付き文字まで"
+            "value": "濁点・半濁点、アクセント付きの文字、ハングルに対応"
           }
         }
       }
@@ -9903,13 +9903,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Subfolders are checked in the same pass"
+            "value": "Subfolders are scanned too"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "サブフォルダの中まで一度に検査"
+            "value": "サブフォルダの中まで一度にスキャン"
           }
         }
       }
@@ -9932,7 +9932,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "変更する前に、必ずお見せします"
+            "value": "変更する前に、すべて確認できます"
           }
         }
       }
@@ -9955,7 +9955,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "変更前と変更後の名前を並べて確認し、確認したあとにだけ名前を変更します。"
+            "value": "変更前と変更後の名前を並べて表示します。確認して実行するまで、名前は変わりません。"
           }
         }
       }
@@ -9995,7 +9995,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Never overwrites: clashing names are left out"
+            "value": "Never overwrites: conflicting names are skipped"
           }
         },
         "ja": {
@@ -10058,7 +10058,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "글자 바꾸기, 번호 붙이기, 촬영 날짜 넣기 같은 규칙을 고르고 미리보기로 결과를 확인하세요."
+            "value": "텍스트 바꾸기, 번호 붙이기, 촬영 날짜 넣기 같은 규칙을 고르고 미리보기로 결과를 확인하세요."
           }
         },
         "en": {
@@ -10070,7 +10070,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "文字の置き換え、番号付け、撮影日の追加などのルールを選び、プレビューで結果を確認できます。"
+            "value": "文字の置き換え、連番、撮影日の追加などのルールを選び、プレビューで結果を確認できます。"
           }
         }
       }
@@ -10093,7 +10093,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "複数のルールを重ねて一度に適用"
+            "value": "複数のルールを組み合わせて一度に適用"
           }
         }
       }
@@ -10173,13 +10173,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "계정도 결제도 필요 없습니다. 파일과 파일 이름은 어디로도 전송되지 않습니다."
+            "value": "계정을 만들 필요도, 로그인할 필요도 없습니다. 파일과 파일 이름은 어디로도 전송되지 않습니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No account and no purchase. Your files and their names are never sent anywhere."
+            "value": "No account and no ads. Your files and their names are never sent anywhere."
           }
         },
         "ja": {
@@ -10242,19 +10242,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "폴더 자동 감시: 새 파일을 모아 두었다가 확인 후 정리"
+            "value": "폴더 감시: 새 파일을 모아 두었다가 확인 후 정리"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Folder watching collects new files for you to review and fix"
+            "value": "Watched folders collect new files for you to review and rename"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フォルダ自動監視：新しいファイルをためておき、確認してから整理"
+            "value": "フォルダの監視：新しいファイルを集めておき、確認してから名前を変更"
           }
         }
       }
@@ -10369,7 +10369,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "紹介をもう一度見る"
+            "value": "アプリの紹介を見る"
           }
         }
       }
@@ -10415,7 +10415,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ウインドウにドロップするか、ファイル選択・フォルダ選択を押します。"
+            "value": "ウインドウにドロップするか、「ファイルを選択」または「フォルダを選択」をクリックします。"
           }
         }
       }
@@ -10461,7 +10461,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "リスト上の要約（整理する名前・競合・選択）を押すと、その項目だけを表示できます。"
+            "value": "一覧の上にある要約（整える名前・競合・選択）をクリックすると、その項目だけを表示できます。"
           }
         }
       }
@@ -10501,13 +10501,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You confirm once more in a dialog. Renamed items can be undone from History."
+            "value": "You confirm once more before anything changes. You can undo a rename from History."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "確認画面でもう一度確認します。変更した名前は履歴から元に戻せます。"
+            "value": "確認のダイアログで、もう一度内容を確かめます。変更した名前は、履歴から元に戻せます。"
           }
         }
       }
@@ -10524,7 +10524,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keyboard Shortcuts"
+            "value": "Keyboard shortcuts"
           }
         },
         "ja": {
@@ -10587,7 +10587,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "작업 중에는 추가할 수 없음"
+            "value": "작업이 끝난 뒤 다시 시도"
           }
         },
         "en": {
@@ -10599,7 +10599,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "作業中は追加できません"
+            "value": "処理中は追加できません"
           }
         }
       }
@@ -10662,7 +10662,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Selected items were left out"
+            "value": "Selected items were skipped"
           }
         },
         "ja": {
@@ -10685,13 +10685,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check cancelled"
+            "value": "Scan canceled"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "検査をキャンセル"
+            "value": "スキャンをキャンセルしました"
           }
         }
       }
@@ -10806,7 +10806,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "プリセットを保存"
+            "value": "プリセットを保存しました"
           }
         }
       }
@@ -10817,7 +10817,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "규칙 설정 저장 실패"
+            "value": "규칙·프리셋 저장 실패"
           }
         },
         "en": {
@@ -10852,7 +10852,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイルを受信 · 待機中"
+            "value": "受け取り済み · スキャン待ち"
           }
         }
       }
@@ -10875,7 +10875,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "作業を中断中…"
+            "value": "処理を停止中…"
           }
         }
       }
@@ -10898,7 +10898,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "作業に失敗"
+            "value": "処理に失敗"
           }
         }
       }
@@ -10967,7 +10967,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "以前の作業の確認が必要"
+            "value": "前回の操作の確認が必要"
           }
         }
       }
@@ -11116,7 +11116,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "최신 버전의 데이터"
+            "value": "더 새로운 버전의 데이터"
           }
         },
         "en": {
@@ -11139,7 +11139,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "규칙 처리 한도 초과"
+            "value": "처리 한도 초과"
           }
         },
         "en": {
@@ -11197,7 +11197,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moongchi ウェブサイト"
+            "value": "MoongchiのWebサイト"
           }
         }
       }
@@ -11237,7 +11237,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A file-name tool for Mac, made by AILO WORKS"
+            "value": "A filename fixer and batch renamer for Mac, by AILO WORKS"
           }
         },
         "ja": {
@@ -11283,13 +11283,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple Silicon · macOS 14 or later"
+            "value": "Apple silicon · macOS 14 or later"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple Silicon · macOS 14以降"
+            "value": "Appleシリコン · macOS 14以降"
           }
         }
       }
@@ -11300,19 +11300,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "자소 분리된 파일 이름을 합치고, 규칙으로 여러 파일의 이름을 한 번에 바꿉니다."
+            "value": "자소 분리된 파일 이름을 정리하고, 규칙으로 여러 파일 이름을 한 번에 바꿉니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Joins separated characters in file names and renames many files at once with rules."
+            "value": "Fixes filenames that look broken on other devices and renames many files at once with rules."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "文字が分離したファイル名をまとめ、ルールで複数のファイル名を一度に変更します。"
+            "value": "濁点・半濁点などが分かれたファイル名の文字を整え、ルールで複数のファイル名をまとめて変更します。"
           }
         }
       }
@@ -11375,7 +11375,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "About the Developer"
+            "value": "About the developer"
           }
         },
         "ja": {
@@ -11421,7 +11421,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "What to Rename"
+            "value": "What to rename"
           }
         },
         "ja": {
@@ -11450,7 +11450,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "既定では、表示されている通常のファイルの名前だけを変更します。サブフォルダ内のファイルは含みますが、フォルダ名と非表示の項目はそのままです。"
+            "value": "デフォルトでは、表示されている通常のファイルの名前だけを変更します。サブフォルダ内のファイルは含みますが、フォルダ名と非表示の項目はそのままです。"
           }
         }
       }
@@ -11536,13 +11536,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rules also apply to items whose names start with a dot and to items inside such folders. Finder’s own files such as .DS_Store are always left out."
+            "value": "Rules also apply to items whose names start with a dot and to items inside such folders. Finder’s own files such as .DS_Store are always skipped."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "名前がドット(.)で始まる項目と、そのフォルダ内の項目にもルールを適用します。.DS_StoreなどFinderが管理するファイルは常に除外します。"
+            "value": "名前がドット（.）で始まる項目と、そうしたフォルダの中にある項目にもルールを適用します。.DS_Storeなど、Finderが管理するファイルは常に除外します。"
           }
         }
       }
@@ -11559,7 +11559,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Not a target"
+            "value": "Not included"
           }
         },
         "ja": {
@@ -11582,13 +11582,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Folder names are not renamed by default. Turn on “Also rename folders” under Add Rule → Advanced → What to Rename."
+            "value": "Folder names are not renamed by default. Turn on “Also rename folders” under Add Rule → Advanced → What to rename."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フォルダ名は一括変更の既定の対象ではありません。「ルールを追加」→「詳細」→「変更する対象」で「フォルダ名も変更」をオンにできます。"
+            "value": "フォルダ名は、デフォルトでは一括変更の対象外です。「ルールを追加」>「詳細」>「変更する対象」で「フォルダ名も変更」をオンにできます。"
           }
         }
       }
@@ -11605,13 +11605,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hidden items are not renamed by default. Turn on “Include hidden files” under Add Rule → Advanced → What to Rename."
+            "value": "Hidden items are not renamed by default. Turn on “Include hidden files” under Add Rule → Advanced → What to rename."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "非表示の項目は一括変更の既定の対象ではありません。「ルールを追加」→「詳細」→「変更する対象」で「非表示のファイルを含める」をオンにできます。"
+            "value": "非表示の項目は、デフォルトでは一括変更の対象外です。「ルールを追加」>「詳細」>「変更する対象」で「非表示のファイルを含める」をオンにできます。"
           }
         }
       }
@@ -11927,7 +11927,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Items on exFAT and FAT drives are not renamed. On these drives macOS does not show names exactly as they are stored (it shows the characters separated), so the stored name cannot be checked. Nothing is wrong with the files. Copy them to your Mac or to an APFS drive to fix their names."
+            "value": "Items on exFAT and FAT drives are not renamed. On these drives macOS does not show names exactly as they are stored (it shows their characters split), so the stored name cannot be checked. Nothing is wrong with the files. Copy them to your Mac or to an APFS drive to fix their names."
           }
         },
         "ja": {
@@ -12019,7 +12019,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Items on this disk format are not renamed. Safe renaming has been verified only on APFS; nothing is wrong with the files. Copy them to your Mac to fix their names."
+            "value": "Items on a disk in this format are not renamed. Safe renaming has been verified only on APFS; nothing is wrong with the files. Copy them to your Mac to fix their names."
           }
         },
         "ja": {
@@ -12088,7 +12088,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Items in iCloud Drive and other cloud-synced folders are left out, because their sync state can change while they are being renamed. Copy them to a folder that is not synced to fix their names."
+            "value": "Items in iCloud Drive and other cloud-synced folders are skipped because their sync state can change while they are being renamed. Copy them to a folder that is not synced to fix their names."
           }
         },
         "ja": {
@@ -12134,13 +12134,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The disk's own name is not changed here. The items inside it are checked."
+            "value": "The disk’s own name is not changed here. The items inside it are still scanned."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ディスク自体の名前はここでは変更しません。中にある項目は確認します。"
+            "value": "ディスク自体の名前は、ここでは変更しません。中にある項目はスキャンします。"
           }
         }
       }
@@ -12272,7 +12272,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Names Windows can't use"
+            "value": "Names Windows can’t use"
           }
         },
         "ja": {
@@ -12295,7 +12295,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Windows can't use this name. This is a note only; the name is not changed automatically."
+            "value": "Windows can’t use this name. This is a note only; the name is not changed automatically."
           }
         },
         "ja": {
@@ -12394,6 +12394,144 @@
           "stringUnit": {
             "state": "translated",
             "value": "Windowsが予約している名前です（CON、PRN、AUX、NUL、COM1〜9、LPT1〜9）。"
+          }
+        }
+      }
+    },
+    "RenameCountOne": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1개 이름 바꾸기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename 1 Item"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の名前を変更"
+          }
+        }
+      }
+    },
+    "CombineCountOne": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "선택한 1개 이름 정리"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fix 1 Name"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選択した1件の名前を整える"
+          }
+        }
+      }
+    },
+    "ConfirmBodyOne": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1개 항목의 이름을 바꿉니다. 파일 내용은 바뀌지 않습니다. 제외: {1}개."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename 1 item. File contents stay unchanged. Skipped: {1}."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の名前を変更します。ファイルの内容は変わりません。除外した項目：{1}件。"
+          }
+        }
+      }
+    },
+    "TreePendingOne": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "바꿀 이름 1개"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 name to change"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "変更する名前 1件"
+          }
+        }
+      }
+    },
+    "ConfirmRecoveryOne": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "원래 이름으로 복구할 1개 항목을 확인하세요. 확인한 뒤에만 복구합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review 1 item to restore to its original name. Nothing changes until you confirm."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "元の名前に戻す1件を確認してください。確認するまで、何も変更しません。"
+          }
+        }
+      }
+    },
+    "UndoConfirmOne": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1개 항목을 원래 이름으로 되돌립니다. 되돌릴 수 없는 {1}개는 제외합니다. 이름이 충돌하거나, 작업 이후 교체되거나 이동된 항목이 여기에 해당합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore 1 original name; {1} will be skipped. Items that conflict, or that were moved or replaced since the operation, are skipped."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件を元の名前に戻します。戻せない{1}件は除外します。名前が競合する項目や、操作のあとに置き換えまたは移動された項目が該当します。"
           }
         }
       }

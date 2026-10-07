@@ -430,7 +430,7 @@ struct AdvancedRuleSheet: View {
     private func export(_ recipe: Recipe) {
         let panel = NSSavePanel(); panel.allowedContentTypes = [.json]; panel.nameFieldStringValue = "NameFix-Recipe.json"
         guard panel.runModal() == .OK, let url = panel.url else { return }
-        Task { do { try await Task.detached { try JSONEncoder().encode(recipe).write(to: url, options: .atomic) }.value } catch { model.message = "SettingsSaveFailed" } }
+        Task { do { try await Task.detached { try JSONEncoder().encode(recipe).write(to: url, options: .atomic) }.value } catch { model.message = "ExportFailed" } }
     }
 }
 

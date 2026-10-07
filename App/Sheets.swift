@@ -18,7 +18,7 @@ struct ConfirmationView: View {
                         Text(model.t(plan.mode == "rename" ? "ConfirmBody" : plan.mode == "recovery" ? "ConfirmRecovery" : "UndoConfirm", model.n(plan.operations.count), model.n(plan.excluded)))
                         if plan.mode == "rename" { Label(model.t("UndoAvailable"), systemImage: "arrow.uturn.backward.circle").foregroundStyle(palette.secondary) }
                         if plan.mode == "rename", model.hiddenSelected > 0 { Text(model.t("HiddenSelectionConfirm", model.n(model.hiddenSelected))).foregroundStyle(palette.warning) }
-                        Text(model.t("OutputForm") + ": " + model.t(model.pipeline.target.rawValue)).font(.caption).foregroundStyle(palette.secondary)
+                        if model.pipeline.target != .nfc { Text(model.t("OutputForm") + ": " + model.t(model.pipeline.target.rawValue)).font(.caption).foregroundStyle(palette.secondary) }
                         Text(model.t("CloudWarning")).foregroundStyle(palette.secondary)
                         Text(model.t("FilesystemHelp")).font(.caption).foregroundStyle(palette.secondary)
                         Text(model.t("ConcurrentChangeHelp")).font(.caption).foregroundStyle(palette.secondary)

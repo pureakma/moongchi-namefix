@@ -1,4 +1,4 @@
-"Inspect Names with NameFix" = "Inspect Names with NameFix";
-"NSDesktopFolderUsageDescription" = "Inspect and rename only the files and folders you explicitly select.";
-"NSDocumentsFolderUsageDescription" = "Inspect and rename only the files and folders you explicitly select.";
-"NSDownloadsFolderUsageDescription" = "Inspect and rename only the files and folders you explicitly select.";
+"Inspect Names with NameFix" = "Scan Names with NameFix";
+"NSDesktopFolderUsageDescription" = "NameFix scans and renames only the files and folders you choose.";
+"NSDocumentsFolderUsageDescription" = "NameFix scans and renames only the files and folders you choose.";
+"NSDownloadsFolderUsageDescription" = "NameFix scans and renames only the files and folders you choose.";

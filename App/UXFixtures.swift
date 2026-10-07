@@ -159,6 +159,8 @@ import NameFixRuntime
                     model.selected = []; model.counts["NeededCaption"] = 0; model.message = "VolumeFATUnsupported"
                 }
             }
+            // One item: the count reads naturally in every language.
+            try render("U-single-\(language)", language: language, theme: "olive", size: wide, entries: Array(rows(conflict: false).filter { !$0.isDirectory }.prefix(1)))
             let model = makeModel(language: language, theme: "olive", workbench: false, entries: [], rules: [], applied: true)
             var odd = FileEntry(path: RawPath("/Users/me/Documents/Trip/report: final?.txt"), identity: identity, parentIdentity: identity, status: .normal, reason: "NormalHelp", proposed: Data("report: final?.txt".utf8))
             odd.id = UUID(); model.entries = [odd]; model.focused = odd.id; model.sheet = "inspector"

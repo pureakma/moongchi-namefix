@@ -110,9 +110,10 @@ struct OnboardingView: View {
         HStack(spacing: 26) {
             Image(nsImage: NSApp.applicationIconImage).resizable().interpolation(.high).frame(width: 112, height: 112).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 8) {
-                nameRow("ㅎㅏㄴㄱㅡㄹ.hwp", "한글.hwp")
-                nameRow("か\u{309B}いと\u{309B}.pdf", "がいど.pdf")
-                nameRow("cafe\u{00B4}.txt", "café.txt")
+                // The example each reader recognises comes first. The marks are drawn apart for the picture.
+                let examples = [("ㅎㅏㄴㄱㅡㄹ.hwp", "한글.hwp"), ("か\u{309B}いと\u{309B}.pdf", "がいど.pdf"), ("cafe\u{00B4}.txt", "café.txt")]
+                let language = L10n.language(model.settings.language), order = language == "ja" ? [1, 2, 0] : language == "ko" ? [0, 1, 2] : [2, 1, 0]
+                ForEach(order, id: \.self) { nameRow(examples[$0].0, examples[$0].1) }
             }
         }
     }

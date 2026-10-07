@@ -19,6 +19,8 @@ enum L10n {
         let lang = self.language(language)
         let bundle = Bundle.main.path(forResource: lang, ofType: "lproj").flatMap(Bundle.init(path:)) ?? .main
         var value = bundle.localizedString(forKey: key, value: key, table: nil)
+        // A wording for exactly one, where the catalog has it (key + "One").
+        if args.first == "1" { let one = bundle.localizedString(forKey: key + "One", value: "\u{0}", table: nil); if one != "\u{0}" { value = one } }
         for (i, arg) in args.enumerated() { value = value.replacingOccurrences(of: "{\(i)}", with: arg) }
         return value
     }
