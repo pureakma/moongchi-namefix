@@ -41,13 +41,14 @@ Final User QA Session(T-010)의 판정은 USER_QA_COMPLETE_WITH_EXTERNAL_PENDING
 - Developer ID Application: AVAILABLE (과거 직접 배포용, 지금은 쓰지 않음)
 - Apple Distribution / Mac App Distribution / Mac Installer Distribution: MISSING — 자동 서명에서는 필요 없다
 - com.ailoworks.namefix의 provisioning profile: MISSING — 자동 서명이 만든다
-- Xcode 계정: MISSING — 팀 25373G7846은 기억돼 있지만 로그인된 Apple 계정이 없다. 2026-10-07에 eng/archive-store.sh --signed를 실행하니 archive는 됐고(로컬의 Apple Development 서명) export가 ‘No Account for Team’으로 멈췄다. 개발자 계정에는 아무것도 만들어지지 않았다
-- App ID와 App Store Connect 앱 기록: 로그인 없이는 읽을 수 없어 확인하지 못했다
+- Xcode 계정: AVAILABLE — 사용자가 로그인했다(역할 Admin, 팀 25373G7846). xcodebuild는 이 계정으로 App Store Connect는 읽지만 서명에 필요한 계정 단계에서 ‘No Account for Team’으로 멈춘다(2026-10-07, 사용자 터미널에서도 같음). 그래서 스토어용 서명과 내보내기는 Xcode Organizer에서 한다: archive를 열고 Distribute App › App Store Connect
+- App Store Connect 앱 기록: MISSING — 2026-10-07에 Xcode의 조회에서 bundle ID com.ailoworks.namefix의 앱이 0개였다. 사용자가 만든다
+- App ID: 확인하지 못했다(자동 서명이 없으면 만든다)
 
 사용자가 해야 하는 일(순서대로):
 1. Xcode › Settings › Accounts에서 Apple 계정이 로그인돼 있는지 확인한다(만료됐으면 다시 로그인).
 2. App Store Connect(appstoreconnect.apple.com) › 계약에서 필요한 약관이 모두 동의 상태인지 확인한다. 무료 앱이면 무료 앱 계약만 있으면 된다.
-3. AI에게 “서명 archive 진행”이라고 말한다. AI가 eng/archive-store.sh --signed를 실행하면 Xcode가 App ID와 스토어용 profile을 만들고 서명된 pkg를 내보낸다. 업로드는 하지 않는다.
+3. 서명과 내보내기는 Xcode Organizer에서 한다. eng/archive-store.sh --signed가 만든 archive(artifacts/store/1.0.0/build6-signed/MoongchiNameFix.xcarchive)를 Xcode로 열고 Distribute App › App Store Connect를 고른다. Xcode가 App ID와 스토어용 profile을 만들고 cloud-managed 인증서로 서명한다. 명령줄 export는 계정 단계에서 멈추므로 쓰지 않는다.
 4. App Store Connect › 앱 › + › 신규 앱: 플랫폼 macOS, 이름 Moongchi NameFix, 기본 언어 한국어, 번들 ID com.ailoworks.namefix(3번 뒤에 목록에 나온다), SKU AILOWORKS-NAMEFIX-MAC-100.
 5. 그 뒤 업로드와 메타데이터·스크린샷·App Privacy 입력, 심사 제출은 다음 단계에서 한다.
 
