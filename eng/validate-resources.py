@@ -52,6 +52,8 @@ for language in languages:
     )
     actual_info = (resources / f"{language}.lproj" / "InfoPlist.strings").read_text()
     assert actual_info == expected_info, f"{language} InfoPlist.strings mismatch"
+    service = "".join(line + "\n" for line in expected_info.splitlines() if line.startswith('"Inspect Names'))
+    assert service and (resources / f"{language}.lproj" / "ServicesMenu.strings").read_text() == service, f"{language} ServicesMenu.strings mismatch"
 
 for font in ["PretendardVariable", "PretendardJPVariable"]:
     ttf = resources / f"{font}.ttf"

@@ -39,6 +39,8 @@ for language in languages:
     ]
     (target / "Localizable.strings").write_text("\n".join(lines) + "\n")
     (target / "InfoPlist.strings").write_text(info_plist_strings(language))
+    # The Services menu reads the name of a service from ServicesMenu.strings, not from InfoPlist.strings.
+    (target / "ServicesMenu.strings").write_text("".join(line + "\n" for line in info_plist_strings(language).splitlines() if line.startswith('"Inspect Names')))
 
 for font in ["PretendardVariable", "PretendardJPVariable"]:
     ttf = resources / f"{font}.ttf"
