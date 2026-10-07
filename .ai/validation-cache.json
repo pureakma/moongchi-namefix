@@ -2080,6 +2080,39 @@
       "command": "NAMEFIX_PERFORMANCE=1 NAMEFIX_EXPANSION_PERF=1 eng/test.sh --level 3; eng/test-volumes.py; eng/resources.py + eng/validate-resources.py; eng/validate-marketing.py; eng/build-cli.sh debug|release + CLI tests; eng/build.sh Debug and Release; --render-ux/shell/responsive/expansion; --diagnose-window; --render-marketing + eng/marketing-shots.py",
       "evidencePath": "artifacts/evidence/global-hardening",
       "notes": "Global Product Hardening gate (T-008). 138 tests, 0 failures (66 integration, 43 UI model, 29 core). Disposable volume matrix PASS on APFS, case-sensitive APFS (65 contract tests each plus detach, reattach under a new device number, another disk in its place, read-only), exFAT and FAT32 (listed, never planned). 545 keys x ko/en/ja. 225 representative renders. Scan 100,000 items 2.94 s; 10,000 preview median 2.214 s. 1,000 renames about 30 s on internal APFS and on an APFS image with the journal on the internal disk. macOS 27.0.1. Direct Release configuration builds; no candidate, signing or packaging. Real external hardware not tested (EXTERNAL_APFS_HARDWARE_QA_PENDING). Store screenshots recaptured with the new wording; this supersedes MAC-MARKETING-20261007 for the current source."
+    },
+    {
+      "validationId": "MAC-GLOBAL-HARDENING-2-GATE-20261007",
+      "status": "PASS",
+      "configuration": "Debug",
+      "architecture": "arm64",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "CLI/**/*.swift",
+        "App/**/*.swift",
+        "App/Info.plist",
+        "App/NameFix-AppStore.entitlements",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "Package.swift",
+        "project.yml",
+        "eng/test-volumes.py",
+        "eng/test-sandbox.py",
+        "eng/test.sh",
+        "eng/build.sh",
+        "eng/resources.py",
+        "eng/validate-resources.py",
+        "marketing/appstore.json",
+        "eng/validate-marketing.py"
+      ],
+      "sourceFingerprint": "1190e9bac3ba3351e2396d73be8b91375036a7de7fc4132754452a89f983b590",
+      "testFingerprint": "ff94566fb89ba568318c05bb365086241f26549cd1b25e6ea860d328613573c4",
+      "timestamp": "2026-10-07T02:04:04.532197+00:00",
+      "command": "NAMEFIX_PERFORMANCE=1 NAMEFIX_EXPANSION_PERF=1 eng/test.sh --level 3; eng/test-volumes.py; eng/test-sandbox.py; eng/test-sandbox.py --compare; eng/resources.py + eng/validate-resources.py; eng/validate-marketing.py; eng/build-cli.sh debug|release + CLI tests; eng/build.sh Debug, Release and AppStore; --render-ux/shell/responsive/expansion; --diagnose-window",
+      "evidencePath": "artifacts/evidence/global-hardening-2",
+      "notes": "Global Product Hardening Phase 2 gate (T-009), 1.0.0 build 6 source. 147 tests, 0 failures (74 integration, 44 UI model, 29 core). Disposable volume matrix PASS on APFS, case-sensitive APFS (73 contract tests each incl. the access rule), exFAT, FAT32. Real App Sandbox PASS (8 scenarios): a Debug app signed ad hoc with the store entitlements, folders handed over with open -a, each step a new launch, no clicks. Direct Release configuration: no entitlements. AppStore configuration: app-sandbox, user-selected read-write, app-scope bookmarks only; ad hoc signature, not a submission build. 231 representative renders. Direct vs sandbox timings within about 10 percent; 1,000 renames about 31 s in both. macOS 27.0.1. The powerbox (clicked panel) path, sleep and wake, and real external hardware are left to user QA. This supersedes MAC-GLOBAL-HARDENING-GATE-20261007 for the current source."
     }
   ]
 }

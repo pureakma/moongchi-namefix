@@ -8,8 +8,8 @@
 - Swift 6 strict concurrency
 - SwiftUI + AppKit
 - Foundation/Darwin 파일시스템 API
-- 현재 App Sandbox OFF, Hardened Runtime ON
-- 제품 version 설정 1.0.0 build 5. bundle ID는 Release 구성 com.ailoworks.namefix, Debug 구성 com.moongchi.namefix.dev(project.yml이 원본). 앱 정보 화면과 진단 보고서는 번들의 version/build 값을 읽는다. 설정·작업 기록 폴더는 bundle ID와 무관하게 Application Support/Moongchi/NameFix다.
+- 구성 셋: Debug, Release(직접 배포, App Sandbox OFF), AppStore(App Sandbox ON). 모두 Hardened Runtime ON. 원본은 project.yml 하나(D-032)
+- 제품 version 설정 1.0.0 build 6. bundle ID는 Release·AppStore 구성 com.ailoworks.namefix, Debug 구성 com.moongchi.namefix.dev(project.yml이 원본). 앱 정보 화면과 진단 보고서는 번들의 version/build 값을 읽는다. 설정·작업 기록 폴더는 bundle ID와 무관하게 Application Support/Moongchi/NameFix다.
 
 ## 책임 경계
 
@@ -36,7 +36,19 @@ Clipboard는 사용자가 붙여넣기/분석을 명시했을 때만 읽고 자�
 
 Infrastructure의 FS.support(fd)가 디렉터리가 놓인 volume의 VolumeSupport(filesystem, local, writable, caseSensitive, level, reason)를 돌려준다. level은 supported / previewOnly / unsupported다. Scanner는 이 답으로 항목의 상태와 이유를 정하고, Planning·TransactionCoordinator·GraphTransaction은 같은 판정을 쓰는 gate FS.capability를 통과해야 mutation한다. App은 VolumeSupport.locationReasons에 든 이유를 ‘항목이 아니라 위치 때문’으로 보고 상태 문구와 한 줄 안내를 고른다. 형식별 판정과 근거는 FILESYSTEM_CAPABILITIES.md가 원본이다.
 
-디렉터리를 여는 곳은 FS.openDirectory 하나다(Scanner, DirectoryReadSession, transaction, History가 모두 이것을 쓴다). 현재는 루트부터 모든 경로 요소를 O_NOFOLLOW로 연다.
+디렉터리를 여는 곳은 FS.openDirectory 하나다(Scanner, DirectoryReadSession, transaction, History가 모두 이것을 쓴다).
+
+## 접근 범위
+
+Infrastructure의 AccessRoots가 이 프로세스가 작업할 수 있는 폴더와 walk의 시작점을 정한다(D-033).
+
+- 직접 배포판: 제한 없음. FS.openDirectory는 "/"에서 시작해 모든 경로 요소를 O_NOFOLLOW로 연다.
+- sandbox(스토어판, 실행 중에 APP_SANDBOX_CONTAINER_ID로 판별): 사용자가 허용한 폴더(AuthorizedRoot: raw 경로, 폴더 identity, volume UUID)만 열 수 있다. FS.openDirectory는 경로를 포함하는 가장 깊은 허용 폴더의 FD에서 시작해 나머지 요소를 O_NOFOLLOW로 연다. 포함하는 폴더가 없으면 FolderAccessNeeded를 던진다. 허용 폴더의 identity나 실제 경로가 달라졌으면 쓰지 않는다.
+- 허용 폴더가 생기는 곳: 사용자가 고르거나 끌어다 놓거나 Finder에서 넘긴 폴더(AppModel.add), 즐겨찾기·최근 폴더·감시 폴더의 bookmark, 작업 기록용으로 남긴 bookmark(GrantStore, access.json), 앱 자신의 데이터 폴더. grant는 횟수를 세고 release로 돌려준다. security scope의 시작과 끝은 AccessLease가 짝을 맞춘다.
+- 앱은 접근 여부를 직접 판단하지 않는다. FolderAccessNeeded가 나오면 AppModel이 folderRequest를 올리고 App이 그 폴더 하나를 고르는 창을 띄운다. 고르면 같은 일을 다시 한다.
+- Scanner.protectedReason은 허용 폴더 안에서는 항목의 속성을 읽고, 그 위로는 이름만 본다.
+
+에디션에 따라 달라지는 것은 Info.plist의 NameFixDistribution(직접 배포판의 ‘업데이트 확인’ 메뉴 유무)과 위 접근 규칙뿐이다.
 
 ## Scan과 Preview
 
@@ -72,6 +84,8 @@ FileCoordination은 협조 writer와 이동을 조정하며 대기 취소/timeou
 ## Undo와 Recovery
 
 Undo는 과거 문자열을 바로 덮어쓰지 않고 현재 identity/path를 확인한 새 역 Plan이다. verified operation과 이동 기록으로 현재 경로를 추적하고, identity가 불명확한 항목을 추측해 자동 복원하지 않는다.
+
+sandbox에서는 Undo·Recovery 전에 History.folderNeeded가 그 기록에 필요한 폴더가 허용돼 있는지 본다. 없으면 남겨 둔 bookmark를 다시 풀어 보고(GrantLibrary.resolve: bookmark가 연 폴더의 volume UUID와 identity가 기록과 같을 때만 사용), 그래도 없으면 사용자에게 그 폴더를 고르게 한다. journal 형식은 그대로다.
 
 identity의 device 번호는 mount할 때마다 바뀔 수 있다. Planning은 작업마다 volume UUID를 기록하고(RenameOperation.volume, 선택 필드), History.expected가 Undo·Recovery 때 기록의 UUID와 현재 mount된 volume의 UUID가 같을 때만 device 번호를 현재 값으로 바꿔 확인한다. UUID가 다르면 기록을 쓰지 않는다. UUID가 없는 예전 기록은 device 번호까지 일치해야 한다.
 

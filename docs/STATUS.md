@@ -2,17 +2,24 @@
 
 <!-- HOT:START -->
 ## 지금
-- 단계: GLOBAL_PRODUCT_HARDENING 구현·검증 완료 — 출시 보류. build 5는 공개하지 않는 과거 후보(D-026)
-- 현재 Task: T-008 (verificationPending)
-- 다음: 사용자가 결과 검토 → 결정(D-029 업데이트 방식 후보, App Store 트랙 T-007) → 새 Release 후보(build 6 이상) 단계는 사용자가 따로 승인
-- 위험·막힘: 실제 외장 APFS 장치 확인 미실행(EXTERNAL_APFS_HARDWARE_QA_PENDING). Mac App Store 트랙 보류(T-007). D-003의 비협조 writer source-race 알려진 제한
-- 검증 대기: docs/QA.md의 화면 S1~S5와 User QA U01~U25(새 후보에서 확인)
+- 단계: GLOBAL_PRODUCT_HARDENING Phase 2 구현·검증 완료 — 출시 보류. 스토어판 sandbox 준비됨, 제출 전. build 5는 공개하지 않는 과거 후보(D-026)
+- 현재 Task: T-009 (verificationPending), T-008 (verificationPending)
+- 다음: 사용자가 결과 검토 → Release Phase(직접 배포 build 6 후보, Mac App Store 제출)는 사용자가 따로 승인. 스토어 제출에는 T-007의 외부 입력이 필요
+- 위험·막힘: 스토어 제출용 인증서와 App Store Connect 접근 없음(T-007). 창을 눌러 받는 권한 흐름과 실제 외장 장치는 사람이 확인(U21, U26~U29). D-003의 비협조 writer source-race 알려진 제한
+- 검증 대기: docs/QA.md의 화면 S1~S5와 User QA U01~U30(새 후보에서 확인)
 - 마지막 갱신: 2026-10-07
 <!-- HOT:END -->
 
 ## 현재 Milestone
 
-Global Product Hardening Phase 1. 한국·영어권·일본 시장에서 경쟁력 있는 수준으로 제품을 올린다. 출시, DMG 공개, 웹사이트 수정, App Store 제출은 하지 않는다. 이전 Milestone의 사용자 확인(T-002, T-003, T-006)은 새 후보에서 다시 본다.
+Global Product Hardening Phase 1·2. 한국·영어권·일본 시장 수준의 제품 품질과, 직접 배포판과 Mac App Store판이 같은 코드로 같은 GUI 기능을 내는 공통 기반. 출시, DMG 공개, 웹사이트 수정, App Store 업로드·제출은 하지 않는다. 이전 Milestone의 사용자 확인(T-002, T-003)은 새 후보에서 다시 본다.
+
+### T-009 Global Product Hardening Phase 2: sandbox 호환 공통 기반 [verificationPending]
+- 근원: R-016
+- 범위: 구성 셋(Debug / Release / AppStore)과 스토어 entitlement(D-032). 사용자가 허용한 폴더에서 시작하는 접근 규칙(D-033). 즐겨찾기·감시·최근 폴더·작업 기록용 bookmark와 그 수명(D-034). 접근이 없을 때의 폴더 요청 흐름과 ko/en/ja 문구. 스토어판에서 CLI 제외(D-035). 업데이트 확인(D-029). 실제 sandbox 검증 도구. build 6.
+- 완료기준: 직접 배포판 회귀 없음(달성), 스토어판이 실제 sandbox에서 검사·이름 변경·재실행 뒤 Undo·즐겨찾기·감시·외장 APFS 동작(달성), 안전 계약 약화 없음(달성), Consolidated Gate PASS(달성), 창을 눌러 받는 권한 흐름의 사용자 확인(대기)
+- 대기: 사용자의 결과 검토와 QA.md의 U26~U30. AI가 실제 sandbox에서 실행한 것은 Engineering Verification이며 User QA PASS가 아니다.
+- 검증: docs/QA.md의 현재 source의 Engineering Verification 상태
 
 ### T-008 Global Product Hardening [verificationPending]
 - 근원: R-015
@@ -35,19 +42,20 @@ Global Product Hardening Phase 1. 한국·영어권·일본 시장에서 경쟁�
 - 대기: 사용자의 User QA(docs/QA.md U01~U13). AI가 본 렌더와 test는 Engineering Verification이며 User QA PASS가 아니다.
 - 검증: docs/QA.md의 현재 Engineering Verification 표
 
-### T-007 Mac App Store 트랙 [onHold]
+### T-007 Mac App Store 제출 [onHold]
 - 근원: R-010
-- 범위: 직접 배포와 분리된 sandbox 구성, build 6 이상, App Store Connect 기록·메타데이터·스크린샷 입력, 업로드와 심사 제출(D-025). 스토어 문구와 화면은 준비돼 있다(marketing/appstore.json, artifacts/marketing).
-- 사유: 제출용 배포 인증서와 App Store Connect 인증이 이 Mac에 없다. sandbox 구성은 파일 안전 경계의 기준점과 Journal·설정 구조를 바꾸는 작업이라 설계 승인이 먼저다.
-- 조건: 사용자가 Apple Distribution·Mac Installer Distribution 인증서와 App Store Connect 접근을 준비하고, docs/RELEASE.md ‘Mac App Store 트랙’의 sandbox 설계 방향을 승인한다.
+- 범위: AppStore 구성 archive, 배포 서명, App Store Connect 기록·메타데이터·스크린샷·App Privacy 입력, 업로드와 심사 제출. sandbox 구성과 권한 흐름은 T-009에서 끝났고 스토어 문구는 marketing/appstore.json에 있다.
+- 사유: 제출용 배포 인증서(Apple Distribution, Mac Installer Distribution)와 App Store Connect 접근이 이 Mac에 없다. 새 private key 생성과 로그인(2FA), 약관 동의는 사용자가 한다. 출시 자체도 보류 중이다(D-026).
+- 조건: 사용자가 Release Phase를 승인하고 docs/RELEASE.md ‘Mac App Store 트랙’의 외부 입력을 준비한다.
 
 ## 현재 상태 요약
 
 - 구현: 현재 승인된 앱 기능 범위에서 추가 필수 구현 Task 없음. 확인된 P0/P1 결함 없음.
+- 에디션: 직접 배포판(sandbox 없음, CLI 포함)과 Mac App Store판(App Sandbox)이 같은 코드다(D-032). 스토어판은 사용자가 고른 폴더 안에서만 작업한다.
 - 지원 위치: 로컬 writable APFS(내장·외장)에서만 이름을 바꾼다. exFAT·FAT·HFS+·네트워크·cloud 위치는 나열하고 이유를 알린 뒤 그대로 둔다(D-027).
 - 알려진 제한: 비협조 외부 writer의 source 교체를 expected-inode 조건으로 원자 차단하지 못한다. 감지·중단·보존·복구 안내는 구현돼 있다. swap/cycle/묶음 파일 그룹은 그룹 도중 취소하면 복구 확인이 필요할 수 있다. 읽을 수 없는 작업 기록이 있으면 Undo/Recovery를 막는다.
 - 유료 등급: 없음. 모든 기능을 무료로 제공한다(D-014).
-- Release: 출시 보류. 1.0.0 build 5의 공증된 DMG(artifacts/release-candidate/1.0.0/build5-final)는 공개하지 않는 과거 후보로 보존한다(D-026). 다음 후보는 build 6 이상. 웹사이트는 뭉치페이지스가 맡는다(D-025). Mac App Store는 시작하지 않았다(T-007).
-- User QA: QA.md의 Q1~Q5와 F1~F5는 사용자가 확인했다. 화면 S1~S5와 U01~U25가 대기 중이며 서명·공증된 앱으로 진행한다.
+- Release: 출시 보류. 1.0.0 build 5의 공증된 DMG(artifacts/release-candidate/1.0.0/build5-final)는 공개하지 않는 과거 후보로 보존한다(D-026). 현재 source는 build 6이며 후보 생성·서명·공증은 하지 않았다. 웹사이트는 뭉치페이지스가 맡는다(D-025). Mac App Store는 시작하지 않았다(T-007).
+- User QA: QA.md의 Q1~Q5와 F1~F5는 사용자가 확인했다. 화면 S1~S5와 U01~U30이 대기 중이며 서명·공증된 앱으로 진행한다.
 
 과거 완료 Task와 날짜별 개발 기록은 이 파일에 누적하지 않는다. 필요하면 Git 이력과 .ai/validation-cache.json의 evidence path를 확인한다.

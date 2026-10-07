@@ -110,7 +110,7 @@
 - 결정: 파일 이름 일괄 변경은 기본으로 보이는 일반 파일의 이름만 바꾼다(하위 폴더 검사가 켜져 있으면 그 안의 파일 포함). 추가한 폴더 자체·하위 폴더의 이름과 숨김 항목(이름이 점으로 시작하는 항목과 그런 폴더 안의 항목)은 바꾸지 않는다. 고급 설정 ‘대상 범위’의 ‘폴더 이름도 변경’·‘숨김 파일 포함’을 켠 경우에만 대상이 되며 둘 다 기본은 꺼짐이다. ‘폴더 이름도 변경’은 추가한 폴더 자체도 포함한다. Finder 관리 파일(.DS_Store, .localized)은 옵션과 무관하게 제외한다. 대상이 아닌 항목은 번호를 차지하지 않고, 이름 목록(CSV)이 대상이 아닌 항목을 가리키면 일부만 적용하지 않고 전체를 거부한다. 자소 분리 해결 화면(규칙 없는 글자 합치기)은 이 정책의 대상이 아니며 이전처럼 폴더 이름도 합친다. Preview·충돌 검사·Undo·Recovery 계약은 바꾸지 않는다. CLI는 --include-folders, --include-hidden으로 같은 옵션을 준다.
 - 이유: 사용자가 결정했다. 폴더를 통째로 넣고 규칙을 걸었을 때 넣은 폴더 자체나 숨김 파일의 이름까지 바뀌는 것은 대부분의 사용자가 기대하지 않는 결과다.
 
-### D-023 v1.0은 직접 배포, 출시 bundle ID는 com.ailoworks.namefix [accepted]
+### D-023 v1.0은 직접 배포, 출시 bundle ID는 com.ailoworks.namefix [superseded by D-032]
 - 날짜: 2026-10-06
 - 결정: v1.0은 Mac App Store가 아니라 직접 배포한다(Developer ID Application 서명 + Apple 공증 + DMG). Release 구성의 bundle ID는 com.ailoworks.namefix, Debug 구성은 com.moongchi.namefix.dev로 분리하고 원본은 project.yml 하나다. 서명·공증 도구는 앱의 식별자를 바꾸지 않고 기대값과 다르면 멈춘다. 버전은 1.0.0, 이번 후보의 build는 4이며 후보를 다시 만들면 5 이상을 쓴다. App Sandbox는 OFF, Hardened Runtime은 ON, arm64 전용을 유지한다. 개발사는 AILO WORKS, 문의는 ailo@ailoworks.com이다. 설정·작업 기록 폴더(Application Support/Moongchi/NameFix)는 식별자와 무관하게 그대로 쓰므로 데이터 이전은 없다. UserDefaults는 식별자별로 따로 저장되어 출시 앱은 창 위치·소개 표시 여부 같은 개인 설정을 처음 상태로 시작한다.
 - 이유: 사용자가 배포 채널과 출시 식별자를 결정했다. 개발용 앱과 공개 앱이 같은 식별자를 쓰지 않아야 하고, 식별자를 build 뒤에 고쳐 넣는 방식은 서명 대상과 build 결과가 달라지는 길을 연다.
@@ -140,10 +140,10 @@
 - 결정: 계획한 작업마다 volume UUID를 기록한다(선택 필드, 예전 기록은 없음). Undo와 Recovery는 기록의 UUID와 지금 mount된 volume의 UUID가 같을 때만 device 번호를 현재 값으로 바꿔 identity를 확인하고, UUID가 다르면 번호가 같아도 기록을 쓰지 않는다. 파일 번호와 생성 시각은 계속 정확히 일치해야 한다.
 - 이유: device 번호는 mount할 때마다 바뀔 수 있어, 외장 드라이브를 다시 연결하면 같은 파일인데도 Undo가 거부됐다. 반대로 번호가 재사용되면 다른 volume을 같은 것으로 볼 여지가 있었다. UUID는 volume 자체를 가리키므로 두 경우 모두 더 정확하다. identity 확인을 느슨하게 한 것이 아니라 device 번호보다 정확한 기준을 더한 것이다.
 
-### D-029 직접 배포의 업데이트는 앱이 통신하지 않는 ‘업데이트 확인’으로 한다 [proposed]
+### D-029 업데이트는 앱이 통신하지 않는 ‘업데이트 확인’으로 한다 [accepted]
 - 날짜: 2026-10-07
-- 결정(후보): v1.x 직접 배포판은 앱이 네트워크를 쓰지 않고, ‘업데이트 확인’이 현재 버전을 담아 웹 페이지를 브라우저로 연다. Mac App Store 트랙이 열리면 스토어 업데이트를 함께 쓴다. Sparkle 같은 자동 updater는 넣지 않는다. 비교는 RELEASE.md의 ‘업데이트 방식’에 있다.
-- 이유: 네트워크·계정·추적이 없다는 현재 장점을 유지하면서 새 버전을 알릴 가장 작은 방법이다. 자동 updater는 runtime 네트워크 의존성과 key·appcast 운영, 개인정보 안내 변경이 따른다. 사용자 결정이 필요해 후보로 둔다.
+- 결정: 직접 배포판의 ‘업데이트 확인…’(앱 메뉴)은 기본 브라우저로 NameFix 제품 페이지를 연다. 앱은 직접 HTTP 요청을 하지 않고, 자동·백그라운드 업데이트, telemetry, 계정이 없다. Mac App Store판은 스토어가 업데이트하므로 이 메뉴가 없다. Sparkle 같은 자동 updater는 v1.0에 넣지 않는다. 제품 페이지의 내용은 뭉치페이지스가 맡는다(D-025).
+- 이유: 네트워크·계정·추적이 없다는 장점을 유지하면서 새 버전을 알릴 가장 작은 방법이다. 자동 updater는 runtime 네트워크 의존성과 key·appcast 운영, 개인정보 안내 변경이 따른다. 사용자가 2026-10-07 Phase 2 지시에서 이 방향을 확정했다.
 
 ### D-030 Windows에서 쓸 수 없는 이름은 알려 주기만 한다 [accepted]
 - 날짜: 2026-10-07
@@ -154,3 +154,24 @@
 - 날짜: 2026-10-07
 - 결정: 이름의 글자를 합치거나 분리할 때 CJK 호환 한자(U+F900–U+FAFF, U+2F800–U+2FA1F)는 저장된 그대로 두고 나머지만 표준대로 합치거나 분리한다(NameForm). 표준 NFC/NFD를 그대로 쓰면 神(U+FA19)이 神(U+795E)으로 바뀌는 것처럼 모양이 다른 통합 한자로 치환된다. Å·Ω 같은 기호의 singleton은 모양이 같으므로 표준대로 통일한다. 자세히 보기의 NFC/NFD/NFKC/NFKD 표시는 표준 형태를 그대로 보여 준다. 충돌 판정의 동등성 key는 파일시스템과 같은 표준 형태를 계속 쓴다.
 - 이유: 일본어 문구 검토에서 발견했다. 일본의 인명·지명에 쓰는 옛 글자체와 한국 한자의 호환 문자가 여기에 해당한다. ‘겉모양은 같고 저장 방식만 다르다’는 제품의 약속과 맞지 않고, 사용자가 고르지 않은 글자 치환이다. 이름을 정규화하는 Mac 파일시스템(HFS+)도 같은 범위를 건드리지 않는다. 바꾸는 범위를 줄이는 변경이며 자동 NFKC/NFKD를 하지 않는다는 정책과 같은 방향이다.
+
+### D-032 한 코드로 두 에디션: 직접 배포와 Mac App Store [accepted]
+- 날짜: 2026-10-07
+- 결정: project.yml 하나에 구성 셋을 둔다. Debug(개발), Release(직접 배포: Developer ID 서명 + 공증 + DMG, App Sandbox OFF), AppStore(같은 코드, App Sandbox ON). 출시하는 두 에디션의 bundle ID는 com.ailoworks.namefix로 같고 Debug는 com.moongchi.namefix.dev다. 에디션 차이는 build 설정과 entitlement 파일, Info.plist의 에디션 표시(NameFixDistribution)에만 있다. 제품 코드는 실행 중에 sandbox 여부를 보고 같은 경로로 동작하며, 에디션을 가르는 #if는 두지 않는다(Debug 전용 fixture 제외). 스토어판 entitlement는 app-sandbox, files.user-selected.read-write, files.bookmarks.app-scope 셋뿐이다. 식별자는 build 뒤에 고쳐 넣지 않는다.
+- 이유: 사용자가 Mac App Store 트랙을 승인했다. 프로젝트 파일이나 코드를 둘로 나누면 안전 계약이 한쪽에서만 바뀔 수 있다. D-023의 서명·공증·식별자 결정은 그대로이고 ‘직접 배포만’이라는 부분이 바뀐다.
+
+### D-033 sandbox에서는 사용자가 허용한 폴더에서 walk를 시작한다 [accepted]
+- 날짜: 2026-10-07
+- 결정: 폴더를 여는 규칙을 AccessRoots 하나에 둔다. 직접 배포판은 지금처럼 "/"에서 시작해 모든 조상을 O_NOFOLLOW로 연다. sandbox에서는 조상을 열 수 없으므로 사용자가 허용한 폴더(AuthorizedRoot: raw 경로, 폴더 identity, volume UUID)의 FD에서 시작해 그 아래를 같은 방식으로 내려간다. 허용한 폴더 밖은 열지 않고 FolderAccessNeeded로 알린다. 허용한 폴더가 옮겨지거나 다른 폴더로 바뀌면 쓰지 않는다. Scanner·Planning·transaction·Undo·Recovery는 모두 FS.openDirectory를 쓰므로 같은 규칙을 따른다. 앱 자신의 데이터 폴더는 항상 허용된 폴더다. 그 아래의 raw 이름·identity·volume·no-replace·journal 확인은 바뀌지 않는다.
+- 결과로 생기는 차이(스토어판): 추가한 폴더 자체의 이름은 그 폴더의 부모를 열 수 없어 바꾸지 않는다(부모를 추가하면 가능). 파일만 넘겨받으면 그 파일이 든 폴더를 한 번 골라 달라고 요청한다. 허용한 폴더보다 위의 package 여부는 이름(확장자)으로만 판단한다.
+- 이유: macOS가 허용한 범위가 신뢰의 기준점이 되고, 그 아래로 link를 따라가지 않는다는 성질은 그대로다. 직접 배포판의 검사는 줄이지 않는다.
+
+### D-034 다시 실행한 뒤의 접근은 필요한 곳에만 bookmark로 남긴다 [accepted]
+- 날짜: 2026-10-07
+- 결정: security-scoped bookmark를 남기는 곳은 즐겨찾기, 감시 폴더, 사용자가 켠 최근 폴더, 그리고 끝난 작업을 되돌릴 수 있는 폴더(access.json)뿐이다. 마지막 것은 그 작업 기록이 지워질 때 함께 지운다. 한 번 열어 본 폴더는 남기지 않는다. bookmark가 연 폴더는 기록의 volume UUID와 폴더 identity가 같을 때만 쓰고, 다르면 버린다. 시스템이 stale이라고 한 bookmark는 폴더가 열리면 새로 만들어 바꾼다. 접근을 얻지 못하면 Undo를 실패로 추정하지 않고 그 폴더를 다시 고르게 한다. 작업 기록(journal) 형식은 바꾸지 않았고, 접근 정보는 별도 파일에 version을 달아 둔다.
+- 이유: 스토어판에서 앱을 닫았다 열어도 되돌리기가 돼야 한다. 동시에 지속 권한은 이유가 분명한 곳에만 있어야 한다. bookmark만 같다고 다른 디스크를 믿지 않는다(D-028과 같은 원칙).
+
+### D-035 스토어판에는 CLI를 넣지 않는다 [accepted]
+- 날짜: 2026-10-07
+- 결정: Mac App Store판은 GUI 앱만 담는다. 직접 배포판의 namefix CLI는 그대로 제공하고 기능을 줄이지 않는다.
+- 이유: sandbox 안의 CLI는 사용자가 터미널에서 넘긴 경로에 접근할 수 없어 쓸모가 없고, 앱 번들 밖에 설치하는 흐름은 스토어 배포와 맞지 않는다. CLI가 필요한 사용자는 직접 배포판을 쓴다.

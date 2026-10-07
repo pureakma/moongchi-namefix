@@ -47,6 +47,23 @@ disk image는 macOS에 External·Removable volume으로 보이지만 실제 외�
 
 device 번호(st_dev)는 mount할 때마다 새로 정해진다. 실험에서 같은 APFS image를 다른 순서로 다시 붙이자 번호가 바뀌었다. 그래서 계획한 작업마다 volume UUID를 함께 기록하고(RenameOperation.volume), Undo와 Recovery는 기록의 UUID와 지금 그 자리에 mount된 volume의 UUID가 같을 때만 device 번호를 현재 값으로 바꿔 확인한다. 파일 번호와 생성 시각은 그대로 정확히 일치해야 한다. UUID가 다르면 번호가 우연히 같아도 기록을 쓰지 않는다. UUID가 없는 예전 기록은 device 번호까지 일치해야 하며, 다시 연결해서 맞지 않으면 UndoAfterReconnect로 이유를 알리고 그대로 둔다.
 
+## App Sandbox (스토어판)
+
+스토어판은 App Sandbox 안에서 돈다. 지원 범위(로컬 writable APFS)와 비협상 안전 규칙은 직접 배포판과 같다. 달라지는 것은 walk의 시작점이다(D-033).
+
+- 직접 배포판은 "/"부터 모든 조상을 O_NOFOLLOW로 연다. 스토어판은 조상을 열 수 없어, 사용자가 허용한 폴더에서 시작해 그 아래를 같은 방식으로 연다. 그 아래로 link를 따라가지 않고, 허용한 폴더 밖은 열지 않는다.
+- 허용한 폴더가 옮겨지거나 같은 경로에 다른 폴더가 놓이면 그 허용은 쓰지 않는다.
+- 다시 실행한 뒤의 접근은 bookmark로 얻되, bookmark가 연 폴더의 volume UUID와 identity가 기록과 같을 때만 쓴다(D-034). bookmark, volume UUID, 파일 identity의 역할: bookmark는 macOS에서 접근을 다시 받는 열쇠, volume UUID는 그 디스크가 기록의 디스크인지, 파일 identity(파일 번호와 생성 시각)는 그 항목이 기록의 항목인지를 확인한다. 셋이 모두 맞아야 Undo가 진행된다.
+- 접근이 없으면 계획하지 않고 그 폴더를 고르게 한다. 추정으로 실패 처리하거나 다른 항목을 건드리지 않는다.
+
+직접 배포판과의 차이:
+- 추가한 폴더 자체의 이름은 바꾸지 않는다(그 이름은 앱이 열 수 없는 부모 폴더에 있다). 부모 폴더를 추가하면 바꿀 수 있다.
+- 파일만 추가하면 그 파일이 든 폴더를 한 번 골라야 검사와 변경이 된다.
+- 허용한 폴더보다 위의 package·앱 여부는 속성을 읽을 수 없어 이름(확장자)으로 판단한다.
+- CLI가 없다(D-035).
+
+검증(eng/test-sandbox.py, 2026-10-07, macOS 27.0.1): 스토어 entitlement로 서명한 Debug 앱을 실제 sandbox에서 실행하고 폴더를 `open -a`(Finder의 ‘다음으로 열기’와 같은 경로)로 넘긴다. 단계마다 새로 실행하며 클릭은 없다. 통과한 것: 넘겨받은 폴더의 검사·이름 변경, 폴더 안의 link를 따라가지 않음, 옆 폴더는 시스템이 거부, 재실행 뒤 남겨 둔 bookmark로 Undo(byte 단위 복원), 남겨 둔 접근이 없을 때 폴더 요청과 무변경, 즐겨찾기·최근 폴더의 재실행 뒤 열기, 폴더 감시가 재실행 뒤 bookmark로 시작해 새 파일을 알아챔, 파일 하나만 넘겼을 때 폴더 요청, 외장 APFS image를 다른 device 번호로 다시 붙인 뒤 Undo, 같은 자리에 다른 디스크를 붙였을 때 거부. 파일 선택 창을 눌러서 받는 권한과 잠자기/깨우기는 사람이 확인한다(QA.md).
+
 ## exFAT·FAT 실험
 
 일회용 image에서 확인한 사실(2026-10-07, macOS 27.0.1, 두 형식 모두 FSKit driver):

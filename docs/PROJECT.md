@@ -22,6 +22,7 @@ Moongchi NameFix는 파일과 폴더 이름의 Unicode 정규화 차이와 이�
 - R-012 Git/AI 협업은 한 working tree 한 writer, 안전한 Preflight/Finish, 최소 충분 Context, Task 영향 기반 검증을 사용하고 과거 개발 문서는 Git 이력으로 보존한다.
 - R-013 자주 쓰는 폴더를 즐겨찾기로 고정해 한 번에 입력에 추가하고 그 시점에 검사할 수 있어야 한다. 즐겨찾기는 로컬 설정에 경로와 접근 정보를 저장하는 shortcut이며, 등록만으로 감시를 시작하지 않고, 제거해도 실제 폴더·파일을 건드리지 않으며, 열 수 없게 된 즐겨찾기는 상태를 표시하고 다시 선택하게 한다.
 - R-015 한국어·영어·일본어 사용자가 각자의 언어로 자연스럽게 쓸 수 있는 글로벌 제품 품질을 갖춘다. 지원하는 파일시스템과 그 이유는 실험으로 확정해 코드·화면·문서가 같은 사실을 쓰고, 지원 밖의 위치는 앱이 실패하지 않고 이유를 알려 준다. 이름 진단과 검증은 한글·라틴·가나·emoji를 포함한 글로벌 Unicode 사례를 다룬다. 경쟁 제품에 있다는 이유만으로 기능을 늘리지 않는다.
+- R-016 Mac App Store 에디션은 App Sandbox 안에서 직접 배포판과 같은 GUI 기능을 제공한다. 사용자가 고르거나 넘겨준 폴더 안에서만 작업하고, 다시 실행한 뒤의 접근은 필요한 곳에만 남기며, 직접 배포판의 안전 계약을 줄이지 않는다. 두 에디션의 차이는 문서에 적는다(FILESYSTEM_CAPABILITIES.md).
 - R-014 파일 이름 일괄 변경의 기본 대상은 보이는 일반 파일이다(하위 폴더 검사가 켜져 있으면 그 안의 파일 포함). 추가한 폴더 자체·하위 폴더의 이름과 숨김 항목은 기본으로 바꾸지 않고, 고급 설정의 ‘폴더 이름도 변경’·‘숨김 파일 포함’을 켠 경우에만 대상이 된다. Finder 관리 파일은 항상 제외한다.
 
 ## 현재 확정 범위
@@ -32,11 +33,11 @@ Moongchi NameFix는 파일과 폴더 이름의 Unicode 정규화 차이와 이�
 
 범위 밖 또는 아직 승인되지 않은 후보:
 - 유료 등급 재도입(현재는 전 기능 무료)
-- Mac App Store 배포와 그에 따른 sandbox/entitlement 조정(v1.0은 직접 배포로 확정, D-023)
+- Mac App Store 제출·업로드·심사(sandbox 구성과 권한 흐름은 구현됐다, T-009. 제출은 별도 Release Phase이며 배포 인증서와 App Store Connect 접근이 필요하다)
 - AI/Apple Foundation Models/OCR/RAG 기반 내용 이름 제안
 - Windows/Intel 지원
 - SMB·NAS·cloud·exFAT·FAT 위치의 mutation(외장 APFS는 지원 범위에 들어왔다. FILESYSTEM_CAPABILITIES.md)
-- 자동 updater와 runtime 네트워크 의존성(D-029 후보)
+- 자동 updater와 runtime 네트워크 의존성(D-029: 넣지 않는다)
 - cross-volume 이동, 내용 변환, 자동 NFKC/NFKD
 - 검증되지 않은 가격·구독·체험 정책
 - 읽을 수 없는 작업 기록을 건너뛰는 부분 Undo/Recovery
@@ -55,6 +56,8 @@ T-002의 구현과 Engineering Verification은 끝났고 User QA만 남았다. �
 
 2026-10-07 사용자가 출시를 보류하고 ‘Global Product Hardening Phase 1’을 승인했다(T-008, R-015, D-026). 범위는 파일시스템 지원 모델의 실험 확정(외장 APFS, exFAT), 지원 밖 위치의 안내 개선(SMB/NAS, cloud), Windows 교환 이름의 read-only 진단 검토, 글로벌 Unicode 검증 확대, 영어·일본어·한국어 문구의 제품 현지화, 업데이트 방식과 App Store sandbox의 사전 분석이다. AI 이름 제안, scripting, GPS, 복사/이동 관리, Intel, Windows, 자동 NFKC/NFKD, SMB/NAS·cloud mutation, 자동 updater, sandbox 구현은 이 Phase에 넣지 않는다. 직접 배포 build 5는 공개하지 않고 보존하며 다음 Release 후보는 build 6 이상이다. 웹사이트는 뭉치페이지스가 맡는다(D-025).
 
+2026-10-07 사용자가 ‘Global Product Hardening Phase 2’를 승인했다(T-009, R-016). 범위는 Mac App Store sandbox에서도 같은 GUI 기능이 되도록 하는 공통 구조(D-032~D-035)와 업데이트 방식 확정(D-029)이다. App Store Connect 기록 생성·업로드·심사 제출, 배포 인증서 발급, 웹사이트 수정, DMG 공개, build 6 공증, Sparkle, SMB/cloud mutation은 이 Phase에 넣지 않는다.
+
 다음 개발은 사용자가 새 범위를 승인하면 그 범위의 Milestone/Task를 STATUS에 만들고 진행한다. Release를 승인할 경우 첫 순서는 현재 소스에 대한 영향 검증 → 현재 source 기준 새 Release 후보 → 출시 식별자/공증 입력 연결 → User QA/깨끗한 Mac Gate다.
 
 ## 환경과 의존성
@@ -64,8 +67,8 @@ T-002의 구현과 Engineering Verification은 끝났고 User QA만 남았다. �
 - language: Swift 6, strict concurrency complete
 - UI: SwiftUI + AppKit
 - build project: project.yml → MoongchiNameFix.xcodeproj
-- bundle ID: Release 구성 com.ailoworks.namefix, Debug 구성 com.moongchi.namefix.dev (D-023)
-- app sandbox: 현재 설정 OFF
+- 구성: Debug, Release(직접 배포), AppStore(Mac App Store). bundle ID는 Release·AppStore com.ailoworks.namefix, Debug com.moongchi.namefix.dev (D-032)
+- app sandbox: Debug·Release OFF, AppStore ON(entitlement 셋: app-sandbox, user-selected read-write, app-scope bookmark)
 - hardened runtime: 프로젝트 설정 ON
 - local packages: NameFixCore / NameFixRuntime / NameFixApplication
 - bundled fonts: Pretendard Variable / Pretendard JP Variable, SIL OFL 1.1

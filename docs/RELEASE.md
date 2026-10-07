@@ -1,14 +1,17 @@
 # 빌드·서명·배포
 
-## 출시 정책 (D-023, D-025)
+## 출시 정책 (D-025, D-026, D-029, D-032, D-035)
 
-- 배포: 직접 배포. Developer ID Application 서명 + Apple 공증 + DMG. Mac App Store는 별도 트랙이며 아직 시작하지 않았다(아래 ‘Mac App Store 트랙’).
-- 버전: MARKETING_VERSION 1.0.0, CURRENT_PROJECT_VERSION 5
-- bundle ID: Release 구성 com.ailoworks.namefix, Debug 구성 com.moongchi.namefix.dev. 원본은 project.yml 하나이며 build 명령이나 서명 도구가 바꾸지 않는다.
+- 에디션 둘, 코드 하나. 구성은 project.yml의 Debug / Release / AppStore.
+  - Release: 직접 배포. Developer ID Application 서명 + Apple 공증 + DMG. App Sandbox OFF. namefix CLI 포함.
+  - AppStore: Mac App Store. App Sandbox ON, entitlement는 app-sandbox · files.user-selected.read-write · files.bookmarks.app-scope 셋. CLI 없음. 제출은 아직 하지 않았다(아래 ‘Mac App Store 트랙’).
+- 버전: MARKETING_VERSION 1.0.0, CURRENT_PROJECT_VERSION 6
+- bundle ID: Release·AppStore com.ailoworks.namefix, Debug com.moongchi.namefix.dev. 원본은 project.yml 하나이며 build 명령이나 서명 도구가 바꾸지 않는다.
 - 개발사 AILO WORKS, 문의 ailo@ailoworks.com
-- 모든 기능 무료. 유료 등급·구매·계정·광고 없음.
+- 모든 기능 무료. 유료 등급·구매·계정·광고 없음. 앱은 네트워크를 쓰지 않는다.
+- 업데이트: 직접 배포판은 ‘업데이트 확인…’이 브라우저로 제품 페이지를 연다. 스토어판은 스토어가 업데이트한다. 자동 updater 없음(D-029).
 - macOS 14 이상, Apple Silicon arm64 전용
-- App Sandbox OFF, Hardened Runtime ON. Release 구성은 디버깅 entitlement를 넣지 않는다.
+- Hardened Runtime ON. Release·AppStore 구성은 디버깅 entitlement를 넣지 않는다.
 
 ## 현재 Release 상태
 
@@ -53,38 +56,21 @@ SUPERSEDED_FOR_PUBLIC_RELEASE (2026-10-07, D-026). 아래 build 5 산출물은 �
 
 ## Mac App Store 트랙
 
-상태: NOT_STARTED. 제출·업로드·App Store Connect 기록 생성 없음. 직접 배포 build 5와 그 구성은 이 트랙 때문에 바꾸지 않는다(D-025).
+상태: SANDBOX_READY — 스토어판 구성과 sandbox 안의 동작은 구현·검증됐다(T-009). 제출·업로드·App Store Connect 기록 생성은 하지 않았다. 직접 배포 build 5와 그 구성은 이 트랙 때문에 바뀌지 않았다.
 
-막힌 것(사용자 입력이 필요):
-- 배포 인증서: 이 Mac의 서명 identity는 Developer ID Application과 Apple Development뿐이다. Mac App Store 제출에는 Apple Distribution과 Mac Installer Distribution 인증서(새 private key)와 provisioning profile이 필요하다.
-- App Store Connect 인증: API key나 로그인된 업로드 수단이 없다. 앱 기록 생성·메타데이터 입력·제출에는 사용자의 로그인(2FA)과 약관 동의가 필요하다.
+구현된 것:
+- AppStore 구성(eng/build.sh --configuration AppStore): App Sandbox ON, entitlement 셋, 디버깅 entitlement 없음, arm64, macOS 14 이상, ko/en/ja, render·probe fixture 없음.
+- 접근 규칙과 권한 흐름: FILESYSTEM_CAPABILITIES.md의 ‘App Sandbox (스토어판)’, DESIGN.md의 ‘폴더 접근 요청 (스토어판)’.
+- 실제 sandbox 검증 도구: eng/test-sandbox.py(스토어 entitlement로 서명한 Debug 앱, 별도 식별자 com.moongchi.namefix.sandboxqa).
+- 스토어 문구·심사 메모·entitlement 목록: marketing/appstore.json.
 
-sandbox 호환 분석(2026-10-07, 코드 확인):
-- 안전 경계의 기준점: Infrastructure/FileSystem.swift는 symlink를 따라가지 않으려고 루트부터 모든 경로 요소를 O_NOFOLLOW로 연다. App Sandbox에서는 허용받은 폴더의 조상 디렉터리를 열 수 없으므로 이 walk를 허용받은 폴더에서 시작하도록 다시 설계하고 safety·transaction 검증을 다시 해야 한다.
-- 파일 단위 입력: 끌어다 놓거나 고른 파일 하나는 부모 폴더 쓰기 권한이 없어 이름을 바꿀 수 없다. 폴더 접근을 한 번 더 받는 흐름이 필요하고, Finder 서비스와 ‘다음으로 열기’로 들어온 파일도 같다.
-- 다시 실행한 뒤의 Undo/Recovery와 최근 폴더: 작업 기록과 최근 목록에 security-scoped bookmark를 함께 저장해야 한다(Journal·설정 schema 변경). 즐겨찾기와 감시 폴더는 이미 bookmark를 저장한다.
-- 그대로 쓸 수 있는 것: 로그인 시 실행(SMAppService), 앱 데이터 폴더(컨테이너로 이동), 네트워크 권한 불필요. CLI는 스토어판에 넣지 않는다.
-- 판단: 핵심 기능은 폴더 기준 흐름으로 유지할 수 있어 차단 사유는 아니다. 다만 파일 안전 경계와 저장 구조를 바꾸는 별도 Task이며, 설계 승인과 영향 검증 뒤에 build 6 이상으로 진행한다.
+직접 배포판과 다른 점(심사 메모에도 적었다): 추가한 폴더 자체의 이름은 바꾸지 않음(부모 폴더를 추가하면 가능), 파일만 추가하면 그 폴더를 한 번 고름, CLI 없음, ‘업데이트 확인’ 메뉴 없음.
 
-sandbox와 양립하는 구조 방향(2026-10-07 검토, 구현은 다음 Phase):
-- 디렉터리를 여는 곳이 FS.openDirectory 하나이므로 기준점만 바꾸면 된다. 지금은 "/"에서 시작해 모든 요소를 O_NOFOLLOW로 연다. sandbox에서는 사용자가 허용한 폴더의 FD를 기준점으로 삼고 그 아래만 openat + O_NOFOLLOW로 내려간다(authorized root FD → relative no-follow walk). 허용한 폴더 자체는 사용자가 고른 대상이므로 신뢰 기준이 "/"에서 그 폴더로 옮겨 가며, 그 아래로 link를 따라가지 않는다는 성질은 그대로다. 직접 배포판은 같은 함수에 기준점 "/"를 넘기면 현재 동작과 같다.
-- 다시 실행한 뒤의 접근은 security-scoped bookmark로 얻는다. 즐겨찾기·감시 폴더는 이미 bookmark를 저장한다. 작업 기록과 최근 폴더에도 root별 bookmark가 필요하다. 이번에 넣은 volume UUID 기록은 bookmark로 다시 연 폴더가 기록의 volume과 같은지 확인하는 데 그대로 쓴다.
-- rawDirectoryPath(F_GETPATH), getattrlistat, renameatx_np, fstatfs, fgetattrlist는 FD 기준 호출이라 기준점이 바뀌어도 그대로다. Scanner.protectedReason의 URL resource 조회는 허용된 범위 안에서만 하도록 고쳐야 한다.
-- 파일 하나만 넣은 경우에는 부모 폴더 접근을 한 번 더 받는 흐름이 필요하다(직접 배포판에는 영향 없음).
-- 이 방향은 직접 배포판의 안전 계약과 충돌하지 않는다. 구현과 safety·transaction 재검증은 T-007에서 한다.
-
-## 업데이트 방식 (검토, D-029 후보)
-
-현재 앱에는 업데이트 확인 기능이 없고 네트워크를 쓰지 않는다. 검토한 선택지:
-
-| 선택지 | 장점 | 비용·위험 |
-|---|---|---|
-| A. 수동 다운로드만 | 코드 없음. 네트워크·계정·추적 없음이 그대로 | 사용자가 새 버전을 알 방법이 없다 |
-| B. 앱은 통신하지 않고 ‘업데이트 확인’이 브라우저로 웹 페이지를 연다(현재 버전을 주소에 넣음) | 앱의 네트워크 없음 원칙 유지. 구현이 작다. 웹사이트가 새 버전 여부를 보여 준다 | 사용자가 직접 눌러야 한다. 웹사이트(뭉치페이지스) 쪽 페이지가 필요하다 |
-| C. Sparkle 같은 자동 updater | 수정 배포가 빠르다 | runtime 네트워크와 외부 dependency 추가, 서명 key와 appcast 운영, ‘앱은 통신하지 않는다’는 개인정보 안내 변경, sandbox에서는 XPC 구성 추가 |
-| D. Mac App Store | 업데이트를 스토어가 맡는다 | sandbox 트랙(T-007)이 먼저다 |
-
-추천: v1.x 직접 배포는 B, App Store 트랙이 열리면 D를 함께 쓴다. C는 직접 배포 사용자 수와 수정 주기가 그 비용을 정당화할 때 다시 검토하며, 도입하려면 사용자 결정이 필요하다(runtime 네트워크 의존성, 자동 updater). 이번 Phase에서는 아무것도 구현하지 않았다.
+Store Release Phase에 필요한 외부 입력(사용자가 준비):
+- Apple Distribution, Mac Installer Distribution 인증서(새 private key)와 Mac App Store provisioning profile. 이 Mac의 서명 identity는 Developer ID Application과 Apple Development뿐이다.
+- App Store Connect 접근(로그인·2FA 또는 API key)과 필요한 약관 동의.
+- App Store Connect의 앱 기록(이름 Moongchi NameFix, bundle ID com.ailoworks.namefix, SKU는 marketing/appstore.json).
+- 그 뒤에 할 일: AppStore 구성 archive → 배포 인증서로 서명한 pkg → 검증·업로드 → 메타데이터·스크린샷·App Privacy 입력 → 심사 제출. 스크린샷은 스토어판 문구로 다시 촬영한다.
 
 ## 공증에 필요한 외부 입력
 

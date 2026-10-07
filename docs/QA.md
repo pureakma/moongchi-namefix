@@ -14,7 +14,40 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 ## 현재 source의 Engineering Verification 상태
 
-현재 source의 통합 Gate는 2026-10-07 Global Product Hardening(T-008)의 결과다. 영수증은 .ai/validation-cache.json의 MAC-GLOBAL-HARDENING-GATE-20261007, 로컬 evidence는 artifacts/evidence/global-hardening이다. AI가 실행·렌더로 확인한 Engineering Verification이며 User QA PASS가 아니다. App Store archive·서명은 이 Gate에 없다.
+현재 source의 통합 Gate는 2026-10-07 Global Product Hardening Phase 2(T-009)의 결과다. 영수증은 .ai/validation-cache.json의 MAC-GLOBAL-HARDENING-2-GATE-20261007, 로컬 evidence는 artifacts/evidence/global-hardening-2다. AI가 실행·렌더로 확인한 Engineering Verification이며 User QA PASS가 아니다. 스토어 제출용 서명·archive·업로드는 이 Gate에 없다.
+
+| 항목 | 명령 | 결과 |
+|---|---|---|
+| Runtime·UI model·Core test | NAMEFIX_PERFORMANCE=1 NAMEFIX_EXPANSION_PERF=1 eng/test.sh --level 3 | 147개 실행, 실패 0 (통합 74 중 opt-in·volume 단계 9 skip, UI model 44 중 1 skip, Core 29). 접근 규칙 test 8개(AccessRootsTests)와 재시작 뒤 Undo(AppModelTests) 포함 |
+| 지원 volume | eng/test-volumes.py | APFS, 대소문자 구분 APFS, exFAT, FAT32 모두 PASS. APFS 두 종류는 계약 test 73개(접근 규칙 포함, opt-in 9 skip) + 분리·재연결·다른 디스크·읽기 전용 단계. 실행 뒤 남은 mount·임시 폴더 0 |
+| 실제 App Sandbox | eng/test-sandbox.py (스토어 entitlement로 서명한 Debug 앱, 폴더는 open -a로 전달, 단계마다 새 실행, 클릭 없음) | 8개 PASS: 넘겨받은 폴더의 검사·이름 변경과 link 미추적·옆 폴더는 시스템이 거부 / 재실행 뒤 bookmark로 Undo / 접근이 없을 때 폴더 요청과 무변경 / 즐겨찾기·최근 폴더 재실행 뒤 열기 / 폴더 감시가 재실행 뒤 새 파일 감지 / 파일 하나만 넘기면 폴더 요청 / 외장 APFS 재연결 뒤 Undo / 같은 자리의 다른 디스크 거부 |
+| 리소스·스토어 문구 | eng/resources.py; eng/validate-resources.py; eng/validate-marketing.py | 556 keys × ko/en/ja, 재생성 diff 0 PASS. 스토어 문구 PASS |
+| 직접 배포 CLI | eng/build-cli.sh debug + eng/test-expansion-cli.py; eng/build-cli.sh release + eng/test-release-cli.py | 둘 다 PASS |
+| Debug build | eng/build.sh --configuration Debug --arch arm64 | BUILD SUCCEEDED, build 6 |
+| 직접 배포 Release 구성 | eng/build.sh --configuration Release --arch arm64 | BUILD SUCCEEDED. entitlement 없음(App Sandbox OFF), 에디션 direct, build 6, arm64, self-test PASS, fixture·probe 문자열 0건. 후보 생성·서명·패키징은 하지 않음 |
+| 스토어 AppStore 구성 | eng/build.sh --configuration AppStore --arch arm64 | BUILD SUCCEEDED. entitlement는 app-sandbox · files.user-selected.read-write · files.bookmarks.app-scope 셋뿐, 디버깅 entitlement 없음, 에디션 appstore, build 6, arm64, macOS 14 이상, ko/en/ja, sandbox 안에서 self-test PASS, fixture·probe 문자열 0건. ad-hoc 서명이며 제출용 서명이 아님 |
+| 대표 화면 (Debug) | --render-ux, --render-shell, --render-responsive, --render-expansion | 231장(72+51+75+33), assertion PASS. 폴더 접근 안내 화면(넓은 창·좁은 창)을 ko/en/ja로 직접 보고 잘림 없음 확인 |
+| 창 동작 진단 | --diagnose-window | PASS |
+| 문서 | python3 tools/doccheck.py; git diff --check | PASS |
+
+성능, 직접 배포판과 sandbox(Debug build, 같은 장비, eng/test-sandbox.py --compare, 초):
+
+| | 시작 | 11,000건 검사 | 필터 | 1,000건 계획 | 1,000건 이름 변경 | Undo 계획 | Undo | 즐겨찾기로 10,000건 다시 열기 |
+|---|---|---|---|---|---|---|---|---|
+| 직접 배포판 | 0.85 | 0.90 | 0.65 | 0.79 | 30.9 | 4.44 | 29.9 | 0.84 |
+| sandbox | 0.65 | 0.98 | 0.68 | 0.79 | 31.2 | 5.03 | 31.1 | 1.12 |
+
+sandbox 때문에 계산이 느려진 곳은 없다. 차이는 폴더를 열 때마다 허용 폴더를 확인하는 비용과 bookmark를 푸는 비용이며 I/O(fsync)가 지배하는 이름 변경은 같다. 직접 배포판의 회귀 확인: 100,000건 검사 3.02초(직전 2.94), 10,000건 scan+rule Preview+plan 단독 실행 중앙값 2.216초 · p95 2.241초(직전 2.214 · 2.235).
+
+이 Phase에서 확인한 내용:
+- 직접 배포판: 접근 규칙이 바뀌지 않았다("/"부터 모든 조상 확인). 기존 계약 test 전부 PASS, 성능 같음.
+- 스토어판: 허용한 폴더에서 시작하는 walk(D-033), 필요한 곳에만 남기는 bookmark(D-034), 접근이 없을 때의 요청 흐름. 실제 sandbox에서 PASS.
+- 즐겨찾기·최근 폴더·폴더 감시·Undo/Recovery·외장 APFS가 두 에디션에서 같은 화면과 같은 동작이다. 차이는 FILESYSTEM_CAPABILITIES.md의 ‘App Sandbox (스토어판)’에 있다.
+- 업데이트 확인(D-029): 직접 배포판 앱 메뉴에 추가, 스토어판에는 없음. 메뉴를 실제로 눌러 브라우저가 열리는지는 사람이 확인한다.
+
+### Phase 1 Gate (2026-10-07, T-008)
+
+아래는 Phase 1 시점의 결과다. Phase 2에서 다시 실행한 항목은 위 표가 현재 값이다.
 
 | 항목 | 명령 | 결과 |
 |---|---|---|
@@ -283,6 +316,11 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 | U23 | 영어·일본어 화면(첫 화면, 소개, 사용 방법, 확인 창, 오류 안내)이 그 언어 사용자에게 자연스러운지. 한국어의 바뀐 용어(선택한 N개 이름 정리, 폴더 감시, 분리된 글자 합치기, 변경 완료 등) | PENDING |
 | U24 | ‘필터·정렬 → Windows에서 쓸 수 없는 이름’과 자세히 보기의 안내가 쓸모 있는지 | PENDING |
 | U25 | 일본어 이름의 옛 글자체 한자(예: 神, 隆)가 정리 뒤에도 그대로인지 | PENDING |
+| U26 | 스토어판(sandbox) 실제 조작: ‘폴더 추가’ 창으로 폴더 선택 → 정리 → 앱 종료 → 다시 실행 → 작업 기록에서 되돌리기. 창을 눌러 받은 권한이 재실행 뒤에도 이어지는지 | PENDING |
+| U27 | 스토어판에서 파일 하나만 끌어다 놓았을 때 뜨는 폴더 선택 창의 문구와 흐름, 취소했을 때의 ‘폴더 선택 필요’ 안내와 다시 고르기 | PENDING |
+| U28 | 스토어판의 즐겨찾기·최근 폴더·폴더 감시: 재실행, 잠자기/깨우기, 폴더를 옮기거나 지웠을 때 ‘다시 선택’, 외장 드라이브를 뺐다 꽂았을 때 | PENDING |
+| U29 | 스토어판의 Finder 연동: 다음으로 열기, Dock에 끌어다 놓기, 서비스 메뉴, 메뉴 막대 아이콘에 끌어다 놓기, 로그인 시 열기, 완료 알림, 결과 CSV 저장 | PENDING |
+| U30 | 직접 배포판 앱 메뉴의 ‘업데이트 확인…’이 브라우저로 제품 페이지를 여는지, 스토어판에는 그 메뉴가 없는지 | PENDING |
 
 ## 문서/도구 검증
 
