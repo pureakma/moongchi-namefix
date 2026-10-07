@@ -51,6 +51,7 @@
 "ChooseFiles" = "파일 선택";
 "ChooseFolderToAllow" = "폴더 선택…";
 "ChooseFolders" = "폴더 선택";
+"ChooseParentFolder" = "상위 폴더 선택…";
 "ClearAfterRun" = "완료 후 선택 해제";
 "ClearAll" = "전체 선택 해제";
 "ClearMapping" = "목록 지우기";
@@ -150,6 +151,8 @@
 "FinalRenamed" = "최종 이름 적용";
 "FinderServiceTitle" = "NameFix로 파일 이름 검사";
 "FolderAccessMessage" = "‘{0}’ 폴더를 선택하면 그 안의 이름을 확인하고 바꿀 수 있습니다. 파일 내용은 바꾸지 않습니다.";
+"FolderAccessMore" = "이 폴더 다음에 선택할 폴더가 {0}개 더 있습니다.";
+"FolderAccessMoreOne" = "이 폴더 다음에 선택할 폴더가 1개 더 있습니다.";
 "FolderAccessNeeded" = "이 항목의 이름을 확인하고 바꾸려면 항목이 들어 있는 폴더를 선택해 주세요. macOS는 사용자가 고른 폴더 안에서만 앱이 이름을 바꿀 수 있게 합니다.";
 "FolderAccessNeededShort" = "폴더 선택 필요";
 "FolderAccessPurpose" = "직접 선택한 파일과 폴더의 이름만 검사하고 바꿉니다.";
@@ -329,6 +332,9 @@
 "PairExtensions" = "함께 바꿀 확장자 (예: jpg,raw,xmp)";
 "PairHelp" = "같은 폴더에서 이름이 같고 확장자만 다른 파일(예: 사진의 jpg와 raw)을 한 묶음으로 보고 같은 새 이름과 번호를 붙입니다. 확장자는 그대로 둡니다. ‘확장자 제외 이름’에 적용하는 규칙만 쓸 수 있고 CSV 목록과는 함께 쓸 수 없습니다. 묶음 중 일부만 선택했거나 충돌·오류가 있으면 묶음 전체를 제외합니다. 일부만 바뀐 경우 작업 기록에서 복구할 수 있습니다.";
 "PairMember" = "묶음 파일 · 함께 선택";
+"ParentFolderMessage" = "‘{0}’ 폴더의 이름도 바꾸려면 그 폴더가 들어 있는 ‘{1}’ 폴더를 선택해 주세요. 파일 내용은 바꾸지 않습니다.";
+"ParentFolderNeeded" = "이 폴더의 이름도 바꾸려면 상위 폴더를 한 번 선택해 주세요. 폴더 안의 항목은 지금 바로 바꿀 수 있습니다.";
+"ParentFolderNeededShort" = "폴더 이름도 바꾸려면 상위 폴더 선택";
 "PasteText" = "글자 붙여넣기";
 "Path" = "경로";
 "PerFolder" = "폴더별 번호 다시 시작";
@@ -458,6 +464,7 @@
 "StatusCloudExcluded" = "— 동기화 폴더는 제외";
 "StatusDriveExcluded" = "— 이 드라이브는 제외";
 "StatusFolderNeeded" = "— 폴더 선택 필요";
+"StatusParentNeeded" = "— 상위 폴더 선택 필요";
 "StatusReadOnly" = "— 읽기 전용";
 "Stem" = "확장자 제외 이름";
 "SumCount" = "{0}자";
@@ -548,6 +555,8 @@
 "WindowsReservedName" = "Windows가 따로 쓰는 이름입니다(CON, PRN, AUX, NUL, COM1–9, LPT1–9).";
 "WindowsTrailingDotOrSpace" = "이름이 마침표나 공백으로 끝납니다.";
 "WorkspaceTitle" = "파일 이름 검사";
+"WrongFolderChosen" = "선택한 폴더에 해당 항목이 들어 있지 않습니다. 안내에 나온 폴더를 선택해 주세요.";
+"WrongFolderChosenShort" = "다른 폴더를 선택했습니다";
 "created" = "생성 날짜";
 "document.author" = "문서 작성자";
 "document.title" = "문서 제목";

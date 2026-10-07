@@ -238,7 +238,11 @@ import NameFixCore
         askingForFolder = true
         let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.allowsMultipleSelection = false; panel.resolvesAliases = false
         panel.directoryURL = request.folder; panel.prompt = model.t("AllowFolder")
-        panel.message = model.t(request.purpose == .input ? "FolderAccessMessage" : "UndoFolderMessage", request.folder.lastPathComponent)
+        switch request.purpose {
+        case .input: panel.message = model.t("FolderAccessMessage", request.folder.lastPathComponent) + (request.remaining > 0 ? " " + model.t("FolderAccessMore", model.n(request.remaining)) : "")
+        case .parent: panel.message = model.t("ParentFolderMessage", request.item, request.folder.lastPathComponent)
+        case .history: panel.message = model.t("UndoFolderMessage", request.folder.lastPathComponent)
+        }
         window.makeKeyAndOrderFront(nil)
         panel.beginSheetModal(for: window) { [weak self] response in
             guard let self else { return }
@@ -259,6 +263,8 @@ import NameFixCore
     }
     func application(_ application: NSApplication, open urls: [URL]) {
         #if DEBUG
+        // The probe keeps back the folders it will "choose" later, as the user would in the folder panel.
+        let urls = SandboxFixtures.keepBack(urls)
         openedByFinder += urls
         #endif
         model.add(urls, fromOS: true); window?.makeKeyAndOrderFront(nil)

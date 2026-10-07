@@ -129,9 +129,14 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
     /// A folder the user has to choose before something can go on. Only a sandboxed app asks:
     /// macOS lets it work in a folder only after the user picked that folder.
     struct FolderRequest: Equatable {
-        enum Purpose: Equatable { case input, history(mode: String, id: UUID) }
+        /// `.parent`: the folder above an added folder, so that the added folder's own name can change.
+        enum Purpose: Equatable { case input, parent, history(mode: String, id: UUID) }
         var folder: URL
         var purpose: Purpose
+        /// The added folder a `.parent` request is for.
+        var item = ""
+        /// How many more folders will be asked for after this one.
+        var remaining = 0
     }
     @Published var folderRequest: FolderRequest?
     private var queuedURLs: [URL] = []
@@ -323,17 +328,57 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
     }
     /// A sandboxed app can read and rename an item only through a folder the user allowed.
     /// A file handed over on its own needs its folder; the user is asked for exactly that one.
+    /// Files in the same folder are asked for once; files from several folders, one folder at a time,
+    /// and a folder the app can already reach again (a favourite, a watched or recent folder) is not asked for.
     func requestFolderForLooseItems() {
-        guard AccessRoots.shared.restricted, folderRequest == nil,
-              let loose = roots.first(where: { AccessRoots.shared.root(containing: $0.parent) == nil && !AccessRoots.shared.isRoot($0) }) else { return }
-        folderRequest = FolderRequest(folder: URL(fileURLWithPath: loose.parent.display, isDirectory: true), purpose: .input)
+        guard AccessRoots.shared.restricted, folderRequest == nil else { return }
+        var folders: [RawPath] = []
+        for root in roots where AccessRoots.shared.root(containing: root.parent) == nil && !AccessRoots.shared.isRoot(root) && !folders.contains(root.parent) { folders.append(root.parent) }
+        folders.removeAll(where: reuseKeptAccess)
+        guard let first = folders.first else { return }
+        folderRequest = FolderRequest(folder: URL(fileURLWithPath: first.display, isDirectory: true), purpose: .input, remaining: folders.count - 1)
     }
-    /// The user chose the folder that was asked for.
+    /// The user wants an added folder's own name changed too: ask for the folder above it.
+    /// Nothing is asked while only the items inside are renamed.
+    func requestParentFolder() {
+        guard AccessRoots.shared.restricted, folderRequest == nil, !busy, plan == nil,
+              let folder = entries.first(where: { $0.reason == "ParentFolderNeeded" })?.path else { return }
+        if reuseKeptAccess(folder.parent) { if message == "ParentFolderNeeded" { message = nil }; scan(); return }
+        folderRequest = FolderRequest(folder: URL(fileURLWithPath: folder.parent.display, isDirectory: true), purpose: .parent, item: String(data: folder.leaf, encoding: .utf8) ?? "")
+    }
+    /// Reaches `folder` through access the user already gave and asked to keep: a favourite, a watched
+    /// folder or a remembered recent folder that is this folder or contains it. The kept bookmark is
+    /// used only if the place it leads to now really contains the folder; anything else is given back.
+    private func reuseKeptAccess(_ folder: RawPath) -> Bool {
+        guard AccessRoots.shared.restricted else { return false }
+        func reachable() -> Bool { if let fd = try? FS.openDirectory(folder) { close(fd); return true }; return false }
+        if reachable() { return true }
+        let target = folder.display
+        func covers(_ path: String) -> Bool { target == path || target.hasPrefix(path.hasSuffix("/") ? path : path + "/") }
+        var kept: [Data] = favorites.compactMap { covers($0.path) ? $0.bookmark : nil }
+        kept += watches.folders.compactMap { covers($0.path) ? $0.bookmark : nil }
+        kept += (settings.recentAccess ?? [:]).compactMap { covers($0.key) ? $0.value : nil }
+        for bookmark in kept {
+            var stale = false
+            guard let url = try? URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope, .withoutUI, .withoutMounting], relativeTo: nil, bookmarkDataIsStale: &stale),
+                  !stale, let root = try? AccessRoots.shared.grant(url) else { continue }   // a bookmark that had to guess is not trusted here
+            if reachable() { inputGrants.append(root.path); return true }
+            AccessRoots.shared.release(root.path)
+        }
+        return false
+    }
+    /// The user chose a folder in answer to a request.
     func allowFolder(_ url: URL) {
         let request = folderRequest; folderRequest = nil
         guard let root = try? AccessRoots.shared.grant(url) else { message = "FolderAccessNeeded"; return }
+        // A different folder than the one needed helps nothing: it is given back, and the choice stays open.
+        if let request, request.purpose == .input || request.purpose == .parent {
+            let wanted = RawPath(request.folder.path)
+            guard let fd = try? FS.openDirectory(wanted) else { AccessRoots.shared.release(root.path); message = "WrongFolderChosen"; return }
+            close(fd)
+        }
         inputGrants.append(root.path)
-        if ["FolderAccessNeeded", "UndoNeedsFolder"].contains(message) { message = nil }
+        if ["FolderAccessNeeded", "UndoNeedsFolder", "ParentFolderNeeded", "WrongFolderChosen"].contains(message) { message = nil }
         if case .history(let mode, let id) = request?.purpose { prepare(mode: mode, historyID: id) } else { requestFolderForLooseItems(); scan() }
     }
     func declineFolder() { folderRequest = nil }
@@ -447,7 +492,8 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
             // Say once, in the status line, why a whole location is left alone. Nothing is shown for supported places.
             else if let place = scan.entries.first(where: { VolumeSupport.locationReasons.contains($0.reason) })?.reason { message = place }
             else if scan.entries.contains(where: { $0.reason == "FolderAccessNeeded" }) { message = "FolderAccessNeeded" }
-            else if let shown = message, VolumeSupport.locationReasons.contains(shown) || shown == "FolderAccessNeeded" { message = nil }
+            else if scan.entries.contains(where: { $0.reason == "ParentFolderNeeded" }) { message = "ParentFolderNeeded" }
+            else if let shown = message, VolumeSupport.locationReasons.contains(shown) || shown == "FolderAccessNeeded" || shown == "ParentFolderNeeded" { message = nil }
             if settings.rememberRecentFolders {
                 let directories = scan.entries.filter { $0.isDirectory && scan.roots.contains($0.path) }.map { $0.path.display }
                 var list = directories + settings.recentFolders

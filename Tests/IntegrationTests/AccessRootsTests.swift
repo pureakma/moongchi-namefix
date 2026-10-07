@@ -95,8 +95,9 @@ final class AccessRootsTests: XCTestCase, @unchecked Sendable {
         let root = try AccessRoots.shared.grant(allowed)
         try AccessRoots.shared.grant(state)   // where the app keeps its own records
         let entries = scan([root.path])
-        // The allowed folder is listed; its own name is in a folder the app may not open.
-        XCTAssertEqual(entries.first?.path, root.path); XCTAssertEqual(entries.first?.status, .unsupported); XCTAssertEqual(entries.first?.reason, "RootNameExcluded")
+        // The allowed folder is listed like any other row: its name needs no change, so nothing more is needed.
+        XCTAssertEqual(entries.first?.path, root.path); XCTAssertEqual(entries.first?.status, .normal); XCTAssertEqual(entries.first?.reason, "NormalHelp")
+        XCTAssertTrue(AccessRoots.shared.needsParent(root.path)); XCTAssertFalse(AccessRoots.shared.needsParent(inner))
         XCTAssertEqual(entries.filter { $0.status.fixable }.count, 3)
         let journal = try JournalStore(root: state.appendingPathComponent("History")), coordinator = TransactionCoordinator(store: journal)
         let approved = try plan(entries); XCTAssertEqual(approved.operations.count, 3)

@@ -12949,6 +12949,213 @@
           }
         }
       }
+    },
+    "ParentFolderNeeded": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 폴더의 이름도 바꾸려면 상위 폴더를 한 번 선택해 주세요. 폴더 안의 항목은 지금 바로 바꿀 수 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To rename this folder too, choose the folder that contains it. The items inside it can be renamed right away."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このフォルダの名前も変更するには、1つ上のフォルダを選択してください。フォルダ内の項目はすぐに変更できます。"
+          }
+        }
+      }
+    },
+    "ParentFolderNeededShort": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더 이름도 바꾸려면 상위 폴더 선택"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To rename the folder too, choose the folder that contains it"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォルダ名も変更するには、1つ上のフォルダを選択"
+          }
+        }
+      }
+    },
+    "StatusParentNeeded": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— 상위 폴더 선택 필요"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— Enclosing folder needed"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— 上のフォルダの選択が必要"
+          }
+        }
+      }
+    },
+    "ChooseParentFolder": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "상위 폴더 선택…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose Enclosing Folder…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上のフォルダを選択…"
+          }
+        }
+      }
+    },
+    "ParentFolderMessage": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘{0}’ 폴더의 이름도 바꾸려면 그 폴더가 들어 있는 ‘{1}’ 폴더를 선택해 주세요. 파일 내용은 바꾸지 않습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To rename the “{0}” folder too, choose the “{1}” folder that contains it. File contents are never changed."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「{0}」フォルダの名前も変更するには、そのフォルダが入っている「{1}」フォルダを選択してください。ファイルの内容は変更しません。"
+          }
+        }
+      }
+    },
+    "FolderAccessMore": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 폴더 다음에 선택할 폴더가 {0}개 더 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{0} more folders need to be chosen after this one."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このあと、さらに{0}個のフォルダを選択します。"
+          }
+        }
+      }
+    },
+    "FolderAccessMoreOne": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 폴더 다음에 선택할 폴더가 1개 더 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 more folder needs to be chosen after this one."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このあと、さらに1個のフォルダを選択します。"
+          }
+        }
+      }
+    },
+    "WrongFolderChosen": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "선택한 폴더에 해당 항목이 들어 있지 않습니다. 안내에 나온 폴더를 선택해 주세요."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The folder you chose doesn’t contain the item. Choose the folder named in the message."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選択したフォルダに該当の項目が入っていません。案内に表示されたフォルダを選択してください。"
+          }
+        }
+      }
+    },
+    "WrongFolderChosenShort": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다른 폴더를 선택했습니다"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A different folder was chosen"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "別のフォルダが選択されました"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

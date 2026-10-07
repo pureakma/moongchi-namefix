@@ -92,14 +92,18 @@ public enum Scanner {
             if seen.contains(requested) { continue }
             do {
                 // Sandboxed: the name of the folder the user allowed lives in a folder the app may
-                // not open. The folder is listed, its contents are scanned, and its own name is left alone.
+                // not open yet. The folder is listed and its contents are scanned. If its own name
+                // would change, the row says the folder above has to be chosen first; once it is,
+                // this branch is not taken and the folder is a row like any other.
                 if level == 0, AccessRoots.shared.restricted, AccessRoots.shared.root(containing: requested.parent) == nil, AccessRoots.shared.root(containing: requested) != nil {
                     let rootFD = try FS.openDirectory(requested); defer { close(rootFD) }
                     let path = try FS.rawDirectoryPath(rootFD), identity = try FS.directoryIdentity(rootFD)
                     resolvedRoots[requested] = path
                     guard seen.insert(path).inserted else { continue }
                     let blocked = protectedReason(path)
-                    result.append(FileEntry(path: path, identity: identity, isDirectory: true, status: .unsupported, reason: blocked ?? "RootNameExcluded", proposed: NormalizationAnalysis(raw: path.leaf, target: target).proposed))
+                    let proposed = NormalizationAnalysis(raw: path.leaf, target: target).proposed, changes = proposed != path.leaf
+                    result.append(FileEntry(path: path, identity: identity, isDirectory: true, status: blocked != nil ? .unsupported : changes ? .accessDenied : .normal,
+                                            reason: blocked ?? (changes ? "ParentFolderNeeded" : "NormalHelp"), proposed: proposed))
                     if blocked == nil { work.append(contentsOf: try FS.names(rootFD).map { (path.appending($0), 1, identity.device) }) }
                     continue
                 }

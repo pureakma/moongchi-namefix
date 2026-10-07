@@ -51,6 +51,7 @@
 "ChooseFiles" = "Choose Files";
 "ChooseFolderToAllow" = "Choose Folder…";
 "ChooseFolders" = "Choose Folder";
+"ChooseParentFolder" = "Choose Enclosing Folder…";
 "ClearAfterRun" = "Clear selection after renaming";
 "ClearAll" = "Deselect All";
 "ClearMapping" = "Clear List";
@@ -150,6 +151,8 @@
 "FinalRenamed" = "Final name applied";
 "FinderServiceTitle" = "Scan Names with NameFix";
 "FolderAccessMessage" = "Choose the “{0}” folder to check and change the names inside it. File contents are never changed.";
+"FolderAccessMore" = "{0} more folders need to be chosen after this one.";
+"FolderAccessMoreOne" = "1 more folder needs to be chosen after this one.";
 "FolderAccessNeeded" = "To check and rename this item, choose the folder that contains it. macOS lets the app rename items only inside a folder you have chosen.";
 "FolderAccessNeededShort" = "Choose the folder to continue";
 "FolderAccessPurpose" = "NameFix scans and renames only the files and folders you choose.";
@@ -329,6 +332,9 @@
 "PairExtensions" = "Extensions to rename together (e.g. jpg,raw,xmp)";
 "PairHelp" = "Files in one folder that share a name and differ only by extension (such as a photo’s jpg and raw) are treated as a set and get the same new name and number. Extensions are kept. Only rules that apply to the name without extension can be used, and a CSV list cannot be used at the same time. A set is skipped if only part of it is selected or if it has a conflict or error. Partly renamed sets can be recovered in History.";
 "PairMember" = "File set · select together";
+"ParentFolderMessage" = "To rename the “{0}” folder too, choose the “{1}” folder that contains it. File contents are never changed.";
+"ParentFolderNeeded" = "To rename this folder too, choose the folder that contains it. The items inside it can be renamed right away.";
+"ParentFolderNeededShort" = "To rename the folder too, choose the folder that contains it";
 "PasteText" = "Paste Text";
 "Path" = "Path";
 "PerFolder" = "Restart in each folder";
@@ -458,6 +464,7 @@
 "StatusCloudExcluded" = "— Cloud folder skipped";
 "StatusDriveExcluded" = "— Drive not supported";
 "StatusFolderNeeded" = "— Folder needed";
+"StatusParentNeeded" = "— Enclosing folder needed";
 "StatusReadOnly" = "— Read-only";
 "Stem" = "Name without extension";
 "SumCount" = "{0} characters";
@@ -548,6 +555,8 @@
 "WindowsReservedName" = "Is a name reserved by Windows (CON, PRN, AUX, NUL, COM1–9, LPT1–9).";
 "WindowsTrailingDotOrSpace" = "Ends with a period or a space.";
 "WorkspaceTitle" = "File name check";
+"WrongFolderChosen" = "The folder you chose doesn’t contain the item. Choose the folder named in the message.";
+"WrongFolderChosenShort" = "A different folder was chosen";
 "created" = "Date created";
 "document.author" = "Document author";
 "document.title" = "Document title";

@@ -19,6 +19,20 @@ import NameFixApplication
         guard let flag = CommandLine.arguments.firstIndex(of: "--probe-support"), CommandLine.arguments.count > flag + 1 else { return nil }
         return URL(fileURLWithPath: CommandLine.arguments[flag + 1], isDirectory: true)
     }
+    /// Folders handed over with `--probe-hold <path>` are not added. macOS has allowed them to this
+    /// process, so the probe can answer a folder request with them, the way the folder panel would.
+    static var held: [URL] = []
+    static func keepBack(_ urls: [URL]) -> [URL] {
+        var wanted: [String] = []
+        for (index, argument) in CommandLine.arguments.enumerated() where argument == "--probe-hold" && index + 1 < CommandLine.arguments.count { wanted.append(URL(fileURLWithPath: CommandLine.arguments[index + 1]).standardizedFileURL.path) }
+        guard phase != nil, !wanted.isEmpty else { return urls }
+        let kept = urls.filter { wanted.contains($0.standardizedFileURL.path) }
+        held += kept
+        return urls.filter { !wanted.contains($0.standardizedFileURL.path) }
+    }
+    private static func chosen(for request: AppModel.FolderRequest) -> URL? {
+        held.first { $0.standardizedFileURL.path == request.folder.standardizedFileURL.path } ?? held.first { $0.lastPathComponent == request.folder.lastPathComponent }
+    }
     /// When the model finished loading, for the start-up time.
     static var readyAt: Date?
     private static func processStart() -> Date? {
@@ -209,6 +223,58 @@ import NameFixApplication
             }
             facts["draw"] = summary(draw); facts["between"] = summary(wait); facts["both"] = summary(zip(draw, wait).map { $0 + $1 })
             facts["height"] = Double(document.frame.height)
+            await model.shutdown()
+        case "parent":
+            // An added folder whose own name needs fixing. In the sandbox: the items inside are ready at once,
+            // nothing is asked until the folder's name is wanted, cancelling changes nothing, and choosing
+            // the folder above makes the folder a row like any other. Outside the sandbox it is one from the start.
+            _ = await settle(model) { !model.entries.isEmpty }
+            let folder = model.roots.first
+            func row() -> FileEntry? { model.entries.first { $0.path == model.roots.first } }
+            facts["askedAtOnce"] = model.folderRequest != nil
+            facts["rowReason"] = row()?.reason ?? ""; facts["rowLabel"] = row().map { CharacterPresentation.statusKey($0.status, name: $0.name, reason: $0.reason) } ?? ""
+            facts["message"] = model.message ?? ""; facts["fixableBefore"] = model.entries.filter { $0.status.fixable }.count
+            model.requestParentFolder()
+            facts["askedFor"] = model.folderRequest?.folder.lastPathComponent ?? ""; facts["askedPurposeParent"] = model.folderRequest?.purpose == .parent
+            if let request = model.folderRequest {
+                model.declineFolder(); _ = await settle(model)
+                // Read with what macOS gave this process, not through the app's own rule, which still refuses the folder above.
+                facts["afterCancel"] = folder.map { ((try? FileManager.default.contentsOfDirectory(atPath: $0.parent.display)) ?? ["<cannot read>"]).map { Data($0.utf8).map { String(format: "%02x", $0) }.joined() }.sorted() } ?? []; facts["messageAfterCancel"] = model.message ?? ""; facts["entriesAfterCancel"] = model.entries.count
+                model.requestParentFolder(); facts["askedAgain"] = model.folderRequest != nil
+                if let url = chosen(for: request) { model.allowFolder(url) } else { facts["noHeldFolder"] = true }
+                _ = await settle(model) { row()?.status.fixable == true || model.message != nil }
+            }
+            facts["rowFixable"] = row()?.status.fixable ?? false; facts["fixableAfter"] = model.entries.filter { $0.status.fixable }.count; facts["messageAfter"] = model.message ?? ""
+            model.prepare(); _ = await settle(model) { model.plan != nil || model.message != nil }
+            facts["planned"] = model.plan?.operations.count ?? 0
+            model.execute(); _ = await settle(model) { model.result != nil }
+            facts["renamed"] = model.result?.succeeded ?? 0; facts["status"] = model.result?.status ?? ""
+            model.dismissResult(); _ = await settle(model)
+            try? await Task.sleep(for: .seconds(1))
+            await model.shutdown()
+        case "files":
+            // Files handed over on their own. Each folder that is needed is asked for once, in turn.
+            _ = await settle(model) { !model.entries.isEmpty }
+            var asked: [[String: Any]] = []
+            if CommandLine.arguments.contains("--probe-decline-first"), model.folderRequest != nil {
+                model.declineFolder(); _ = await settle(model)
+                facts["messageAfterCancel"] = model.message ?? ""; facts["fixableAfterCancel"] = model.entries.filter { $0.status.fixable }.count; facts["entriesAfterCancel"] = model.entries.count
+                model.requestFolderForLooseItems(); facts["askedAgain"] = model.folderRequest != nil
+            }
+            while let request = model.folderRequest, asked.count < 10 {
+                asked.append(["folder": request.folder.lastPathComponent, "remaining": request.remaining])
+                guard let url = chosen(for: request) else { model.declineFolder(); break }
+                model.allowFolder(url)
+            }
+            _ = await settle(model)
+            facts["asked"] = asked; facts["message"] = model.message ?? ""
+            facts["fixable"] = model.entries.filter { $0.status.fixable }.count; facts["waiting"] = model.entries.filter { $0.reason == "FolderAccessNeeded" }.count
+            model.prepare(); _ = await settle(model) { model.plan != nil || model.message != nil }
+            facts["planned"] = model.plan?.operations.count ?? 0
+            model.execute(); _ = await settle(model) { model.result != nil }
+            facts["renamed"] = model.result?.succeeded ?? 0
+            model.dismissResult(); _ = await settle(model)
+            try? await Task.sleep(for: .seconds(1))
             await model.shutdown()
         case "look":
             // A folder on a drive the app does not rename on: it is listed, explained, and nothing is offered.

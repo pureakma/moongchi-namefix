@@ -59,6 +59,12 @@ public final class AccessRoots: @unchecked Sendable {
         return match(path)?.root
     }
     public func isRoot(_ path: RawPath) -> Bool { lock.lock(); defer { lock.unlock() }; return grants[path] != nil }
+    /// True for an allowed folder whose own name cannot be changed yet: the name is kept by the
+    /// folder above it, and that folder has not been allowed. Never true outside the sandbox.
+    public func needsParent(_ path: RawPath) -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        return limited && grants[path] != nil && match(path.parent) == nil
+    }
     /// A bookmark that lets the app reach this allowed folder again after it is reopened.
     public func bookmark(for path: RawPath) -> Data? {
         lock.lock(); let url = grants[path]?.url; lock.unlock()

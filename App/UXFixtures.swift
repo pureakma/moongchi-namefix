@@ -163,12 +163,13 @@ import NameFixRuntime
             // needs its folder, and the notice that offers to choose it.
             let waiting = rows(conflict: false).enumerated().map { index, entry -> FileEntry in
                 var e = entry
-                if e.isDirectory && index == 0 { e.status = .unsupported; e.reason = "RootNameExcluded" }
+                if e.isDirectory && index == 0 { e.status = .accessDenied; e.reason = "ParentFolderNeeded" }
                 if !e.isDirectory && index % 2 == 1 { e.status = .accessDenied; e.reason = "FolderAccessNeeded" }
                 return e
             }
             for (name, size) in [("V-access", wide), ("V-access-narrow", narrow)] {
                 try render("\(name)-\(language)", language: language, theme: "olive", size: size, entries: waiting) { model in model.message = "FolderAccessNeeded" }
+                try render("\(name.replacingOccurrences(of: "V-access", with: "W-parent"))-\(language)", language: language, theme: "olive", size: size, entries: waiting.map { item in var e = item; if e.reason == "FolderAccessNeeded" { e.status = .needsNormalization; e.reason = "ChangeHelp" }; return e }) { model in model.message = "ParentFolderNeeded" }
             }
             // One item: the count reads naturally in every language.
             try render("U-single-\(language)", language: language, theme: "olive", size: wide, entries: Array(rows(conflict: false).filter { !$0.isDirectory }.prefix(1)))

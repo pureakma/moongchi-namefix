@@ -32,6 +32,7 @@ struct CharacterPresentation: Sendable {
         if reason == "FolderExcluded" || reason == "HiddenExcluded" || reason == "RootNameExcluded" || reason == "VolumeRootExcluded" { return "NotTarget" }
         // Not refused: the app only has to be let into the item's folder first.
         if status == .accessDenied, reason == "FolderAccessNeeded" { return "StatusFolderNeeded" }
+        if status == .accessDenied, reason == "ParentFolderNeeded" { return "StatusParentNeeded" }
         // The place the item is in, not the item, is why it is left alone.
         if status == .unsupported, let reason {
             if reason == "VolumeReadOnly" { return "StatusReadOnly" }

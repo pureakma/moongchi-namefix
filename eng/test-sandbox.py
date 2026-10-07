@@ -154,10 +154,10 @@ with tempfile.TemporaryDirectory(prefix="namefix-sandbox-", dir="/private/tmp") 
     f = step(work, "rename", photos)
     if sandboxed:
         expect(f["homeIsContainer"] and f["systemRefusesNeighbour"] and f["outsideRefused"], "the sandbox keeps the app inside what it was given", f)
-        expect(f["rootIsAllowed"] and f["rootRow"] == "RootNameExcluded", "the handed-over folder is the allowed folder", f)
+        expect(f["rootIsAllowed"] and f["rootRow"] == "NormalHelp", "the handed-over folder is the allowed folder and an ordinary row", f)
         expect(f["systemRefusesRootRename"], "the system itself refuses to rename the handed-over folder", f)
     else:
-        expect(not f["homeIsContainer"] and not f["outsideRefused"] and f["rootRow"] != "RootNameExcluded", "outside the sandbox nothing is restricted", f)
+        expect(not f["homeIsContainer"] and not f["outsideRefused"] and f["rootRow"] == "NormalHelp", "outside the sandbox nothing is restricted", f)
     expect(f["fixable"] == 4 and f["linkRows"] == 1 and f["planned"] == 4 and f["renamed"] == 4 and f["status"] == "Completed", "scan, plan and rename inside the allowed folder", f)
     expect(nfc(names[0]).hex() in listing(photos) and nfd(names[0]).hex() not in listing(photos), "names were composed on disk", f)
     expect((work / "outside" / "not-yours.txt").read_text() == "outside the allowed folder" and listing(work / "outside") == [b"not-yours.txt".hex()], "nothing outside was touched", f)
@@ -261,7 +261,7 @@ with tempfile.TemporaryDirectory(prefix="namefix-sandbox-", dir="/private/tmp") 
     f = step(work, "rename", album)
     kept = nfd("사진 모음").hex() in listing(work)
     if sandboxed:
-        expect(f["rootRow"] == "RootNameExcluded" and f["renamed"] == 4 and kept, "the folder's own name stays, its contents are fixed", f)
+        expect(f["rootRow"] == "ParentFolderNeeded" and f["renamed"] == 4 and kept, "without the folder above, the folder's own name stays and its contents are fixed", f)
     else:
         expect(f["renamed"] == 5 and not kept and nfc("사진 모음").hex() in listing(work), "the folder's own name is fixed too", f)
     f = step(work, "undo")
@@ -315,6 +315,58 @@ with tempfile.TemporaryDirectory(prefix="namefix-sandbox-", dir="/private/tmp") 
     expect(f["undone"] == changing and sorted(f["restored"]) == original, "undo restores every name byte for byte", f)
     expect(listing(world) == original, "the folder is as it was", f)
     results.append(f"global names: {changing} of {len(stored)} fixed (Hangul, Latin, Vietnamese, kana, Greek, Cyrillic), compatibility ideographs (U+FA19 U+FA4C U+F9DC U+F914 U+2F800), emoji, full/half width, Arabic, Thai, Devanagari kept; undo exact")
+    # 11. The same folder, and this time its own name is wanted. In the sandbox the folder above is asked for
+    #     only then; cancelling changes nothing; choosing it makes the folder a row like any other.
+    #     The folder above is handed to the app but kept back by the probe, which "chooses" it when asked.
+    step(work, "reset")
+    above = work / "above"; shelf = above / unicodedata.normalize("NFD", "여행 사진"); fixture(shelf)
+    top, inside = listing(above), listing(shelf)
+    f = step(work, "parent", [shelf, above], more=["--probe-hold", str(above)])
+    if sandboxed:
+        expect(not f["askedAtOnce"] and f["rowReason"] == "ParentFolderNeeded" and f["rowLabel"] == "StatusParentNeeded" and f["message"] == "ParentFolderNeeded" and f["fixableBefore"] == 4, "nothing is asked until the folder's own name is wanted", f)
+        expect(f["askedPurposeParent"] and f["askedFor"] == "above", "exactly the folder above is asked for", f)
+        expect(f["afterCancel"] == top and f["messageAfterCancel"] == "ParentFolderNeeded" and f["entriesAfterCancel"] > 4 and f["askedAgain"], "cancelling changes nothing, keeps what was added and can be retried", f)
+    else:
+        expect(not f["askedAtOnce"] and f["askedFor"] == "" and f["rowReason"] != "ParentFolderNeeded" and f["fixableBefore"] == 5, "outside the sandbox the folder is ready at once and nothing is asked", f)
+    expect(f["rowFixable"] and f["fixableAfter"] == 5 and f["planned"] == 5 and f["renamed"] == 5 and f["status"] == "Completed", "the folder and its contents are renamed", f)
+    expect(nfc("여행 사진").hex() in listing(above) and nfd("여행 사진").hex() not in listing(above), "the folder's own name was composed on disk", f)
+    f = step(work, "undo")
+    expect(not f["askedForFolder"] and f["undone"] == 5 and listing(above) == top and listing(shelf) == inside, "undo after a new launch restores the folder and its contents", f)
+    results.append("added folder's own name: " + ("asked for the folder above only when wanted, cancel safe, then renamed; undo after a new launch exact" if sandboxed else "renamed at once, nothing asked; undo after a new launch exact"))
+
+    # 12. One file handed over: its folder is asked for, cancelling changes nothing, choosing it goes on at once.
+    step(work, "reset")
+    desk1 = work / "one"; desk1.mkdir(); touch(desk1, nfd("메모.txt")); one = listing(desk1)
+    f = step(work, "files", [desk1 / unicodedata.normalize("NFD", "메모.txt"), desk1], more=["--probe-hold", str(desk1), "--probe-decline-first"])
+    if sandboxed:
+        expect(f["messageAfterCancel"] == "FolderAccessNeeded" and f["fixableAfterCancel"] == 0 and f["entriesAfterCancel"] == 1 and f["askedAgain"], "cancel: the file stays listed, nothing changes, it can be retried", f)
+        expect(f["asked"] == [{"folder": "one", "remaining": 0}], "one file, one folder asked for", f)
+    else: expect(f["asked"] == [] and "askedAgain" not in f, "outside the sandbox nothing is asked", f)
+    expect(f["fixable"] == 1 and f["renamed"] == 1 and listing(desk1) == [nfc("메모.txt").hex()], "the file is renamed without adding it again", f)
+    f = step(work, "undo"); expect(f["undone"] == 1 and listing(desk1) == one, "undo after a new launch", f)
+    results.append("single file: " + ("folder asked once, cancel safe and retried, renamed without adding it again; undo exact" if sandboxed else "renamed at once; undo exact"))
+
+    # 13. Three files of one folder: asked once. Files of two folders: each folder in turn, the first request says one more follows.
+    step(work, "reset")
+    a = work / "A"; b = work / "B"; a.mkdir(); b.mkdir()
+    for x in ["가.txt", "나.txt", "다.txt"]: touch(a, nfd(x))
+    touch(b, nfd("라.txt"))
+    files = [a / unicodedata.normalize("NFD", x) for x in ["가.txt", "나.txt", "다.txt"]]
+    f = step(work, "files", files + [a], more=["--probe-hold", str(a)])
+    expect(f["asked"] == ([{"folder": "A", "remaining": 0}] if sandboxed else []) and f["renamed"] == 3, "three files of one folder: one request", f)
+    f = step(work, "undo"); expect(f["undone"] == 3, "undo", f)
+    step(work, "reset")
+    f = step(work, "files", [files[0], b / unicodedata.normalize("NFD", "라.txt"), a, b], more=["--probe-hold", str(a), "--probe-hold", str(b)])
+    expect(sorted(x["folder"] for x in f["asked"]) == (["A", "B"] if sandboxed else []) and [x["remaining"] for x in f["asked"]] == ([1, 0] if sandboxed else []) and f["renamed"] == 2 and f["waiting"] == 0, "files of two folders: each folder asked for in turn", f)
+    results.append("several files: " + ("one request for one folder, one per folder for two" if sandboxed else "nothing asked"))
+
+    # 14. A folder the app can already reach again (a favourite) is not asked for.
+    step(work, "reset")
+    fav = work / "fav"; fixture(fav)
+    f = step(work, "favorite", fav); expect(f["favorites"] == 1, "favourite added", f)
+    f = step(work, "files", [fav / unicodedata.normalize("NFD", names[0])])
+    expect(f["asked"] == [] and f["fixable"] == 1 and f["renamed"] == 1, "a file in a favourite folder needs no request", f)
+    results.append("file in a favourite folder: " + ("kept access reused, nothing asked" if sandboxed else "nothing asked"))
     step(work, "reset")
 print("\n".join("PASS " + line for line in results))
 print("PASS: real App Sandbox, store entitlements, access granted by macOS through Open With; no clicks, no user folders" if sandboxed

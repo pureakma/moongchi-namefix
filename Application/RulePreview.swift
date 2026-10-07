@@ -99,6 +99,19 @@ public enum RulePreview {
         var names: [RawPath: Set<Data>] = [:]
         for i in order {
             if token.cancelled { throw RuleFailure.cancelled }
+            // The added folder of a sandboxed app, before the folder above it was chosen: say what the
+            // rules would do to its name, and that the folder above is needed, instead of failing to open it.
+            if entries[i].isDirectory, entries[i].status == .normal || entries[i].reason == "ParentFolderNeeded", AccessRoots.shared.needsParent(entries[i].path) {
+                var root = entries[i]
+                if let reason = excluded(root) { root.proposed = root.path.leaf; root.status = .normal; root.reason = reason }
+                else {
+                    let steps = try? rulesOnly.evaluate(root.name, context: RuleContext(index: number, folderIndex: 0, isDirectory: true), access: access, cancelled: { token.cancelled })
+                    root.proposed = Data((steps?.last?.after ?? root.name).utf8)
+                    let changes = root.proposed != root.path.leaf
+                    root.status = changes ? .accessDenied : .normal; root.reason = changes ? "ParentFolderNeeded" : "NormalHelp"
+                }
+                result[i] = root; continue
+            }
             guard !entries[i].status.isError else { continue }
             var entry = entries[i]
             if let reason = excluded(entry) { entry.proposed = entry.path.leaf; entry.status = .normal; entry.reason = reason; result[i] = entry; continue }

@@ -18,6 +18,44 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인.
 
+### App Store Feature Parity Gate (2026-10-07, T-011)
+
+판정 APPSTORE_GUI_PARITY_READY. 영수증 MAC-APPSTORE-PARITY-GATE-20261007, 로컬 evidence artifacts/evidence/parity. AI가 실행한 Engineering Verification이며 User QA PASS가 아니다. 폴더 선택 창을 사람이 누르는 것은 이 Gate에 없다: 실제 sandbox에서 macOS가 이 process에 허용한 폴더로 요청에 답했다.
+
+| 항목 | 명령 | 결과 |
+|---|---|---|
+| Runtime·UI model·Core test | eng/test.sh --level 3 | 153개 실행, 실패 0 (통합 75 중 11 skip, UI model 49 중 1 skip, Core 29). 새 StoreParityTests 5개 포함 |
+| 스토어 구성의 실제 sandbox | eng/test-sandbox.py | 15개 PASS (기존 11 + 새 4) |
+| 직접 배포 구성의 실제 실행 | eng/test-sandbox.py --direct | 15개 PASS. 어느 단계에서도 폴더를 요청하지 않음 |
+| 대표 화면 | --render-ux, --render-shell, --render-responsive, --render-expansion | 237장(78+51+75+33), assertion PASS. ‘상위 폴더 선택 필요’ 화면을 넓은 창·좁은 창, ko/en으로 직접 확인 |
+| 리소스·스토어 문구 | eng/validate-resources.py; eng/validate-marketing.py | 572 keys × ko/en/ja PASS, 스토어 문구 PASS |
+| Debug·Release·AppStore build | eng/build.sh | 모두 BUILD SUCCEEDED, build 6 |
+
+새 시나리오(실제 sandbox, 단계마다 새 실행):
+- 추가한 폴더의 이름이 분리형: 폴더 안 4개는 바로 대상, 아무것도 묻지 않음 → 사용자가 폴더 이름도 원함 → 상위 폴더만 요청 → 취소하면 변화 0이고 다시 요청 가능 → 상위 폴더를 고르면 폴더까지 5개 이름 변경 → 새 실행에서 Undo 5개, byte 단위로 복원.
+- 파일 하나: 폴더 요청 → 취소(변화 0, 항목 유지) → 다시 요청 → 고르면 다시 추가하지 않고 이름 변경 → 새 실행에서 Undo.
+- 한 폴더의 파일 셋: 요청 한 번. 두 폴더의 파일: 폴더마다 차례로 요청하고 첫 요청이 하나 더 남았다고 알림.
+- 즐겨찾기한 폴더 안의 파일: 요청 없음(남겨 둔 접근 재사용).
+
+GUI 기능 비교(실제 실행 기준, *는 처음 한 번 필요한 폴더를 고르는 것만 다름):
+
+| 기능 | 직접 배포판 | 스토어판 |
+|---|---|---|
+| 자소 분리 해결 | PASS | PASS |
+| 파일 이름 일괄 변경 | PASS | PASS |
+| 추가한 폴더 자체의 이름 변경 | PASS | PASS* |
+| 파일 하나 | PASS | PASS* |
+| 여러 파일(한 폴더, 여러 폴더) | PASS | PASS* |
+| 즐겨찾기·최근 폴더 | PASS | PASS |
+| 폴더 감시 | PASS | PASS |
+| 작업 기록·Undo(재실행 뒤 포함) | PASS | PASS |
+| 외장 APFS(재연결 뒤 Undo, 다른 디스크 거부) | PASS | PASS |
+| exFAT 안내 | PASS | PASS |
+
+남은 차이: CLI(D-035), 업데이트 방식(D-029). 일괄 변경에서 ‘폴더 이름도 변경’을 켰을 때의 추가한 폴더는 model test로 확인했다(실제 sandbox 시나리오에는 자소 분리 해결 화면의 경우만 있다). Recovery(강제 종료 뒤)는 이 Gate에서 새 흐름으로 다시 만들지 않았고 기존 계약 test가 근거다.
+
+찾은 문제: P0 0, P1 0, P2 0. 이전에 남긴 ‘폴더 선택 필요에서 다시 고르는 버튼이 자세히 보기 안에 있다’(P2)는 안내 옆 버튼으로 해결했다.
+
 아래 표는 세션 직전의 Final QA / Release Candidate Gate(2026-10-07) 결과다. 그때의 판정은 NEEDS_USER_QA였고 영수증은 MAC-FINAL-RC-GATE-20261007, 로컬 evidence는 artifacts/evidence/final-rc다. 세션에서 제품 source가 바뀌었으므로(결과 목록, 빠른 기록 D-036, 일괄 변경 안내, 문구) 세션 뒤에 다시 실행한 것은 MAC-USER-QA-SESSION-20261007의 범위가 현재 값이다. 스토어 구성의 실제 실행 12개 전체는 세션 뒤에 다시 돌리지 않았고 Release Candidate 단계의 통합 Gate에서 다시 실행한다.
 
 이 Gate(세션 직전)에서는 제품 source가 바뀌지 않았다. 바뀐 것은 Debug 전용 확인 코드(App/SandboxFixtures.swift)와 eng/test-sandbox.py뿐이며 Release·AppStore binary에는 들어가지 않는다(probe 문자열 0건). 그래서 volume matrix, CLI, 대표 화면 render, 성능 수치는 아래 Phase 2 Gate의 결과를 그대로 쓴다.

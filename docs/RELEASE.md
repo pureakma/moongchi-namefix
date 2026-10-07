@@ -68,7 +68,7 @@ Final User QA Session(T-010, 2026-10-07)이 끝났다. 판정은 USER_QA_COMPLET
 
 ## Mac App Store 트랙
 
-상태: SANDBOX_READY — 스토어판 구성과 sandbox 안의 동작은 구현·검증됐다(T-009). 제출·업로드·App Store Connect 기록 생성은 하지 않았다. 직접 배포 build 5와 그 구성은 이 트랙 때문에 바뀌지 않았다.
+상태: SANDBOX_READY, APPSTORE_GUI_PARITY_READY(T-011) — 스토어판 구성과 sandbox 안의 동작은 구현·검증됐다(T-009). 제출·업로드·App Store Connect 기록 생성은 하지 않았다. 직접 배포 build 5와 그 구성은 이 트랙 때문에 바뀌지 않았다.
 
 구현된 것:
 - AppStore 구성(eng/build.sh --configuration AppStore): App Sandbox ON, entitlement 셋, 디버깅 entitlement 없음, arm64, macOS 14 이상, ko/en/ja, render·probe fixture 없음.
@@ -76,7 +76,7 @@ Final User QA Session(T-010, 2026-10-07)이 끝났다. 판정은 USER_QA_COMPLET
 - 실제 sandbox 검증 도구: eng/test-sandbox.py(스토어 entitlement로 서명한 Debug 앱, 별도 식별자 com.moongchi.namefix.sandboxqa).
 - 스토어 문구·심사 메모·entitlement 목록: marketing/appstore.json.
 
-직접 배포판과 다른 점(심사 메모에도 적었다): 추가한 폴더 자체의 이름은 바꾸지 않음(부모 폴더를 추가하면 가능), 파일만 추가하면 그 폴더를 한 번 고름, CLI 없음, ‘업데이트 확인’ 메뉴 없음.
+직접 배포판과 다른 점(심사 메모에도 적었다): GUI 기능은 같다(D-037). 파일만 추가했거나 추가한 폴더 자체의 이름을 바꾸려 할 때 필요한 폴더를 한 번 고른다. CLI 없음, ‘업데이트 확인’ 메뉴 없음.
 
 Store Release Phase에 필요한 외부 입력(사용자가 준비):
 - Apple Distribution, Mac Installer Distribution 인증서(새 private key)와 Mac App Store provisioning profile. 이 Mac의 서명 identity는 Developer ID Application과 Apple Development뿐이다.

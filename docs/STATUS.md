@@ -2,8 +2,8 @@
 
 <!-- HOT:START -->
 ## 지금
-- 단계: FINAL USER QA 완료 — USER_QA_COMPLETE_WITH_EXTERNAL_PENDING. 출시 보류. 현재 source는 1.0.0 build 6. Release Candidate는 아직 만들지 않았고 서명·공증·제출도 하지 않았다. build 5는 공개하지 않는 과거 후보(D-026)
-- 현재 Task: 없음 (다음 Task는 사용자 승인 대기)
+- 단계: APP STORE FEATURE PARITY 완료 — APPSTORE_GUI_PARITY_READY. Final User QA는 USER_QA_COMPLETE_WITH_EXTERNAL_PENDING. 출시 보류. 현재 source는 1.0.0 build 6. Release Candidate는 아직 만들지 않았고 서명·공증·제출도 하지 않았다. build 5는 공개하지 않는 과거 후보(D-026)
+- 현재 Task: T-011 (verificationPending)
 - 다음: 사용자가 Release Candidate Phase를 승인하면 build 6 기준으로 최종 RC 생성·검증 단계로 간다. 스토어 제출에는 T-007의 외부 입력이 필요
 - 위험·막힘: 확인된 P0·P1 없음. 스토어 제출용 인증서와 App Store Connect 접근 없음(T-007). D-003의 비협조 writer source-race 알려진 제한
 - 검증 대기: 제품 blocker는 없다. 추가 확인으로 남긴 것(실제로 하지 않았고 PASS로 적지 않음): 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인. 상세는 docs/QA.md
@@ -13,6 +13,13 @@
 ## 현재 Milestone
 
 Global Product Hardening Phase 1·2와 그 최종 QA. 한국·영어권·일본 시장 수준의 제품 품질과, 직접 배포판과 Mac App Store판이 같은 코드로 같은 GUI 기능을 내는 공통 기반. 출시, DMG 공개, 웹사이트 수정, App Store 업로드·제출은 하지 않는다. 이 Milestone의 Task는 모두 끝났고, 다음은 사용자가 승인하는 Release Candidate Phase다.
+
+### T-011 App Store Feature Parity Polish [verificationPending]
+- 근원: R-016
+- 범위: 스토어판의 GUI 기능을 직접 배포판과 같게(D-037). 추가한 폴더 자체의 이름 변경(필요한 순간에 상위 폴더 요청), 파일 하나·여러 파일, 필요한 폴더만 요청, 남겨 둔 접근 재사용, 다른 폴더 거부, 재실행 뒤 Undo, ko/en/ja 문구, 심사 메모. Release Candidate 생성은 포함하지 않는다.
+- 완료기준: 직접 배포판 회귀 없음(달성), 스토어판에서 추가한 폴더·파일 하나·여러 파일의 이름 변경(달성: 실제 sandbox), 필요한 때만 요청(달성), 취소 안전과 재시도(달성), 남겨 둔 접근 재사용(달성), 재실행 뒤 Undo(달성), P0·P1 없음(달성), 남은 차이는 CLI와 업데이트 방식뿐(달성), 사용자가 폴더 선택 창을 직접 눌러 확인(대기)
+- 대기: 사용자가 스토어판에서 ‘상위 폴더 선택…’과 파일 추가 뒤의 폴더 선택 창을 직접 눌러 보는 것. AI는 실제 sandbox에서 macOS가 허용한 폴더로 요청에 답하는 방식으로 실행했고 창을 누르지는 않았다. Engineering Verification이며 User QA PASS가 아니다.
+- 검증: docs/QA.md의 App Store Feature Parity Gate
 
 ### T-010 Global Product Final QA / Release Candidate Gate [completed]
 - 근원: R-015, R-016
@@ -58,7 +65,7 @@ Global Product Hardening Phase 1·2와 그 최종 QA. 한국·영어권·일본 
 ## 현재 상태 요약
 
 - 구현: 현재 승인된 앱 기능 범위에서 추가 필수 구현 Task 없음. P0 0건, P1 0건(User QA에서 나온 1건은 수정하고 사용자가 확인), P2 2건은 의도적으로 남겼다(QA.md). 작업 기록의 확정 수준은 사용자가 고른다(D-036).
-- 에디션: 직접 배포판(sandbox 없음, CLI 포함)과 Mac App Store판(App Sandbox)이 같은 코드다(D-032). 스토어판은 사용자가 고른 폴더 안에서만 작업한다.
+- 에디션: 직접 배포판(sandbox 없음, CLI 포함)과 Mac App Store판(App Sandbox)이 같은 코드이고 GUI 기능이 같다(D-032, D-037). 스토어판은 사용자가 고른 폴더 안에서 작업하며, 모자란 폴더는 필요한 순간에 한 번 요청한다. 남은 차이는 CLI와 업데이트 방식뿐이다.
 - 지원 위치: 로컬 writable APFS(내장·외장)에서만 이름을 바꾼다. exFAT·FAT·HFS+·네트워크·cloud 위치는 나열하고 이유를 알린 뒤 그대로 둔다(D-027).
 - 알려진 제한: 비협조 외부 writer의 source 교체를 expected-inode 조건으로 원자 차단하지 못한다. 감지·중단·보존·복구 안내는 구현돼 있다. swap/cycle/묶음 파일 그룹은 그룹 도중 취소하면 복구 확인이 필요할 수 있다. 읽을 수 없는 작업 기록이 있으면 Undo/Recovery를 막는다.
 - 유료 등급: 없음. 모든 기능을 무료로 제공한다(D-014).

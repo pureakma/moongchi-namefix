@@ -358,7 +358,7 @@ struct StatusLine: View {
     let palette: Palette
     var showsCounts = true
     @State private var showsNotice = false
-    private static let informational: Set<String> = Set(["Exported", "RecipeSaved", "QueuedInputs", "CancelBeforeClose", "FolderAccessNeeded", "UndoNeedsFolder", "FastRenameTip"]).union(VolumeSupport.locationReasons)
+    private static let informational: Set<String> = Set(["Exported", "RecipeSaved", "QueuedInputs", "CancelBeforeClose", "FolderAccessNeeded", "ParentFolderNeeded", "UndoNeedsFolder", "FastRenameTip"]).union(VolumeSupport.locationReasons)
     var body: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: Metrics.gap) { parts }
@@ -387,8 +387,15 @@ struct StatusLine: View {
                         VStack(alignment: .leading, spacing: 10) {
                             Text(model.t(message)).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
                             if message == "FolderAccessNeeded" { Button(model.t("ChooseFolderToAllow")) { showsNotice = false; model.requestFolderForLooseItems() } }
+                            if message == "ParentFolderNeeded" { Button(model.t("ChooseParentFolder")) { showsNotice = false; model.requestParentFolder() } }
                         }.padding(14).frame(width: 340, alignment: .leading)
                     }
+                // What to do about it is one click away, not behind the text.
+                if message == "FolderAccessNeeded" || message == "WrongFolderChosen" && model.entries.contains(where: { $0.reason == "FolderAccessNeeded" }) {
+                    Button(model.t("ChooseFolderToAllow")) { model.requestFolderForLooseItems() }.controlSize(.small).fixedSize().disabled(model.busy).accessibilityIdentifier("chooseFolder")
+                } else if message == "ParentFolderNeeded" || message == "WrongFolderChosen" && model.entries.contains(where: { $0.reason == "ParentFolderNeeded" }) {
+                    Button(model.t("ChooseParentFolder")) { model.requestParentFolder() }.controlSize(.small).fixedSize().disabled(model.busy).accessibilityIdentifier("chooseParentFolder")
+                }
                 Button { model.message = nil } label: { Image(systemName: "xmark").font(.caption) }.buttonStyle(.plain).foregroundStyle(palette.secondary)
                     .hoverTip(model.t("Close"), below: false).accessibilityLabel(model.t("Close"))
             }

@@ -51,6 +51,7 @@
 "ChooseFiles" = "ファイルを選択";
 "ChooseFolderToAllow" = "フォルダを選択…";
 "ChooseFolders" = "フォルダを選択";
+"ChooseParentFolder" = "上のフォルダを選択…";
 "ClearAfterRun" = "完了後に選択を解除";
 "ClearAll" = "すべての選択を解除";
 "ClearMapping" = "リストを消去";
@@ -150,6 +151,8 @@
 "FinalRenamed" = "新しい名前に変更済み";
 "FinderServiceTitle" = "NameFixでファイル名をスキャン";
 "FolderAccessMessage" = "「{0}」フォルダを選択すると、その中の名前を確認して変更できます。ファイルの内容は変更しません。";
+"FolderAccessMore" = "このあと、さらに{0}個のフォルダを選択します。";
+"FolderAccessMoreOne" = "このあと、さらに1個のフォルダを選択します。";
 "FolderAccessNeeded" = "この項目の名前を確認して変更するには、項目が入っているフォルダを選択してください。macOSでは、選択したフォルダの中でのみ、アプリが名前を変更できます。";
 "FolderAccessNeededShort" = "フォルダの選択が必要です";
 "FolderAccessPurpose" = "選択したファイルとフォルダの名前だけをスキャンし、変更します。";
@@ -329,6 +332,9 @@
 "PairExtensions" = "一緒に変更する拡張子（例：jpg,raw,xmp）";
 "PairHelp" = "同じフォルダにあり、名前が同じで拡張子だけが異なるファイル（例：写真のjpgとraw）を1つのセットとして扱い、同じ新しい名前と連番を付けます。拡張子はそのままです。使用できるのは「拡張子を除く名前」に適用するルールだけで、CSVリストとは併用できません。セットの一部だけを選択した場合や、競合・エラーがある場合は、セット全体を除外します。一部だけ変更された場合は、履歴から元の名前に戻せます。";
 "PairMember" = "セットのファイル · 一緒に選択";
+"ParentFolderMessage" = "「{0}」フォルダの名前も変更するには、そのフォルダが入っている「{1}」フォルダを選択してください。ファイルの内容は変更しません。";
+"ParentFolderNeeded" = "このフォルダの名前も変更するには、1つ上のフォルダを選択してください。フォルダ内の項目はすぐに変更できます。";
+"ParentFolderNeededShort" = "フォルダ名も変更するには、1つ上のフォルダを選択";
 "PasteText" = "テキストをペースト";
 "Path" = "パス";
 "PerFolder" = "フォルダごとに振り直す";
@@ -458,6 +464,7 @@
 "StatusCloudExcluded" = "— 同期フォルダは対象外";
 "StatusDriveExcluded" = "— このドライブは対象外";
 "StatusFolderNeeded" = "— フォルダの選択が必要";
+"StatusParentNeeded" = "— 上のフォルダの選択が必要";
 "StatusReadOnly" = "— 読み出し専用";
 "Stem" = "拡張子を除く名前";
 "SumCount" = "{0}文字";
@@ -548,6 +555,8 @@
 "WindowsReservedName" = "Windowsが予約している名前です（CON、PRN、AUX、NUL、COM1〜9、LPT1〜9）。";
 "WindowsTrailingDotOrSpace" = "名前の末尾がピリオドまたは空白です。";
 "WorkspaceTitle" = "ファイル名のスキャン";
+"WrongFolderChosen" = "選択したフォルダに該当の項目が入っていません。案内に表示されたフォルダを選択してください。";
+"WrongFolderChosenShort" = "別のフォルダが選択されました";
 "created" = "作成日";
 "document.author" = "書類の作成者";
 "document.title" = "書類のタイトル";
