@@ -517,6 +517,12 @@
 "WatchUseRules" = "현재 규칙으로 갱신";
 "WatchWriting" = "파일이 쓰이는 중이거나 바뀌었습니다. 쓰기가 끝나면 다시 검토하세요.";
 "WindowMenu" = "윈도우";
+"WindowsControlCharacter" = "보이지 않는 제어 문자가 들어 있습니다.";
+"WindowsNameNote" = "Windows에서는 이 이름을 쓸 수 없습니다. 알려 드리기만 하며 자동으로 바꾸지 않습니다.";
+"WindowsNames" = "Windows에서 쓸 수 없는 이름";
+"WindowsReservedCharacter" = "쓸 수 없는 글자가 들어 있습니다: \\ / : * ? \" < > |";
+"WindowsReservedName" = "Windows가 따로 쓰는 이름입니다(CON, PRN, AUX, NUL, COM1–9, LPT1–9).";
+"WindowsTrailingDotOrSpace" = "이름이 마침표나 공백으로 끝납니다.";
 "WorkspaceTitle" = "파일 이름 검사";
 "created" = "생성 날짜";
 "document.author" = "문서 작성자";

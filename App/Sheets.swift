@@ -111,6 +111,14 @@ struct SheetRouter: View {
                     LabeledContent(model.t("Preview"), value: entry.preview)
                     Text(model.t(entry.reason)).foregroundStyle(palette.secondary)
                     if entry.status.fixable && entry.reason != "RuleChangeHelp" { Text(model.t("SameAppearanceDifferentUnicode")).font(.caption) }
+                    // Told, never changed: a name that cannot be used when the file goes to Windows.
+                    let issues = NameRules.windowsIssues(entry.proposed)
+                    if !issues.isEmpty {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Label(model.t("WindowsNameNote"), systemImage: "exclamationmark.bubble").font(.callout)
+                            ForEach(issues, id: \.self) { Text("• " + model.t($0)).font(.caption).foregroundStyle(palette.secondary) }
+                        }.accessibilityElement(children: .combine)
+                    }
                     HStack { Text(entry.path.display).textSelection(.enabled); Spacer(); Button(model.t("CopyPath")) { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(entry.path.display, forType: .string) } }
                     Divider()
                     CharacterComparison(model: model, text: entry.name, palette: palette)

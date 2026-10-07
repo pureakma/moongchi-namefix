@@ -517,6 +517,12 @@
 "WatchUseRules" = "Use current rules";
 "WatchWriting" = "The file is being written or changed. Review again after writing finishes.";
 "WindowMenu" = "Window";
+"WindowsControlCharacter" = "Contains an invisible control character.";
+"WindowsNameNote" = "Windows can't use this name. This is a note only; the name is not changed automatically.";
+"WindowsNames" = "Names Windows can't use";
+"WindowsReservedCharacter" = "Contains a character that is not allowed: \\ / : * ? \" < > |";
+"WindowsReservedName" = "Is a name reserved by Windows (CON, PRN, AUX, NUL, COM1–9, LPT1–9).";
+"WindowsTrailingDotOrSpace" = "Ends with a period or a space.";
 "WorkspaceTitle" = "File name check";
 "created" = "Created date";
 "document.author" = "Document author";

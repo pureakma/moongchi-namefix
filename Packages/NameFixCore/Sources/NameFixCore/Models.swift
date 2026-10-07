@@ -95,6 +95,22 @@ public enum NameRules {
     public static func valid(_ raw: Data, limit: Int = 255) -> Bool {
         !raw.isEmpty && raw.count <= limit && !raw.contains(0) && !raw.contains(47) && raw != Data(".".utf8) && raw != Data("..".utf8) && String(data: raw, encoding: .utf8) != nil
     }
+    /// Why Windows, and the drives and services that follow its rules, cannot store a name.
+    /// A read-only diagnosis: nothing is renamed because of it. A name cannot be too long for
+    /// Windows here, because macOS already limits it to fewer UTF-16 units than Windows allows.
+    public static func windowsIssues(_ raw: Data) -> [String] {
+        guard let name = String(data: raw, encoding: .utf8), !name.isEmpty else { return [] }
+        var issues: [String] = []
+        let scalars = name.unicodeScalars
+        if scalars.contains(where: { "<>:\"/\\|?*".unicodeScalars.contains($0) }) { issues.append("WindowsReservedCharacter") }
+        if scalars.contains(where: { $0.value < 0x20 || $0.value == 0x7F }) { issues.append("WindowsControlCharacter") }
+        if scalars.last == "." || scalars.last == " " { issues.append("WindowsTrailingDotOrSpace") }
+        // Device names are reserved in any letter case, with or without an extension.
+        let stem = String(String.UnicodeScalarView(scalars.prefix { $0 != "." })).trimmingCharacters(in: .whitespaces).uppercased()
+        if windowsDevices.contains(stem) { issues.append("WindowsReservedName") }
+        return issues
+    }
+    private static let windowsDevices: Set<String> = Set(["CON", "PRN", "AUX", "NUL"] + (1...9).flatMap { ["COM\($0)", "LPT\($0)"] } + ["COM¹", "COM²", "COM³", "LPT¹", "LPT²", "LPT³"])
     public static func numbered(_ name: String, directory: Bool, number: Int) -> Data {
         let dot = directory ? nil : name.lastIndex(of: ".")
         if let dot, dot != name.startIndex { return Data("\(name[..<dot]) (\(number))\(name[dot...])".utf8) }

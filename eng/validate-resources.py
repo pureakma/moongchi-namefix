@@ -22,7 +22,7 @@ for key in catalog:
     assert args[0] == args[1] == args[2], key
     assert all(not re.search(r"\{\d+:", value) for value in values), key
     assert all(
-        not any(word in value for word in ["Windows", "Ctrl+", "Explorer", "MAX_PATH"])
+        not any(word in value for word in ["Ctrl+", "Explorer", "MAX_PATH", "Start menu", "시작 메뉴"])
         for value in values
     ), key
 

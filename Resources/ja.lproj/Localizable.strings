@@ -517,6 +517,12 @@
 "WatchUseRules" = "現在のルールに更新";
 "WatchWriting" = "ファイルが書き込み中、または変更されました。完了後に再確認してください。";
 "WindowMenu" = "ウインドウ";
+"WindowsControlCharacter" = "目に見えない制御文字が含まれています。";
+"WindowsNameNote" = "この名前はWindowsでは使えません。お知らせするだけで、自動では変更しません。";
+"WindowsNames" = "Windowsで使えない名前";
+"WindowsReservedCharacter" = "使えない文字が含まれています：\\ / : * ? \" < > |";
+"WindowsReservedName" = "Windowsが予約している名前です（CON、PRN、AUX、NUL、COM1〜9、LPT1〜9）。";
+"WindowsTrailingDotOrSpace" = "名前の末尾がピリオドまたは空白です。";
 "WorkspaceTitle" = "ファイル名チェック";
 "created" = "作成日";
 "document.author" = "文書作成者";

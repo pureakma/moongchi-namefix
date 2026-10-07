@@ -368,6 +368,8 @@ import NameFixApplication
                     if filter == "Conflict" && e.status != .conflict { return false }
                     if filter == "Errors" && !e.status.isError { return false }
                     if filter == "SelectedOnly" && !selected.contains(e.id) { return false }
+                    // The name each item will have, whether or not it changes.
+                    if filter == "WindowsNames" && NameRules.windowsIssues(e.proposed).isEmpty { return false }
                     guard !query.isEmpty else { return true }
                     // The path ends with the name, so searching it covers both, unless the path cannot be shown as text.
                     let path = e.path.display

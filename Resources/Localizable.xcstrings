@@ -12259,6 +12259,144 @@
           }
         }
       }
+    },
+    "WindowsNames": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows에서 쓸 수 없는 이름"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Names Windows can't use"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windowsで使えない名前"
+          }
+        }
+      }
+    },
+    "WindowsNameNote": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows에서는 이 이름을 쓸 수 없습니다. 알려 드리기만 하며 자동으로 바꾸지 않습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows can't use this name. This is a note only; the name is not changed automatically."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この名前はWindowsでは使えません。お知らせするだけで、自動では変更しません。"
+          }
+        }
+      }
+    },
+    "WindowsReservedCharacter": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "쓸 수 없는 글자가 들어 있습니다: \\ / : * ? \" < > |"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contains a character that is not allowed: \\ / : * ? \" < > |"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使えない文字が含まれています：\\ / : * ? \" < > |"
+          }
+        }
+      }
+    },
+    "WindowsControlCharacter": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보이지 않는 제어 문자가 들어 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contains an invisible control character."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目に見えない制御文字が含まれています。"
+          }
+        }
+      }
+    },
+    "WindowsTrailingDotOrSpace": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름이 마침표나 공백으로 끝납니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ends with a period or a space."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名前の末尾がピリオドまたは空白です。"
+          }
+        }
+      }
+    },
+    "WindowsReservedName": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows가 따로 쓰는 이름입니다(CON, PRN, AUX, NUL, COM1–9, LPT1–9)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Is a name reserved by Windows (CON, PRN, AUX, NUL, COM1–9, LPT1–9)."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windowsが予約している名前です（CON、PRN、AUX、NUL、COM1〜9、LPT1〜9）。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

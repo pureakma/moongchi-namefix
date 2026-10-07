@@ -259,7 +259,7 @@ struct MainView: View {
     private var viewOptions: some View {
         Menu {
             Picker(model.t("Filter"), selection: $model.filter) {
-                ForEach(["All", "NeedsNormalization", "Normal", "Conflict", "Errors", "SelectedOnly"], id: \.self) {
+                ForEach(["All", "NeedsNormalization", "Normal", "Conflict", "Errors", "SelectedOnly", "WindowsNames"], id: \.self) {
                     Text(model.t($0 == "NeedsNormalization" ? (model.isWorkbench ? "NeededBatch" : "NeededCaption") : $0)).tag($0)
                 }
             }.pickerStyle(.inline)
