@@ -186,7 +186,9 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
         restoreGrants(); pruneGrants()
         let recipeStore = RecipeStore(url: dataRoot.appendingPathComponent("recipes.json"))
         self.recipeStore = recipeStore
-        do { recipes = try await recipeStore.load(); workbenchDraft = recipes.lastFree; pipeline = isWorkbench ? recipes.lastFree : RulePipeline(); if isWorkbench { markWorkbenchPreviewApplied() } else { appliedDraftRevision = nil } }
+        do { recipes = try await recipeStore.load()
+             // Every launch starts with no rules: rules left from last time could be run again by mistake. Saved presets are the way to keep rules.
+             workbenchDraft = RulePipeline(); pipeline = RulePipeline(); if isWorkbench { markWorkbenchPreviewApplied() } else { appliedDraftRevision = nil } }
         catch { message = "RecipeReadOnly" }
         let watchStore = WatchStore(url: dataRoot.appendingPathComponent("watches.json")); self.watchStore = watchStore
         do { watches = try await watchStore.load(); watchBaselines = watches.baselines ?? [:] } catch { message = "WatchReadOnly" }

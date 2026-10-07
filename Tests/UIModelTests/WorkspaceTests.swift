@@ -133,7 +133,8 @@ import NameFixRuntime
         await model.shutdown()
         let restored = AppModel(dataRoot: root); await restored.start()
         XCTAssertFalse(restored.isWorkbench); XCTAssertEqual(restored.pipeline, RulePipeline())
-        XCTAssertEqual(restored.workbenchDraft, value)
+        // A new launch starts with no rules; rules are kept only as saved presets.
+        XCTAssertEqual(restored.workbenchDraft, RulePipeline())
         await restored.shutdown()
     }
     func testBatchRenameStartsWithAnUnfilledReplaceRuleThatIsNeverApplied() async throws {
@@ -174,7 +175,8 @@ import NameFixRuntime
         model.openQuickCleanup(); try await settle(model); await model.shutdown()
         let restored = AppModel(dataRoot: root); await restored.start()
         XCTAssertFalse(restored.isWorkbench); XCTAssertEqual(restored.pipeline, RulePipeline())
-        XCTAssertEqual(restored.workbenchDraft, value)
+        // A new launch starts with no rules; rules are kept only as saved presets.
+        XCTAssertEqual(restored.workbenchDraft, RulePipeline())
         await restored.shutdown()
     }
 }

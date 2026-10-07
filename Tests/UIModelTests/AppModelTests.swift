@@ -270,13 +270,14 @@ import NameFixRuntime
         model.usePipeline(pipeline); try await settled(model)
         await model.shutdown()
         let restored = AppModel(dataRoot: root, entitlementProvider: UnconfiguredEntitlementProvider()); await restored.start()
-        // The app reopens on the repair screen; the saved rules wait in the batch rename draft.
+        // The app reopens on the repair screen with no rules: last time's rules are not brought back.
         XCTAssertFalse(restored.isWorkbench); XCTAssertEqual(restored.pipeline, RulePipeline())
-        XCTAssertEqual(restored.workbenchDraft.target, .nfd); XCTAssertEqual(restored.workbenchDraft.rules.first?.text, "Free_")
-        XCTAssertNil(restored.workbenchDraft.manualPaths); XCTAssertEqual(restored.workbenchDraft.order, .path)
+        XCTAssertEqual(restored.workbenchDraft, RulePipeline())
+        // What was stored never held the input paths.
+        XCTAssertNil(restored.recipes.lastFree.manualPaths); XCTAssertEqual(restored.recipes.lastFree.order, .path)
         var pro = RenameRule(.regex); pro.text = "."; pro.replacement = "x"
         restored.usePipeline(RulePipeline(rules: [pro])); XCTAssertEqual(restored.message, "ProRequired")
-        XCTAssertEqual(restored.workbenchDraft.rules.first?.kind, .prefix); XCTAssertTrue(restored.pipeline.rules.isEmpty)
+        XCTAssertTrue(restored.workbenchDraft.rules.isEmpty); XCTAssertTrue(restored.pipeline.rules.isEmpty)
         restored.saveRecipe(name: "denied", pipeline: pipeline); XCTAssertTrue(restored.recipes.recipes.isEmpty)
         await restored.shutdown()
     }
