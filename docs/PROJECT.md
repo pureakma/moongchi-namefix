@@ -35,7 +35,8 @@ Moongchi NameFix는 파일과 폴더 이름의 Unicode 정규화 차이와 이�
 - Mac App Store 배포와 그에 따른 sandbox/entitlement 조정(v1.0은 직접 배포로 확정, D-023)
 - AI/Apple Foundation Models/OCR/RAG 기반 내용 이름 제안
 - Windows/Intel 지원
-- 확인되지 않은 외장·SMB·NAS·cloud volume mutation 확대
+- SMB·NAS·cloud·exFAT·FAT 위치의 mutation(외장 APFS는 지원 범위에 들어왔다. FILESYSTEM_CAPABILITIES.md)
+- 자동 updater와 runtime 네트워크 의존성(D-029 후보)
 - cross-volume 이동, 내용 변환, 자동 NFKC/NFKD
 - 검증되지 않은 가격·구독·체험 정책
 - 읽을 수 없는 작업 기록을 건너뛰는 부분 Undo/Recovery

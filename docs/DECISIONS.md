@@ -129,3 +129,23 @@
 - 날짜: 2026-10-07
 - 결정: 직접 배포 1.0.0 build 5(Developer ID 서명·Apple 공증 완료)는 과거 Release 후보로 보존하고 공개 출시에 쓰지 않는다. 수정·삭제·재서명하지 않는다. Global Product Hardening Phase의 결과를 검토한 뒤 build 6 이상을 실제 v1.0 후보로 다시 만든다. build 번호는 그 Release 단계에서 한 번 정하고 개발 중에는 올리지 않는다. 깨끗한 Mac 확인은 새 후보에서 한다.
 - 이유: 사용자가 결정했다. 한국·영어권·일본 시장에서 경쟁력 있는 수준으로 제품을 한 단계 올린 뒤 출시하기 위해서다. 제품 source가 바뀌므로 build 5에 대한 확인은 최종 출시 근거가 되지 못한다.
+
+### D-027 이름을 바꾸는 범위는 로컬 writable APFS(내장·외장), 그 밖은 이유와 함께 그대로 둔다 [accepted]
+- 날짜: 2026-10-07
+- 결정: 지원 수준을 supported / previewOnly / unsupported로 나누고 FS.support 하나가 판정한다. 외장 APFS는 일회용 volume의 모든 계약을 통과해 supported다(실제 장치 확인은 EXTERNAL_APFS_HARDWARE_QA_PENDING). 읽기 전용 APFS는 previewOnly. exFAT·FAT는 unsupported다(macOS가 저장된 이름을 분리형으로만 보여 줘 저장된 spelling을 관찰할 수 없고, exFAT은 덮어쓰지 않는 rename이 없으며 identity가 불안정하다). HFS+, 네트워크, 그 밖의 형식, cloud 동기화 위치는 mutation하지 않는다. 지원 밖의 위치는 앱이 실패하지 않고 위치 때문임을 알린다. 형식별 근거는 FILESYSTEM_CAPABILITIES.md가 원본이다.
+- 이유: 문서는 ‘내장 디스크만’이라고 했지만 코드는 로컬 writable APFS 전체를 허용하고 있었다. 실험으로 계약을 확정해 코드·화면·문서를 맞췄다. 경쟁력을 이유로 계약을 통과하지 못한 형식을 올리지 않는다.
+
+### D-028 작업 기록에 volume UUID를 남기고 다시 연결한 volume을 UUID로 확인한다 [accepted]
+- 날짜: 2026-10-07
+- 결정: 계획한 작업마다 volume UUID를 기록한다(선택 필드, 예전 기록은 없음). Undo와 Recovery는 기록의 UUID와 지금 mount된 volume의 UUID가 같을 때만 device 번호를 현재 값으로 바꿔 identity를 확인하고, UUID가 다르면 번호가 같아도 기록을 쓰지 않는다. 파일 번호와 생성 시각은 계속 정확히 일치해야 한다.
+- 이유: device 번호는 mount할 때마다 바뀔 수 있어, 외장 드라이브를 다시 연결하면 같은 파일인데도 Undo가 거부됐다. 반대로 번호가 재사용되면 다른 volume을 같은 것으로 볼 여지가 있었다. UUID는 volume 자체를 가리키므로 두 경우 모두 더 정확하다. identity 확인을 느슨하게 한 것이 아니라 device 번호보다 정확한 기준을 더한 것이다.
+
+### D-029 직접 배포의 업데이트는 앱이 통신하지 않는 ‘업데이트 확인’으로 한다 [proposed]
+- 날짜: 2026-10-07
+- 결정(후보): v1.x 직접 배포판은 앱이 네트워크를 쓰지 않고, ‘업데이트 확인’이 현재 버전을 담아 웹 페이지를 브라우저로 연다. Mac App Store 트랙이 열리면 스토어 업데이트를 함께 쓴다. Sparkle 같은 자동 updater는 넣지 않는다. 비교는 RELEASE.md의 ‘업데이트 방식’에 있다.
+- 이유: 네트워크·계정·추적이 없다는 현재 장점을 유지하면서 새 버전을 알릴 가장 작은 방법이다. 자동 updater는 runtime 네트워크 의존성과 key·appcast 운영, 개인정보 안내 변경이 따른다. 사용자 결정이 필요해 후보로 둔다.
+
+### D-030 Windows에서 쓸 수 없는 이름은 알려 주기만 한다 [accepted]
+- 날짜: 2026-10-07
+- 결정: 예약 문자, 끝의 마침표·공백, 장치 이름, 제어 문자를 read-only로 진단해 목록 필터와 자세히 보기에서 알린다. 사용자가 고르지 않았는데 이름을 Windows 규칙에 맞게 바꾸지 않는다. 자동 변환 규칙은 넣지 않았다.
+- 이유: Mac ↔ Windows 교환은 실제 사용 사례다. 다만 어떻게 고칠지는 사용자마다 다르고, 진단만으로도 보내기 전에 문제를 알 수 있다. 하지 않는 변환을 약속하지 않는다.

@@ -76,6 +76,8 @@ public enum Scanner {
             return nil
         }
         var indices: [RawPath: ([Data], Set<Data>)] = [:]
+        // One answer per folder: everything in a folder is on the folder's volume.
+        var volumes: [RawPath: VolumeSupport] = [:]
         // Test the limit before popping so the item that would exceed it stays counted as pending.
         while !token.cancelled, result.count < limit, let (requested, level, device) = work.popLast() {
             if seen.contains(requested) { continue }
@@ -120,7 +122,8 @@ public enum Scanner {
                     if dir && s.st_dev != parent.device { entry.status = .unsupported; entry.reason = level == 0 ? "VolumeRootExcluded" : "MountBoundaryExcluded" }
                     else {
                         do {
-                            let volume = try FS.support(fd)
+                            let volume: VolumeSupport
+                            if let known = volumes[requested.parent] { volume = known } else { volume = try FS.support(fd); volumes[requested.parent] = volume }
                             if volume.level != .supported { entry.status = .unsupported; entry.reason = volume.reason ?? "VolumeFormatUnsupported" }
                         } catch let error as FSError { entry.status = .unsupported; entry.reason = error.code }
                     }

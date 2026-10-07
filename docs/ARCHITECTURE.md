@@ -32,6 +32,12 @@ App의 render·창 진단 fixture(App/*Fixtures.swift)와 그 실행 flag는 Deb
 
 Clipboard는 사용자가 붙여넣기/분석을 명시했을 때만 읽고 자동 감시하지 않으며 파일 경로로 추측해 Rename하지 않는다.
 
+## volume 지원 수준
+
+Infrastructure의 FS.support(fd)가 디렉터리가 놓인 volume의 VolumeSupport(filesystem, local, writable, caseSensitive, level, reason)를 돌려준다. level은 supported / previewOnly / unsupported다. Scanner는 이 답으로 항목의 상태와 이유를 정하고, Planning·TransactionCoordinator·GraphTransaction은 같은 판정을 쓰는 gate FS.capability를 통과해야 mutation한다. App은 VolumeSupport.locationReasons에 든 이유를 ‘항목이 아니라 위치 때문’으로 보고 상태 문구와 한 줄 안내를 고른다. 형식별 판정과 근거는 FILESYSTEM_CAPABILITIES.md가 원본이다.
+
+디렉터리를 여는 곳은 FS.openDirectory 하나다(Scanner, DirectoryReadSession, transaction, History가 모두 이것을 쓴다). 현재는 루트부터 모든 경로 요소를 O_NOFOLLOW로 연다.
+
 ## Scan과 Preview
 
 Scanner는 실제 디렉터리 entry의 raw 이름과 identity를 보존한다. Swift String의 canonical equality만으로 NFC/NFD 차이를 판단하지 않는다. 규칙/필터/정렬/대형 parse는 가능한 한 background worker에서 수행하고 generation/cancellation으로 늦은 결과를 버린다.
@@ -65,6 +71,8 @@ FileCoordination은 협조 writer와 이동을 조정하며 대기 취소/timeou
 
 Undo는 과거 문자열을 바로 덮어쓰지 않고 현재 identity/path를 확인한 새 역 Plan이다. verified operation과 이동 기록으로 현재 경로를 추적하고, identity가 불명확한 항목을 추측해 자동 복원하지 않는다.
 
+identity의 device 번호는 mount할 때마다 바뀔 수 있다. Planning은 작업마다 volume UUID를 기록하고(RenameOperation.volume, 선택 필드), History.expected가 Undo·Recovery 때 기록의 UUID와 현재 mount된 volume의 UUID가 같을 때만 device 번호를 현재 값으로 바꿔 확인한다. UUID가 다르면 기록을 쓰지 않는다. UUID가 없는 예전 기록은 device 번호까지 일치해야 한다.
+
 Journal schema 2는 swap/group 이벤트를 표현한다. schema 1은 읽기 호환을 유지하며, schema 2를 모르는 이전 앱이 새 기록을 안전한 Undo로 오해하지 않도록 한다. 성공 journal은 이후 Undo/경로 해석에 필요하면 일반 보존 한도를 넘어 유지할 수 있다.
 
 ## 설정과 로컬 저장
@@ -90,3 +98,5 @@ CLI는 기본 dry-run이며 실제 변경은 execute 요청과 터미널 최종 
 Resources/Localizable.xcstrings가 번역의 단일 SSOT다. eng/resources.py는 이 catalog에서 ko/en/ja runtime .strings와 InfoPlist.strings(Finder 서비스 이름, 데스크탑·문서·다운로드 폴더 접근 권한 안내)를 재생성한다.
 
 Pretendard Variable과 Pretendard JP Variable의 실제 앱 자산·라이선스는 Resources/ 한 곳만 유지한다. Windows→macOS 초기 handoff, 별도 localization JSON, 중복 폰트 사본에 빌드나 검증이 의존하지 않는다.
+
+세 언어는 기능과 조작이 같지만 문장은 단어 대 단어로 맞추지 않는다. 각 언어 사용자가 그 문제를 만나는 방식대로 쓴다(DESIGN.md의 문구 원칙).
