@@ -2113,6 +2113,33 @@
       "command": "NAMEFIX_PERFORMANCE=1 NAMEFIX_EXPANSION_PERF=1 eng/test.sh --level 3; eng/test-volumes.py; eng/test-sandbox.py; eng/test-sandbox.py --compare; eng/resources.py + eng/validate-resources.py; eng/validate-marketing.py; eng/build-cli.sh debug|release + CLI tests; eng/build.sh Debug, Release and AppStore; --render-ux/shell/responsive/expansion; --diagnose-window",
       "evidencePath": "artifacts/evidence/global-hardening-2",
       "notes": "Global Product Hardening Phase 2 gate (T-009), 1.0.0 build 6 source. 147 tests, 0 failures (74 integration, 44 UI model, 29 core). Disposable volume matrix PASS on APFS, case-sensitive APFS (73 contract tests each incl. the access rule), exFAT, FAT32. Real App Sandbox PASS (8 scenarios): a Debug app signed ad hoc with the store entitlements, folders handed over with open -a, each step a new launch, no clicks. Direct Release configuration: no entitlements. AppStore configuration: app-sandbox, user-selected read-write, app-scope bookmarks only; ad hoc signature, not a submission build. 231 representative renders. Direct vs sandbox timings within about 10 percent; 1,000 renames about 31 s in both. macOS 27.0.1. The powerbox (clicked panel) path, sleep and wake, and real external hardware are left to user QA. This supersedes MAC-GLOBAL-HARDENING-GATE-20261007 for the current source."
+    },
+    {
+      "validationId": "MAC-FINAL-RC-GATE-20261007",
+      "status": "PASS",
+      "configuration": "Debug",
+      "architecture": "arm64",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "App/Info.plist",
+        "App/NameFix-AppStore.entitlements",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "Package.swift",
+        "project.yml",
+        "eng/test-sandbox.py",
+        "eng/test.sh",
+        "eng/build.sh"
+      ],
+      "sourceFingerprint": "dd126f3f7f1954e4df0718ab6bbb47d2bb7898759273c3217275792d9bb47ebb",
+      "testFingerprint": "d0474453cb918097ac75eae6e6560e1c71256dbea38f7cffe9fe1265eb32aa16",
+      "timestamp": "2026-10-07T02:40:23.013225+00:00",
+      "command": "eng/test-sandbox.py --direct; eng/test-sandbox.py; eng/test.sh --level 3; eng/build.sh Debug, Release and AppStore",
+      "evidencePath": "artifacts/evidence/final-rc",
+      "notes": "Final QA / Release Candidate gate (T-010), 1.0.0 build 6 source. Verdict NEEDS_USER_QA: no P0 or P1 found, 2 P2 left; seven user QA items remain (R1-R7). Product source unchanged since the Phase 2 gate; only the Debug-only probe (App/SandboxFixtures.swift) and eng/test-sandbox.py changed, so the volume matrix, CLI tests, renders and performance numbers of MAC-GLOBAL-HARDENING-2-GATE-20261007 are reused. Real runs, 12 scenarios each, PASS for the Debug app outside the sandbox and for the Debug app signed ad hoc with the store entitlements inside the real App Sandbox: folder handed over with open -a, undo after a new launch, undo without kept access, favourite and recent, Folder Watch, single file, external APFS image reconnect and twin, exFAT image, folder with a decomposed name, the real window with its sheets and menus, 26 names from many scripts byte for byte incl. CJK compatibility ideographs. Inside the sandbox the system itself refuses to rename the handed-over folder and a file handed over without its folder. 147 tests, 0 failures. Release and AppStore configurations build, build 6, no probe strings. No clicks or keystrokes synthesised; no candidate, signing, notarization or upload. Not User QA."
     }
   ]
 }

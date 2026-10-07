@@ -77,6 +77,13 @@ import NameFixApplication
             // A link inside the allowed folder that points outside it is never followed.
             facts["linkRows"] = model.entries.filter { $0.reason == "LinkedPathHelp" }.count
             facts["outsideRefused"] = (try? FS.openDirectory(RawPath("/private/tmp"))) == nil
+            // Whether the system itself would let the app rename the folder it was handed (it is put back at once if so).
+            if let root {
+                let moved = root.display + ".probe"
+                let allowed = rename(root.display, moved) == 0
+                if allowed { _ = rename(moved, root.display) }
+                facts["systemRefusesRootRename"] = !allowed
+            }
             facts["before"] = root.map(names) ?? []
             model.prepare(); _ = await settle(model) { model.plan != nil || model.message != nil }
             facts["planned"] = model.plan?.operations.count ?? 0
@@ -139,6 +146,92 @@ import NameFixApplication
             _ = await settle(model) { !model.entries.isEmpty }
             facts["askedForFolder"] = model.folderRequest != nil; facts["askedFolder"] = model.folderRequest?.folder.lastPathComponent ?? ""
             facts["reasons"] = Array(Set(model.entries.map(\.reason))).sorted(); facts["message"] = model.message ?? ""
+            facts["fixable"] = model.entries.filter { $0.status.fixable }.count
+            // Whether the system itself would let the app rename a file it was handed without its folder.
+            if let file = opened.first {
+                let allowed = rename(file.path, file.path + ".probe") == 0
+                if allowed { _ = rename(file.path + ".probe", file.path) }
+                facts["systemRefusesFileRename"] = !allowed
+            }
+            // Declining changes nothing and the choice is offered again; allowing the folder lets the file be fixed.
+            model.declineFolder(); facts["declinedKeepsNotice"] = model.folderRequest == nil && (model.message == "FolderAccessNeeded" || !AccessRoots.shared.restricted)
+            model.requestFolderForLooseItems(); facts["offeredAgain"] = model.folderRequest != nil
+            await model.shutdown()
+        case "look":
+            // A folder on a drive the app does not rename on: it is listed, explained, and nothing is offered.
+            _ = await settle(model) { !model.entries.isEmpty }
+            facts["entries"] = model.entries.count; facts["fixable"] = model.entries.filter { $0.status.fixable }.count
+            facts["reasons"] = Array(Set(model.entries.map(\.reason))).sorted(); facts["message"] = model.message ?? ""
+            facts["labels"] = Array(Set(model.entries.filter { !$0.isDirectory }.map { CharacterPresentation.statusKey($0.status, name: $0.name, reason: $0.reason) })).sorted()
+            model.prepare(); try? await Task.sleep(for: .seconds(2))
+            facts["planned"] = model.plan?.operations.count ?? 0
+            await model.shutdown()
+        case "gui":
+            // The real window, its sheets and its menus, with a folder handed over. Nothing is clicked:
+            // the same actions the controls call are called, and the window is asked what it shows.
+            _ = await settle(model) { !model.entries.isEmpty }
+            let window = NSApp.windows.first { $0.contentViewController is MainSidebarController }
+            facts["hasWindow"] = window != nil; facts["windowTitle"] = window?.title ?? ""
+            facts["entries"] = model.entries.count; facts["fixable"] = model.entries.filter { $0.status.fixable }.count
+            facts["toolbarItems"] = window?.toolbar?.items.count ?? 0
+            let all = model.visible.count
+            model.filter = "WindowsNames"; _ = await settle(model) { model.visible.count != all }
+            facts["windowsFilter"] = model.visible.map(\.name).sorted()
+            model.filter = "All"; _ = await settle(model) { model.visible.count == all }
+            model.prepare(); _ = await settle(model) { model.plan != nil }
+            try? await Task.sleep(for: .milliseconds(900))
+            facts["confirmationSheet"] = window?.attachedSheet != nil; facts["planned"] = model.plan?.operations.count ?? 0
+            model.execute(); _ = await settle(model) { model.result != nil }
+            try? await Task.sleep(for: .milliseconds(900))
+            facts["resultSheet"] = window?.attachedSheet != nil; facts["renamed"] = model.result?.succeeded ?? 0
+            model.dismissResult(); _ = await settle(model) { !model.history.isEmpty }
+            try? await Task.sleep(for: .milliseconds(700))
+            model.present("history"); try? await Task.sleep(for: .milliseconds(900))
+            facts["historySheet"] = window?.attachedSheet != nil; facts["history"] = model.history.count
+            model.sheet = nil; try? await Task.sleep(for: .milliseconds(700))
+            var sheets: [String] = []
+            for name in ["settings", "help", "onboarding"] {
+                model.present(name); try? await Task.sleep(for: .milliseconds(900))
+                if window?.attachedSheet != nil { sheets.append(name) }
+                model.sheet = nil; try? await Task.sleep(for: .milliseconds(700))
+            }
+            facts["otherSheets"] = sheets
+            if let latest = model.history.first {
+                model.prepare(mode: "undo", historyID: latest.id); _ = await settle(model) { model.plan != nil || model.message != nil }
+                model.execute(); _ = await settle(model) { model.result != nil }
+                facts["undone"] = model.result?.succeeded ?? 0
+                model.dismissResult(); _ = await settle(model)
+            }
+            // What the menus offer in this edition.
+            let menus = NSApp.mainMenu?.items ?? []
+            let appMenu = menus.first?.submenu?.items.map(\.title).filter { !$0.isEmpty } ?? []
+            facts["appMenu"] = appMenu
+            facts["hasUpdateCheck"] = appMenu.contains { $0.hasPrefix(model.t("CheckForUpdates")) }
+            facts["menuTitles"] = menus.compactMap { $0.submenu?.title }
+            facts["updatePage"] = AppInfo.productPage?.absoluteString ?? ""; facts["supportAddress"] = AppInfo.support?.absoluteString ?? ""
+            facts["isAppStoreEdition"] = AppInfo.isAppStore
+            await model.shutdown()
+        case "unicode":
+            // Names from many scripts in the real app: what is offered, what is left, rename and undo.
+            _ = await settle(model) { !model.entries.isEmpty }
+            let root = model.roots.first
+            func scalars(_ name: String) -> String { name.unicodeScalars.map { String($0.value, radix: 16) }.joined(separator: " ") }
+            facts["statuses"] = Dictionary(uniqueKeysWithValues: model.entries.filter { !$0.isDirectory }.map { (scalars($0.name), $0.status.rawValue + ">" + scalars($0.preview)) })
+            facts["fixable"] = model.entries.filter { $0.status.fixable }.count; facts["conflicts"] = model.entries.filter { $0.status == .conflict }.count
+            facts["before"] = root.map(names) ?? []
+            model.prepare(); _ = await settle(model) { model.plan != nil || model.message != nil }
+            facts["planned"] = model.plan?.operations.count ?? 0
+            model.execute(); _ = await settle(model) { model.result != nil }
+            facts["renamed"] = model.result?.succeeded ?? 0
+            model.dismissResult(); _ = await settle(model) { !model.history.isEmpty }
+            facts["after"] = root.map(names) ?? []
+            if let latest = model.history.first {
+                model.prepare(mode: "undo", historyID: latest.id); _ = await settle(model) { model.plan != nil || model.message != nil }
+                model.execute(); _ = await settle(model) { model.result != nil }
+                facts["undone"] = model.result?.succeeded ?? 0
+                model.dismissResult(); _ = await settle(model)
+            }
+            facts["restored"] = root.map(names) ?? []
             await model.shutdown()
         case "profile":
             // Two folders handed over: 10,000 names to scan and filter, 1,000 to rename and undo.

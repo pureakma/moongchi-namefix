@@ -11,6 +11,8 @@ it creates are attached or detached.
 
   eng/test-sandbox.py              build, then run every step
   eng/test-sandbox.py --no-build   reuse the sandboxed Debug app
+  eng/test-sandbox.py --direct     the same steps with the Debug app outside the sandbox (the direct edition's rules);
+                                   its records go to a folder this script makes, never to the user's
   eng/test-sandbox.py --compare    time the same work inside and outside the sandbox (both Debug apps must be built)
 """
 from pathlib import Path
@@ -18,13 +20,19 @@ import argparse, json, os, plistlib, subprocess, sys, tempfile, time, unicodedat
 
 root = Path(__file__).resolve().parent.parent
 app = root / ".build/xcode-sandbox/Build/Products/Debug/Moongchi NameFix.app"
-parser = argparse.ArgumentParser(); parser.add_argument("--no-build", action="store_true"); parser.add_argument("--compare", action="store_true"); options = parser.parse_args()
+parser = argparse.ArgumentParser(); parser.add_argument("--no-build", action="store_true"); parser.add_argument("--compare", action="store_true"); parser.add_argument("--direct", action="store_true"); options = parser.parse_args()
 plain = root / ".build/xcode/Build/Products/Debug/Moongchi NameFix.app"
+sandboxed = not options.direct
 if not options.no_build and not options.compare:
-    subprocess.run([str(root / "eng/build.sh"), "--configuration", "Debug", "--arch", "arm64", "--sandbox-debug"], cwd=root, check=True, stdout=subprocess.DEVNULL)
-entitlements = plistlib.loads(subprocess.check_output(["codesign", "-d", "--entitlements", ":-", str(app)], stderr=subprocess.DEVNULL))
-assert entitlements.get("com.apple.security.app-sandbox") is True, "The probe app is not sandboxed"
-assert set(entitlements) <= {"com.apple.security.app-sandbox", "com.apple.security.files.user-selected.read-write", "com.apple.security.files.bookmarks.app-scope", "com.apple.security.get-task-allow"}, entitlements
+    subprocess.run([str(root / "eng/build.sh"), "--configuration", "Debug", "--arch", "arm64"] + (["--sandbox-debug"] if sandboxed else []), cwd=root, check=True, stdout=subprocess.DEVNULL)
+def granted(application):
+    raw = subprocess.run(["codesign", "-d", "--entitlements", ":-", str(application)], capture_output=True).stdout
+    return plistlib.loads(raw) if raw.strip() else {}
+if sandboxed or options.compare:
+    entitlements = granted(app)
+    assert entitlements.get("com.apple.security.app-sandbox") is True, "The probe app is not sandboxed"
+    assert set(entitlements) <= {"com.apple.security.app-sandbox", "com.apple.security.files.user-selected.read-write", "com.apple.security.files.bookmarks.app-scope", "com.apple.security.get-task-allow"}, entitlements
+if not sandboxed: assert not granted(plain).get("com.apple.security.app-sandbox"), "The direct probe app is sandboxed"
 
 def nfd(text): return unicodedata.normalize("NFD", text).encode()
 def nfc(text): return unicodedata.normalize("NFC", text).encode()
@@ -43,11 +51,15 @@ def fixture(folder):
     os.symlink("../outside", folder / "escape")
 
 log = []
-def step(work, phase, target=None, ready=None, application=app, extra=()):
+def step(work, phase, target=None, ready=None, application=None, shown=False):
     """Launches the app once and returns the facts it reported."""
+    application = application or (app if sandboxed else plain)
     out = work / f"report-{len(log):02d}-{phase}.txt"
     targets = [str(t) for t in (target if isinstance(target, (list, tuple)) else [target] if target else [])]
-    command = ["open", "-g", "-j", "-W", "-n", "-a", str(application)] + targets + ["--stdout", str(out), "--stderr", str(work / "stderr.txt"), "--args", "--skip-onboarding", "--sandbox-probe", phase, *extra]
+    # Outside the sandbox the app would use the user's own records: it is always given a folder of this run instead.
+    extra = [] if application == app else ["--probe-support", str(work / "support")]
+    # `shown` leaves the window on screen, behind the other apps, so its sheets really open.
+    command = ["open", "-g", "-W", "-n"] + ([] if shown else ["-j"]) + ["-a", str(application)] + targets + ["--stdout", str(out), "--stderr", str(work / "stderr.txt"), "--args", "--skip-onboarding", "--sandbox-probe", phase, *extra]
     process = subprocess.Popen(command)
     try:
         if ready:
@@ -56,7 +68,7 @@ def step(work, phase, target=None, ready=None, application=app, extra=()):
             ready()
         process.wait(timeout=600)
     except subprocess.TimeoutExpired:
-        subprocess.run(["pkill", "-f", "xcode-sandbox/Build/Products/Debug/Moongchi NameFix.app"]); raise SystemExit(f"{phase}: the app did not finish")
+        subprocess.run(["pkill", "-f", str(application.relative_to(root))]); raise SystemExit(f"{phase}: the app did not finish")
     lines = [l for l in out.read_text().splitlines() if l.startswith("REPORT ")] if out.exists() else []
     assert lines, f"{phase}: no report"
     facts = json.loads(lines[-1][7:]); log.append((phase, facts))
@@ -83,13 +95,11 @@ if options.compare:
             work = Path(temporary); big = work / "big"; small = work / "small"; big.mkdir(); small.mkdir()
             for i in range(10_000): touch(big, nfd(f"보고서 é {i:05d}.txt"))
             for i in range(1_000): touch(small, nfd(f"사진 é {i:04d}.jpg"))
-            support = work / "support"
-            extra = [] if application == app else ["--probe-support", str(support)]
-            if application == app: step(work, "reset")
-            f = step(work, "profile", [big, small], application=application, extra=extra)
+            if application == app: step(work, "reset", application=application)
+            f = step(work, "profile", [big, small], application=application)
             assert f.get("renamed") == 1000 and f.get("undone") == 1000, f
             rows[label] = f
-            if application == app: step(work, "reset")
+            if application == app: step(work, "reset", application=application)
     keys = ["startup", "scan", "filter", "plan", "rename", "undoPlan", "undo", "favoriteReopen"]
     print("seconds      " + "".join(k.rjust(15) for k in keys))
     for label in rows: print(label.ljust(13) + "".join(str(rows[label].get(k, "-")).rjust(15) for k in keys))
@@ -104,32 +114,40 @@ with tempfile.TemporaryDirectory(prefix="namefix-sandbox-", dir="/private/tmp") 
 
     # 1. A folder handed over: the system refuses its neighbour, the app scans, renames and keeps the way back.
     f = step(work, "rename", photos)
-    expect(f["homeIsContainer"] and f["systemRefusesNeighbour"] and f["outsideRefused"], "the sandbox keeps the app inside what it was given", f)
-    expect(f["rootIsAllowed"] and f["rootRow"] == "RootNameExcluded", "the handed-over folder is the allowed folder", f)
+    if sandboxed:
+        expect(f["homeIsContainer"] and f["systemRefusesNeighbour"] and f["outsideRefused"], "the sandbox keeps the app inside what it was given", f)
+        expect(f["rootIsAllowed"] and f["rootRow"] == "RootNameExcluded", "the handed-over folder is the allowed folder", f)
+        expect(f["systemRefusesRootRename"], "the system itself refuses to rename the handed-over folder", f)
+    else:
+        expect(not f["homeIsContainer"] and not f["outsideRefused"] and f["rootRow"] != "RootNameExcluded", "outside the sandbox nothing is restricted", f)
     expect(f["fixable"] == 4 and f["linkRows"] == 1 and f["planned"] == 4 and f["renamed"] == 4 and f["status"] == "Completed", "scan, plan and rename inside the allowed folder", f)
     expect(nfc(names[0]).hex() in listing(photos) and nfd(names[0]).hex() not in listing(photos), "names were composed on disk", f)
     expect((work / "outside" / "not-yours.txt").read_text() == "outside the allowed folder" and listing(work / "outside") == [b"not-yours.txt".hex()], "nothing outside was touched", f)
-    results.append("folder handed over: scan, rename, link not followed, neighbour refused by the system")
+    results.append("folder handed over: scan, rename, link not followed" + (", neighbour and the folder's own name refused by the system" if sandboxed else ""))
 
     # 2. A new launch with nothing handed over: the kept bookmark leads back and the undo is exact.
     f = step(work, "undo")
     expect(not f["askedForFolder"] and f["planned"] == 4 and f["undone"] == 4, "undo after reopening the app", f)
     expect(listing(photos) == before, "undo restored every name byte for byte", f)
-    results.append("undo after reopening the app, from the kept bookmark")
+    results.append("undo after reopening the app" + (", from the kept bookmark" if sandboxed else ""))
 
     # 3. The kept access is gone: the app asks for the folder and changes nothing.
     f = step(work, "rename", photos); expect(f["renamed"] == 4, "second rename", f)
     renamed = listing(photos)
     step(work, "forget")
     f = step(work, "undo")
-    expect(f["askedForFolder"] and f["message"] == "UndoNeedsFolder" and f["undone"] == 0, "without access the app asks for the folder", f)
-    expect(listing(photos) == renamed, "nothing changed while access was missing", f)
-    results.append("undo without kept access: asks for the folder, changes nothing")
+    if sandboxed:
+        expect(f["askedForFolder"] and f["message"] == "UndoNeedsFolder" and f["undone"] == 0, "without access the app asks for the folder", f)
+        expect(listing(photos) == renamed, "nothing changed while access was missing", f)
+        results.append("undo without kept access: asks for the folder, changes nothing")
+    else:
+        expect(not f["askedForFolder"] and f["undone"] == 4 and listing(photos) == before, "outside the sandbox undo needs no kept access", f)
+        results.append("undo needs no kept access outside the sandbox")
 
     # 4. Favourite and recent folder, reopened in a new launch.
     step(work, "reset")
     f = step(work, "favorite", photos)
-    expect(f["favorites"] == 1 and f["hasBookmark"] and f["recents"] == 1 and f["recentBookmarks"] == 1, "favourite and recent keep a bookmark", f)
+    expect(f["favorites"] == 1 and f["recents"] == 1 and (not sandboxed or (f["hasBookmark"] and f["recentBookmarks"] == 1)), "favourite and recent are kept", f)
     f = step(work, "reopen")
     expect(f["favoriteEntries"] > 1 and f["favoriteProblem"] == 0 and f["recentEntries"] > 1, "favourite and recent reopen after a new launch", f)
     results.append("favourite and recent folder reopen after a new launch")
@@ -146,8 +164,15 @@ with tempfile.TemporaryDirectory(prefix="namefix-sandbox-", dir="/private/tmp") 
     step(work, "reset")
     loose = work / "loose"; loose.mkdir(); touch(loose, nfd("혼자.txt"))
     f = step(work, "loose", loose / unicodedata.normalize("NFD", "혼자.txt"))
-    expect(f["askedForFolder"] and f["askedFolder"] == "loose" and "FolderAccessNeeded" in f["reasons"], "a single file asks for its folder", f)
-    results.append("single file: asks for its folder instead of failing")
+    if sandboxed:
+        expect(f["askedForFolder"] and f["askedFolder"] == "loose" and "FolderAccessNeeded" in f["reasons"], "a single file asks for its folder", f)
+        expect(f["systemRefusesFileRename"], "the system itself refuses to rename a file handed over without its folder", f)
+        expect(f["declinedKeepsNotice"] and f["offeredAgain"], "declining changes nothing and the folder can be chosen later", f)
+        expect(listing(loose) == [nfd("혼자.txt").hex()], "the file was not touched", f)
+        results.append("single file: asks for its folder instead of failing; declining changes nothing; the system refuses the rename without the folder")
+    else:
+        expect(not f["askedForFolder"] and f["fixable"] == 1 and "FolderAccessNeeded" not in f["reasons"], "outside the sandbox a single file is ready at once", f)
+        results.append("single file: ready at once, no folder asked")
 
     # 7. An external APFS volume: undo after it was detached and attached again under another
     #    device number, and refusal when a different disk is in its place.
@@ -174,6 +199,83 @@ with tempfile.TemporaryDirectory(prefix="namefix-sandbox-", dir="/private/tmp") 
         results.append("external APFS: a different disk at the same place is refused")
     finally:
         if device: detach(device)
+
+    # 7b. An exFAT drive: listed and explained, nothing offered, nothing changed.
+    step(work, "reset")
+    stick = work / "stick"; stick.mkdir(); fat = work / "fat.sparseimage"
+    subprocess.run(["hdiutil", "create", "-size", "64m", "-fs", "ExFAT", "-volname", "NFEXFAT", "-type", "SPARSE", str(fat)], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    device = attach(fat, stick)
+    try:
+        (stick / "photos").mkdir()
+        for name in names: touch(stick / "photos", nfd(name))
+        seen = listing(stick / "photos")
+        f = step(work, "look", stick / "photos")
+        expect(f["entries"] >= 3 and f["fixable"] == 0 and f["planned"] == 0 and "VolumeFATUnsupported" in f["reasons"] and f["message"] == "VolumeFATUnsupported", "an exFAT drive is explained and nothing is offered", f)
+        expect(f["labels"] == ["StatusDriveExcluded"] and listing(stick / "photos") == seen, "its rows say the drive is not supported and nothing changed", f)
+        results.append("exFAT drive: listed, explained as not supported, nothing offered or changed")
+    finally: detach(device)
+
+    # 8. A handed-over folder whose own name is decomposed. In the sandbox the name stays (its parent was
+    #    not allowed) and everything inside is fixed; outside it the folder is fixed too and comes back on undo.
+    step(work, "reset")
+    album = work / unicodedata.normalize("NFD", "사진 모음"); fixture(album)
+    inside = listing(album)
+    f = step(work, "rename", album)
+    kept = nfd("사진 모음").hex() in listing(work)
+    if sandboxed:
+        expect(f["rootRow"] == "RootNameExcluded" and f["renamed"] == 4 and kept, "the folder's own name stays, its contents are fixed", f)
+    else:
+        expect(f["renamed"] == 5 and not kept and nfc("사진 모음").hex() in listing(work), "the folder's own name is fixed too", f)
+    f = step(work, "undo")
+    expect(f["undone"] == (4 if sandboxed else 5) and nfd("사진 모음").hex() in listing(work) and listing(album) == inside, "undo restores the folder and its contents", f)
+    results.append("folder with a decomposed name of its own: " + ("name kept, contents fixed, undo exact" if sandboxed else "name and contents fixed, undo exact"))
+
+    # 9. The real window: its sheets open, the Windows-name filter, rename, history, undo, and what the menus offer.
+    step(work, "reset")
+    desk = work / "desk"; fixture(desk)
+    for raw in [b"report: final.txt", b"CON.txt", b"notes."]: touch(desk, raw)
+    original = listing(desk)
+    f = step(work, "gui", desk, shown=True)
+    expect(f["hasWindow"] and f["toolbarItems"] > 0, "the main window is there", f)
+    expect(sorted(f["windowsFilter"]) == sorted(["report: final.txt", "CON.txt", "notes."]), "the Windows-name filter lists exactly the three names", f)
+    expect(f["confirmationSheet"] and f["planned"] == 4 and f["resultSheet"] and f["renamed"] == 4 and f["historySheet"] and f["history"] == 1, "confirmation, result and history sheets open on the window", f)
+    expect(f["undone"] == 4 and listing(desk) == original, "undo from the record restores every name", f)
+    expect(f["otherSheets"] == ["settings", "help", "onboarding"], "settings, help and the introduction open on the window", f)
+    expect(f["hasUpdateCheck"] == (not sandboxed) and f["isAppStoreEdition"] == sandboxed, "the update check is in the direct edition only", f)
+    expect(f["updatePage"].startswith("https://") and f["supportAddress"].startswith("mailto:"), "product page and contact address", f)
+    results.append("real window: confirmation, result, history, settings, help and introduction sheets, Windows-name filter, rename and undo; update check " + ("absent" if sandboxed else "present") + " in the app menu")
+
+    # 10. Names from many scripts, byte for byte: what is fixed, what is left, and the exact way back.
+    step(work, "reset")
+    world = work / "world"; world.mkdir()
+    def keep(text):
+        """Composed form that leaves CJK compatibility ideographs as they are (the app's rule)."""
+        out, run = "", ""
+        for ch in text:
+            if 0xF900 <= ord(ch) <= 0xFAFF or 0x2F800 <= ord(ch) <= 0x2FA1F: out += unicodedata.normalize("NFC", run) + ch; run = ""
+            else: run += ch
+        return out + unicodedata.normalize("NFC", run)
+    d = lambda t: unicodedata.normalize("NFD", t)
+    stored = [
+        d("보고서 최종.txt"), "한" + d("글") + " 혼합.txt", d("café menu.pdf"), d("Ångström.txt"), d("Việt Nam.txt"), d("señor über.txt"),
+        d("ガイド.txt"), d("パスポート.pdf"), d("がぎぐ.txt"), d("άλφα.txt"), d("йод.txt"),
+        chr(0xFA19) + chr(0xFA4C) + " 案内.txt", chr(0xF9DC) + " " + d("ガイド") + ".txt", chr(0x2F800) + " old.txt", chr(0xF914) + chr(0xF9DC) + ".txt",
+        "👨‍👩‍👧‍👦 family.jpg", "✈️ " + d("café") + " trip.txt", "🇰🇷 👍🏽.png", "Ａ１ｂ 全角.txt", "ｶﾞｲﾄﾞ.txt", "العربية.txt", "ไทย.txt", "हिन्दी.txt", "中文 日本語.txt", "plain ascii.txt",
+        d("가나다라마바사아자차카타파하 긴 이름 가나다라마바사.txt")]
+    for name in stored: touch(world, name.encode())
+    original = listing(world)
+    wanted = sorted(keep(name).encode().hex() for name in stored)
+    changing = sum(1 for name in stored if keep(name) != name)
+    f = step(work, "unicode", world)
+    expect(f["fixable"] == changing and f["planned"] == changing and f["renamed"] == changing and f["conflicts"] == 0, "exactly the decomposed names are offered", f)
+    expect(sorted(f["after"]) == wanted, "every name is the expected form, byte for byte", f)
+    expect(all(name.encode().hex() in f["after"] for name in stored if keep(name) == name), "names with nothing to fix kept their bytes", f)
+    # The standard composed form would have replaced these characters with look-alikes; they are still there.
+    expect(all(unicodedata.normalize("NFC", chr(c)) != chr(c) and any(chr(c).encode().hex() in n for n in f["after"]) for c in (0xFA19, 0xFA4C, 0xF9DC, 0xF914, 0x2F800)), "compatibility ideographs kept their own code points", f)
+    expect(f["undone"] == changing and sorted(f["restored"]) == original, "undo restores every name byte for byte", f)
+    expect(listing(world) == original, "the folder is as it was", f)
+    results.append(f"global names: {changing} of {len(stored)} fixed (Hangul, Latin, Vietnamese, kana, Greek, Cyrillic), compatibility ideographs (U+FA19 U+FA4C U+F9DC U+F914 U+2F800), emoji, full/half width, Arabic, Thai, Devanagari kept; undo exact")
     step(work, "reset")
 print("\n".join("PASS " + line for line in results))
-print("PASS: real App Sandbox, store entitlements, access granted by macOS through Open With; no clicks, no user folders")
+print("PASS: real App Sandbox, store entitlements, access granted by macOS through Open With; no clicks, no user folders" if sandboxed
+      else "PASS: Debug app outside the sandbox, records in a folder of this run; no clicks, no user folders")

@@ -14,7 +14,49 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 ## 현재 source의 Engineering Verification 상태
 
-현재 source의 통합 Gate는 2026-10-07 Global Product Hardening Phase 2(T-009)의 결과다. 영수증은 .ai/validation-cache.json의 MAC-GLOBAL-HARDENING-2-GATE-20261007, 로컬 evidence는 artifacts/evidence/global-hardening-2다. AI가 실행·렌더로 확인한 Engineering Verification이며 User QA PASS가 아니다. 스토어 제출용 서명·archive·업로드는 이 Gate에 없다.
+현재 판정: NEEDS_USER_QA (2026-10-07, Final QA / Release Candidate Gate, T-010). 자동으로 확인할 수 있는 범위에서 P0·P1은 없다. 스토어판에서 창을 눌러 받는 권한 흐름과 실제 장치·VoiceOver는 사람만 확인할 수 있어 아래 ‘User QA’의 일곱 가지가 남았다. 영수증은 .ai/validation-cache.json의 MAC-FINAL-RC-GATE-20261007, 로컬 evidence는 artifacts/evidence/final-rc다.
+
+이 Gate에서 제품 source는 바뀌지 않았다. 바뀐 것은 Debug 전용 확인 코드(App/SandboxFixtures.swift)와 eng/test-sandbox.py뿐이며 Release·AppStore binary에는 들어가지 않는다(probe 문자열 0건). 그래서 volume matrix, CLI, 대표 화면 render, 성능 수치는 아래 Phase 2 Gate의 결과를 그대로 쓴다.
+
+| 항목 | 명령 | 결과 |
+|---|---|---|
+| 직접 배포 구성의 실제 실행 | eng/test-sandbox.py --direct (sandbox 밖의 Debug 앱, 기록은 실행마다 만든 임시 폴더, 폴더는 open -a로 전달, 단계마다 새 실행, 클릭 없음) | 12개 PASS. 아래 목록 |
+| 스토어 구성의 실제 sandbox | eng/test-sandbox.py (스토어 entitlement로 서명한 Debug 앱) | 12개 PASS. 아래 목록 |
+| Runtime·UI model·Core test | eng/test.sh --level 3 | 147개 실행, 실패 0 (통합 74 중 opt-in·volume 단계 11 skip, UI model 44 중 1 skip, Core 29). 성능 opt-in은 켜지 않았고 수치는 Phase 2 것을 쓴다 |
+| Release·AppStore build | eng/build.sh --configuration Release / AppStore --arch arm64 | 둘 다 BUILD SUCCEEDED. 1.0.0 build 6, arm64, macOS 14 이상. Release는 entitlement 없음·에디션 direct, AppStore는 entitlement 셋·에디션 appstore. 서비스 1개와 문서 유형 1개가 두 구성에 같게 들어 있음. probe 문자열 0건 |
+| 접근성 source 점검 | 아이콘만 있는 SwiftUI Button과 toolbar 버튼의 이름 확인 | 이름 없는 control 0개. 실제 VoiceOver 읽기는 사람이 확인(R7) |
+| 문서 | python3 tools/doccheck.py; git diff --check | PASS |
+
+두 구성에서 실제 앱으로 확인한 열두 가지(일회용 폴더와 이 도구가 만든 disk image만 사용):
+
+| | 직접 배포 구성 | 스토어 구성(sandbox) |
+|---|---|---|
+| 넘겨받은 폴더의 검사·이름 변경, link 미추적 | PASS | PASS. 옆 폴더와 그 폴더 자체의 이름 변경은 시스템이 거부 |
+| 앱을 다시 실행한 뒤 Undo | PASS | PASS (남겨 둔 bookmark로) |
+| 접근 기록을 지운 뒤 Undo | PASS (필요 없음) | PASS (폴더를 요청하고 아무것도 바꾸지 않음) |
+| 즐겨찾기·최근 폴더를 재실행 뒤 열기 | PASS | PASS |
+| 폴더 감시가 재실행 뒤 새 파일을 알아챔 | PASS | PASS |
+| 파일 하나만 넘김 | PASS (바로 대상) | PASS (폴더 요청, 거절하면 그대로이고 다시 고를 수 있음. 폴더 없이는 시스템이 이름 변경을 거부) |
+| 외장 APFS image: 분리·재연결 뒤 Undo | PASS | PASS |
+| 같은 자리에 다른 디스크 | PASS (건드리지 않음) | PASS (건드리지 않음) |
+| exFAT image의 폴더 | PASS (나열·안내만, 제안 0, 변경 0) | PASS (같음) |
+| 이름이 분리형인 폴더를 넘김 | PASS (폴더와 안의 4개를 고치고 Undo로 복원) | PASS (폴더 이름은 그대로, 안의 4개를 고치고 Undo로 복원) |
+| 실제 창: 확인·결과·작업 기록·설정·사용 방법·소개 sheet가 창에 열림, Windows 이름 필터 3건, 이름 변경과 Undo, 앱 메뉴 | PASS (‘업데이트 확인…’ 있음) | PASS (‘업데이트 확인…’ 없음) |
+| 여러 언어의 이름 26개 | PASS | PASS |
+
+여러 언어의 이름: 분리형 14개(한글, 섞인 한글, 라틴, 베트남어, 가나, 그리스, 키릴, 긴 이름)가 byte 단위로 기대한 합침형이 되고, 12개(옛 글자체 한자 U+FA19·U+FA4C·U+F9DC·U+F914·U+2F800, emoji와 ZWJ, 전각·반각, 아랍·태국·데바나가리, 한자, ASCII)는 byte 그대로 남는다. Undo 뒤의 목록은 처음과 byte 단위로 같다. 정규화만으로 생기는 이름 충돌은 APFS에서 만들 수 없어(같은 이름으로 취급) 충돌 처리는 계획 test(Core·통합)가 근거다.
+
+찾은 문제: P0 0건, P1 0건, P2 2건(수정하지 않고 남김).
+- P2: 스토어판에서 폴더 선택을 거절한 뒤 다시 고르는 버튼이 아래 한 줄 안내의 자세히 보기 안에 있다. 파일을 다시 놓거나 ‘폴더 추가’로도 되므로 막히지는 않는다.
+- P2: SwiftUI 화면의 접근성 정보는 앱 안에서 자동으로 읽어 검사할 수 없다. 이름표 누락은 source 점검으로만 막고 있다.
+
+스토어판과 직접 배포판의 차이를 다시 본 결과, 줄일 수 있는 것이 없었다. 추가한 폴더 자체의 이름과 폴더 없이 넘겨받은 파일의 이름은 sandbox 안에서 시스템이 변경을 거부한다(위 표). 두 경우 모두 화면이 방법(한 단계 위의 폴더 추가, 폴더 선택)을 알려 준다.
+
+자동으로 확인하지 못한 것: 폴더 선택 창을 실제로 눌러 받는 권한, 잠자기·깨우기, 실제 외장 장치, 서비스 메뉴·Dock·메뉴 막대·로그인 시 열기·알림·CSV 저장 창을 손으로 쓰는 것, VoiceOver, macOS 14 장비, 깨끗한 Mac 설치. 키 입력이나 클릭을 흉내 내는 자동화는 쓰지 않았다.
+
+### Phase 2 Gate (2026-10-07, T-009) — 제품 source가 같아 그대로 쓰는 결과
+
+영수증은 .ai/validation-cache.json의 MAC-GLOBAL-HARDENING-2-GATE-20261007, 로컬 evidence는 artifacts/evidence/global-hardening-2다. AI가 실행·렌더로 확인한 Engineering Verification이며 User QA PASS가 아니다. 스토어 제출용 서명·archive·업로드는 이 Gate에 없다.
 
 | 항목 | 명령 | 결과 |
 |---|---|---|
@@ -116,7 +158,7 @@ volume별 성능(Debug, 같은 장비): 내장 APFS와 일회용 APFS image에�
 - MAC-V1-APFS-CASE-SENSITIVE(대소문자 구분 APFS 볼륨)는 다시 실행하지 않았다. Infrastructure/Application/Core source는 이번에 바뀌지 않았다.
 - UI test bundle(xcodebuild build-for-testing)은 다시 build하지 않았다. 직전 변경은 실행 인자 한 줄이다.
 - MAC-V1-SOURCE-RACE-LIMITATION은 KNOWN_LIMITATION이다. MAC-V1-NOTARIZATION은 build3의 기록이며 현재 후보의 공증은 T-006에서 새로 한다. 유료 공급자 관련 영수증(MAC-V1-PAID-PROVIDER 등)은 전 기능 무료 결정(D-014)으로 SUPERSEDED다.
-- macOS 14 실기의 대량 목록 성능과 실제 scroll 체감은 User QA U10/U11에서 확인한다.
+- macOS 14 실기의 대량 목록 성능과 실제 scroll 체감은 User QA R7과 Release Candidate 단계의 macOS 14 확인에서 본다.
 - Core의 DevelopmentEntitlementProvider는 쓰이지 않지만 Core 계약 파일이라 이번 정리에서 건드리지 않았다. eng/build-cli.sh는 실행 권한이 없어 bash로 실행했다.
 
 과거 build3 Release 후보의 서명·패키지 검증은 현재 source의 근거가 아니다. 경쟁 제품 대비 속도로 확대하지 않는다.
@@ -277,50 +319,21 @@ AI가 직접 본 화면 평가(User QA가 아니다): 입력이 없으면 이름
 | Q5 | Dock·⌘Tab의 앱 아이콘 크기와 첫 실행 소개(‘다시 보지 않기’ 포함)가 의도대로인가 | PASS (사용자, 2026-10-06) |
 
 
-실제 업무 원본이 아닌 복사본 폴더에서 진행한다. 결과는 사용자가 말한 PASS/FAIL을 그대로 기록하고, 실패가 제품 수정의 근원이 되면 STATUS에 bug Task로 올린다.
+### 남은 확인 일곱 가지 (Final QA Gate, 2026-10-07)
 
-먼저 화면 구조를 아래 다섯 화면으로 확인한다. 이 다섯 개가 승인돼야 나머지 항목이 의미가 있다.
+실제 업무 원본이 아닌 복사본 폴더에서 진행한다. 결과는 사용자가 말한 PASS/FAIL을 그대로 기록하고, 실패가 제품 수정의 근원이 되면 STATUS에 bug Task로 올린다. 이전의 화면 S1~S5와 U01~U30은 이 일곱 가지로 묶었다(괄호 안이 묶인 번호). 위에서 사용자가 PASS한 F1~F5, Q1~Q5와 title bar band drag는 그 뒤 해당 화면 source가 바뀌지 않아 다시 묻지 않는다.
 
-| 화면 | 볼 것 |
-|---|---|
-| S1 입력 없는 첫 화면 | 왼쪽 메뉴가 이름과 함께 읽히는가. 앱 이름 NameFix의 존재감, 신호등과의 간격, 화면 제목 배치가 자연스러운가. band 왼쪽·가운데·오른쪽 어디를 잡아도 창이 움직이는가(2026-10-06 사용자 확인: 잘 됨). 처음 열 때 소개가 나오고 ‘다시 보지 않기’가 동작하는가 |
-| S2 폴더를 넣은 뒤 | 메뉴가 아이콘 레일로 줄고 트리가 나오는가. 트리 제목 줄의 ⊗(모두 닫기)로 첫 화면에 돌아오는가. 왼쪽 경계선이 title bar 아래 선과 둥글게 이어져 보이는가. 목록 아래에 가로 스크롤 막대가 없는가. 개수·진행 상황·알림이 실행 버튼 왼쪽에서 읽기 편한가 |
-| S3 파일 이름 일괄 변경 — 규칙 없음 | ‘변경 규칙’과 오른쪽 목록 위 한 줄이 같은 선에서 시작하는가. ‘텍스트 바꾸기’가 펼쳐진 채 시작하는 것이 자연스러운가. ‘+ 규칙 추가’ popover에서 기본·고급을 고르기 쉬운가 |
-| S4 규칙 추가·수정 후 | 규칙 줄 요약과 펼친 편집이 충분한가. 맨 앞의 ‘업데이트 필요’ chip이 눈에 띄고, 누르면 목록이 갱신된다는 것이 바로 읽히는가. 아래 알림이 짧게 보이고 누르면 전체 문구가 나오는가 |
-| S5 고급 설정 sheet와 좁힌 창 | 글자 저장 형식·CSV 목록·프리셋 sheet가 과하지 않은가. 창을 좁혔을 때 정보가 과밀하지 않은가 |
-
-| ID | 확인 항목 | 현재 상태 |
+| 번호 | 확인할 것 | 결과 |
 |---|---|---|
-| U01 | 기본 흐름: 파일·폴더 추가(선택 창, 창 전체 drag & drop) → 검사 → 변경 전후 이름 확인 → 확인 시트 → 이름 바꾸기 → 결과 → 작업 기록 → 되돌리기 | PENDING |
-| U02 | 처음 보는 사용자 기준으로 화면 문구가 설명 없이 이해되는지: 상태(글자 분리됨 등), 확인 시트, 사용 방법, 오류 안내 | PENDING |
-| U03 | 테마 4종과 ko/en/ja 전환이 즉시 적용·저장되고 재실행 후 유지되는지, 주요 화면에서 글자가 잘리지 않는지 | PENDING |
-| U04 | 창 크기 조절(좁게/넓게/낮게), 좁은 창에서 왼쪽 영역 자동 숨김, 트리 폭 조절과 기억, 전체 화면, 재실행 후 창 위치 복원 | PENDING |
-| U05 | 키보드만으로 조작: Tab 이동, Space 선택, ⌘O/⇧⌘O/⌘F/⌘R/⌘1/⌘2/⌘,/⌘W/⌘M/⌘H, 확인 시트의 Return/Esc | PENDING |
-| U06 | VoiceOver로 목록·버튼·상태 읽기, 대비 증가·큰 글자 설정에서 가독성 | PENDING |
-| U07 | 글자 구성 자세히 보기, 복사한 글자 변환(자동 감시 없음) | PENDING |
-| U08 | 데스크탑/문서/다운로드 폴더 권한 안내가 앱 언어로 나오는지, 거절·허용, 읽기 전용 위치·외장/SMB/iCloud 항목의 변경 차단 표시 | PENDING |
-| U09 | 중단과 복구: 작업 중 취소(처리 중 항목까지 마치고 멈춤), 강제 종료 후 재실행 안내와 복구, 다른 앱이 같은 파일을 저장·이동할 때 중단 안내, 앱 두 번 실행 시 중복 변경 차단 | PENDING |
-| U10 | 대량 목록(약 100,000개) 검사·스크롤·검색·필터·취소 응답성 | PENDING |
-| U11 | 실제 macOS 14 Apple Silicon에서 U01과 U10 | PENDING |
-| U12 | Finder 서비스, Dock/다음으로 열기, 메뉴바 아이콘 drop·메뉴, 로그인 시 실행, 완료 알림의 실제 OS 승인·거절 | PENDING |
-| U13 | 고급 기능 흐름: 패턴·조건 규칙, 프리셋 저장·불러오기, CSV 목록, 파일 정보(실제 사진/음악/영상), 묶음 파일, 폴더 감시(잠자기·재시작·권한 철회 포함) | PENDING |
-| U14 | 새 Release 후보(build 6 이상, D-026)의 공증된 DMG를 깨끗한 Mac에 설치·실행: Gatekeeper 경고 없이 열리는지, Finder 서비스·다음으로 열기·폴더 접근 권한 요청, 기본 이름 바꾸기 → 되돌리기 | PENDING |
-| U15 | 화면 어디에도 Pro·구매 표시가 없고 모든 기능이 바로 동작하는지 | PENDING |
-| U16 | Dock·Finder·앱 전환기(⌘Tab)에서 앱 아이콘이 회색 판 없이 다른 앱과 같은 크기로 보이는지 | PENDING |
-| U17 | 첫 실행 소개: 4쪽 내용과 그림, 어두운 테마에서도 밝게 보이는지, ‘다시 보지 않기’ 후 다시 실행하면 안 나오는지, 설정·도움말 메뉴에서 다시 열리는지 | PENDING |
-| U18 | 사용 방법 화면과 설정(제목 없는 첫 묶음, 오른쪽 정렬 switch, 맨 아래 개발자 카드)의 모양 | PENDING |
-| U19 | 설정의 ‘버그 신고 및 문의’ 버튼이 메일 앱에서 ailo@ailoworks.com으로 새 메일을 여는지 | PENDING |
-| U20 | 스토어용 화면 15장(artifacts/marketing/namefix/1.0.0/store)과 문구(marketing/appstore.json)의 ko/en/ja 표현과 장면 | PENDING |
-| U21 | 실제 외장 APFS 드라이브에서: 폴더 추가 → 정리 → 추출(꺼내기) → 다시 연결 → 작업 기록에서 되돌리기. 작업 중 케이블을 뽑았을 때 안내와 복구 (EXTERNAL_APFS_HARDWARE_QA_PENDING) | PENDING |
-| U22 | exFAT·FAT USB, 네트워크 드라이브, iCloud Drive 폴더, 읽기 전용 디스크를 넣었을 때 상태 문구(‘이 드라이브는 제외’ 등)와 아래 한 줄 안내가 이해되는지, 앱이 멈추지 않는지 | PENDING |
-| U23 | 영어·일본어 화면(첫 화면, 소개, 사용 방법, 확인 창, 오류 안내)이 그 언어 사용자에게 자연스러운지. 한국어의 바뀐 용어(선택한 N개 이름 정리, 폴더 감시, 분리된 글자 합치기, 변경 완료 등) | PENDING |
-| U24 | ‘필터·정렬 → Windows에서 쓸 수 없는 이름’과 자세히 보기의 안내가 쓸모 있는지 | PENDING |
-| U25 | 일본어 이름의 옛 글자체 한자(예: 神, 隆)가 정리 뒤에도 그대로인지 | PENDING |
-| U26 | 스토어판(sandbox) 실제 조작: ‘폴더 추가’ 창으로 폴더 선택 → 정리 → 앱 종료 → 다시 실행 → 작업 기록에서 되돌리기. 창을 눌러 받은 권한이 재실행 뒤에도 이어지는지 | PENDING |
-| U27 | 스토어판에서 파일 하나만 끌어다 놓았을 때 뜨는 폴더 선택 창의 문구와 흐름, 취소했을 때의 ‘폴더 선택 필요’ 안내와 다시 고르기 | PENDING |
-| U28 | 스토어판의 즐겨찾기·최근 폴더·폴더 감시: 재실행, 잠자기/깨우기, 폴더를 옮기거나 지웠을 때 ‘다시 선택’, 외장 드라이브를 뺐다 꽂았을 때 | PENDING |
-| U29 | 스토어판의 Finder 연동: 다음으로 열기, Dock에 끌어다 놓기, 서비스 메뉴, 메뉴 막대 아이콘에 끌어다 놓기, 로그인 시 열기, 완료 알림, 결과 CSV 저장 | PENDING |
-| U30 | 직접 배포판 앱 메뉴의 ‘업데이트 확인…’이 브라우저로 제품 페이지를 여는지, 스토어판에는 그 메뉴가 없는지 | PENDING |
+| R1 | 직접 배포판의 기본 흐름과 화면: 폴더 추가(선택 창, 끌어다 놓기) → 검사 → 확인 → 이름 바꾸기 → 결과 → 작업 기록 → 되돌리기. 파일 이름 일괄 변경(규칙 추가·수정, 고급 설정, 프리셋, CSV 목록, 파일 정보), 글자 구성 자세히 보기, 테마 4종, 창 크기 조절과 좁은 창, 재실행 뒤 창 위치. 구매·Pro 표시가 없는지 (S1~S5, U01, U03, U04, U07, U13, U15~U18) | PENDING |
+| R2 | 스토어판의 권한 흐름: ‘폴더 추가’ 창으로 폴더 선택 → 정리 → 앱 종료 → 다시 실행 → 작업 기록에서 되돌리기. 파일 하나만 끌어다 놓았을 때 뜨는 폴더 선택 창, 취소했을 때의 ‘폴더 선택 필요’ 안내와 다시 고르기. 추가한 폴더 자체가 ‘대상 아님’으로 나올 때 안내가 이해되는지 (U08, U26, U27) | PENDING |
+| R3 | macOS 연동, 두 에디션 모두: Finder의 다음으로 열기와 서비스 메뉴, Dock·메뉴 막대 아이콘에 끌어다 놓기, 로그인 시 열기, 완료 알림의 허용·거절, 결과 CSV 저장, 설정의 문의 버튼(메일). 직접 배포판 앱 메뉴의 ‘업데이트 확인…’이 브라우저로 제품 페이지를 열고 스토어판에는 없는지 (U12, U19, U29, U30) | PENDING |
+| R4 | 오래 쓰는 기능: 즐겨찾기·최근 폴더·폴더 감시가 재실행, 잠자기·깨우기 뒤에도 이어지는지, 폴더를 옮기거나 지웠을 때 ‘다시 선택’이 나오는지. 작업 중 취소, 강제 종료 뒤 다시 열었을 때의 복구 안내, 다른 앱이 같은 파일을 건드릴 때의 중단 안내 (U09, U28) | PENDING |
+| R5 | 실제 디스크: 외장 APFS 드라이브에서 정리 → 꺼내기 → 다시 연결 → 되돌리기, 작업 중 케이블을 뽑았을 때. exFAT·FAT USB, 네트워크 드라이브, iCloud Drive 폴더, 읽기 전용 디스크를 넣었을 때 안내가 이해되고 아무것도 바뀌지 않는지 (U21, U22, EXTERNAL_APFS_HARDWARE_QA_PENDING) | PENDING |
+| R6 | 언어: 한국어·영어·일본어 화면(첫 화면, 소개, 사용 방법, 설정, 확인 창, 오류·지원하지 않는 드라이브·폴더 선택 안내)이 그 언어 사용자에게 자연스러운지. ‘Windows에서 쓸 수 없는 이름’ 안내, 일본어 이름의 옛 글자체 한자(神, 隆 등)가 그대로인지, 스토어 문구와 화면 15장 (U02, U20, U23~U25) | PENDING |
+| R7 | 접근성과 큰 목록: VoiceOver로 목록·버튼·상태 읽기, 키보드만으로 조작(Tab, Space, 단축키, 확인 창의 Return·Esc), 대비 증가·큰 글자. 약 100,000개 목록의 검사·스크롤·검색·취소 (U05, U06, U10) | PENDING |
+
+Release Candidate 단계에서 서명된 후보로만 할 수 있는 확인(지금은 대상이 없다): 공증된 DMG와 스토어 build를 깨끗한 Mac에 설치·실행(이전 U14), 실제 macOS 14 Apple Silicon 장비에서 R1과 R7(이전 U11).
 
 ## 문서/도구 검증
 

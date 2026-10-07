@@ -54,6 +54,16 @@ SUPERSEDED_FOR_PUBLIC_RELEASE (2026-10-07, D-026). 아래 build 5 산출물은 �
 - 화면: Debug 앱의 --render-marketing(App/MarketingFixtures.swift)이 예시용으로 만든 파일을 앱이 직접 검사·미리보기·이름 변경한 실제 창을 ko/en/ja로 촬영한다. Release build에는 들어가지 않는다. --marketing-samples로 경로가 화면에 드러나도 되는 중립 폴더를 넘긴다.
 - 합성: eng/marketing-shots.py(Pillow 필요)가 스토어용 2880×1800 PNG 15장(5장면 × 3개 언어)과 manifest를 만든다. 산출물은 artifacts/marketing/namefix/1.0.0(Git 제외)에 있다. Mac App Store 스크린샷 규격(16:10, 1280×800·1440×900·2560×1600·2880×1800 중 하나, 1~10장)은 2026-10-07에 Apple 문서에서 확인했다.
 
+## Release Candidate 진입 조건
+
+Final QA Gate(T-010, 2026-10-07)의 판정은 NEEDS_USER_QA다. 자동 검증에서 P0·P1은 없고 build 6을 유지한다. 다음이 끝나면 Release Candidate 단계로 간다.
+
+1. 사용자가 QA.md의 R1~R7을 확인한다. R2(스토어판에서 폴더 선택 창을 눌러 받는 권한)가 가장 먼저다.
+2. 사용자가 Release Candidate 단계를 승인한다. 그때 build 번호를 정하고(지금은 6), 직접 배포판은 아래 ‘순서’대로 후보·서명·공증을, 스토어판은 ‘Mac App Store 트랙’의 외부 입력을 준비해 archive·업로드를 한다.
+3. 서명된 후보로 깨끗한 Mac 설치와 macOS 14 장비 확인을 한다.
+
+이 Gate에서는 후보 생성, Developer ID 서명, 공증, 스토어 서명·업로드·제출을 하지 않았다.
+
 ## Mac App Store 트랙
 
 상태: SANDBOX_READY — 스토어판 구성과 sandbox 안의 동작은 구현·검증됐다(T-009). 제출·업로드·App Store Connect 기록 생성은 하지 않았다. 직접 배포 build 5와 그 구성은 이 트랙 때문에 바뀌지 않았다.
