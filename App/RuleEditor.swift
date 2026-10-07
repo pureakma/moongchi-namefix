@@ -209,7 +209,14 @@ struct RuleEditor: View {
             }.padding(.horizontal, 8).accessibilityElement(children: .combine)
         } else if exampleChecked, samplesFromList {
             // Rules that change none of the added names: say so instead of showing a name unchanged.
-            Text(model.t("SampleUnchanged")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true).padding(.horizontal, 8)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(model.t("SampleUnchanged")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
+                // Folders are left out unless asked for. When there are folders, say so here and offer the switch.
+                if draft.includeFolders != true, model.entries.contains(where: { $0.isDirectory && $0.reason == "FolderExcluded" }) {
+                    Text(model.t("FolderExcluded")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
+                    Button(model.t("IncludeFolders")) { draft.includeFolders = true }.controlSize(.small).accessibilityIdentifier("includeFoldersHint")
+                }
+            }.padding(.horizontal, 8)
         }
     }
     private func loadSamples() {
