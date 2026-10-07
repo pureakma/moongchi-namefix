@@ -12,7 +12,7 @@
 
 ## 현재 Release 상태
 
-RELEASE_ARTIFACT_READY (2026-10-06). 다운로드는 열지 않았다. 다운로드 공개(웹사이트 쪽 작업, 시점은 사용자가 결정)와 깨끗한 Mac 확인이 남았다.
+SUPERSEDED_FOR_PUBLIC_RELEASE (2026-10-07, D-026). 아래 build 5 산출물은 서명·공증까지 끝난 과거 Release 후보로 보존하며 공개 출시에 쓰지 않는다. 수정·삭제·재서명하지 않는다. 다음 공개 후보는 Global Product Hardening(T-008) 뒤에 build 6 이상으로 새로 만들고, 서명·공증·깨끗한 Mac 확인을 그 후보에서 다시 한다. 아래 기록은 build 5에 대한 사실이다.
 
 - 최종 산출물: artifacts/release-candidate/1.0.0/build5-final
   - 배포용 DMG(주 산출물): Moongchi_NameFix_1.0.0_build5_arm64.dmg, SHA-256 dab6d685d102a3641af28ced97e1c61edff99fdc12e0df4c5daad0fc3c39f4ca
@@ -26,11 +26,11 @@ RELEASE_ARTIFACT_READY (2026-10-06). 다운로드는 열지 않았다. 다운로
 - Gatekeeper: 앱(execute)과 DMG(open) 모두 accepted, source=Notarized Developer ID.
 - 검증: eng/verify-candidate.py 통과(manifest hash, Info.plist, 리소스, 서명, 공증 기록, DMG 무결성·읽기 전용 mount, ZIP 풀기, self-test, CLI 계약). 공증된 앱을 한 번 실행해 창이 뜨는 것을 확인했다.
 - 공개 배포: 하지 않음. DMG 업로드, 다운로드 링크, GitHub Release, App Store 제출은 없다. 산출물 안의 BUILD_INFO(publicRelease false)는 고치지 않는다. 다운로드를 열면 그 사실을 이 문서에 적는다.
-- 깨끗한 Mac 확인: CLEAN_MAC_QA_PENDING. 별도의 깨끗한 Mac이나 VM을 쓸 수 없어 하지 않았다. 개발 Mac에서의 실행은 이 확인을 대신하지 않는다.
+- 깨끗한 Mac 확인: build 5로는 하지 않는다. 새 후보에서 수행한다(D-026).
 
 계보: build5-pre-sign(서명 전) → build5-signed-r2(Developer ID 서명) → build5-final(공증·staple·패키지). 각 단계는 새 디렉터리에서 했고 앞 단계의 디렉터리는 바뀌지 않았다. build5-signed는 중단된 시도(ABORTED.txt), build4-pre-sign과 build3는 대체된 기록이다.
 
-후보를 다시 만들어야 하면 build 번호를 6 이상으로 올리고 새 output 경로를 쓴다.
+다음 후보는 build 번호를 6 이상으로 올리고 새 output 경로를 쓴다. build 번호는 Release 단계에서 한 번 정한다.
 
 ## 웹사이트
 
