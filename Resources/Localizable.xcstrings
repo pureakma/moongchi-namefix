@@ -5573,19 +5573,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파일을 놓아 검사하거나 클릭해 메뉴를 여세요."
+            "value": "클릭해 메뉴를 여세요."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drop files here to scan them, or click for the menu."
+            "value": "Click to open the menu."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイルをドロップするとスキャンします。クリックするとメニューが開きます。"
+            "value": "クリックしてメニューを開きます。"
           }
         }
       }

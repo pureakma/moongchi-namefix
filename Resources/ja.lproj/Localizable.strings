@@ -225,7 +225,7 @@
 "MappingRowError" = "CSVの{0}行目：{1}";
 "MappingUnmatched" = "この項目は読み込んだリストにありません。";
 "MaskPaths" = "ファイル名とパスを隠す（推奨）";
-"MenuBarHelp" = "ファイルをドロップするとスキャンします。クリックするとメニューが開きます。";
+"MenuBarHelp" = "クリックしてメニューを開きます。";
 "MenuBringAllToFront" = "すべてを手前に移動";
 "MenuCloseWindow" = "ウインドウを閉じる";
 "MenuCopy" = "コピー";

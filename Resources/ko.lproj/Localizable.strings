@@ -225,7 +225,7 @@
 "MappingRowError" = "CSV {0}행: {1}";
 "MappingUnmatched" = "이 항목은 가져온 목록에 없습니다.";
 "MaskPaths" = "파일 이름과 경로 숨기기 (권장)";
-"MenuBarHelp" = "파일을 놓아 검사하거나 클릭해 메뉴를 여세요.";
+"MenuBarHelp" = "클릭해 메뉴를 여세요.";
 "MenuBringAllToFront" = "모두 앞으로 가져오기";
 "MenuCloseWindow" = "윈도우 닫기";
 "MenuCopy" = "복사하기";

@@ -225,7 +225,7 @@
 "MappingRowError" = "CSV row {0}: {1}";
 "MappingUnmatched" = "This item is not in the imported list.";
 "MaskPaths" = "Hide filenames and paths (recommended)";
-"MenuBarHelp" = "Drop files here to scan them, or click for the menu.";
+"MenuBarHelp" = "Click to open the menu.";
 "MenuBringAllToFront" = "Bring All to Front";
 "MenuCloseWindow" = "Close Window";
 "MenuCopy" = "Copy";
