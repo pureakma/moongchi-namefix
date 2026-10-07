@@ -174,10 +174,25 @@ import NameFixApplication
             defer { ProcessInfo.processInfo.endActivity(awake) }
             var draw: [Double] = [], wait: [Double] = []
             let step: CGFloat = 60, pause = 0.008
+            // A very long list is sampled: 1,500 steps down from the top and 1,500 up from the bottom.
+            let limit = CommandLine.arguments.contains("--probe-large") ? 1_500 : Int.max
+            if limit != Int.max {
+                // How long the list takes to follow the model: search, filter, sort, and back.
+                let all = model.visible.count
+                facts["search"] = await timed(model, { model.query = "0999" }, until: { model.visible.count != all })
+                facts["searchRows"] = model.visible.count
+                facts["clear"] = await timed(model, { model.query = "" }, until: { model.visible.count == all })
+                facts["filter"] = await timed(model, { model.filter = "Normal" }, until: { model.visible.count != all })
+                facts["filterRows"] = model.visible.count
+                facts["unfilter"] = await timed(model, { model.filter = "All" }, until: { model.visible.count == all })
+                let began = CFAbsoluteTimeGetCurrent(); (document as? NSTableView)?.reloadData(); window.displayIfNeeded()
+                facts["reload"] = ((CFAbsoluteTimeGetCurrent() - began) * 1000).rounded() / 1000
+            }
             for pass in 0..<2 {
                 let bottom = max(0, document.frame.height - scroll.contentView.bounds.height)
-                var y: CGFloat = pass == 0 ? 0 : bottom
-                while pass == 0 ? y < bottom : y > 0 {
+                var y: CGFloat = pass == 0 ? 0 : bottom, taken = 0
+                while (pass == 0 ? y < bottom : y > 0), taken < limit {
+                    taken += 1
                     y = pass == 0 ? min(bottom, y + step) : max(0, y - step)
                     let began = CFAbsoluteTimeGetCurrent()
                     scroll.contentView.scroll(to: NSPoint(x: 0, y: y)); scroll.reflectScrolledClipView(scroll.contentView)

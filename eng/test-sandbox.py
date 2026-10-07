@@ -14,6 +14,7 @@ it creates are attached or detached.
   eng/test-sandbox.py --direct     the same steps with the Debug app outside the sandbox (the direct edition's rules);
                                    its records go to a folder this script makes, never to the user's
   eng/test-sandbox.py --scroll     scroll a 1,200-row list in the Debug app and print the time per step
+  eng/test-sandbox.py --large      100,000 names: search, filter, reload and scroll times of the list
   eng/test-sandbox.py --speed      time 1,000 renames and their undo with the safe and the faster record
   eng/test-sandbox.py --compare    time the same work inside and outside the sandbox (both Debug apps must be built)
 """
@@ -22,10 +23,10 @@ import argparse, json, os, plistlib, subprocess, sys, tempfile, time, unicodedat
 
 root = Path(__file__).resolve().parent.parent
 app = root / ".build/xcode-sandbox/Build/Products/Debug/Moongchi NameFix.app"
-parser = argparse.ArgumentParser(); parser.add_argument("--no-build", action="store_true"); parser.add_argument("--compare", action="store_true"); parser.add_argument("--direct", action="store_true"); parser.add_argument("--scroll", action="store_true"); parser.add_argument("--speed", action="store_true"); options = parser.parse_args()
+parser = argparse.ArgumentParser(); parser.add_argument("--no-build", action="store_true"); parser.add_argument("--compare", action="store_true"); parser.add_argument("--direct", action="store_true"); parser.add_argument("--scroll", action="store_true"); parser.add_argument("--speed", action="store_true"); parser.add_argument("--large", action="store_true"); options = parser.parse_args()
 plain = root / ".build/xcode/Build/Products/Debug/Moongchi NameFix.app"
 sandboxed = not options.direct
-if options.scroll or options.speed: options.direct = True; sandboxed = False
+if options.scroll or options.speed or options.large: options.direct = True; sandboxed = False
 if not options.no_build and not options.compare:
     subprocess.run([str(root / "eng/build.sh"), "--configuration", "Debug", "--arch", "arm64"] + (["--sandbox-debug"] if sandboxed else []), cwd=root, check=True, stdout=subprocess.DEVNULL)
 def granted(application):
@@ -102,6 +103,15 @@ if options.scroll:
         f = step(work, "scroll", many, application=plain, shown=True)
         for key in ("draw", "between", "both"): print(key.ljust(8), json.dumps(f.get(key)))
         print("rows", f.get("rows"), "height", f.get("height"))
+    sys.exit(0)
+if options.large:
+    # 100,000 names in one folder: how long the list takes to appear, search, filter and scroll.
+    with tempfile.TemporaryDirectory(prefix="namefix-sandbox-", dir="/private/tmp") as temporary:
+        work = Path(temporary); many = work / "many"; many.mkdir()
+        for i in range(100_000): touch(many, (f"보고서 사진 {i:06d}.txt").encode() if i % 4 == 3 else nfd(f"보고서 사진 {i:06d}.txt"))
+        f = step(work, "scroll", many, application=plain, shown=True, more=["--probe-large"])
+        print("rows", f.get("rows"), "| start to ready", f.get("startup"), "s | search", f.get("search"), "s ->", f.get("searchRows"), "rows | clear", f.get("clear"), "s | filter", f.get("filter"), "s ->", f.get("filterRows"), "rows | back", f.get("unfilter"), "s | full reload of the table", f.get("reload"), "s")
+        for key in ("draw", "both"): print(key.ljust(6), json.dumps(f.get(key)))
     sys.exit(0)
 if options.speed:
     # 1,000 renames and their undo with the safest record and with the faster one (Settings, D-036).

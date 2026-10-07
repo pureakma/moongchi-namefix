@@ -818,7 +818,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No safe changes remain. Rescan to refresh the preview."
+            "value": "No names can be changed. Rescan to refresh the preview."
           }
         },
         "ja": {
@@ -864,13 +864,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The operation could not finish. Check History and local diagnostic logs."
+            "value": "The operation could not finish. Check the result in History, then rescan. If the problem keeps happening, choose Help → Export Diagnostic Report."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "処理を完了できませんでした。履歴と診断ログを確認してください。"
+            "value": "処理を完了できませんでした。履歴で結果を確認してから、再スキャンしてください。問題が繰り返す場合は、「ヘルプ」>「診断レポートを書き出す」を利用できます。"
           }
         }
       }
@@ -1209,13 +1209,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Some records cannot be read. Originals are preserved; Undo is restricted."
+            "value": "Some history records cannot be read. The record files were left as they are, and you may not be able to undo those operations."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "一部の履歴を読み込めません。元のデータはそのまま残し、元に戻す操作を制限しています。"
+            "value": "一部の履歴を読み込めません。履歴のファイルはそのまま残していますが、該当する操作は元に戻せない場合があります。"
           }
         }
       }
@@ -1330,7 +1330,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "復元済み"
+            "value": "元の名前に戻しました"
           }
         }
       }
@@ -1928,7 +1928,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "元の名前に復元中"
+            "value": "元の名前に戻しています"
           }
         }
       }
@@ -2037,7 +2037,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This item is no longer available. Reconnect the device or rescan its current location."
+            "value": "This item can’t be reached right now. Make sure the disk is connected and the item hasn’t been moved, then rescan."
           }
         },
         "ja": {
@@ -2227,7 +2227,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "初期設定ではオフです。フォルダのパスを最大10件、このMacに保存します。オフにすると、保存した一覧を消去します。"
+            "value": "デフォルトではオフです。フォルダのパスを最大10件、このMacに保存します。オフにすると、保存した一覧を消去します。"
           }
         }
       }
@@ -2336,13 +2336,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This includes {0} selected items hidden by the current search or filter. Cancel and choose Selected items to review them."
+            "value": "This includes {0} selected items hidden by the current search or filter. To review them, cancel and click “Selected” above the list."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "検索や絞り込みで表示されていない選択項目{0}件も含まれます。確認するには、キャンセルしてから絞り込みで「選択した項目」を選んでください。"
+            "value": "検索や絞り込みで表示されていない選択項目{0}件も一緒に変更されます。確認するには、キャンセルしてから一覧の上にある「選択」をクリックしてください。"
           }
         }
       }
@@ -2359,13 +2359,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "If another item already has the new name, or several items would end up with the same name, the item is skipped and nothing is overwritten. Rename or move the duplicate in the folder, then rescan."
+            "value": "If another item already has the new name, or several items would end up with the same name, the item is skipped and nothing is overwritten. Rename or move the duplicate in the folder and rescan, or use Suggest Numbered Names."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "同じ名前の項目がすでにあるか、複数の項目が同じ名前になります。この項目は変更しません。フォルダで重複を解消してから、再スキャンしてください。"
+            "value": "同じ名前の項目がすでにあるか、複数の項目が変更後に同じ名前になります。上書きを防ぐため、この項目は名前の変更から除外します。フォルダで重複する名前を解消してから再スキャンするか、「番号付きの名前を提案」を使ってください。"
           }
         }
       }
@@ -2451,7 +2451,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Symbolic links and aliases are not followed to prevent changes outside the selected location."
+            "value": "To prevent changes outside the selected location, symbolic links and aliases are not followed."
           }
         },
         "ja": {
@@ -2618,7 +2618,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "提案された名前を確認してください。実行するまで名前は変わりません。"
+            "value": "競合を避けるため、番号を付けた名前を提案しました。確認のダイアログで「名前を変更」をクリックするまで、実際の名前は変わりません。"
           }
         }
       }
@@ -2710,7 +2710,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "コピーした文字を調べる"
+            "value": "コピーした文字を変換"
           }
         }
       }
@@ -2773,13 +2773,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac OS Extended (HFS+) disks always store names with their characters split, so a fixed name would not stay fixed. Items on this disk are not renamed."
+            "value": "Mac OS Extended (HFS+) disks always store names with their characters split, so a fixed name would not stay fixed. Items on this disk are not renamed. Nothing is wrong with the files. Copy them to your Mac or to an APFS drive to fix their names."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac OS拡張（HFS+）のディスクは、すべての名前を文字が分かれた形で保存するため、1文字にまとめた名前を保てません。このディスクにある項目の名前は変更しません。"
+            "value": "Mac OS拡張（HFS+）のディスクは、すべての名前を文字が分かれた形で保存するため、1文字にまとめた名前を保てません。このディスクにある項目の名前は変更しません。ファイルに問題があるわけではありません。Mac本体やAPFSのドライブにコピーすると整えられます。"
           }
         }
       }
@@ -2865,7 +2865,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This item changed after scanning and was skipped. Scan again."
+            "value": "This item changed after scanning and was skipped. Rescan."
           }
         },
         "ja": {
@@ -2911,13 +2911,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This data was created by a newer version. The original is preserved and changes are restricted."
+            "value": "This data was created by a newer version of the app. The original is left as it is, and this version cannot save or import changes."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "新しいバージョンで作成されたデータです。元のデータを保護するため変更を制限します。"
+            "value": "より新しいバージョンのアプリで作成されたデータです。元のデータはそのまま残し、このバージョンでは変更の保存や読み込みはできません。"
           }
         }
       }
@@ -2940,7 +2940,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "処理中は項目を追加できません。完了してから、もう一度ドロップしてください。"
+            "value": "処理中は、項目の追加やほかの操作の開始はできません。処理が終わってから、もう一度お試しください。"
           }
         }
       }
@@ -3400,7 +3400,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ほかのアプリによる変更を検出したため、停止しました。仮の名前のままの項目が残っている場合があります。履歴で項目の現在の場所を確認してください。"
+            "value": "ほかのアプリによる変更を検出したため、停止しました。仮の名前のままの項目が残っている場合があります。履歴で項目の現在の場所を確認し、元の名前に戻してください。"
           }
         }
       }
@@ -3417,13 +3417,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Possible locations. NameFix could not confirm that these are the same file, so it does not restore them automatically."
+            "value": "Locations where an item with the same name was found. NameFix could not confirm that it is the same file, so nothing is restored automatically. Check in the Finder."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "見つかった場所です。元のファイルと同じものか確認できないため、自動では復元しません。"
+            "value": "同じ名前の項目が見つかった場所です。元のファイルと同じものか確認できないため、自動では元の名前に戻しません。Finderで直接確認してください。"
           }
         }
       }
@@ -3762,7 +3762,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Visible characters {0} · code points {1} · UTF-16 units {2}"
+            "value": "Visible characters {0} · Code points {1} · UTF-16 code units {2}"
           }
         },
         "ja": {
@@ -3814,7 +3814,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "安全確認で除外: {0}件"
+            "value": "安全のため除外：{0}件"
           }
         }
       }
@@ -3975,7 +3975,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "書き出す診断情報"
+            "value": "診断レポートのプレビュー"
           }
         }
       }
@@ -4429,13 +4429,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This is more than NameFix can process. Simplify the pattern, or use a shorter name or a smaller file."
+            "value": "This is more than NameFix can process. Simplify the pattern, or use a smaller list or file."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このルールの処理上限を超えました。パターンや入力を短くしてください。"
+            "value": "処理できる上限を超えました。パターンを簡単にするか、リストやファイルのサイズを小さくして、もう一度お試しください。"
           }
         }
       }
@@ -4452,13 +4452,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This item was skipped because the file info the rule needs is missing."
+            "value": "This item was skipped because the file info the rule needs is missing. Set “Fallback text” to include it."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "必要なファイル情報がないため除外しました。"
+            "value": "必要なファイル情報がないため除外しました。「情報がない場合に使うテキスト」を指定すると、対象に含められます。"
           }
         }
       }
@@ -4895,7 +4895,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最小桁数: {0}"
+            "value": "最小桁数：{0}"
           }
         }
       }
@@ -4964,7 +4964,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "同じ番号を繰り返す回数: {0}"
+            "value": "同じ番号を繰り返す回数：{0}"
           }
         }
       }
@@ -4987,7 +4987,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "この件数ごとに最初の番号に戻す（0：戻さない）: {0}"
+            "value": "この件数ごとに開始番号に戻す（0：戻さない）：{0}"
           }
         }
       }
@@ -5263,7 +5263,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "先頭の文字を残す"
+            "value": "先頭の文字だけを残す"
           }
         }
       }
@@ -5286,7 +5286,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "末尾の文字を残す"
+            "value": "末尾の文字だけを残す"
           }
         }
       }
@@ -5332,7 +5332,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "大文字"
+            "value": "大文字にする"
           }
         }
       }
@@ -5355,7 +5355,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "小文字"
+            "value": "小文字にする"
           }
         }
       }
@@ -5378,7 +5378,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "単語の先頭を大文字"
+            "value": "単語の先頭を大文字にする"
           }
         }
       }
@@ -5700,7 +5700,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "完了 {0}件 · 失敗 {1}件。詳細はアプリで確認してください。"
+            "value": "成功 {0}件 · エラー {1}件。詳細はアプリで確認してください。"
           }
         }
       }
@@ -5717,13 +5717,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notifications are not allowed. Results remain available in the app."
+            "value": "Notifications are not allowed. You can allow them under Notifications in System Settings. Results are also available in the app."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "通知が許可されていません。結果はアプリで確認できます。"
+            "value": "通知が許可されていません。「システム設定」の「通知」で許可できます。結果はアプリでも確認できます。"
           }
         }
       }
@@ -5809,13 +5809,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Could not change the Open at login setting."
+            "value": "Could not change the “Open at login” setting. You can set it yourself under Login Items in System Settings."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ログイン時に開く設定を変更できませんでした。"
+            "value": "ログイン時に開く設定を変更できませんでした。「システム設定」の「ログイン項目」で設定できます。"
           }
         }
       }
@@ -5832,13 +5832,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "In a UTF-8 CSV/TSV file, choose the column with the original names (or paths) and the column with the new names. Duplicate, ambiguous or unmatched rows block the rename."
+            "value": "In a UTF-8 CSV/TSV file, choose the column with the current names (or paths) and the column with the new names. If any row is a duplicate, ambiguous, or unmatched, nothing is renamed."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "UTF-8のCSV/TSVファイルから、「元の名前（またはパス）」の列と「新しい名前」の列を選びます。重複している行、あいまいな行、一致しない行がある場合は実行しません。"
+            "value": "UTF-8のCSV/TSVファイルから、「現在の名前（またはパス）」の列と「新しい名前」の列を選びます。名前が重複している行、どのファイルか特定できない行、一致するファイルがない行がある場合は、名前を変更しません。"
           }
         }
       }
@@ -5924,13 +5924,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Original name column"
+            "value": "Current name column"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "元の名前の列"
+            "value": "現在の名前の列"
           }
         }
       }
@@ -6022,7 +6022,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "読み込んだ名前のペア: {0}件"
+            "value": "読み込んだ名前のペア：{0}件"
           }
         }
       }
@@ -6039,13 +6039,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The list has duplicate or unmatched entries. Check the original names and paths."
+            "value": "The list has duplicate or unmatched entries. Check the current names and paths."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "リストに重複または一致しない項目があります。元の名前とパスを確認してください。"
+            "value": "リストに重複または一致しない項目があります。現在の名前とパスを確認してください。"
           }
         }
       }
@@ -6114,7 +6114,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ファイル情報（撮影日、タイトルなど）はこのルールが有効な場合にだけ読み取り、ファイルは変更しません。JPEG/TIFF/HEIC、MP3/M4A、MOV/MP4、PDFに対応します。情報がないファイルは除外するか、指定した代替テキストを使います。時間帯にはUTCやAsia/Tokyoなどの名前、またはsource（ファイルに記録された時間帯、なければUTC）を入力します。"
+            "value": "ファイル情報（撮影日、タイトルなど）はこのルールが有効な場合にだけ読み取り、ファイルの内容は変更しません。JPEG/TIFF/HEIC、MP3/M4A、MOV/MP4、PDFに対応します。情報がないファイルは除外します。「情報がない場合に使うテキスト」を指定すると、代わりにそのテキストを入れます。時間帯にはUTCやAsia/Tokyoなどの名前、またはsource（ファイルに記録された時間帯、なければUTC）を入力します。"
           }
         }
       }
@@ -6367,7 +6367,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "同じフォルダにあり、名前が同じで拡張子だけが異なるファイル（例：写真のjpgとraw）を1つのセットとして扱い、同じ新しい名前と連番を付けます。拡張子はそのままです。使用できるのは「拡張子を除く名前」に適用するルールだけで、CSVリストとは併用できません。セットの一部だけを選択した場合や、競合・エラーがある場合は、セット全体を除外します。一部だけ変更された場合は、履歴から復旧できます。"
+            "value": "同じフォルダにあり、名前が同じで拡張子だけが異なるファイル（例：写真のjpgとraw）を1つのセットとして扱い、同じ新しい名前と連番を付けます。拡張子はそのままです。使用できるのは「拡張子を除く名前」に適用するルールだけで、CSVリストとは併用できません。セットの一部だけを選択した場合や、競合・エラーがある場合は、セット全体を除外します。一部だけ変更された場合は、履歴から元の名前に戻せます。"
           }
         }
       }
@@ -6430,7 +6430,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Actions"
+            "value": "Preset Actions"
           }
         },
         "ja": {
@@ -6528,7 +6528,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "監視フォルダに追加されたファイルや変更されたファイルを、確認待ちとして集めます。名前を自動で変更することはありません。「確認」をクリックし、プレビューを確かめて実行したときにだけ変更します。処理済みのファイルは、アプリを開き直しても再び提案しません。ルールを更新すると、フォルダ全体を確認し直します。監視フォルダとそのサブフォルダ自体の名前は変更しません。"
+            "value": "監視フォルダに追加されたファイルや変更されたファイルを、確認待ちとして集めます。名前を自動で変更することはありません。「確認」をクリックし、プレビューを確かめて実行したときにだけ変更します。処理済みのファイルは、アプリを開き直しても再び提案しません。「現在のルールに更新」をクリックすると、フォルダ全体を確認し直します。監視フォルダとそのサブフォルダ自体の名前は変更しません。"
           }
         }
       }
@@ -6752,13 +6752,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Folder access expired or its location changed. Remove this entry and select the folder again."
+            "value": "Access to this folder expired, or the folder was moved. Remove this watched folder and add it again."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フォルダへのアクセス権が無効になったか、フォルダの場所が変わりました。この項目を削除して、フォルダを選び直してください。"
+            "value": "フォルダへのアクセス権が無効になったか、フォルダの場所が変わりました。この監視フォルダを削除してから、追加し直してください。"
           }
         }
       }
@@ -6913,7 +6913,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Raw CSV preserves names exactly. Import it as text in spreadsheet apps to avoid formula interpretation."
+            "value": "Raw CSV preserves names exactly. Import it as text in spreadsheet apps so names are not read as formulas."
           }
         },
         "ja": {
@@ -7304,13 +7304,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "NameFix couldn’t check its configuration. You can still scan names and undo."
+            "value": "NameFix couldn’t check its configuration, so some features are unavailable. You can still scan names and undo. Try restarting the app."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "アプリの構成を確認できませんでした。名前のスキャンと、元に戻す操作は引き続き利用できます。"
+            "value": "アプリの構成を確認できなかったため、一部の機能を利用できません。名前のスキャンと、元に戻す操作は引き続き利用できます。アプリを再起動してみてください。"
           }
         }
       }
@@ -7373,7 +7373,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The file is being written or changed. Review again after writing finishes."
+            "value": "The file is still being saved or has changed. Review again after saving finishes."
           }
         },
         "ja": {
@@ -7448,7 +7448,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "CSVの{0}行目: {1}"
+            "value": "CSVの{0}行目：{1}"
           }
         }
       }
@@ -7586,7 +7586,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "文字数: {0}"
+            "value": "文字数：{0}"
           }
         }
       }
@@ -7626,7 +7626,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Do not save or move the same items in another app during the operation. If an outside change is detected the operation stops, and History shows where any moved item is."
+            "value": "Do not save or move the same items in another app during the operation. If an outside change is detected, the operation stops, and History shows where any moved item is."
           }
         },
         "ja": {
@@ -7862,7 +7862,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ルールが変更されています。プレビューを更新すると、名前を変更できます。"
+            "value": "ルールが変更されています。「更新が必要」をクリックしてプレビューを更新してから、名前を変更してください。"
           }
         }
       }
@@ -7931,7 +7931,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "文字の置換や連番などで、複数のファイル名をまとめて変更します。"
+            "value": "文字の置き換えや連番などで、複数のファイル名をまとめて変更します。"
           }
         }
       }
@@ -7994,13 +7994,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Save the current names, new names and results as a CSV file. This does not rename anything. Use raw CSV when another tool needs the names exactly as stored."
+            "value": "Save the current names, new names, and statuses as a CSV file. This does not rename anything. Use raw CSV when another tool needs the names exactly as stored."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "一覧の現在の名前・変更後の名前・結果をCSVファイルに保存します。ファイルの名前は変更しません。「加工なしのCSV」は、ほかのツールで名前をそのまま読み込みたい場合に使います。"
+            "value": "一覧の現在の名前・変更後の名前・状態をCSVファイルに保存します。ファイルの名前は変更しません。「加工なしのCSV」は、ほかのツールで名前をそのまま読み込みたい場合に使います。"
           }
         }
       }
@@ -8161,7 +8161,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "処理が途中で止まった場合は、次回の起動時にお知らせします。履歴で各項目の現在の場所を確認し、元の名前に復元できます。確認なしに自動で復旧することはありません。"
+            "value": "処理が途中で止まった場合は、次回の起動時にお知らせします。履歴で各項目の現在の場所を確認し、元の名前に戻せます。確認なしに自動で戻すことはありません。"
           }
         }
       }
@@ -8253,7 +8253,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "拡大／縮小"
+            "value": "拡大/縮小"
           }
         }
       }
@@ -8989,7 +8989,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "「ファイル名を一括変更」では、ルールを選んで値を入力し、プレビューを更新します。ルールの結果は、まず一覧の「変更後の名前」にだけ表示されます。実際の名前は、確認してから変更します。拡張子を書き換えても、ファイルの形式は変換されません。すべての機能を無料で利用できます。"
+            "value": "「ファイル名を一括変更」では、ルールを追加して値を入力し、「更新が必要」をクリックしてプレビューを更新します。ルールの結果は、まず一覧の「変更後の名前」にだけ表示されます。実際の名前は、確認してから変更します。拡張子を書き換えても、ファイルの形式は変換されません。すべての機能を無料で利用できます。"
           }
         }
       }
@@ -9127,7 +9127,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "“{0}”内の項目だけを表示中"
+            "value": "「{0}」内の項目だけを表示中"
           }
         }
       }
@@ -10156,7 +10156,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Everything is free, and stays on this Mac"
+            "value": "Every feature is free, and everything stays on this Mac"
           }
         },
         "ja": {
@@ -10179,13 +10179,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No account and no ads. Your files and their names are never sent anywhere."
+            "value": "No account to create and no need to sign in. Your files and their names are never sent anywhere."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "アカウントも購入も不要です。ファイルやファイル名がどこかへ送信されることはありません。"
+            "value": "アカウントの作成もログインも必要ありません。ファイルやファイル名がどこかへ送信されることはありません。"
           }
         }
       }
@@ -10829,7 +10829,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ルール設定の保存に失敗"
+            "value": "ルール・プリセットの保存に失敗"
           }
         }
       }
@@ -10944,7 +10944,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "一部の履歴を読めません"
+            "value": "一部の履歴を読み込めません"
           }
         }
       }
@@ -11013,7 +11013,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "設定を読めません"
+            "value": "設定を読み込めません"
           }
         }
       }
@@ -11214,13 +11214,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Meet the other Moongchi apps for Mac: archives, cleanup, server access and disk measurement."
+            "value": "Meet the other Moongchi apps for Mac: archives, cleanup, server access, and disk measurement."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "圧縮・整理・サーバ接続・ディスク計測など、Mac向けのほかのMoongchiアプリを紹介しています。"
+            "value": "圧縮・整理・サーバー接続・ディスク計測など、Mac向けのほかのMoongchiアプリを紹介しています。"
           }
         }
       }
@@ -12157,7 +12157,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This record cannot be undone after the disk was reconnected. The files were left as they are because they can no longer be matched with certainty. You can find the earlier names in History and rename the files yourself."
+            "value": "This operation can no longer be undone because the disk was reconnected. The files were left as they are because they can no longer be matched with certainty. You can find the earlier names in History and rename the files yourself."
           }
         },
         "ja": {
@@ -12594,7 +12594,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose the “{0}” folder to check and rename the names inside it. File contents are never changed."
+            "value": "Choose the “{0}” folder to check and change the names inside it. File contents are never changed."
           }
         },
         "ja": {
@@ -12640,7 +12640,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "To undo this operation, its folder has to be chosen again. Choose Undo in History once more to pick the folder."
+            "value": "To undo this operation, you need to choose its folder again. Click Undo in History again to pick the folder."
           }
         },
         "ja": {
@@ -12830,7 +12830,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "初期設定ではオフです。オンにすると、多くのファイルを数倍速く変更します。ファイルの内容を変更せず、上書きもしない点は変わりません。ただし、操作の途中で突然電源が切れると、最後の数項目が履歴に残らず、手動での確認が必要になることがあります。外付けドライブでは常に安全な方法で変更します。"
+            "value": "デフォルトではオフです。オンにすると、多くのファイルを数倍速く変更します。ファイルの内容を変更せず、上書きもしない点は変わりません。ただし、処理の途中で突然電源が切れると、最後の数項目が履歴に残らず、手動での確認が必要になることがあります。外付けドライブでは常に安全な方法で変更します。"
           }
         }
       }

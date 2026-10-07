@@ -45,9 +45,9 @@
     "appPrivacy": {
       "dataCollected": "none",
       "tracking": "none",
-      "basis": "No networking code in the app; settings, favourites, presets, watch list and history are stored on the Mac. Support mail is sent by the user from their own mail app."
+      "basis": "No networking code in the app; settings, favorites, presets, watch list and history are stored on the Mac. Support mail is sent by the user from their own mail app."
     },
-    "reviewNotes": "Moongchi NameFix renames files and folders only; it never changes file contents. To try it: choose a folder with File > Add Folder (or drop a folder on the window), review the list, press the button at the bottom right, and confirm. Every run is kept in History, where it can be undone, also after the app is reopened. The app uses the App Sandbox with user-selected read-write access and app-scoped bookmarks, and nothing else: no network, no account, no purchase. It works only in folders the user chose. A bookmark is kept for favourite folders, watched folders, remembered recent folders (off by default) and folders in which a rename can still be undone; it is dropped with the record. When a single file is added, the app asks the user to choose the folder that contains it, because a file can be renamed only through its folder. The name of the folder that was added is not changed; adding its parent folder makes that possible. Renaming is limited to APFS disks (the Mac's internal disk and external APFS drives); exFAT and FAT drives, network drives and cloud-synced folders are shown but left unchanged. All features are free.",
+    "reviewNotes": "Moongchi NameFix renames files and folders only; it never changes file contents. To try it: choose a folder with File > Add Folder (or drop a folder on the window), review the list, press the button at the bottom right, and confirm. Every run is kept in History, where it can be undone, also after the app is reopened. The app uses the App Sandbox with user-selected read-write access and app-scoped bookmarks, and nothing else: no network, no account, no purchase. It works only in folders the user chose. A bookmark is kept for favorite folders, watched folders, remembered recent folders (off by default), and folders in which a rename can still be undone; it is dropped with the record. When a single file is added, the app asks the user to choose the folder that contains it, because a file can be renamed only through its folder. The name of the folder that was added is not changed; adding its parent folder makes that possible. Renaming is limited to APFS disks (the Mac's internal disk and external APFS drives); exFAT and FAT drives, network drives and cloud-synced folders are shown but left unchanged. All features are free.",
     "whatsNew": null,
     "sandbox": {
       "entitlements": [
@@ -71,9 +71,9 @@
       "appStoreLocale": "en-US",
       "name": "Moongchi NameFix",
       "subtitle": "Fix & batch rename filenames",
-      "promotionalText": "Fix filenames whose characters have come apart, and batch-rename with text and numbering rules. Preview every change first, and undo from History when you need to.",
+      "promotionalText": "Fix filenames whose characters have come apart, and batch-rename files with text and numbering rules. Preview every change first, and undo from History when you need to.",
       "keywords": "rename,batch rename,filename,file renamer,bulk rename,fix filename,accents,unicode,folder,undo",
-      "description": "Ever received files whose names look broken, with accents floating beside letters or Korean characters split into pieces? Moongchi NameFix fixes those names in one pass and batch-renames files with rules you choose.\n\nFIX BROKEN FILENAMES\nDrop files or folders and NameFix finds the names whose characters have come apart. See exactly which characters will be joined, then fix only the names you select.\n\nBATCH RENAME\nCombine rules to replace text, add a prefix or suffix, number files, insert dates and file details, or tidy capitalization. Save the rule sets you use often as presets.\n\nPREVIEW BEFORE RENAMING\nEvery new name is listed before anything changes, and name conflicts are flagged up front. Nothing is renamed until you confirm. File contents are never modified.\n\nUNDO FROM HISTORY\nFinished runs are kept in History, so you can restore the original names later.\n\nFAVORITES AND FOLDER WATCH\nOpen the folders you use most with one click. Folder Watch collects new files in a review list, and they are renamed only after you review and confirm.\n\nPROCESSED ON YOUR MAC\nNames are checked and changed locally. No account, no ads, no tracking. File names and paths are not sent to any server.\n\nFREE\nAll features are free, with no in-app purchases.\n\nLanguages: English, Korean, Japanese\nRequires macOS 14 or later on a Mac with Apple silicon.\nRenaming applies to items on APFS disks (your Mac's internal disk and external APFS drives). Cloud-synced folders, network drives, exFAT and FAT drives, apps, and links are protected and left unchanged."
+      "description": "Ever received files whose names look broken, with accents floating beside letters or Korean characters split into pieces? Moongchi NameFix fixes those names in one pass and batch-renames files with rules you choose.\n\nFIX BROKEN FILENAMES\nDrop files or folders and NameFix finds the names whose characters have come apart. See exactly which characters will be joined, then fix only the names you select.\n\nBATCH RENAME\nCombine rules to replace text, add a prefix or suffix, number files, insert dates and file details, or tidy capitalization. Save the rule sets you use often as presets.\n\nPREVIEW BEFORE RENAMING\nEvery new name is listed before anything changes, and name conflicts are flagged up front. Nothing is renamed until you confirm. File contents are never modified.\n\nUNDO FROM HISTORY\nFinished runs are kept in History, so you can restore the original names later.\n\nFAVORITES AND WATCHED FOLDERS\nOpen the folders you use most with one click. Watch a folder to collect its new files in a review list; they are renamed only after you review and confirm.\n\nPROCESSED ON YOUR MAC\nNames are checked and changed locally. No account, no ads, no tracking. Filenames and paths are not sent to any server.\n\nFREE\nAll features are free, with no in-app purchases.\n\nLanguages: English, Korean, Japanese\nRequires macOS 14 or later on a Mac with Apple silicon.\nRenaming applies to items on APFS disks (your Mac's internal disk and external APFS drives). Cloud-synced folders, network drives, exFAT and FAT drives, apps, and links are protected and left unchanged."
     },
     "ja": {
       "appStoreLocale": "ja",
@@ -81,7 +81,7 @@
       "subtitle": "ファイル名の修正と一括変更",
       "promotionalText": "文字が分かれたファイル名を整え、テキストや連番のルールで一括変更。変更後の名前を先に確認でき、必要なら履歴から元に戻せます。",
       "keywords": "ファイル名,一括変更,リネーム,名前変更,濁点,半濁点,連番,ファイル整理,フォルダ,rename",
-      "description": "ほかの機器から受け取ったファイルで、濁点や半濁点が文字から離れて見えたり、名前で検索しても見つからなかったりしたことはありませんか。Moongchi NameFixは、そうしたファイル名をまとめて整え、複数のファイル名をルールで一括変更できるMacアプリです。\n\n■ 分かれた文字をまとめて修正\nファイルやフォルダをドロップすると、文字が分かれているファイル名を見つけて表示します。どの文字がどう結合されるかを確認して、選んだ名前だけを整えられます。\n\n■ ファイル名を一括変更\nテキストの置き換え、前後への文字の追加、連番、日付やファイル情報の挿入、大文字と小文字の整理などのルールを組み合わせて、まとめて変更できます。よく使うルールはプリセットとして保存できます。\n\n■ 変更前にプレビュー\n変更後の名前を一覧で確認でき、名前の重複は実行前にお知らせします。確認画面で承認するまで、名前は変わりません。ファイルの内容は変更しません。\n\n■ 履歴から元に戻す\n実行した作業は履歴に残り、必要なときに元の名前へ戻せます。\n\n■ よく使うフォルダをすばやく\nお気に入りのフォルダをワンクリックで開けます。フォルダ監視をオンにすると、新しいファイルを確認リストに集め、確認してから変更します。\n\n■ Macの中で処理\nファイル名のチェックと変更はMacの中で行います。アカウント不要、広告なし、トラッキングなし。ファイル名やパスをサーバーに送信しません。\n\n■ 無料\nすべての機能を無料で使えます。アプリ内課金はありません。\n\n対応言語：日本語、英語、韓国語\n動作環境：macOS 14以降、Appleシリコン搭載Mac\n名前の変更は、APFS形式のディスク（Mac本体の内蔵ディスクと外付けのAPFSドライブ）にある項目が対象です。クラウド同期フォルダ、ネットワークドライブ、exFAT・FATのドライブ、アプリ、リンクは変更せずに保護します。"
+      "description": "ほかの機器から受け取ったファイルで、濁点や半濁点が文字から離れて見えたり、名前で検索しても見つからなかったりしたことはありませんか。Moongchi NameFixは、そうしたファイル名をまとめて整え、複数のファイル名をルールで一括変更できるMacアプリです。\n\n■ 分かれた文字をまとめて修正\nファイルやフォルダをドロップすると、文字が分かれているファイル名を見つけて表示します。どの文字がどうまとめられるかを確認して、選んだ名前だけを整えられます。\n\n■ ファイル名を一括変更\nテキストの置き換え、前後への文字の追加、連番、日付やファイル情報の挿入、大文字と小文字の整理などのルールを組み合わせて、まとめて変更できます。よく使うルールはプリセットとして保存できます。\n\n■ 変更前にプレビュー\n変更後の名前を一覧で確認でき、名前の重複は実行前にお知らせします。確認画面で確定するまで、名前は変わりません。ファイルの内容は変更しません。\n\n■ 履歴から元に戻す\n実行した操作は履歴に残り、必要なときに元の名前に戻せます。\n\n■ よく使うフォルダをすばやく\nお気に入りのフォルダをワンクリックで開けます。フォルダ監視をオンにすると、新しいファイルを確認リストに集め、確認してから変更します。\n\n■ Macの中で処理\nファイル名のスキャンと変更はMacの中で行います。アカウント不要、広告なし、トラッキングなし。ファイル名やパスをサーバーに送信しません。\n\n■ 無料\nすべての機能を無料で使えます。App内課金はありません。\n\n対応言語：日本語、英語、韓国語\n動作環境：macOS 14以降、Appleシリコン搭載Mac\n名前の変更は、APFS形式のディスク（Mac本体の内蔵ディスクと外付けのAPFSドライブ）にある項目が対象です。クラウド同期フォルダ、ネットワークドライブ、exFAT・FATのドライブ、アプリ、リンクは変更せずに保護します。"
     }
   },
   "screenshots": {
@@ -102,8 +102,8 @@
             "Finds the names whose characters have come apart"
           ],
           "ja": [
-            "分かれた文字のファイル名をまとめて修正",
-            "濁点や文字が離れた名前を見つけて整えます"
+            "文字が分かれたファイル名をまとめて修正",
+            "濁点・半濁点が離れた名前を見つけて整えます"
           ]
         }
       },
@@ -120,7 +120,7 @@
           ],
           "ja": [
             "変更する前に、名前を確認",
-            "承認するまで名前は変わりません"
+            "確認するまで名前は変わりません"
           ]
         }
       },
@@ -171,7 +171,7 @@
           ],
           "ja": [
             "履歴から元に戻せる",
-            "実行した作業は履歴に残ります"
+            "実行した操作は履歴に残ります"
           ]
         }
       }

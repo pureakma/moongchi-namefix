@@ -2189,6 +2189,35 @@
       "command": "eng/test.sh --level 3; eng/test-sandbox.py --speed; eng/resources.py + eng/validate-resources.py; --render-ux; eng/build.sh Debug, Release and AppStore",
       "evidencePath": "artifacts/evidence/user-qa",
       "notes": "D-036: the user's setting 'Rename faster' (off by default) writes the records of an item with F_BARRIERFSYNC on built-in drives; first, failure and last records stay F_FULLFSYNC. 148 tests, 0 failures, incl. same events as the safe record and recovery from a record that lost its tail. Real app, 1,000 names: rename 9.7 s and undo 9.5 s with the setting on. 560 keys x 3 languages PASS; 72 screens render; Debug, Release and AppStore build. A real power cut was not produced. The volume matrix and the sandbox scenarios were not rerun. Not User QA."
+    },
+    {
+      "validationId": "MAC-USER-QA-SESSION-20261007",
+      "status": "PASS",
+      "configuration": "Debug",
+      "architecture": "arm64",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "App/Info.plist",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "Package.swift",
+        "project.yml",
+        "eng/test-sandbox.py",
+        "eng/test.sh",
+        "eng/build.sh",
+        "eng/resources.py",
+        "eng/validate-resources.py",
+        "marketing/appstore.json"
+      ],
+      "sourceFingerprint": "cbedc659f407ff47aaf020c50952f244cf1217661464617a7740a97fac0b596c",
+      "testFingerprint": "e126c6b7f93f317187169d9ad5e239b8b21766feef98622c91df6c5ca794aba5",
+      "timestamp": "2026-10-07T05:16:29.018543+00:00",
+      "command": "eng/test.sh --level 3; --render-ux/shell/responsive/expansion; --render-marketing + eng/marketing-shots.py; eng/validate-resources.py; eng/validate-marketing.py; eng/test-sandbox.py --large; one-off hardware runs; eng/build.sh Debug, Release and AppStore",
+      "evidencePath": "artifacts/evidence/user-qa",
+      "notes": "State after the user QA session fixes and the English and Japanese copy review (563 keys; en 32, ja 54 strings and 15 places in the store copy changed). 148 tests, 0 failures; 231 screens render; 15 store screenshots recomposed; resources and store metadata valid; Debug, Release and AppStore build. Real hardware named by the user: external USB APFS disk (rename, unmount, mount, undo; read-only mount) and exFAT USB stick, both editions, PASS. 100,001 rows: search 0.77 s, filter 0.16 s, median scroll step 8 ms. Not done: pulling a cable, network drive, iCloud Drive, VoiceOver, native-speaker reading. The sandbox scenario set was last run in full at MAC-FINAL-RC-GATE-20261007; the direct set after the list change. Not User QA."
     }
   ]
 }

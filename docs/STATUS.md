@@ -6,7 +6,7 @@
 - 현재 Task: T-010 (verificationPending)
 - 다음: 사용자가 QA.md의 R1~R7 확인 → 결과에 따라 Release Candidate 단계(직접 배포 build 6 후보, Mac App Store 제출)를 사용자가 따로 승인. 스토어 제출에는 T-007의 외부 입력이 필요
 - 위험·막힘: 스토어판에서 폴더 선택 창을 눌러 받는 권한은 아직 아무도 확인하지 않았다(R2). 스토어 제출용 인증서와 App Store Connect 접근 없음(T-007). D-003의 비협조 writer source-race 알려진 제한
-- 검증 대기: docs/QA.md의 User QA R6·R7. R1~R4는 사용자 PASS(R3에 P2 2건). R5는 PARTIAL: 실제 외장 APFS와 exFAT USB는 AI가 실행해 통과, 케이블 뽑기·네트워크·iCloud·읽기 전용 디스크는 미확인 사용자가 찾은 목록 스크롤 끊김은 고쳤고 사용자가 해결을 확인. 트리 더블클릭과 ‘이름을 더 빠르게 바꾸기’ 설정(D-036)은 재확인 대기
+- 검증 대기: R1~R4 사용자 PASS. R5 PARTIAL(케이블 뽑기·네트워크·iCloud 미확인), R6은 사용자 결정으로 AI 검수로 대체(원어민 확인 아님), R7 PARTIAL(VoiceOver·대비·키보드 전체 조작 미확인). 상세는 docs/QA.md
 - 마지막 갱신: 2026-10-07
 <!-- HOT:END -->
 
