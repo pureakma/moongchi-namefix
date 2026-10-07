@@ -190,6 +190,26 @@ final class VolumeMatrixTests: XCTestCase, @unchecked Sendable {
         }
     }
 
+    // MARK: Profile (opt-in)
+
+    func testScanRenameAndUndoProfile() async throws {
+        try only(apfs: true)
+        guard env["NAMEFIX_MUTATION_PERF"] == "1" else { throw XCTSkip("Opt-in profile") }
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        for i in 0..<1000 { try make(root, decomposed("보고서 é \(i).txt"), payload: "\(i)") }
+        var start = Date()
+        let entries = scan(root); let scanSeconds = Date().timeIntervalSince(start)
+        start = Date(); let approved = try plan(entries); let planSeconds = Date().timeIntervalSince(start)
+        XCTAssertEqual(approved.operations.count, 1000)
+        let journal = try store(), coordinator = TransactionCoordinator(store: journal)
+        start = Date(); let done = try await coordinator.execute(approved, token: CancellationToken()); let renameSeconds = Date().timeIntervalSince(start)
+        XCTAssertEqual(done.succeeded, 1000)
+        start = Date(); let undo = try History.undo(store: journal, id: approved.id, generation: UUID()); let undoPlanSeconds = Date().timeIntervalSince(start)
+        start = Date(); let undone = try await coordinator.execute(undo, token: CancellationToken()); let undoSeconds = Date().timeIntervalSince(start)
+        XCTAssertEqual(undone.succeeded, 1000)
+        print(String(format: "VOLUME_PROFILE kind=%@ onImage=%@ files=1000 scan=%.3f plan=%.3f rename=%.3f undoPlan=%.3f undo=%.3f", kind, onImage ? "yes" : "no", scanSeconds, planSeconds, renameSeconds, undoPlanSeconds, undoSeconds))
+    }
+
     // MARK: A disk added as a whole
 
     func testAddedDiskIsScannedButItsOwnNameIsNotChanged() throws {

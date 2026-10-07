@@ -53,7 +53,7 @@ for kind in kinds:
                 # Every filesystem, transaction, recovery and coordination contract, on this volume.
                 tests("VolumeMatrixTests|FilesystemTests|TransactionTests|CoordinatedTransactionTests|SafetyTests|ExpansionTests", environment)
                 if options.performance:
-                    tests("SafetyTests/testScanPerformanceProfile|CoordinatedTransactionTests/testThousandCoordinatedRenamesProfile|ExpansionPerformanceTests",
+                    tests("VolumeMatrixTests/testScanRenameAndUndoProfile|SafetyTests/testScanPerformanceProfile|CoordinatedTransactionTests/testThousandCoordinatedRenamesProfile|ExpansionPerformanceTests",
                           dict(environment, NAMEFIX_PERFORMANCE="1", NAMEFIX_MUTATION_PERF="1"))
                 # Rename, lose the volume, get it back under another device number,
                 # put a different disk in its place, then mount it read-only.

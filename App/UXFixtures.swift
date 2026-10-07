@@ -145,6 +145,25 @@ import NameFixRuntime
             }
             try render("S-targets-list-ko-KR", language: "ko-KR", theme: "olive", size: wide, workbench: true, entries: excluded, rules: [prefix])
         }
+        // Items left alone because of where they are: the status labels, the one-line notice,
+        // and the inspector's note about a name Windows cannot use.
+        for language in ["ko-KR", "en-US", "ja-JP"] {
+            let located = rows(conflict: false).enumerated().map { index, entry -> FileEntry in
+                var e = entry
+                guard !e.isDirectory else { return e }
+                e.status = .unsupported; e.reason = ["VolumeFATUnsupported", "VolumeReadOnly", "CloudLocationExcluded", "VolumeNetworkUnsupported"][index % 4]
+                return e
+            }
+            for (name, size) in [("T-location", wide), ("T-location-narrow", narrow)] {
+                try render("\(name)-\(language)", language: language, theme: "olive", size: size, entries: located) { model in
+                    model.selected = []; model.counts["NeededCaption"] = 0; model.message = "VolumeFATUnsupported"
+                }
+            }
+            let model = makeModel(language: language, theme: "olive", workbench: false, entries: [], rules: [], applied: true)
+            var odd = FileEntry(path: RawPath("/Users/me/Documents/Trip/report: final?.txt"), identity: identity, parentIdentity: identity, status: .normal, reason: "NormalHelp", proposed: Data("report: final?.txt".utf8))
+            odd.id = UUID(); model.entries = [odd]; model.focused = odd.id; model.sheet = "inspector"
+            try renderPart("T-windows-note-\(language)", theme: "olive", size: CGSize(width: 680, height: 560), SheetRouter(model: model, availableSize: CGSize(width: 704, height: 584)).frame(height: 560).environment(\.colorScheme, .light))
+        }
         try render("I-narrow-quick-empty-ko-KR", language: "ko-KR", theme: "olive", size: narrow)
         try render("I-narrow-quick-results-ko-KR", language: "ko-KR", theme: "olive", size: narrow, entries: rows(conflict: true))
         try render("I-narrow-batch-ja-JP", language: "ja-JP", theme: "olive", size: narrow, workbench: true, entries: renamed(rows(conflict: false)), rules: [prefix])
