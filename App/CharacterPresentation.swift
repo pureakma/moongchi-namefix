@@ -20,7 +20,7 @@ struct CharacterPresentation: Sendable {
     init(_ original: String) {
         units = original.enumerated().map { index, character in
             let text = String(character)
-            return CharacterUnit(id: index, original: text, composed: text.precomposedStringWithCanonicalMapping)
+            return CharacterUnit(id: index, original: text, composed: NameForm.composed(text))
         }
     }
     var changes: [CharacterUnit] { units.filter(\.changed) }
@@ -39,7 +39,7 @@ struct CharacterPresentation: Sendable {
         if status.fixable, reason == "RuleChangeHelp" { return "PlannedChange" }
         if status.fixable, reason == "NFDChangeHelp" { return "NFDPlannedChange" }
         // Non-NFC also includes canonical singleton/reordering cases, not only NFD.
-        if status == .needsNormalization && Data(name.utf8) != Data(name.decomposedStringWithCanonicalMapping.utf8) { return "CanonicalVariant" }
+        if status == .needsNormalization && Data(name.utf8) != Data(NameForm.decomposed(name).utf8) { return "CanonicalVariant" }
         return status.rawValue
     }
     private static let initials = Array("ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ")

@@ -86,7 +86,7 @@ final class VolumeMatrixTests: XCTestCase, @unchecked Sendable {
         let repaired = ["한글 문서.txt", "프로젝트_최종.key", "café.txt", "Ångström.pdf", "señor.md", "über uns.rtf", "Việt Nam.txt", "ớ.txt",
                         "がぎぐげご.txt", "ぱぴぷぺぽ.txt", "ガイド.pdf", "パスポート.jpg", "ελληνικά ά.txt", "й.txt"]
         // Already composed, or made of characters that have no composed form: left alone.
-        let untouched = ["👨‍👩‍👧‍👦 family.txt", "👍🏽.txt", "✈️.txt", "𝒜 math.txt", "中文.txt", "Ａ１ fullwidth.txt", "ｶﾞ halfwidth.txt", "ㅎㅏㄴ compat jamo.txt", "\u{301}leading mark.txt", "plain ASCII.txt"]
+        let untouched = ["👨‍👩‍👧‍👦 family.txt", "👍🏽.txt", "✈️.txt", "𝒜 math.txt", "中文.txt", "Ａ１ fullwidth.txt", "ｶﾞ halfwidth.txt", "ㅎㅏㄴ compat jamo.txt", "\u{301}leading mark.txt", "plain ASCII.txt", "\u{FA19}\u{FA4C} old-form kanji.txt"]
         for name in repaired { try make(root, decomposed(name), payload: name) }
         for name in untouched { try make(root, Data(name.utf8), payload: name) }
         // Part composed, part decomposed.

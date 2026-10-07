@@ -82,6 +82,8 @@ APFS의 lookup 동등성과 실제 저장된 raw spelling을 같은 것으로 �
 
 Scanner와 transaction 경로는 실제 directory entry의 raw name과 identity를 보존하고, 정규화만 다른 이름을 Preview/검증에서 놓치지 않도록 한다.
 
+이름을 합치거나 분리할 때는 NameForm을 쓴다. 표준 NFC/NFD와 같되 CJK 호환 한자(U+F900–U+FAFF, U+2F800–U+2FA1F)는 저장된 그대로 둔다(D-031). 표준 형태는 그 글자들을 모양이 다른 통합 한자로 바꾸기 때문이다. 전각/반각, 합자, 원문자 같은 호환 변환(NFKC/NFKD)은 하지 않는다. 낱자로 입력한 한글 호환 자모(ㅎㅏㄴ), 독립형 탁점(゛), 반각 가나의 탁점은 합쳐지는 글자가 아니므로 그대로다. 충돌과 동등성 판정에는 파일시스템과 같은 표준 형태를 쓴다.
+
 ## 동시 변경과 알려진 제한
 
 NSFileCoordinator를 사용해 조정에 참여하는 프로그램과 이동을 협의하고, 접근을 얻은 뒤 source/parent raw path·identity·일반 파일의 version 정보를 다시 확인한다. 실제 이동 직후에도 결과를 확인하며 mismatch가 나오면 후속 작업을 중단한다.

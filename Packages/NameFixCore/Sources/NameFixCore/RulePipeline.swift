@@ -3,7 +3,7 @@ import Foundation
 public enum NormalizationTarget: String, Codable, CaseIterable, Sendable {
     case nfc = "NFC", nfd = "NFD", unchanged = "KeepForm"
     public func apply(_ text: String) -> String {
-        switch self { case .nfc: text.precomposedStringWithCanonicalMapping; case .nfd: text.decomposedStringWithCanonicalMapping; case .unchanged: text }
+        switch self { case .nfc: NameForm.composed(text); case .nfd: NameForm.decomposed(text); case .unchanged: text }
     }
 }
 public enum ProductAccess: String, Codable, Sendable { case free, pro }

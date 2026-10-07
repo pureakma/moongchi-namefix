@@ -55,6 +55,27 @@ public struct FileEntry: Identifiable, Codable, Sendable {
         self.id = id; self.path = path; self.identity = identity; self.parentIdentity = parentIdentity; self.isDirectory = isDirectory; self.status = status; self.reason = reason; self.proposed = proposed
     }
 }
+/// Composing and separating characters the way file names need it.
+/// Standard NFC and NFD also replace CJK compatibility ideographs with unified characters
+/// (神 U+FA19 becomes 神 U+795E). Those are the old-form characters of personal and place
+/// names and they look different, so they are kept exactly as stored. Everything else is
+/// composed or separated as the standard says. Mac file systems that normalize names leave
+/// the same ranges alone.
+public enum NameForm {
+    public static func kept(_ scalar: Unicode.Scalar) -> Bool { (0xF900...0xFAFF).contains(scalar.value) || (0x2F800...0x2FA1F).contains(scalar.value) }
+    public static func composed(_ text: String) -> String { apply(text) { $0.precomposedStringWithCanonicalMapping } }
+    public static func decomposed(_ text: String) -> String { apply(text) { $0.decomposedStringWithCanonicalMapping } }
+    private static func apply(_ text: String, _ transform: (String) -> String) -> String {
+        guard text.unicodeScalars.contains(where: kept) else { return transform(text) }
+        var result = String.UnicodeScalarView(), run = String.UnicodeScalarView()
+        for scalar in text.unicodeScalars {
+            if kept(scalar) { result.append(contentsOf: transform(String(run)).unicodeScalars); run = String.UnicodeScalarView(); result.append(scalar) }
+            else { run.append(scalar) }
+        }
+        result.append(contentsOf: transform(String(run)).unicodeScalars)
+        return String(result)
+    }
+}
 public struct NormalizationAnalysis: Sendable {
     public let text: String?
     public let nfc: Data
@@ -63,16 +84,16 @@ public struct NormalizationAnalysis: Sendable {
     public init(raw: Data, target: NormalizationTarget = .nfc) {
         guard let text = String(data: raw, encoding: .utf8) else { self.text = nil; nfc = raw; proposed = raw; status = .invalidUnicode; return }
         self.text = text
-        nfc = Data(text.precomposedStringWithCanonicalMapping.utf8)
+        nfc = Data(NameForm.composed(text).utf8)
         proposed = Data(target.apply(text).utf8)
         if raw == proposed { status = .normal }
         else {
             // Mixed: at least one already-composed grapheme and one non-NFC grapheme.
             var composed = false, decomposed = false
             for character in text {
-                let s = String(character), n = s.precomposedStringWithCanonicalMapping
+                let s = String(character), n = NameForm.composed(s)
                 if Data(s.utf8) != Data(n.utf8) { decomposed = true }
-                else if Data(s.utf8) != Data(s.decomposedStringWithCanonicalMapping.utf8) { composed = true }
+                else if Data(s.utf8) != Data(NameForm.decomposed(s).utf8) { composed = true }
             }
             status = target == .nfc && composed && decomposed ? .mixed : .needsNormalization
         }

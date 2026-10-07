@@ -72,6 +72,30 @@ final class GlobalNameTests: XCTestCase {
         XCTAssertEqual(analysis("ｶﾞ").proposed, bytes("ｶﾞ"))
     }
 
+    /// Old-form characters of personal and place names are separate code points that the
+    /// standard forms would replace with look-alike unified characters. They are kept.
+    func testCompatibilityIdeographsKeepTheirShape() {
+        let shrine = "\u{FA19}\u{FA4C}", takashi = "\u{F9DC}", music = "\u{F914}", supplement = "\u{2F800}"
+        XCTAssertNotEqual(Array(shrine.precomposedStringWithCanonicalMapping.unicodeScalars), Array(shrine.unicodeScalars), "The standard form would change them")
+        for name in [shrine, takashi, music, supplement, shrine + " 案内.txt"] {
+            for target in [NormalizationTarget.nfc, .nfd] where target == .nfc || !name.contains("案") {
+                let result = analysis(name, target: target)
+                XCTAssertEqual(result.status, .normal, name); XCTAssertEqual(result.proposed, bytes(name), name)
+            }
+        }
+        // The rest of the name is still repaired around them, in both directions.
+        let stored = shrine + "カ\u{3099}イト\u{3099} cafe\u{301}.txt"
+        let repaired = analysis(stored)
+        XCTAssertEqual(repaired.status, .needsNormalization)
+        XCTAssertEqual(Array(String(decoding: repaired.proposed, as: UTF8.self).unicodeScalars), Array((shrine + "ガイド café.txt").unicodeScalars))
+        XCTAssertEqual(Array(NameForm.decomposed(shrine + "ガ").unicodeScalars), Array((shrine + "カ\u{3099}").unicodeScalars))
+        // A mark after a kept character stays with it and is not lost.
+        XCTAssertEqual(Array(NameForm.composed(takashi + "\u{301}e\u{301}").unicodeScalars), Array((takashi + "\u{301}é").unicodeScalars))
+        // Look-alike signs that are not ideographs are still unified: Å, Ω.
+        XCTAssertEqual(NameForm.composed("\u{212B}\u{2126}"), "\u{C5}\u{3A9}")
+        XCTAssertFalse(NameForm.kept("神")); XCTAssertTrue(NameForm.kept("\u{FA19}"))
+    }
+
     func testSeparatingIsTheExactOpposite() {
         for (composed, decomposed) in [("한글", "\u{1112}\u{1161}\u{11AB}\u{1100}\u{1173}\u{11AF}"), ("café", "cafe\u{301}"), ("ガイド", "カ\u{3099}イト\u{3099}")] {
             let result = analysis(composed, target: .nfd)
