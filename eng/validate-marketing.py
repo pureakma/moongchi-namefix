@@ -36,6 +36,13 @@ source = (root / "App/Localization.swift").read_text(encoding="utf-8")
 if "mailto:" + data["product"]["supportEmail"] not in source: errors.append("supportEmail differs from the app")
 with open(root / "App/Info.plist", "rb") as handle:
     if data["appStore"]["copyright"] not in plistlib.load(handle).get("NSHumanReadableCopyright", "").replace("Copyright © ", ""): errors.append("copyright differs from Info.plist")
+# What the store reads from the app itself has to say the same as the store record.
+with (root / "App/Info.plist").open("rb") as handle: info = plistlib.load(handle)
+categories = {"Utilities": "public.app-category.utilities", "Productivity": "public.app-category.productivity"}
+if info.get("LSApplicationCategoryType") != categories.get(data["appStore"]["primaryCategory"]): errors.append("LSApplicationCategoryType in Info.plist differs from the primary category")
+if info.get("ITSAppUsesNonExemptEncryption") is not False: errors.append("ITSAppUsesNonExemptEncryption must be false in Info.plist, as the export compliance answer says")
+if info.get("LSMinimumSystemVersion", "").split(".")[0] != data["product"]["minimumSystem"].split()[-1]: errors.append("minimum macOS differs from Info.plist")
+if sorted(info.get("CFBundleLocalizations", [])) != sorted(data["product"]["languages"]): errors.append("languages differ from Info.plist")
 if errors:
     print("\n".join(errors)); sys.exit(1)
 print("PASS: store metadata for", ", ".join(data["product"]["languages"]), "is complete and within limits")

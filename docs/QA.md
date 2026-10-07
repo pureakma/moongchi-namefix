@@ -18,7 +18,29 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인.
 
-### App Store Only Gate (2026-10-07, T-012) — 현재 값
+### Store Release Phase 1 Gate (2026-10-07) — 현재 값
+
+판정 HUMAN_ACTION_REQUIRED: 제품과 archive는 준비됐고 Apple 계정에서 사용자가 할 일만 남았다(RELEASE.md). 영수증 MAC-STORE-RELEASE-1-GATE-20261007, 로컬 evidence artifacts/evidence/store-release-1. 모든 항목을 현재 source에서 한 번 실행했다. AI가 실행한 Engineering Verification이며 User QA PASS가 아니다.
+
+| 항목 | 명령 | 결과 |
+|---|---|---|
+| Runtime·UI model·Core test | eng/test.sh --level 3 | 153개 실행, 실패 0 (통합 75 중 11 skip, UI model 49 중 1 skip, Core 29). 파일 안전·transaction·journal·Undo/Recovery·접근 규칙·bookmark·스토어 동등성 test 포함 |
+| 일회용 volume | eng/test-volumes.py | APFS, 대소문자 구분 APFS, exFAT, FAT32 모두 PASS(분리·재연결·다른 디스크·읽기 전용 단계 포함, volume UUID 확인). 남은 mount·임시 폴더 0 |
+| 실제 App Sandbox | eng/test-sandbox.py | 15개 PASS: 폴더·파일 전달, 추가한 폴더 자체의 이름(상위 폴더 요청·취소·재시도), 파일 하나·여러 파일, 남겨 둔 접근 재사용, 재실행 뒤 Undo, 즐겨찾기, 폴더 감시, 외장 APFS 재연결, 다른 디스크 거부, exFAT 무변경, 실제 창과 메뉴, 여러 언어의 이름 |
+| 리소스·스토어 문구 | eng/validate-resources.py; eng/validate-marketing.py | 571 keys × ko/en/ja PASS. 스토어 문구 PASS(이제 Info.plist의 분류·수출 규정 답·최소 macOS·언어와도 대조) |
+| AppStore build | eng/build.sh --configuration AppStore --arch arm64 | BUILD SUCCEEDED |
+| Archive preflight | eng/archive-store.sh --preflight | ARCHIVE SUCCEEDED. com.ailoworks.namefix, 1.0.0 build 6, arm64만(x86_64 없음), macOS 14.0, entitlement 셋, get-task-allow 없음, Hardened Runtime, ko/en/ja, probe·fixture·업데이트 문자열 0건, 실행 파일은 앱 하나(CLI 없음). 로컬 서명이며 제출용 서명이 아님 |
+| 문서 | python3 tools/doccheck.py; git diff --check | PASS |
+
+이 Gate에서 찾아 고친 것:
+- 스토어 제출에 필요한 Info.plist 항목이 없었다(LSApplicationCategoryType, ITSAppUsesNonExemptEncryption). 추가했고 검사 도구가 대조한다. 제출 전에만 드러나는 문제라 P1로 분류했다.
+- volume 검사에서 test 하나가 실패했다. D-036 때 쓴 test가 ‘fixture는 항상 내장 디스크’라고 가정한 것이 원인이며, disk image를 외장으로 판정한 것은 맞는 동작이다. test를 고쳤다. 제품 문제 아님.
+
+build 번호: 제품 source가 바뀌었지만(Info.plist) build 6은 App Store Connect에 올린 적이 없어 그대로 둔다.
+
+하지 않은 것: 스토어용 서명(자동 서명 archive), App ID·provisioning profile 생성, App Store Connect 기록 확인·생성, 업로드, 심사 제출. 로그인 없이는 App ID와 앱 기록의 상태를 읽을 수 없었다. 대표 화면 render와 성능 측정은 다시 하지 않았다(화면 코드 변경 없음).
+
+### App Store Only Gate (2026-10-07, T-012)
 
 판정 APPSTORE_ONLY_READY. 영수증 MAC-APPSTORE-ONLY-GATE-20261007, 로컬 evidence artifacts/evidence/storeonly. 공개 제품은 Mac App Store build 하나이고(D-038) 이 Gate가 현재 source의 기준이다. 이 아래의 Gate들에 나오는 ‘직접 배포 구성’·‘Release 구성’·CLI 항목은 그때의 사실이며 지금은 없는 구성이다. AI가 실행한 Engineering Verification이며 User QA PASS가 아니다.
 

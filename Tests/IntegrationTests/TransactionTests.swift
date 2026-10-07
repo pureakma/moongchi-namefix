@@ -188,8 +188,9 @@ final class TransactionTests: XCTestCase, @unchecked Sendable {
         XCTAssertFalse(recovery.operations.isEmpty)
         let restored = try await coordinator.execute(recovery, token: CancellationToken())
         XCTAssertEqual(restored.failed, 0)
-        // The faster record is refused where a drive can be unplugged: a disk image is not a built-in drive.
-        XCTAssertTrue(TransactionCoordinator.builtIn(plan.operations))
+        // The faster record is only for built-in drives. The fixture is on the Mac's own disk unless the
+        // volume tool put it on a disk image, which macOS reports as external.
+        XCTAssertEqual(TransactionCoordinator.builtIn(plan.operations), ProcessInfo.processInfo.environment["NAMEFIX_FIXTURE_ROOT"] == nil)
     }
     func testTornJournalPreservedAndBlocksUndo() throws {
         let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }

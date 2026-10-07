@@ -196,3 +196,10 @@
 - 그대로인 것: GUI 기능 전부, 파일 안전 계약, 접근 규칙(D-033)과 남겨 두는 접근(D-034), bundle ID com.ailoworks.namefix, 1.0.0 build 6, arm64 전용, macOS 14 이상. 개발용 Debug 구성은 sandbox 밖에서 돌고, 접근 규칙의 두 갈래(제한 없음 / 허용한 폴더만)는 test와 실제 sandbox 검증을 위해 유지한다.
 - 과거 산출물: 1.0.0 build 5의 서명·공증된 후보(artifacts/release-candidate/1.0.0)는 역사적 Release Engineering 근거로만 보존한다(HISTORICAL_DIRECT_RC, NOT_FOR_PUBLIC_RELEASE). 고치거나 지우거나 다시 서명하지 않는다. 그것을 만들던 도구와 CLI source는 현재 branch에서 지웠고 Git 이력에 있다.
 - 이유: 두 에디션의 GUI 기능이 같아졌고(D-037) 남은 차이는 CLI와 업데이트 방식뿐이었다. 터미널로 이 앱을 쓸 사용자는 현실적으로 없다고 사용자가 판단했다. 채널이 하나면 출시 절차·검증·지원이 한 벌이고, 같은 식별자의 두 사본이 한 Mac에 깔리는 문제도 없다.
+
+### D-039 스토어 제출은 Xcode 자동 서명으로 한다 [accepted]
+- 날짜: 2026-10-07
+- 결정: Mac App Store에 올릴 build는 archive할 때만 Xcode 자동 서명(팀 25373G7846)으로 서명한다. 배포 인증서는 Apple이 관리하는 cloud-managed certificate를 쓰고, 이 Mac에 Apple Distribution·Mac Installer Distribution 인증서를 따로 만들지 않는다. project.yml의 기본값(Manual, ad-hoc)은 그대로 두어 일상 build·test·실제 sandbox 검증은 계정 없이 돈다. 도구는 eng/archive-store.sh 하나(--preflight는 로컬 서명, --signed는 자동 서명과 export)이며 업로드는 하지 않는다.
+- 근거: Apple의 Certificate types와 Cloud-managed certificates 도움말(2026-10-07에 읽음). Xcode 13 이상의 archive·배포 흐름은 자동 서명일 때 cloud signing을 쓰고, Account Holder·Admin은 기본으로 쓸 수 있다. 이 Mac의 Xcode에는 팀 25373G7846(개인 계정)이 등록돼 있고, 같은 팀의 다른 앱에 자동 서명이 만든 Mac 스토어용 profile이 있다.
+- 감수하는 것: --signed를 처음 실행하면 Xcode가 개발자 계정에 App ID com.ailoworks.namefix와 스토어용 provisioning profile을 만들고, 팀에 cloud-managed 배포 인증서가 없으면 만든다. 그래서 사용자가 요청했을 때만 실행한다. 서명이 Apple 쪽에서 이뤄지므로 Xcode에 계정이 로그인돼 있어야 한다.
+- 이유: 제출 방식에 필요하지 않은 인증서와 private key를 사용자에게 만들게 하지 않는다. 수동 profile을 관리하는 것보다 단순하고, 일상 개발 구성은 바뀌지 않는다.

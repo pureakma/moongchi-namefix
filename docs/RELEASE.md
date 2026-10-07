@@ -14,32 +14,46 @@
 
 ## 현재 상태
 
-출시 보류(D-026). APPSTORE_ONLY_READY(T-012): 현재 source 1.0.0 build 6으로 AppStore 구성이 build되고 실제 sandbox 검증을 통과했다. Release Candidate는 만들지 않았고, 스토어 서명·archive·업로드·심사 제출도 하지 않았다.
+출시 보류(D-026). Store Release Phase 1(2026-10-07): 현재 source 1.0.0 build 6의 최종 Gate를 통과했고 제출 직전까지 준비했다. 판정 HUMAN_ACTION_REQUIRED — 제품은 준비됐고, Apple 계정에서 사용자가 해야 하는 일만 남았다(아래 ‘Mac App Store 제출’). 스토어용 서명, 업로드, 심사 제출은 하지 않았다.
 
 ## Release Candidate 진입 조건
 
 Final User QA Session(T-010)의 판정은 USER_QA_COMPLETE_WITH_EXTERNAL_PENDING이고 P0·P1은 없다. Release Candidate 단계에 들어갈 수 있으며, 사용자가 승인하기 전에는 후보를 만들지 않는다.
 
 1. 사용자가 Release Candidate Phase를 승인하고 아래 ‘Mac App Store 제출’의 외부 입력을 준비한다. build 번호는 그때 정한다(지금은 6).
-2. 후보를 만들기 전에 현재 source로 통합 Gate를 다시 실행한다(QA.md: test, 실제 sandbox 15개, AppStore build 확인).
+2. 통합 Gate는 2026-10-07에 현재 source로 통과했다(QA.md의 Store Release Phase 1 Gate). 그 뒤 제품 source가 바뀌면 다시 실행한다.
 3. 스토어용으로 서명한 build로 깨끗한 Mac 설치와 실제 macOS 14 Apple Silicon 장비 확인을 한다(TestFlight 또는 서명된 pkg). 서명된 build가 있어야 할 수 있다.
 
 추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 스토어 build에서 폴더 선택 창을 사람이 직접 누르는 것(‘상위 폴더 선택…’ 포함), 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인. 출시 전에 할지 뒤로 미룰지는 사용자가 정한다.
 
 ## Mac App Store 제출 (T-007, 보류)
 
+서명 방식: Xcode 자동 서명(D-039). 이 Mac에 배포 인증서를 따로 만들지 않는다.
+
 준비된 것:
-- AppStore 구성: eng/build.sh --configuration AppStore --arch arm64. 확인은 eng/verify-release.sh <앱 경로>(arm64, 서명, self-test).
-- 접근 규칙과 권한 흐름: FILESYSTEM_CAPABILITIES.md의 ‘App Sandbox’, DESIGN.md의 ‘폴더 접근 요청’.
-- 실제 sandbox 검증 도구: eng/test-sandbox.py.
-- 스토어 문구·심사 메모·entitlement 목록·App Privacy 답: marketing/appstore.json. 스크린샷 15장: artifacts/marketing/namefix/1.0.0/store.
+- AppStore 구성과 archive: eng/archive-store.sh --preflight <새 폴더>가 로컬 서명으로 archive를 만들고 내용을 확인한다(2026-10-07 통과: com.ailoworks.namefix, 1.0.0 build 6, arm64만, macOS 14.0, entitlement 셋, get-task-allow 없음, Hardened Runtime, ko/en/ja, 확인용 코드 문자열 0건, 실행 파일은 앱 하나). 이 archive는 제출용 서명이 아니다.
+- Info.plist의 스토어 항목: 분류 public.app-category.utilities, ITSAppUsesNonExemptEncryption false. eng/validate-marketing.py가 스토어 문구와 대조한다.
+- 접근 규칙과 권한 흐름: FILESYSTEM_CAPABILITIES.md의 ‘App Sandbox’, DESIGN.md의 ‘폴더 접근 요청’. 실제 sandbox 검증 도구: eng/test-sandbox.py.
+- 스토어 문구·심사 메모·entitlement 목록·App Privacy 답: marketing/appstore.json. 스크린샷 15장: artifacts/marketing/namefix/1.0.0/store(현재 화면과 문구 기준).
 
-사용자가 준비할 외부 입력:
-- Apple Distribution, Mac Installer Distribution 인증서(새 private key)와 Mac App Store provisioning profile. 이 Mac의 서명 identity는 Developer ID Application과 Apple Development뿐이다.
-- App Store Connect 접근(로그인·2FA 또는 API key)과 필요한 약관 동의.
-- App Store Connect의 앱 기록(이름 Moongchi NameFix, bundle ID com.ailoworks.namefix, SKU는 marketing/appstore.json).
+이 Mac의 서명 자산(2026-10-07, 이름만 확인):
+- Apple Development: AVAILABLE (private key 있음, 2027-09 만료)
+- Developer ID Application: AVAILABLE (과거 직접 배포용, 지금은 쓰지 않음)
+- Apple Distribution / Mac App Distribution / Mac Installer Distribution: MISSING — 자동 서명에서는 필요 없다
+- com.ailoworks.namefix의 provisioning profile: MISSING — 자동 서명이 만든다
+- Xcode 계정: 팀 25373G7846(개인) 등록됨. 로그인이 지금 유효한지는 확인하지 못했다
+- App ID와 App Store Connect 앱 기록: 로그인 없이는 읽을 수 없어 확인하지 못했다
 
-그 뒤의 순서: AppStore 구성 archive → 배포 인증서로 서명한 pkg → 검증·업로드 → 메타데이터·스크린샷·App Privacy 입력 → 심사 제출. 비밀번호, 인증서 private key, API key는 저장소 문서·스크립트·로그에 적지 않는다.
+사용자가 해야 하는 일(순서대로):
+1. Xcode › Settings › Accounts에서 Apple 계정이 로그인돼 있는지 확인한다(만료됐으면 다시 로그인).
+2. App Store Connect(appstoreconnect.apple.com) › 계약에서 필요한 약관이 모두 동의 상태인지 확인한다. 무료 앱이면 무료 앱 계약만 있으면 된다.
+3. AI에게 “서명 archive 진행”이라고 말한다. AI가 eng/archive-store.sh --signed를 실행하면 Xcode가 App ID와 스토어용 profile을 만들고 서명된 pkg를 내보낸다. 업로드는 하지 않는다.
+4. App Store Connect › 앱 › + › 신규 앱: 플랫폼 macOS, 이름 Moongchi NameFix, 기본 언어 한국어, 번들 ID com.ailoworks.namefix(3번 뒤에 목록에 나온다), SKU AILOWORKS-NAMEFIX-MAC-100.
+5. 그 뒤 업로드와 메타데이터·스크린샷·App Privacy 입력, 심사 제출은 다음 단계에서 한다.
+
+비밀번호, 2FA 코드, 인증서 private key, API key는 채팅·저장소 문서·스크립트·로그에 적지 않는다.
+
+알려진 확인 거리: 한국어·일본어 키워드는 글자 수로는 한도 안이지만 byte로는 100을 넘는다(ko 139, ja 117). App Store Connect가 입력을 거부하면 그 자리에서 줄이고 marketing/appstore.json도 맞춘다.
 
 ## 웹사이트
 
