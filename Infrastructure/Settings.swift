@@ -34,6 +34,9 @@ public struct AppSettings: Codable, Sendable, Equatable {
     public var favoriteFolders: [FavoriteFolder]? = nil // Optional for existing schema-1 settings.
     /// For a sandboxed app: the way back to each remembered recent folder, by its path. Optional for existing settings.
     public var recentAccess: [String: Data]? = nil
+    /// The user's choice to trade the strongest durability of the operation record for speed (D-036). Optional for existing settings.
+    public var fastRename: Bool? = nil
+    public var renamesFast: Bool { get { fastRename ?? false } set { fastRename = newValue ? true : nil } }
     public init() {}
     public var valid: Bool { schemaVersion == 1 && platform == "macOS" && ["system", "ko-KR", "en-US", "ja-JP"].contains(language) && ["dark", "light", "olive", "system"].contains(theme) && (1...1000).contains(historyLimit) && nameColumnRatio.isFinite && (25...75).contains(nameColumnRatio) && recentFolders.count <= 10 && (favoriteFolders ?? []).count <= AppSettings.favoriteLimit && Set((favoriteFolders ?? []).map(\.id)).count == (favoriteFolders ?? []).count }
     public static let favoriteLimit = 100

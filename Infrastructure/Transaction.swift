@@ -35,14 +35,20 @@ public actor TransactionCoordinator {
             guard try FS.rawDirectoryPath(fd) == op.source.parent else { throw FSError("SourceChanged") }
         }
     }
-    public func execute(_ plan: RenamePlan, token: CancellationToken, progress: @Sendable (TransactionProgress) -> Void = { _ in }) throws -> TransactionSummary {
+    /// Whether every folder of the plan is on a built-in drive. An external drive can be unplugged
+    /// at any moment, so the faster record is never used there.
+    public static func builtIn(_ operations: [RenameOperation]) -> Bool {
+        Set(operations.map(\.source.parent)).allSatisfy { (try? URL(fileURLWithPath: $0.display, isDirectory: true).resourceValues(forKeys: [.volumeIsInternalKey]).volumeIsInternal) == true }
+    }
+    public func execute(_ plan: RenamePlan, token: CancellationToken, fast: Bool = false, progress: @Sendable (TransactionProgress) -> Void = { _ in }) throws -> TransactionSummary {
+        let fast = fast && Self.builtIn(plan.operations)
         let lockFD = open(store.root.appendingPathComponent("transaction.lock").path, O_CREAT | O_RDWR | O_NOFOLLOW | O_CLOEXEC, 0o600)
         guard lockFD >= 0 else { throw FSError("JournalWriteFailed") }
         defer { close(lockFD) }
         guard flock(lockFD, LOCK_EX | LOCK_NB) == 0 else { throw FSError("BusyDropRejected") }
         defer { flock(lockFD, LOCK_UN) }
-        if Self.needsGraph(plan.operations) { return try executeGraph(plan, token: token, progress: progress) }
-        let journal = try JournalWriter(url: store.journalURL(plan.id))
+        if Self.needsGraph(plan.operations) { return try executeGraph(plan, token: token, fast: fast, progress: progress) }
+        let journal = try JournalWriter(url: store.journalURL(plan.id), fast: fast)
         var summary = TransactionSummary(id: plan.id, date: Date(), mode: plan.mode, total: plan.operations.count, succeeded: 0, failed: 0, status: "Prepared")
         try store.save(summary)
         try journal.append("TransactionPrepared")

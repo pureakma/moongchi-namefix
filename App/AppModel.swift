@@ -373,6 +373,7 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
     }
     /// Menu and menu-bar commands must not stack a sheet on a confirmation, result or running rename.
     func present(_ name: String) { guard plan == nil, result == nil, !mutating else { return }; sheet = name }
+    static let fastTipKey = "NameFix.fastRenameTipShown"
     func dismissResult() { result = nil; flushQueued() }
     func cancelPreview() { plan = nil; flushQueued() }
     func flushQueued() {
@@ -598,10 +599,10 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
         self.plan = nil; phase = plan.mode == "rename" ? "ActivityRename" : plan.mode == "undo" ? "ActivityUndo" : "Recovery"
         completed = 0; total = plan.operations.count; started = Date(); cancelled = false
         transactionToken = CancellationToken(); let token = transactionToken
-        let recipient = self
+        let recipient = self, fast = settings.renamesFast
         worker = Task { [weak self] in
             do {
-                let summary = try await coordinator.execute(plan, token: token) { progress in
+                let summary = try await coordinator.execute(plan, token: token, fast: fast) { progress in
                     Task { @MainActor [recipient] in recipient.completed = progress.completed; recipient.total = progress.total; recipient.current = progress.current }
                 }
                 guard let self else { return }
@@ -623,6 +624,10 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
                     } catch { message = (error as? FSError)?.code ?? "HistoryWarning" }
                 }
                 keepGrants(for: summary.id, operations: plan.operations)
+                // Once, after a long run with the safest record: say that Settings has a faster way.
+                if !fast, plan.operations.count >= 200, Date().timeIntervalSince(started) >= 5, message == nil, !UserDefaults.standard.bool(forKey: Self.fastTipKey) {
+                    message = "FastRenameTip"; UserDefaults.standard.set(true, forKey: Self.fastTipKey)
+                }
                 phase = ""; result = summary; transactionFinished?(summary)
                 if settings.diagnostics { do { try await diagnosticLog.record(code: summary.status, transaction: summary.id, count: summary.succeeded) } catch { message = "DiagnosticsError" } }
                 await reloadHistory()

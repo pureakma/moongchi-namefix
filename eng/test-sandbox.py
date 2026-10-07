@@ -14,6 +14,7 @@ it creates are attached or detached.
   eng/test-sandbox.py --direct     the same steps with the Debug app outside the sandbox (the direct edition's rules);
                                    its records go to a folder this script makes, never to the user's
   eng/test-sandbox.py --scroll     scroll a 1,200-row list in the Debug app and print the time per step
+  eng/test-sandbox.py --speed      time 1,000 renames and their undo with the safe and the faster record
   eng/test-sandbox.py --compare    time the same work inside and outside the sandbox (both Debug apps must be built)
 """
 from pathlib import Path
@@ -21,10 +22,10 @@ import argparse, json, os, plistlib, subprocess, sys, tempfile, time, unicodedat
 
 root = Path(__file__).resolve().parent.parent
 app = root / ".build/xcode-sandbox/Build/Products/Debug/Moongchi NameFix.app"
-parser = argparse.ArgumentParser(); parser.add_argument("--no-build", action="store_true"); parser.add_argument("--compare", action="store_true"); parser.add_argument("--direct", action="store_true"); parser.add_argument("--scroll", action="store_true"); options = parser.parse_args()
+parser = argparse.ArgumentParser(); parser.add_argument("--no-build", action="store_true"); parser.add_argument("--compare", action="store_true"); parser.add_argument("--direct", action="store_true"); parser.add_argument("--scroll", action="store_true"); parser.add_argument("--speed", action="store_true"); options = parser.parse_args()
 plain = root / ".build/xcode/Build/Products/Debug/Moongchi NameFix.app"
 sandboxed = not options.direct
-if options.scroll: options.direct = True; sandboxed = False
+if options.scroll or options.speed: options.direct = True; sandboxed = False
 if not options.no_build and not options.compare:
     subprocess.run([str(root / "eng/build.sh"), "--configuration", "Debug", "--arch", "arm64"] + (["--sandbox-debug"] if sandboxed else []), cwd=root, check=True, stdout=subprocess.DEVNULL)
 def granted(application):
@@ -53,7 +54,7 @@ def fixture(folder):
     os.symlink("../outside", folder / "escape")
 
 log = []
-def step(work, phase, target=None, ready=None, application=None, shown=False):
+def step(work, phase, target=None, ready=None, application=None, shown=False, more=()):
     """Launches the app once and returns the facts it reported."""
     application = application or (app if sandboxed else plain)
     out = work / f"report-{len(log):02d}-{phase}.txt"
@@ -61,7 +62,7 @@ def step(work, phase, target=None, ready=None, application=None, shown=False):
     # Outside the sandbox the app would use the user's own records: it is always given a folder of this run instead.
     extra = [] if application == app else ["--probe-support", str(work / "support")]
     # `shown` leaves the window on screen, behind the other apps, so its sheets really open.
-    command = ["open", "-g", "-W", "-n"] + ([] if shown else ["-j"]) + ["-a", str(application)] + targets + ["--stdout", str(out), "--stderr", str(work / "stderr.txt"), "--args", "--skip-onboarding", "--sandbox-probe", phase, *extra]
+    command = ["open", "-g", "-W", "-n"] + ([] if shown else ["-j"]) + ["-a", str(application)] + targets + ["--stdout", str(out), "--stderr", str(work / "stderr.txt"), "--args", "--skip-onboarding", "--sandbox-probe", phase, *extra, *more]
     process = subprocess.Popen(command)
     try:
         if ready:
@@ -101,6 +102,18 @@ if options.scroll:
         f = step(work, "scroll", many, application=plain, shown=True)
         for key in ("draw", "between", "both"): print(key.ljust(8), json.dumps(f.get(key)))
         print("rows", f.get("rows"), "height", f.get("height"))
+    sys.exit(0)
+if options.speed:
+    # 1,000 renames and their undo with the safest record and with the faster one (Settings, D-036).
+    for label, more in [("safe", []), ("fast", ["--probe-fast"])]:
+        with tempfile.TemporaryDirectory(prefix="namefix-sandbox-", dir="/private/tmp") as temporary:
+            work = Path(temporary); big = work / "big"; small = work / "small"; big.mkdir(); small.mkdir()
+            for i in range(10_000): touch(big, nfd(f"보고서 é {i:05d}.txt"))
+            for i in range(1_000): touch(small, nfd(f"사진 é {i:04d}.jpg"))
+            before = listing(small)
+            f = step(work, "profile", [big, small], application=plain, more=more)
+            assert f.get("renamed") == 1000 and f.get("undone") == 1000 and f["fastSetting"] == (label == "fast") and listing(small) == before, f
+            print(label.ljust(6), "rename 1,000:", f["rename"], "s   undo 1,000:", f["undo"], "s")
     sys.exit(0)
 if options.compare:
     # The same folders, the same steps, once inside the sandbox and once outside it.

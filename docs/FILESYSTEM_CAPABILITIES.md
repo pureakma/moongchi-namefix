@@ -94,6 +94,10 @@ NameRules.windowsIssues가 read-only로 진단한다: 예약 문자(< > : " / \ 
 - identity가 불명확한 파일을 이름만 보고 자동 복원하지 않는다.
 - 테스트 mutation은 전용 disposable fixture에서 수행하고 사용자 실데이터를 자동 fixture로 사용하지 않는다.
 
+## 작업 기록의 확정 수준
+
+기본은 항목의 기록 다섯 개를 각각 F_FULLFSYNC로 확정한다. 사용자가 설정에서 ‘이름을 더 빠르게 바꾸기’를 켜면 내장 드라이브에서만 항목 기록을 F_BARRIERFSYNC로 쓴다(D-036). 작업의 첫 기록, 실패 기록, 마지막 기록은 어느 쪽이든 F_FULLFSYNC다. 빠른 방식에서 전원이 끊기면 기록의 끝부분이 없을 수 있고, 남은 기록은 앞부분 그대로여서 Recovery가 기록된 항목의 현재 위치를 찾는다(통합 test). 기록에 없는 마지막 항목은 Undo 대상이 아니다. 외장 드라이브와 CLI는 항상 기본 방식이다.
+
 ## APFS와 Unicode
 
 APFS의 lookup 동등성과 실제 저장된 raw spelling을 같은 것으로 취급하지 않는다. Swift String의 canonical equality 역시 파일 이름의 raw bytes 동일성을 뜻하지 않는다.

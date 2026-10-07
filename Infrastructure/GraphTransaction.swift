@@ -11,8 +11,8 @@ extension TransactionCoordinator {
         return operations.contains { op in sources[key(parent: op.source.parent, name: op.destination)].map { $0 != op.id } ?? false }
     }
     // Caller holds the same process lock as the normal transaction path.
-    func executeGraph(_ plan: RenamePlan, token: CancellationToken, progress: @Sendable (TransactionProgress) -> Void) throws -> TransactionSummary {
-        let journal = try JournalWriter(url: store.journalURL(plan.id))
+    func executeGraph(_ plan: RenamePlan, token: CancellationToken, fast: Bool = false, progress: @Sendable (TransactionProgress) -> Void) throws -> TransactionSummary {
+        let journal = try JournalWriter(url: store.journalURL(plan.id), fast: fast)
         var summary = TransactionSummary(id: plan.id, date: Date(), mode: plan.mode, total: plan.operations.count, succeeded: 0, failed: 0, status: "Prepared")
         try store.save(summary); try journal.append("TransactionPrepared")
         let groups = Dictionary(grouping: plan.operations, by: { $0.source.parent }).sorted { $0.key.depth > $1.key.depth }

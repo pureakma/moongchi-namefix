@@ -2164,6 +2164,31 @@
       "command": "eng/test.sh --level 3; eng/test-sandbox.py --scroll; --render-ux; eng/build.sh Debug, Release and AppStore",
       "evidencePath": "artifacts/evidence/user-qa",
       "notes": "Fixes from the user QA session (T-010): the result list is an AppKit table with self-drawing cells instead of a SwiftUI Table, and a tree folder opens or closes on double-click. Scroll measurement by the app itself over 1,200 rows (Debug): median step 42 ms -> 8 ms, steps over 16 ms 983 -> 2-3, longest 11.7 s -> 0.07 s. 147 tests, 0 failures; 72 representative screens render; Debug, Release and AppStore build. Keyboard, context menu and column resizing of the new list are not exercised by automation and wait for the user. The eleven real-run scenarios of MAC-FINAL-RC-GATE-20261007 were not rerun. Not User QA."
+    },
+    {
+      "validationId": "MAC-USER-QA-FAST-RENAME-20261007",
+      "status": "PASS",
+      "configuration": "Debug",
+      "architecture": "arm64",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "Package.swift",
+        "project.yml",
+        "eng/test-sandbox.py",
+        "eng/test.sh",
+        "eng/build.sh"
+      ],
+      "sourceFingerprint": "0276830b49208835626c2a2610c386137aa51b2a5cc30eb7d9cc886c010d44a2",
+      "testFingerprint": "84cfcdd8780e3147318009e4a56e26525ecb3d6a78f4c8d2e57c1daf81ee7366",
+      "timestamp": "2026-10-07T04:02:37.755201+00:00",
+      "command": "eng/test.sh --level 3; eng/test-sandbox.py --speed; eng/resources.py + eng/validate-resources.py; --render-ux; eng/build.sh Debug, Release and AppStore",
+      "evidencePath": "artifacts/evidence/user-qa",
+      "notes": "D-036: the user's setting 'Rename faster' (off by default) writes the records of an item with F_BARRIERFSYNC on built-in drives; first, failure and last records stay F_FULLFSYNC. 148 tests, 0 failures, incl. same events as the safe record and recovery from a record that lost its tail. Real app, 1,000 names: rename 9.7 s and undo 9.5 s with the setting on. 560 keys x 3 languages PASS; 72 screens render; Debug, Release and AppStore build. A real power cut was not produced. The volume matrix and the sandbox scenarios were not rerun. Not User QA."
     }
   ]
 }

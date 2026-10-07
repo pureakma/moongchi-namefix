@@ -276,6 +276,8 @@ import NameFixApplication
             _ = await settle(model) { model.entries.count > 11_000 }
             guard model.roots.count == 2, let big = model.roots.first(where: { $0.display.hasSuffix("big") }), let small = model.roots.first(where: { $0.display.hasSuffix("small") }) else { finish(facts) }
             facts["entries"] = model.entries.count
+            if CommandLine.arguments.contains("--probe-fast") { model.changeSettings { $0.renamesFast = true }; _ = await settle(model) }
+            facts["fastSetting"] = model.settings.renamesFast
             facts["scan"] = await timed(model, { model.scan() }, until: { model.entries.count > 11_000 })
             let all = model.visible.count
             facts["filter"] = await timed(model, { model.query = "999" }, until: { model.visible.count != all })

@@ -354,7 +354,7 @@ struct StatusLine: View {
     let palette: Palette
     var showsCounts = true
     @State private var showsNotice = false
-    private static let informational: Set<String> = Set(["Exported", "RecipeSaved", "QueuedInputs", "CancelBeforeClose", "FolderAccessNeeded", "UndoNeedsFolder"]).union(VolumeSupport.locationReasons)
+    private static let informational: Set<String> = Set(["Exported", "RecipeSaved", "QueuedInputs", "CancelBeforeClose", "FolderAccessNeeded", "UndoNeedsFolder", "FastRenameTip"]).union(VolumeSupport.locationReasons)
     var body: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: Metrics.gap) { parts }

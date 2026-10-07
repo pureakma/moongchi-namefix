@@ -162,6 +162,35 @@ final class TransactionTests: XCTestCase, @unchecked Sendable {
             try FS.verify(fd, raw: op.source.leaf, identity: op.identity)
         }
     }
+    /// The faster record (D-036): same events, same result, and a record that lost its tail to a
+    /// power cut is still a valid record that says where the unfinished item is.
+    func testFastRecordIsTheSameRecordAndSurvivesALostTail() async throws {
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        for name in ["a\u{301}.txt", "e\u{301}.txt", "o\u{301}.txt"] { _ = try create(root, name) }
+        let store = try JournalStore(root: root.appendingPathComponent("journal")), coordinator = TransactionCoordinator(store: store)
+        let plan = try plan(scan(root))
+        XCTAssertEqual(plan.operations.count, 3)
+        let result = try await coordinator.execute(plan, token: CancellationToken(), fast: true)
+        XCTAssertEqual(result.succeeded, 3); XCTAssertEqual(result.status, "Completed")
+        let replay = try store.replay(plan.id)
+        XCTAssertTrue(replay.valid)
+        let item = ["Prepared", "TemporaryRenamed", "FinalIntent", "FinalRenamed", "Verified"]
+        XCTAssertEqual(replay.events.map(\.state), ["TransactionPrepared"] + item + item + item + ["Completed"])
+        XCTAssertEqual(scan(root).filter { $0.status.fixable }.count, 0)
+        // A power cut: everything after the second item's FinalIntent never reached the disk.
+        let url = store.journalURL(plan.id), lines = try String(contentsOf: url, encoding: .utf8).split(separator: "\n")
+        try (lines.prefix(1 + 5 + 3).joined(separator: "\n") + "\n").write(to: url, atomically: false, encoding: .utf8)
+        let cut = try store.replay(plan.id)
+        XCTAssertTrue(cut.valid); XCTAssertEqual(cut.events.last?.state, "FinalIntent")
+        let inspection = try History.inspect(store: store, id: plan.id)
+        XCTAssertEqual(inspection.count, 2); XCTAssertTrue(inspection.allSatisfy { $0.current != nil }, "Every recorded item is found where it is now")
+        let recovery = try History.recovery(store: store, id: plan.id, generation: UUID())
+        XCTAssertFalse(recovery.operations.isEmpty)
+        let restored = try await coordinator.execute(recovery, token: CancellationToken())
+        XCTAssertEqual(restored.failed, 0)
+        // The faster record is refused where a drive can be unplugged: a disk image is not a built-in drive.
+        XCTAssertTrue(TransactionCoordinator.builtIn(plan.operations))
+    }
     func testTornJournalPreservedAndBlocksUndo() throws {
         let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
         let store = try JournalStore(root: root.appendingPathComponent("journal")), id = UUID()

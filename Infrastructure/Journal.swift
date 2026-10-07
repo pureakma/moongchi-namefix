@@ -16,6 +16,10 @@ public enum Durable {
         }
     }
     public static func sync(_ fd: Int32) throws { guard fsync(fd) == 0 else { throw FSError("JournalWriteFailed") }; guard fcntl(fd, F_FULLFSYNC) == 0 else { throw FSError("JournalWriteFailed") } }
+    /// Hands the data to the drive in order, ahead of anything written later, without waiting for
+    /// the drive to confirm it is on stable storage. A process crash loses nothing; a power cut may
+    /// lose the last records, never an earlier one while keeping a later one. Falls back to the full sync.
+    public static func ordered(_ fd: Int32) throws { if fcntl(fd, F_BARRIERFSYNC) != 0 { try sync(fd) } }
     public static func atomic<T: Encodable>(_ value: T, to url: URL) throws {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         let data = try encoder.encode(value)
@@ -59,7 +63,12 @@ public final class JournalWriter {
     private let fd: Int32
     private var sequence = 0
     private var previous = ""
-    public init(url: URL) throws {
+    private let fast: Bool
+    /// `fast` is the user's setting (D-036): the records of one item are written in order but not
+    /// each confirmed by the drive. The first record, every failure and the last record are still
+    /// confirmed, so a finished operation is fully on disk either way.
+    public init(url: URL, fast: Bool = false) throws {
+        self.fast = fast
         fd = open(url.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
         guard fd >= 0 else { throw FSError("JournalWriteFailed") }
         let dir = try FS.openDirectory(RawPath(url.deletingLastPathComponent().path)); defer { close(dir) }
@@ -72,7 +81,8 @@ public final class JournalWriter {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         let payload = try encoder.encode(event), checksum = Durable.hash(payload)
         var line = try encoder.encode(Envelope(payload: payload, checksum: checksum)); line.append(10)
-        try Durable.writeAll(fd, line); try Durable.sync(fd)
+        try Durable.writeAll(fd, line)
+        if fast, operation != nil, error == nil { try Durable.ordered(fd) } else { try Durable.sync(fd) }
         sequence += 1; previous = checksum
     }
 }

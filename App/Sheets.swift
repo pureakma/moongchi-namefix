@@ -220,6 +220,8 @@ struct SettingsView: View {
                 }
                 settingToggle("Recursive", \.recursive).disabled(model.busy || model.plan != nil)
                 settingToggle("ClearAfterRun", \.clearSelectionAfterRun)
+                settingToggle("FastRename", \.renamesFast).disabled(model.busy || model.plan != nil)
+                Text(model.t("FastRenameHelp")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
             }
             settingsSection("MacIntegration", icon: "menubar.rectangle") { IntegrationSettingsView(model: model) }
             settingsSection("Privacy", icon: "hand.raised") {

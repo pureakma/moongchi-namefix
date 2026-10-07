@@ -12788,6 +12788,98 @@
           }
         }
       }
+    },
+    "FastRename": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름을 더 빠르게 바꾸기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename faster"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名前の変更を高速にする"
+          }
+        }
+      }
+    },
+    "FastRenameHelp": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기본으로 꺼져 있습니다. 켜면 많은 파일을 몇 배 빠르게 바꿉니다. 파일 내용을 바꾸지 않고 덮어쓰지 않는 것은 그대로입니다. 다만 작업 도중 전원이 갑자기 꺼지면 마지막 몇 개 항목은 작업 기록에 남지 않아 직접 확인해야 할 수 있습니다. 외장 드라이브에서는 항상 안전한 방식으로 바꿉니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off by default. When on, large batches finish several times faster. File contents are still never changed and nothing is overwritten. If power is lost in the middle of an operation, the last few items may be missing from History and need to be checked by hand. External drives always use the safe method."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "初期設定ではオフです。オンにすると、多くのファイルを数倍速く変更します。ファイルの内容を変更せず、上書きもしない点は変わりません。ただし、操作の途中で突然電源が切れると、最後の数項目が履歴に残らず、手動での確認が必要になることがあります。外付けドライブでは常に安全な方法で変更します。"
+          }
+        }
+      }
+    },
+    "FastRenameTip": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파일이 많아 시간이 걸렸습니다. 설정에서 ‘이름을 더 빠르게 바꾸기’를 켜면 다음부터 몇 배 빨라집니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That took a while because there were many files. Turn on “Rename faster” in Settings to make it several times faster next time."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルが多かったため時間がかかりました。設定で「名前の変更を高速にする」をオンにすると、次回から数倍速くなります。"
+          }
+        }
+      }
+    },
+    "FastRenameTipShort": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정에서 더 빠르게 바꿀 수 있습니다"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Renaming can be made faster in Settings"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定で名前の変更を高速にできます"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
