@@ -61,12 +61,21 @@ import NameFixCore
 }
 @MainActor final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     static weak var shared: AppDelegate?
+    #if DEBUG
+    let model = AppModel(dataRoot: SandboxFixtures.supportOverride)
+    #else
     let model = AppModel()
+    #endif
     private var window: NSWindow?
     private var integration: MacIntegration?
     private var windowChrome: WindowChrome?
     private var sidebarController: MainSidebarController?
     private var observation: AnyCancellable?
+    private var folderObservation: AnyCancellable?
+    private var askingForFolder = false
+    #if DEBUG
+    private var openedByFinder: [URL] = []
+    #endif
     private var lastLanguage = ""
     private var lastTheme = ""
     private var quitting = false
@@ -95,18 +104,38 @@ import NameFixCore
         // The introduction opens on launch until the user ticks "don't show again".
         if !UserDefaults.standard.bool(forKey: OnboardingView.hiddenKey), !CommandLine.arguments.contains("--skip-onboarding") { model.sheet = "onboarding" }
         savePlacement()
-        NSApp.activate(ignoringOtherApps: true)
+        #if DEBUG
+        let probing = SandboxFixtures.phase != nil
+        #else
+        let probing = false
+        #endif
+        if !probing { NSApp.activate(ignoringOtherApps: true) }
         NSApp.servicesProvider = self
         observation = model.objectWillChange.sink { [weak self] _ in
             Task { @MainActor [weak self] in self?.applyAppearance() }
+        }
+        folderObservation = model.$folderRequest.removeDuplicates().sink { [weak self] request in
+            guard let request else { return }
+            Task { @MainActor [weak self] in self?.askForFolder(request) }
         }
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(woke), name: NSWorkspace.didWakeNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(screensChanged), name: NSApplication.didChangeScreenParametersNotification, object: nil)
         integration = MacIntegration(model: model)
         integration?.reveal = { [weak self] in self?.window?.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
         model.transactionFinished = { [weak self] summary in self?.integration?.finished(summary) }
-        Task { await model.start() }
         #if DEBUG
+        if let phase = SandboxFixtures.phase { SandboxFixtures.prepare(phase, dataRoot: model.dataRoot) }
+        #endif
+        #if DEBUG
+        Task { await model.start(); SandboxFixtures.readyAt = Date() }
+        #else
+        Task { await model.start() }
+        #endif
+        #if DEBUG
+        if let phase = SandboxFixtures.phase {
+            // Give Launch Services a moment to hand over what was opened with the app.
+            Task { try? await Task.sleep(for: .seconds(1.5)); await SandboxFixtures.run(phase, model: model, opened: openedByFinder) }
+        }
         if let flag = CommandLine.arguments.firstIndex(of: "--live-sidebar-check"), CommandLine.arguments.count > flag + 1 {
             liveSidebarCheck(folder: URL(fileURLWithPath: CommandLine.arguments[flag + 1]))
         }
@@ -199,6 +228,24 @@ import NameFixCore
         let panel = NSOpenPanel(); panel.canChooseDirectories = folders; panel.canChooseFiles = !folders; panel.allowsMultipleSelection = true; panel.resolvesAliases = false
         if let window { panel.beginSheetModal(for: window) { [weak self] response in if response == .OK { self?.model.add(panel.urls) } } }
     }
+    /// Asks for the one folder the app needs to be let into, saying why. Declining leaves
+    /// everything as it is; the notice in the status line offers the same choice again.
+    private func askForFolder(_ request: AppModel.FolderRequest) {
+        guard let window, !askingForFolder, model.folderRequest == request else { return }
+        #if DEBUG
+        if SandboxFixtures.phase != nil { return }   // the probe reads the request; no panel is shown
+        #endif
+        askingForFolder = true
+        let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.allowsMultipleSelection = false; panel.resolvesAliases = false
+        panel.directoryURL = request.folder; panel.prompt = model.t("AllowFolder")
+        panel.message = model.t(request.purpose == .input ? "FolderAccessMessage" : "UndoFolderMessage", request.folder.lastPathComponent)
+        window.makeKeyAndOrderFront(nil)
+        panel.beginSheetModal(for: window) { [weak self] response in
+            guard let self else { return }
+            askingForFolder = false
+            if response == .OK, let url = panel.url { model.allowFolder(url) } else { model.declineFolder() }
+        }
+    }
     /// Chooses folders to pin, or the new location of a favourite that could not be opened.
     func pickFavorite(replacing id: UUID? = nil) {
         let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.allowsMultipleSelection = id == nil; panel.resolvesAliases = false
@@ -210,7 +257,12 @@ import NameFixCore
             model.checkFavorites()
         }
     }
-    func application(_ application: NSApplication, open urls: [URL]) { model.add(urls, fromOS: true); window?.makeKeyAndOrderFront(nil) }
+    func application(_ application: NSApplication, open urls: [URL]) {
+        #if DEBUG
+        openedByFinder += urls
+        #endif
+        model.add(urls, fromOS: true); window?.makeKeyAndOrderFront(nil)
+    }
     @objc func inspectNames(_ pasteboard: NSPasteboard, userData: String?, error: AutoreleasingUnsafeMutablePointer<NSString?>) {
         guard let urls = pasteboard.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL], !urls.isEmpty else { error.pointee = model.t("NoInputs") as NSString; return }
         model.add(urls, fromOS: true); window?.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
@@ -230,6 +282,8 @@ import NameFixCore
         func menu(_ title: String) -> NSMenu { let item = NSMenuItem(title: title, action: nil, keyEquivalent: ""); let sub = NSMenu(title: title); item.submenu = sub; main.addItem(item); return sub }
         let app = menu("Moongchi NameFix")
         app.addItem(ActionItem(model.t("About")) { [weak self] in self?.model.present("about") })
+        // The app itself makes no connection: the browser opens the product page (D-029).
+        if !AppInfo.isAppStore, let page = AppInfo.productPage { app.addItem(ActionItem(model.t("CheckForUpdates") + "…") { NSWorkspace.shared.open(page) }) }
         app.addItem(ActionItem(model.t("Settings"), key: ",") { [weak self] in self?.model.present("settings") })
         let services = NSMenuItem(title: model.t("Services"), action: nil, keyEquivalent: ""); services.submenu = NSMenu(title: model.t("Services")); app.addItem(services); NSApp.servicesMenu = services.submenu
         app.addItem(.separator())

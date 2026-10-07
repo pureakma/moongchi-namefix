@@ -3,6 +3,12 @@ options:
   minimumXcodeGenVersion: 2.40.0
   deploymentTarget:
     macOS: '14.0'
+# Debug: development. Release: direct distribution (Developer ID, no sandbox).
+# AppStore: the same code for the Mac App Store, inside the App Sandbox.
+configs:
+  Debug: debug
+  Release: release
+  AppStore: release
 settings:
   base:
     ARCHS: arm64
@@ -15,8 +21,10 @@ settings:
     CODE_SIGN_STYLE: Manual
     ENABLE_HARDENED_RUNTIME: YES
     ENABLE_APP_SANDBOX: NO
+    # Read by the app from Info.plist: which edition this is.
+    NAMEFIX_DISTRIBUTION: direct
     MARKETING_VERSION: 1.0.0
-    CURRENT_PROJECT_VERSION: 5
+    CURRENT_PROJECT_VERSION: 6
 packages:
   Runtime:
     path: .
@@ -43,6 +51,13 @@ targets:
           PRODUCT_BUNDLE_IDENTIFIER: com.ailoworks.namefix
           # No debugging entitlement in what gets signed and notarized.
           CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
+        # Same identifier as the direct edition: one product, two ways to get it.
+        AppStore:
+          PRODUCT_BUNDLE_IDENTIFIER: com.ailoworks.namefix
+          CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
+          ENABLE_APP_SANDBOX: YES
+          CODE_SIGN_ENTITLEMENTS: App/NameFix-AppStore.entitlements
+          NAMEFIX_DISTRIBUTION: appstore
     dependencies:
       - package: Runtime
         product: NameFixApplication

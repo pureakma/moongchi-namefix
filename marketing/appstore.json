@@ -47,8 +47,16 @@
       "tracking": "none",
       "basis": "No networking code in the app; settings, favourites, presets, watch list and history are stored on the Mac. Support mail is sent by the user from their own mail app."
     },
-    "reviewNotes": "Moongchi NameFix renames files and folders only; it never changes file contents. To try it: drop a folder on the window, review the list, press the button at the bottom right, and confirm. Every run is kept in History, where it can be undone. All features are free; there is no account, purchase or network use. Renaming is limited to APFS disks (the Mac's internal disk and external APFS drives); exFAT and FAT drives, network drives and cloud-synced folders are shown but left unchanged.",
-    "whatsNew": null
+    "reviewNotes": "Moongchi NameFix renames files and folders only; it never changes file contents. To try it: choose a folder with File > Add Folder (or drop a folder on the window), review the list, press the button at the bottom right, and confirm. Every run is kept in History, where it can be undone, also after the app is reopened. The app uses the App Sandbox with user-selected read-write access and app-scoped bookmarks, and nothing else: no network, no account, no purchase. It works only in folders the user chose. A bookmark is kept for favourite folders, watched folders, remembered recent folders (off by default) and folders in which a rename can still be undone; it is dropped with the record. When a single file is added, the app asks the user to choose the folder that contains it, because a file can be renamed only through its folder. The name of the folder that was added is not changed; adding its parent folder makes that possible. Renaming is limited to APFS disks (the Mac's internal disk and external APFS drives); exFAT and FAT drives, network drives and cloud-synced folders are shown but left unchanged. All features are free.",
+    "whatsNew": null,
+    "sandbox": {
+      "entitlements": [
+        "com.apple.security.app-sandbox",
+        "com.apple.security.files.user-selected.read-write",
+        "com.apple.security.files.bookmarks.app-scope"
+      ],
+      "commandLineTool": "not included in the store edition"
+    }
   },
   "locales": {
     "ko": {

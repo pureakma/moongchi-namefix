@@ -51,7 +51,7 @@ for kind in kinds:
         try:
             if kind.startswith("apfs"):
                 # Every filesystem, transaction, recovery and coordination contract, on this volume.
-                tests("VolumeMatrixTests|FilesystemTests|TransactionTests|CoordinatedTransactionTests|SafetyTests|ExpansionTests", environment)
+                tests("VolumeMatrixTests|AccessRootsTests|FilesystemTests|TransactionTests|CoordinatedTransactionTests|SafetyTests|ExpansionTests", environment)
                 if options.performance:
                     tests("VolumeMatrixTests/testScanRenameAndUndoProfile|SafetyTests/testScanPerformanceProfile|CoordinatedTransactionTests/testThousandCoordinatedRenamesProfile|ExpansionPerformanceTests",
                           dict(environment, NAMEFIX_PERFORMANCE="1", NAMEFIX_MUTATION_PERF="1"))

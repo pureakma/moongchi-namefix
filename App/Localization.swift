@@ -9,6 +9,10 @@ enum AppInfo {
     /// The Moongchi site and the address for bug reports and questions.
     static let website = URL(string: "https://moongchi.ailoworks.com")
     static let support = URL(string: "mailto:ailo@ailoworks.com")
+    /// Where a newer version is announced. The app opens it in the browser and never contacts it itself.
+    static let productPage = URL(string: "https://moongchi.ailoworks.com/namefix/")
+    /// The Mac App Store edition is updated by the store, so it offers no update check of its own.
+    static var isAppStore: Bool { Bundle.main.object(forInfoDictionaryKey: "NameFixDistribution") as? String == "appstore" }
 }
 enum L10n {
     static func language(_ value: String) -> String {
