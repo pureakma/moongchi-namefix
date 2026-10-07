@@ -214,7 +214,7 @@ struct RuleEditor: View {
                 // Folders are left out unless asked for. When there are folders, say so here and offer the switch.
                 if draft.includeFolders != true, model.entries.contains(where: { $0.isDirectory && $0.reason == "FolderExcluded" }) {
                     Text(model.t("FolderExcluded")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
-                    Button(model.t("IncludeFolders")) { draft.includeFolders = true }.controlSize(.small).accessibilityIdentifier("includeFoldersHint")
+                    Button(model.t("IncludeFolders")) { draft.includeFolders = true; model.usePipeline(model.workbenchDraft) }.controlSize(.small).accessibilityIdentifier("includeFoldersHint")
                 }
             }.padding(.horizontal, 8)
         }
@@ -447,6 +447,7 @@ struct RuleFields: View {
     @ObservedObject var model: AppModel
     @Binding var rule: RenameRule
     let palette: Palette
+    @FocusState private var focus: String?
     // RuleScope.name shares its raw value with the "Current name" column title.
     private func scopeKey(_ scope: RuleScope) -> String { scope == .name ? "ScopeFullName" : scope.rawValue }
     private func field(_ key: String, _ text: Binding<String>) -> some View {
@@ -458,7 +459,12 @@ struct RuleFields: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.control) {
             switch rule.kind {
-            case .replace: field("FieldFind", $rule.text); field("FieldReplaceWith", $rule.replacement)
+            case .replace:
+                // Tab goes from what to find straight to what to put there, and Shift-Tab back.
+                field("FieldFind", $rule.text).focused($focus, equals: "find")
+                    .onKeyPress(.tab, phases: .down) { press in if press.modifiers.contains(.shift) { return .ignored }; focus = "replace"; return .handled }
+                field("FieldReplaceWith", $rule.replacement).focused($focus, equals: "replace")
+                    .onKeyPress(.tab, phases: .down) { press in guard press.modifiers.contains(.shift) else { return .ignored }; focus = "find"; return .handled }
             case .prefix, .suffix: field("FieldAddText", $rule.text)
             case .insert:
                 field("FieldAddText", $rule.text)

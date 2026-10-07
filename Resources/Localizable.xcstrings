@@ -12880,6 +12880,52 @@
           }
         }
       }
+    },
+    "SummaryFilterHelp": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "누르면 이 항목만 목록에 표시합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click to list only these."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クリックすると、この項目だけを一覧に表示します。"
+          }
+        }
+      }
+    },
+    "SummaryFilterOn": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 항목만 표시 중입니다. 다시 누르면 전체를 표시합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listing only these. Click again to list everything."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この項目だけを表示しています。もう一度クリックするとすべて表示します。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

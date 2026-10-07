@@ -252,6 +252,10 @@ struct MainView: View {
                 .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(active ? palette.accent : palette.border, lineWidth: 1))
                 .contentShape(Rectangle())
         }.buttonStyle(.plain).fixedSize().accessibilityLabel(model.t(key) + " " + model.n(count)).accessibilityAddTraits(active ? .isSelected : [])
+            // With nothing to show, narrowing the list would only empty it; a chip that is on can always be turned off.
+            .disabled(count == 0 && !active)
+            .help(model.t(active ? "SummaryFilterOn" : "SummaryFilterHelp"))
+            .accessibilityHint(model.t(active ? "SummaryFilterOn" : "SummaryFilterHelp"))
     }
     private var searchField: some View {
         TextField(model.t("Search"), text: $model.query).textFieldStyle(.roundedBorder).focused($searchFocused).frame(minWidth: 120).accessibilityIdentifier("search")

@@ -468,6 +468,8 @@
 "SumReplace" = "「{0}」→「{1}」";
 "SumSpaces" = "連続する空白を1つに";
 "SumSuffix" = "末尾に「{0}」";
+"SummaryFilterHelp" = "クリックすると、この項目だけを一覧に表示します。";
+"SummaryFilterOn" = "この項目だけを表示しています。もう一度クリックするとすべて表示します。";
 "SummarySelected" = "選択";
 "System" = "システムに合わせる";
 "TabSeparated" = "タブ区切り（TSV）";

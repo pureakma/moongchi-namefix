@@ -468,6 +468,8 @@
 "SumReplace" = "“{0}” → “{1}”";
 "SumSpaces" = "Collapse repeated spaces";
 "SumSuffix" = "“{0}” at the end";
+"SummaryFilterHelp" = "Click to list only these.";
+"SummaryFilterOn" = "Listing only these. Click again to list everything.";
 "SummarySelected" = "Selected";
 "System" = "System default";
 "TabSeparated" = "Tab-separated (TSV)";

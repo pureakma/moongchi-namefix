@@ -468,6 +468,8 @@
 "SumReplace" = "‘{0}’ → ‘{1}’";
 "SumSpaces" = "여러 칸 공백을 한 칸으로";
 "SumSuffix" = "뒤에 ‘{0}’";
+"SummaryFilterHelp" = "누르면 이 항목만 목록에 표시합니다.";
+"SummaryFilterOn" = "이 항목만 표시 중입니다. 다시 누르면 전체를 표시합니다.";
 "SummarySelected" = "선택";
 "System" = "시스템 기본값";
 "TabSeparated" = "탭으로 구분 (TSV)";
