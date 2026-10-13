@@ -227,7 +227,6 @@
 "MappingRowError" = "CSVの{0}行目：{1}";
 "MappingUnmatched" = "この項目は読み込んだリストにありません。";
 "MaskPaths" = "ファイル名とパスを隠す（推奨）";
-"MenuBarHelp" = "クリックしてメニューを開きます。";
 "MenuBringAllToFront" = "すべてを手前に移動";
 "MenuCloseWindow" = "ウインドウを閉じる";
 "MenuCopy" = "コピー";
@@ -317,7 +316,6 @@
 "OnbTitle3" = "複数のファイル名を、ルールでまとめて変更";
 "OnbTitle4" = "すべての機能が無料、処理はこのMacの中だけ";
 "OpenLoginSettings" = "ログイン項目の設定を開く";
-"OpenNameFix" = "NameFixを開く";
 "OperationError" = "処理を完了できませんでした。履歴で結果を確認してから、再スキャンしてください。問題が繰り返す場合は、「ヘルプ」>「診断レポートを書き出す」を利用できます。";
 "OperationErrorShort" = "処理に失敗";
 "OrderManual" = "手動で並べる";
@@ -451,7 +449,6 @@
 "SettingsWarningShort" = "設定を読み込めません";
 "ShowInFinder" = "Finderで表示";
 "ShowIntro" = "アプリの紹介を見る";
-"ShowMenuBar" = "メニューバーに表示";
 "ShownCount" = "{1}件中{0}件を表示";
 "Sort" = "並べ替え";
 "SourceChanged" = "スキャンのあとに項目が変更されたため、除外しました。再スキャンしてください。";

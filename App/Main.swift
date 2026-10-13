@@ -121,7 +121,6 @@ import NameFixCore
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(woke), name: NSWorkspace.didWakeNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(screensChanged), name: NSApplication.didChangeScreenParametersNotification, object: nil)
         integration = MacIntegration(model: model)
-        integration?.reveal = { [weak self] in self?.window?.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true) }
         model.transactionFinished = { [weak self] summary in self?.integration?.finished(summary) }
         #if DEBUG
         if let phase = SandboxFixtures.phase { SandboxFixtures.prepare(phase, dataRoot: model.dataRoot) }
@@ -174,7 +173,6 @@ import NameFixCore
         }
     }
     #endif
-    func refreshIntegration() { integration?.refresh() }
     private func savePlacement() {
         guard let window, !fullScreenTransition, !adjustingScreen, !window.styleMask.contains(.fullScreen), !window.isMiniaturized,
               let screen = window.screen ?? NSScreen.main else { return }
@@ -221,7 +219,7 @@ import NameFixCore
             window?.appearance = NSApp.appearance
             window?.backgroundColor = NSColor(Palette(lastTheme, systemDark: NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua).sidebar)
         }
-        if lastLanguage != model.settings.language { lastLanguage = model.settings.language; buildMenus(); integration?.refresh() }
+        if lastLanguage != model.settings.language { lastLanguage = model.settings.language; buildMenus() }
     }
     func pick(folders: Bool) {
         guard model.canInput else { model.message = "BusyDropRejected"; return }

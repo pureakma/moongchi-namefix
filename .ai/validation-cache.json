@@ -2372,6 +2372,30 @@
       "command": "eng/test.sh --level 3; eng/test-volumes.py; eng/test-sandbox.py; eng/test-sandbox.py --direct; eng/validate-resources.py; eng/validate-marketing.py; eng/build.sh AppStore; eng/archive-store.sh --preflight; --render-ux/shell/responsive/expansion",
       "evidencePath": "artifacts/evidence/prerelease-review",
       "notes": "Gate after the fixes from the re-review of the first review's fixes (T-013), 1.0.0 build 6 source. Two fresh read-only reviewers covered the access and journal fixes and the list and screen fixes: no P0, no P1, P2 only. Fixed: kept access is reused for a folder whose name is stored joined; an undo record whose folder was respelled since is refused once instead of asked for without end; a folder that is not wanted is never registered and leaves a moved grant's place as it was; a dead descriptor is exchanged when the same folder is allowed again; only grants that really lead there count as cover (new lookup, the display of a moved folder unchanged); a journal line that stops halfway is taken out by the writer (test forces a short write with a file size limit and fails without the fix); mount point compared apart from case and composition; the keyboard stays in place only after the user's own untick, a held Space ticks once; folder-only lists show the folder hint instead of the sample; one-line name box restored; Tab moves on while a Hangul syllable is being typed and is left to the input method while kana is chosen; no row menu below the rows and the menu keeps the item; notice buttons disabled while busy and a rescan when kept access already covers the folder; details through the same guard as menu commands; tooltips everywhere in the row of pieces. Not changed: the brief flash when double-clicking an already chosen folder (P2, trade-off recorded). In-app checks in place of hands-on QA (screen control was not granted): the real folder panel shown and cancelled in the sandbox, key events to the list, accessibility attributes read in-process (found and fixed an empty cell role), Tab in the rule fields. 161 tests, 0 failures; 4 volume kinds; 18 real sandbox scenarios and 17 outside; AppStore build and preflight archive arm64 only; 238 renders. Not done here: choosing a folder inside the system panel, VoiceOver, physical cable pull, network and iCloud locations, native-speaker review. Not User QA."
+    },
+    {
+      "validationId": "MAC-MENUBAR-REMOVAL-20261013",
+      "status": "PASS",
+      "configuration": "AppStore",
+      "architecture": "arm64",
+      "scope": [
+        "App/**/*.swift",
+        "App/Info.plist",
+        "App/NameFix-AppStore.entitlements",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "project.yml",
+        "eng/test-sandbox.py",
+        "eng/build.sh",
+        "eng/archive-store.sh",
+        "eng/validate-resources.py"
+      ],
+      "sourceFingerprint": "39e5ba28ab3f5ada5460928b1b9a849e12d137c141ac4742f5a23535e98279b4",
+      "testFingerprint": "0d8723dce8c02aadee1d5d7bc27cedfea7805ef007c51b66b82cf07e20439fa3",
+      "timestamp": "2026-10-13T13:44:13.533265+00:00",
+      "command": "eng/test.sh --scope ui-model; eng/test-sandbox.py; eng/validate-resources.py; eng/build.sh AppStore; eng/archive-store.sh --preflight; --render-ux/shell/responsive/expansion",
+      "evidencePath": "artifacts/evidence/menubar-removal",
+      "notes": "Menu bar icon removed (T-014, D-041): the status item, its menu, dropping files on it, the 'Show in menu bar' setting and three message keys. Launch at login, completion alerts and staying open without a window are unchanged. Only what the change touches was rerun: 16 UI model tests, 18 real sandbox scenarios, 568 keys in three locales, AppStore build and preflight archive (arm64 only, three entitlements, no probe strings, no NSStatusBar/NSStatusItem reference, removed keys absent from the bundle), 238 renders. Reused from MAC-PRERELEASE-REREVIEW-GATE-20261013 because Infrastructure, Application, Core and their tests did not change: integration and core tests, the four volume kinds, the run outside the sandbox, store metadata. Not done: looking at the menu bar and the Mac integration settings in a running app (the renders do not show that part of the settings). Not User QA."
     }
   ]
 }

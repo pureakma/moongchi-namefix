@@ -227,7 +227,6 @@
 "MappingRowError" = "CSV row {0}: {1}";
 "MappingUnmatched" = "This item is not in the imported list.";
 "MaskPaths" = "Hide filenames and paths (recommended)";
-"MenuBarHelp" = "Click to open the menu.";
 "MenuBringAllToFront" = "Bring All to Front";
 "MenuCloseWindow" = "Close Window";
 "MenuCopy" = "Copy";
@@ -317,7 +316,6 @@
 "OnbTitle3" = "Rename many files with simple rules";
 "OnbTitle4" = "Every feature is free, and everything stays on this Mac";
 "OpenLoginSettings" = "Open Login Items Settings";
-"OpenNameFix" = "Open NameFix";
 "OperationError" = "The operation could not finish. Check the result in History, then rescan. If the problem keeps happening, choose Help → Export Diagnostic Report.";
 "OperationErrorShort" = "Operation failed";
 "OrderManual" = "Manual order";
@@ -451,7 +449,6 @@
 "SettingsWarningShort" = "Couldn’t read settings";
 "ShowInFinder" = "Show in Finder";
 "ShowIntro" = "Show Introduction";
-"ShowMenuBar" = "Show in menu bar";
 "ShownCount" = "Showing {0} of {1}";
 "Sort" = "Sort by";
 "SourceChanged" = "This item changed after scanning and was skipped. Rescan.";

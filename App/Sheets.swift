@@ -223,7 +223,7 @@ struct SettingsView: View {
                 settingToggle("FastRename", \.renamesFast).disabled(model.busy || model.plan != nil)
                 Text(model.t("FastRenameHelp")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
             }
-            settingsSection("MacIntegration", icon: "menubar.rectangle") { IntegrationSettingsView(model: model) }
+            settingsSection("MacIntegration", icon: "desktopcomputer") { IntegrationSettingsView(model: model) }
             settingsSection("Privacy", icon: "hand.raised") {
                 settingToggle("RememberFolders", \.rememberRecentFolders)
                 Text(model.t("RecentPrivacy")).font(.caption).foregroundStyle(palette.secondary)
