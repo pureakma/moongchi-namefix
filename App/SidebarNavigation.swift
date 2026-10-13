@@ -316,7 +316,9 @@ private struct FolderBranch: View {
             FolderRow(palette: palette, icon: node.isDirectory ? "folder" : "doc", name: node.name, pending: node.pending, depth: depth,
                       selected: model.folderFilter == node.id, expanded: node.children == nil ? nil : $expanded,
                       pendingLabel: model.t("TreePending", model.n(node.pending)),
-                      closeLabel: node.isRoot ? model.t("RemoveInput") : nil, close: { model.remove(node.id) }) {
+                      closeLabel: node.isRoot ? model.t("RemoveInput") : nil, close: { model.remove(node.id) },
+                      // The two clicks choose the folder and let go of it again; a double-click ends with it chosen.
+                      doubled: { if model.folderFilter != node.id { model.folderFilter = node.id } }) {
                 model.folderFilter = model.folderFilter == node.id ? nil : node.id
             }
             .help(node.id.display)
@@ -383,6 +385,8 @@ private struct FolderRow: View {
     let pendingLabel: String
     var closeLabel: String? = nil
     var close: () -> Void = {}
+    /// Runs after a double-click, once both clicks have run `action`.
+    var doubled: () -> Void = {}
     let action: () -> Void
     @State private var hovering = false
     var body: some View {
@@ -401,7 +405,8 @@ private struct FolderRow: View {
                 }.frame(maxWidth: .infinity, minHeight: 22, alignment: .leading).contentShape(Rectangle())
             }.buttonStyle(.plain).accessibilityAddTraits(selected ? .isSelected : [])
                 // Double-clicking a folder opens or closes it, as in Finder's sidebar lists.
-                .simultaneousGesture(TapGesture(count: 2).onEnded { expanded?.wrappedValue.toggle() })
+                // Each of the two clicks also runs the action; `doubled` says where the double-click should end.
+                .simultaneousGesture(TapGesture(count: 2).onEnded { expanded?.wrappedValue.toggle(); DispatchQueue.main.async(execute: doubled) })
             // Added items can be closed one by one; the button shows while the pointer is on the row.
             if let closeLabel, hovering || selected {
                 Button(action: close) { Image(systemName: "xmark").font(.system(size: 9, weight: .semibold)).frame(width: 16, height: 22).contentShape(Rectangle()) }

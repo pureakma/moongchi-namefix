@@ -255,6 +255,8 @@ import NameFixApplication
             // Files handed over on their own. Each folder that is needed is asked for once, in turn.
             _ = await settle(model) { !model.entries.isEmpty }
             var asked: [[String: Any]] = []
+            // How the handed-over path spells the item's folder, against how the system spells it once it can be read.
+            facts["arrivedParent"] = opened.first.map { Data($0.deletingLastPathComponent().lastPathComponent.utf8).map { String(format: "%02x", $0) }.joined() } ?? ""
             if CommandLine.arguments.contains("--probe-decline-first"), model.folderRequest != nil {
                 model.declineFolder(); _ = await settle(model)
                 facts["messageAfterCancel"] = model.message ?? ""; facts["fixableAfterCancel"] = model.entries.filter { $0.status.fixable }.count; facts["entriesAfterCancel"] = model.entries.count
@@ -267,6 +269,7 @@ import NameFixApplication
             }
             _ = await settle(model)
             facts["asked"] = asked; facts["message"] = model.message ?? ""
+            facts["knownParent"] = model.roots.first.map { $0.parent.leaf.map { String(format: "%02x", $0) }.joined() } ?? ""
             facts["fixable"] = model.entries.filter { $0.status.fixable }.count; facts["waiting"] = model.entries.filter { $0.reason == "FolderAccessNeeded" }.count
             model.prepare(); _ = await settle(model) { model.plan != nil || model.message != nil }
             facts["planned"] = model.plan?.operations.count ?? 0
@@ -281,6 +284,7 @@ import NameFixApplication
             facts["entries"] = model.entries.count; facts["fixable"] = model.entries.filter { $0.status.fixable }.count
             facts["reasons"] = Array(Set(model.entries.map(\.reason))).sorted(); facts["message"] = model.message ?? ""
             facts["labels"] = Array(Set(model.entries.filter { !$0.isDirectory }.map { CharacterPresentation.statusKey($0.status, name: $0.name, reason: $0.reason) })).sorted()
+            facts["rootReason"] = model.entries.first { $0.path == model.roots.first }?.reason ?? ""; facts["accessNeed"] = model.accessNeed ?? ""
             model.prepare(); try? await Task.sleep(for: .seconds(2))
             facts["planned"] = model.plan?.operations.count ?? 0
             await model.shutdown()
@@ -297,6 +301,21 @@ import NameFixApplication
             try? await Task.sleep(for: .milliseconds(600))
             let shown = window?.contentView.map(boxes) ?? []
             facts["selected"] = model.selected.count; facts["ticked"] = shown.filter { $0.box.state == .on }.count; facts["boxes"] = shown.count
+            // The list's own commands, called the way the menu and the keyboard reach them.
+            func list(_ view: NSView) -> KeyTable? { (view as? KeyTable) ?? view.subviews.lazy.compactMap(list).first }
+            if let table = window?.contentView.flatMap(list) {
+                facts["selectAllOffered"] = table.validateUserInterfaceItem(NSMenuItem(title: "", action: #selector(NSResponder.selectAll(_:)), keyEquivalent: "a"))
+                model.select("none"); try? await Task.sleep(for: .milliseconds(300))
+                table.selectAll(nil); try? await Task.sleep(for: .milliseconds(300))
+                facts["selectAllTicks"] = model.selected.count
+                if let row = model.visible.firstIndex(where: { $0.status.fixable }) {
+                    table.selectRowIndexes([row], byExtendingSelection: false); try? await Task.sleep(for: .milliseconds(300))
+                    facts["returnOpens"] = table.open(); try? await Task.sleep(for: .milliseconds(900))
+                    facts["detailsSheet"] = model.sheet == "inspector" && window?.attachedSheet != nil
+                    model.sheet = nil; try? await Task.sleep(for: .milliseconds(700))
+                }
+                facts["listFont"] = (table.view(atColumn: 1, row: 0, makeIfNecessary: false) as? NameCell) != nil
+            }
             let all = model.visible.count
             model.filter = "WindowsNames"; _ = await settle(model) { model.visible.count != all }
             facts["windowsFilter"] = model.visible.map(\.name).sorted()

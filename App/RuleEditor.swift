@@ -49,6 +49,7 @@ struct RuleEditor: View {
     @State private var sampleError: String?
     @State private var samples = ["photo  001.jpg"]
     @State private var samplesFromList = false
+    @State private var foldersLeftOut = false
     init(model: AppModel, palette: Palette, embedded: Bool = false, selecting: UUID? = nil) {
         self.model = model; self.palette = palette; self.embedded = embedded
         _selected = State(initialValue: selecting)
@@ -82,6 +83,8 @@ struct RuleEditor: View {
             } catch { if !Task.isCancelled { example = nil; exampleChecked = false; sampleError = (error as? RuleFailure)?.rawValue ?? "RuleInvalid" } }
         }
         .onChange(of: model.entries.count) { _, _ in loadSamples() }
+        // The same items can come back with other reasons (folders left out or not) without their number changing.
+        .onChange(of: model.visibleRevision) { _, _ in loadSamples() }
         .onAppear {
             loadSamples()
             // Start with Replace Text open, so the first thing to do is visible.
@@ -207,20 +210,22 @@ struct RuleEditor: View {
                 Text(example.before).font(.caption).lineLimit(1).truncationMode(.middle)
                 Label(example.after, systemImage: "arrow.turn.down.right").font(.callout).foregroundStyle(palette.preview).lineLimit(2).textSelection(.enabled)
             }.padding(.horizontal, 8).accessibilityElement(children: .combine)
-        } else if exampleChecked, samplesFromList {
+        } else if exampleChecked, samplesFromList || foldersLeftOut {
             // Rules that change none of the added names: say so instead of showing a name unchanged.
             VStack(alignment: .leading, spacing: 6) {
-                Text(model.t("SampleUnchanged")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
-                // Folders are left out unless asked for. When there are folders, say so here and offer the switch.
-                if draft.includeFolders != true, model.entries.contains(where: { $0.isDirectory && $0.reason == "FolderExcluded" }) {
+                if samplesFromList { Text(model.t("SampleUnchanged")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true) }
+                // Folders are left out unless asked for. When there are folders (or nothing but folders), say so here and offer the switch.
+                if draft.includeFolders != true, foldersLeftOut {
                     Text(model.t("FolderExcluded")).font(.caption).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
-                    Button(model.t("IncludeFolders")) { draft.includeFolders = true; model.usePipeline(model.workbenchDraft) }.controlSize(.small).accessibilityIdentifier("includeFoldersHint")
+                    Button(model.t("IncludeFolders")) { draft.includeFolders = true; model.usePipeline(model.workbenchDraft) }.controlSize(.small).disabled(model.busy || model.plan != nil).accessibilityIdentifier("includeFoldersHint")
                 }
             }.padding(.horizontal, 8)
         }
     }
     private func loadSamples() {
         let names = model.entries.lazy.filter { !$0.isDirectory && !$0.status.isError }.prefix(200).map(\.name)
+        // Looked up when the list changes, not every time the pane is drawn.
+        foldersLeftOut = model.entries.contains { $0.isDirectory && $0.reason == "FolderExcluded" }
         samplesFromList = !names.isEmpty
         samples = names.isEmpty ? ["photo  001.jpg"] : Array(names)
     }
@@ -448,6 +453,8 @@ struct RuleFields: View {
     @Binding var rule: RenameRule
     let palette: Palette
     @FocusState private var focus: String?
+    /// True while the field being typed in holds text an input method has not committed yet.
+    private static var composing: Bool { (NSApp.keyWindow?.firstResponder as? NSTextView)?.hasMarkedText() ?? false }
     // RuleScope.name shares its raw value with the "Current name" column title.
     private func scopeKey(_ scope: RuleScope) -> String { scope == .name ? "ScopeFullName" : scope.rawValue }
     private func field(_ key: String, _ text: Binding<String>) -> some View {
@@ -461,10 +468,11 @@ struct RuleFields: View {
             switch rule.kind {
             case .replace:
                 // Tab goes from what to find straight to what to put there, and Shift-Tab back.
+                // While an input method is composing (Tab picks a candidate there), and with any other modifier, Tab is left alone.
                 field("FieldFind", $rule.text).focused($focus, equals: "find")
-                    .onKeyPress(.tab, phases: .down) { press in if press.modifiers.contains(.shift) { return .ignored }; focus = "replace"; return .handled }
+                    .onKeyPress(.tab, phases: .down) { press in guard press.modifiers.isEmpty, !Self.composing else { return .ignored }; focus = "replace"; return .handled }
                 field("FieldReplaceWith", $rule.replacement).focused($focus, equals: "replace")
-                    .onKeyPress(.tab, phases: .down) { press in guard press.modifiers.contains(.shift) else { return .ignored }; focus = "find"; return .handled }
+                    .onKeyPress(.tab, phases: .down) { press in guard press.modifiers == .shift, !Self.composing else { return .ignored }; focus = "find"; return .handled }
             case .prefix, .suffix: field("FieldAddText", $rule.text)
             case .insert:
                 field("FieldAddText", $rule.text)

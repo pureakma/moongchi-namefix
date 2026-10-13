@@ -45,6 +45,7 @@ Infrastructure의 AccessRoots가 이 프로세스가 작업할 수 있는 폴더
 - sandbox(제품, 실행 중에 APP_SANDBOX_CONTAINER_ID로 판별): 사용자가 허용한 폴더(AuthorizedRoot: raw 경로, 폴더 identity, volume UUID)만 열 수 있다. FS.openDirectory는 경로를 포함하는 가장 깊은 허용 폴더의 FD에서 시작해 나머지 요소를 O_NOFOLLOW로 연다. 포함하는 폴더가 없으면 FolderAccessNeeded를 던진다. 허용 폴더의 identity나 실제 경로가 달라졌으면 쓰지 않는다.
 - 허용 폴더가 생기는 곳: 사용자가 고르거나 끌어다 놓거나 Finder에서 넘긴 폴더(AppModel.add), 즐겨찾기·최근 폴더·감시 폴더의 bookmark, 작업 기록용으로 남긴 bookmark(GrantStore, access.json), 앱 자신의 데이터 폴더. grant는 횟수를 세고 release로 돌려준다. security scope의 시작과 끝은 AccessLease가 짝을 맞춘다.
 - 앱은 접근 여부를 직접 판단하지 않는다. FolderAccessNeeded가 나오면 AppModel이 folderRequest를 올리고 App이 그 폴더 하나를 고르는 창을 띄운다. 고르면 같은 일을 다시 한다.
+- AccessRoots.anchor는 경로를 담는 허용 폴더를 깊은 것부터 확인해 아직 그 자리에 있는 첫 폴더에서 시작한다. 허용은 있으나 모두 옮겨졌으면 ‘없는 폴더’(UnavailableHelp), 허용이 없으면 FolderAccessNeeded다. AppModel.accessNeed가 목록의 항목이 기다리는 것(항목의 폴더 / 추가한 폴더의 상위 폴더)을 갖고, 상태 줄의 버튼은 이것을 따른다.
 - Scanner.protectedReason은 허용 폴더 안에서는 항목의 속성을 읽고, 그 위로는 이름만 본다.
 
 제품 코드에는 에디션을 가르는 분기가 없다(D-038). sandbox 안팎에서 달라지는 것은 위 접근 규칙 하나이고, 그 판별은 실행 환경에서 한다.

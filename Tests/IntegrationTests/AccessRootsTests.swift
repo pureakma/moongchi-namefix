@@ -79,11 +79,33 @@ final class AccessRootsTests: XCTestCase, @unchecked Sendable {
         let moved = allowed.deletingLastPathComponent().appendingPathComponent("namefix-access-moved-\(UUID())"); made.append(moved)
         try FileManager.default.moveItem(at: allowed, to: moved)
         try FileManager.default.createDirectory(at: allowed, withIntermediateDirectories: true)
-        XCTAssertThrowsError(try FS.openDirectory(root.path)) { XCTAssertEqual(($0 as? FSError)?.code, "FolderAccessNeeded") }
+        // It was allowed and is gone from there: that is "not available", not a request for access.
+        XCTAssertThrowsError(try FS.openDirectory(root.path)) { XCTAssertEqual(($0 as? FSError)?.code, "UnavailableHelp") }
+        XCTAssertEqual(scan([root.path]).first?.reason, "UnavailableHelp")
         // Allowing the folder that is there now works again, as a different folder.
         let replaced = try AccessRoots.shared.grant(allowed)
         XCTAssertNotEqual(replaced.identity, root.identity)
         let fd = try FS.openDirectory(replaced.path); close(fd)
+    }
+    /// Two allowed folders are renamed so that one takes the other's old name. The stale grant for
+    /// that name is passed over, and the folder allowed above both still leads to what is there now.
+    func testAStaleGrantDoesNotHideAFolderAllowedAboveIt() throws {
+        let above = try folder()
+        let a = above.appendingPathComponent("A"), b = above.appendingPathComponent("B"), c = above.appendingPathComponent("C")
+        for url in [a, b] { try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true) }
+        try make(a, Data("inside-a.txt".utf8))
+        try AccessRoots.shared.grant(above); let wasA = try AccessRoots.shared.grant(a); try AccessRoots.shared.grant(b)
+        try FileManager.default.moveItem(at: b, to: c); try FileManager.default.moveItem(at: a, to: b)
+        // /above/B is now the folder that was A. The grant kept under that name belongs to the folder now at C.
+        let fd = try FS.openDirectory(RawPath(b.path)); defer { close(fd) }
+        XCTAssertEqual(try FS.directoryIdentity(fd), wasA.identity)
+        XCTAssertEqual(try FS.names(fd), [Data("inside-a.txt".utf8)])
+        // Without the folder above, the same name is simply not available.
+        AccessRoots.shared.release(RawPath(above.path))
+        XCTAssertThrowsError(try FS.openDirectory(RawPath(b.path))) { XCTAssertEqual(($0 as? FSError)?.code, "UnavailableHelp") }
+        // Never allowed at all is still a request for access.
+        let stranger = try folder()
+        XCTAssertThrowsError(try FS.openDirectory(RawPath(stranger.path))) { XCTAssertEqual(($0 as? FSError)?.code, "FolderAccessNeeded") }
     }
 
     func testScanRenameAndUndoInsideAnAllowedFolder() async throws {

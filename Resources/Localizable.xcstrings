@@ -12795,19 +12795,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기본으로 꺼져 있습니다. 켜면 많은 파일을 몇 배 빠르게 바꿉니다. 파일 내용을 바꾸지 않고 덮어쓰지 않는 것은 그대로입니다. 다만 작업 도중 전원이 갑자기 꺼지면 마지막 몇 개 항목은 작업 기록에 남지 않아 직접 확인해야 할 수 있습니다. 외장 드라이브에서는 항상 안전한 방식으로 바꿉니다."
+            "value": "기본으로 꺼져 있습니다. 켜면 많은 파일을 몇 배 빠르게 바꿉니다. 파일 내용을 바꾸지 않고 덮어쓰지 않는 것은 그대로입니다. 다만 작업 도중 전원이 갑자기 꺼지거나 Mac을 강제로 끄면 마지막 몇 개 항목은 작업 기록에 남지 않아 직접 확인해야 할 수 있습니다. 외장 드라이브에서는 항상 안전한 방식으로 바꿉니다."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Off by default. When on, large batches finish several times faster. File contents are still never changed and nothing is overwritten. If power is lost in the middle of an operation, the last few items may be missing from History and need to be checked by hand. External drives always use the safe method."
+            "value": "Off by default. When on, large batches finish several times faster. File contents are still never changed and nothing is overwritten. If power is lost or the Mac has to be forced off in the middle of an operation, the last few items may be missing from History and need to be checked by hand. External drives always use the safe method."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "デフォルトではオフです。オンにすると、多くのファイルを数倍速く変更します。ファイルの内容を変更せず、上書きもしない点は変わりません。ただし、処理の途中で突然電源が切れると、最後の数項目が履歴に残らず、手動での確認が必要になることがあります。外付けドライブでは常に安全な方法で変更します。"
+            "value": "デフォルトではオフです。オンにすると、多くのファイルを数倍速く変更します。ファイルの内容を変更せず、上書きもしない点は変わりません。ただし、処理の途中で突然電源が切れたり、Macを強制的に終了したりすると、最後の数項目が履歴に残らず、手動での確認が必要になることがあります。外付けドライブでは常に安全な方法で変更します。"
           }
         }
       }

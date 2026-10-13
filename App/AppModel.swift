@@ -139,6 +139,13 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
         var remaining = 0
     }
     @Published var folderRequest: FolderRequest?
+    /// What the listed items are waiting for: "FolderAccessNeeded" (an item's folder), "ParentFolderNeeded"
+    /// (the folder above an added folder) or nil. The status line offers the choice from this, whatever notice it shows.
+    @Published var accessNeed: String?
+    /// False until the history has been read: an unread history is not an empty one.
+    private var historyLoaded = false
+    /// The folder held for each kept record's access, so it is given back when the record goes.
+    private var historyGrants: [UUID: RawPath] = [:]
     private var queuedURLs: [URL] = []
     private var settingsStore: SettingsStore
     private(set) var store: JournalStore?
@@ -315,14 +322,17 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
         leases.append(contentsOf: local.map(AccessLease.init))
         var seen = Set(roots)
         for url in local {
-            var path = RawPath(url.path)
+            var path = RawPath(url.path), held: RawPath?
             // A folder the user handed over is a place the app may work in.
             if (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true, let root = try? AccessRoots.shared.grant(url) {
-                inputGrants.append(root.path)
+                held = root.path
                 if AccessRoots.shared.restricted { path = root.path }
             }
-            if seen.insert(path).inserted { roots.append(path) }
+            if seen.insert(path).inserted { roots.append(path); if let held { inputGrants.append(held) } }
+            // The same folder again: it is already listed and already held once.
+            else if let held { AccessRoots.shared.release(held) }
         }
+        respellLooseRoots()
         requestFolderForLooseItems()
         scan()
     }
@@ -369,17 +379,51 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
     }
     /// The user chose a folder in answer to a request.
     func allowFolder(_ url: URL) {
-        let request = folderRequest; folderRequest = nil
+        // A request withdrawn while the panel was open (its items were removed) keeps nothing.
+        guard let request = folderRequest else { return }
+        folderRequest = nil
         guard let root = try? AccessRoots.shared.grant(url) else { message = "FolderAccessNeeded"; return }
-        // A different folder than the one needed helps nothing: it is given back, and the choice stays open.
-        if let request, request.purpose == .input || request.purpose == .parent {
-            let wanted = RawPath(request.folder.path)
-            guard let fd = try? FS.openDirectory(wanted) else { AccessRoots.shared.release(root.path); message = "WrongFolderChosen"; return }
-            close(fd)
-        }
+        func reachable(_ path: RawPath) -> Bool { if let fd = try? FS.openDirectory(path) { close(fd); return true }; return false }
+        // With the folder allowed, its items can be known by the path the system reports for it.
+        respellLooseRoots()
+        // The folder that was asked for, spelled the system's way, has to be reachable now. Any other
+        // folder helps nothing: it is given back and the choice stays open.
+        let wanted = RawPath(request.folder.path)
+        let target = Self.systemSpelling(of: request.folder).flatMap { Self.sameSpelling($0, wanted) ? $0 : nil } ?? wanted
+        guard reachable(target) else { AccessRoots.shared.release(root.path); message = "WrongFolderChosen"; return }
         inputGrants.append(root.path)
         if ["FolderAccessNeeded", "UndoNeedsFolder", "ParentFolderNeeded", "WrongFolderChosen"].contains(message) { message = nil }
-        if case .history(let mode, let id) = request?.purpose { prepare(mode: mode, historyID: id) } else { requestFolderForLooseItems(); scan() }
+        if case .history(let mode, let id) = request.purpose { prepare(mode: mode, historyID: id) } else { requestFolderForLooseItems(); scan() }
+    }
+    /// Items handed over on their own are known by the path the system reports for their folder.
+    /// A file URL often spells a folder's letters separately although its name is stored with them
+    /// joined, and the allowed folder is compared by its stored name. Only the spelling is taken
+    /// over: a path that differs in any other way (through a link, for one) stays as it was given.
+    /// The folder is only looked at here; whether it may be worked in is still decided by the rule.
+    private func respellLooseRoots() {
+        guard AccessRoots.shared.restricted else { return }
+        var known: [RawPath: RawPath?] = [:], seen = Set<RawPath>()
+        roots = roots.map { root in
+            guard !AccessRoots.shared.isRoot(root) else { return root }
+            let real: RawPath?
+            if let cached = known[root.parent] { real = cached } else {
+                real = Self.systemSpelling(of: URL(fileURLWithPath: root.parent.display, isDirectory: true)).flatMap { $0 != root.parent && Self.sameSpelling($0, root.parent) ? $0 : nil }
+                known[root.parent] = real
+            }
+            return real.map { $0.appending(root.leaf) } ?? root
+        }.filter { seen.insert($0).inserted }
+    }
+    /// The path the system itself reports for a folder this process can open, or nil.
+    nonisolated static func systemSpelling(of folder: URL) -> RawPath? {
+        let fd = Darwin.open(folder.path, O_RDONLY | O_DIRECTORY | O_CLOEXEC)
+        guard fd >= 0 else { return nil }
+        defer { Darwin.close(fd) }
+        return try? FS.rawDirectoryPath(fd)
+    }
+    /// The same path apart from letter case and how letters are composed. A path that differs
+    /// in any other way (through a link, for one) is another path.
+    nonisolated static func sameSpelling(_ a: RawPath, _ b: RawPath) -> Bool {
+        a.display.precomposedStringWithCanonicalMapping.lowercased() == b.display.precomposedStringWithCanonicalMapping.lowercased()
     }
     func declineFolder() { folderRequest = nil }
     /// Reaches again the folders that finished operations may still be undone in.
@@ -387,8 +431,14 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
         guard AccessRoots.shared.restricted else { return }
         var changed = false
         for index in grantLibrary.grants.indices {
-            let (result, renewed) = GrantLibrary.resolve(grantLibrary.grants[index])
-            if case .granted = result, let renewed { grantLibrary.grants[index].bookmark = renewed; changed = true }
+            let stored = grantLibrary.grants[index]
+            // Held already and still leading there: it is taken once, however often Undo is asked for.
+            if let held = historyGrants[stored.id], let fd = try? FS.openDirectory(held) { close(fd); continue }
+            let (result, renewed) = GrantLibrary.resolve(stored)
+            guard case .granted(let root) = result else { continue }
+            if let earlier = historyGrants[stored.id] { AccessRoots.shared.release(earlier) }
+            historyGrants[stored.id] = root.path
+            if let renewed { grantLibrary.grants[index].bookmark = renewed; changed = true }
         }
         if changed { saveGrants() }
     }
@@ -414,8 +464,10 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
     }
     /// Access is kept only while a record that needs it exists.
     private func pruneGrants() {
+        guard historyLoaded else { return }
         let kept = Set(history.map(\.id)), before = grantLibrary.grants
         grantLibrary.grants = before.compactMap { grant in var g = grant; g.transactions.removeAll { !kept.contains($0) }; return g.transactions.isEmpty ? nil : g }
+        for gone in Set(before.map(\.id)).subtracting(grantLibrary.grants.map(\.id)) { if let held = historyGrants.removeValue(forKey: gone) { AccessRoots.shared.release(held) } }
         if grantLibrary.grants != before { saveGrants() }
     }
     /// Menu and menu-bar commands must not stack a sheet on a confirmation, result or running rename.
@@ -423,6 +475,16 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
     static let fastTipKey = "NameFix.fastRenameTipShown"
     func dismissResult() { result = nil; flushQueued() }
     func cancelPreview() { plan = nil; flushQueued() }
+    /// Gives back what was allowed for items that are no longer listed: a folder, the folder above an
+    /// added folder, the folder of a lone file. A hold stays while anything listed lies in it.
+    private func releaseUnusedInputGrants() {
+        var kept: [RawPath] = []
+        for grant in inputGrants {
+            let inside = grant.bytes + Data([47])
+            if roots.contains(where: { $0 == grant || $0.bytes.starts(with: inside) }) { kept.append(grant) } else { AccessRoots.shared.release(grant) }
+        }
+        inputGrants = kept
+    }
     func flushQueued() {
         guard canInput, !queuedURLs.isEmpty else { return }
         let urls = queuedURLs; queuedURLs = []; add(urls)
@@ -432,7 +494,7 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
         activeWatchID = nil
         if let path {
             roots.removeAll { $0 == path }
-            if let index = inputGrants.firstIndex(of: path) { AccessRoots.shared.release(inputGrants.remove(at: index)) }
+            releaseUnusedInputGrants()
         } else {
             roots = []; leases = []
             inputGrants.forEach(AccessRoots.shared.release); inputGrants = []
@@ -488,11 +550,13 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
             if !entries.contains(where: { $0.id == focused }) { focused = nil }
             counts = presentation.2
             phase = ""; scanned = entries.count
+            var need: String?
+            for entry in scan.entries { if entry.reason == "FolderAccessNeeded" { need = entry.reason; break }; if entry.reason == "ParentFolderNeeded" { need = entry.reason } }
+            accessNeed = need
             if scan.limited { message = "ScanLimit" } else if scan.cancelled { message = "Cancelled" }
             // Say once, in the status line, why a whole location is left alone. Nothing is shown for supported places.
             else if let place = scan.entries.first(where: { VolumeSupport.locationReasons.contains($0.reason) })?.reason { message = place }
-            else if scan.entries.contains(where: { $0.reason == "FolderAccessNeeded" }) { message = "FolderAccessNeeded" }
-            else if scan.entries.contains(where: { $0.reason == "ParentFolderNeeded" }) { message = "ParentFolderNeeded" }
+            else if accessNeed != nil { message = accessNeed }
             else if let shown = message, VolumeSupport.locationReasons.contains(shown) || shown == "FolderAccessNeeded" || shown == "ParentFolderNeeded" { message = nil }
             if settings.rememberRecentFolders {
                 let directories = scan.entries.filter { $0.isDirectory && scan.roots.contains($0.path) }.map { $0.path.display }
@@ -673,16 +737,23 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
                 }
                 keepGrants(for: summary.id, operations: plan.operations)
                 // Once, after a long run with the safest record: say that Settings has a faster way.
-                if !fast, plan.operations.count >= 200, Date().timeIntervalSince(started) >= 5, message == nil, !UserDefaults.standard.bool(forKey: Self.fastTipKey) {
-                    message = "FastRenameTip"; UserDefaults.standard.set(true, forKey: Self.fastTipKey)
-                }
+                // Only where the faster way would really be used: not for an external drive.
+                var tip = false
+                if !fast, plan.operations.count >= 200, Date().timeIntervalSince(started) >= 5, !UserDefaults.standard.bool(forKey: Self.fastTipKey),
+                   let journal = store?.root { tip = TransactionCoordinator.fastAllowed(plan.operations, journal: journal) }
                 phase = ""; result = summary; transactionFinished?(summary)
                 if settings.diagnostics { do { try await diagnosticLog.record(code: summary.status, transaction: summary.id, count: summary.succeeded) } catch { message = "DiagnosticsError" } }
                 await reloadHistory()
+                // Shown only if nothing more important took the line, and counted as shown only then.
+                if tip, message == nil { message = "FastRenameTip"; UserDefaults.standard.set(true, forKey: Self.fastTipKey) }
                 // "Clear selection when done" is about a finished rename. After an undo or a recovery the names
                 // need fixing again, and they come back selected, as they were when first scanned.
                 scan(clearSelection: settings.clearSelectionAfterRun && plan.mode == "rename")
-            } catch { self?.phase = ""; self?.message = (error as? FSError)?.code ?? "OperationError"; await self?.reloadHistory() }
+            } catch {
+                // The operation could not be started or its record could not be written. The list is read again
+                // so it shows what is on disk; whatever did happen is in History.
+                self?.phase = ""; self?.message = (error as? FSError)?.code ?? "OperationError"; await self?.reloadHistory(); self?.scan(clearSelection: false)
+            }
         }
     }
     func cancel() { cancelled = true; scanToken.cancel(); transactionToken.cancel() }
@@ -705,6 +776,7 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
         do {
             let limit = settings.historyLimit
             history = try await Task.detached { try store.pruneUnneeded(limit: limit); return try store.summaries() }.value
+            historyLoaded = true
             if history.contains(where: { !["Completed", "CompletedWithErrors", "Cancelled"].contains($0.status) }) { message = "RecoveryNeedsReview" }
             pruneGrants()
         } catch { message = "HistoryWarning" }
@@ -814,7 +886,10 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
     }
     func restartWatches() {
         watchers.values.forEach { $0.stop() }; watchers = [:]; watchErrors = [:]
-        watchGrants.values.forEach(AccessRoots.shared.release); watchGrants = [:]
+        // The folders are allowed again before the earlier hold on them is given back, so a review
+        // that is running in one of them never finds it closed in between.
+        let held = Array(watchGrants.values); watchGrants = [:]
+        defer { held.forEach(AccessRoots.shared.release) }
         guard productAccess == .pro else { return }
         var renewed = false
         for index in watches.folders.indices where watches.folders[index].enabled {
@@ -865,7 +940,7 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
         guard productAccess == .pro, !busy, plan == nil, result == nil, let folder = watches.folders.first(where: { $0.id == id }) else { message = "BusyDropRejected"; return }
         guard watchErrors[id] != "WatchReauthorize" else { message = "WatchReauthorize"; return }
         // Snapshot the folder and rules now; later events only enter the pending set.
-        watchPending.remove(id); activeWatchID = id; pipeline = folder.pipeline; workbenchDraft = folder.pipeline; markWorkbenchPreviewApplied(); changeSettings { $0.workbenchEnabled = true }; roots = [watchGrants[id] ?? RawPath(folder.path)]; sheet = nil; scan()
+        watchPending.remove(id); activeWatchID = id; pipeline = folder.pipeline; workbenchDraft = folder.pipeline; markWorkbenchPreviewApplied(); changeSettings { $0.workbenchEnabled = true }; roots = [watchGrants[id] ?? RawPath(folder.path)]; releaseUnusedInputGrants(); sheet = nil; scan()
     }
     func diagnostics() {
         var report: [String: Any] = ["version": AppInfo.version, "build": AppInfo.build, "architecture": "arm64", "os": ProcessInfo.processInfo.operatingSystemVersionString, "counts": counts, "history": history.map { ["id": $0.id.uuidString, "status": $0.status, "succeeded": String($0.succeeded), "failed": String($0.failed)] }, "theme": settings.theme, "language": settings.language, "masked": maskPaths]

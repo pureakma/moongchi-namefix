@@ -190,18 +190,53 @@ final class TransactionTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(restored.failed, 0)
         // The faster record is only for built-in drives. The fixture is on the Mac's own disk unless the
         // volume tool put it on a disk image, which macOS reports as external.
-        XCTAssertEqual(TransactionCoordinator.builtIn(plan.operations), ProcessInfo.processInfo.environment["NAMEFIX_FIXTURE_ROOT"] == nil)
+        XCTAssertEqual(TransactionCoordinator.fastAllowed(plan.operations, journal: store.root), ProcessInfo.processInfo.environment["NAMEFIX_FIXTURE_ROOT"] == nil)
+        // A journal on another volume than the files cannot be ordered against them: the faster record is refused.
+        let elsewhere = try XCTUnwrap(FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first)
+        var here = stat(), there = stat()
+        if stat(root.path, &here) == 0, stat(elsewhere.path, &there) == 0, here.st_dev != there.st_dev { XCTAssertFalse(TransactionCoordinator.fastAllowed(plan.operations, journal: elsewhere)) }
+        XCTAssertFalse(TransactionCoordinator.fastAllowed(plan.operations, journal: root.appendingPathComponent("no-such-folder")))
     }
-    func testTornJournalPreservedAndBlocksUndo() throws {
+    /// A record cut off while it was being written is a lost tail: the records before it are used and
+    /// the file is left as it is. A complete record that is wrong is damage and blocks Undo, as before.
+    func testACutOffLastRecordIsALostTailAndDamageStillBlocksUndo() async throws {
         let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
         let store = try JournalStore(root: root.appendingPathComponent("journal")), id = UUID()
         do { let writer = try JournalWriter(url: store.journalURL(id)); try writer.append("Prepared") }
-        let handle = try FileHandle(forWritingTo: store.journalURL(id)); try handle.seekToEnd(); try handle.write(contentsOf: Data("torn".utf8)); try handle.close()
+        let handle = try FileHandle(forWritingTo: store.journalURL(id)); try handle.seekToEnd(); try handle.write(contentsOf: Data("{\"payload\":\"dG9y".utf8)); try handle.close()
         let before = try Data(contentsOf: store.journalURL(id))
-        XCTAssertFalse(try store.replay(id).valid)
-        XCTAssertThrowsError(try History.undo(store: store, id: id, generation: UUID()))
-        XCTAssertEqual(try Data(contentsOf: store.journalURL(id)), before)
+        let cut = try store.replay(id)
+        XCTAssertTrue(cut.valid); XCTAssertTrue(cut.lostTail); XCTAssertEqual(cut.events.map(\.state), ["Prepared"])
+        XCTAssertNoThrow(try History.undo(store: store, id: id, generation: UUID()))
+        XCTAssertEqual(try Data(contentsOf: store.journalURL(id)), before, "The file is read, never repaired")
         XCTAssertEqual(try store.summaries().first?.status, "RecoveryNeedsReview")
+        // A whole journal is not a lost tail.
+        let whole = UUID()
+        do { let writer = try JournalWriter(url: store.journalURL(whole)); try writer.append("TransactionPrepared"); try writer.append("Completed") }
+        let read = try store.replay(whole); XCTAssertTrue(read.valid); XCTAssertFalse(read.lostTail)
+        // A complete record that does not check out is damage: nothing is undone from any record while it is there.
+        var bytes = try Data(contentsOf: store.journalURL(whole)); bytes[bytes.count / 4] ^= 0x01; try bytes.write(to: store.journalURL(whole))
+        XCTAssertFalse(try store.replay(whole).valid)
+        XCTAssertThrowsError(try History.undo(store: store, id: id, generation: UUID())) { XCTAssertEqual(($0 as? FSError)?.code, "HistoryWarning") }
+        try FileManager.default.removeItem(at: store.journalURL(whole))
+        // A real operation whose last record was cut off in the middle: the item is found where it is and can be put back.
+        let name = try create(root, "e\u{301}.txt")
+        let coordinator = TransactionCoordinator(store: store), plan = try plan(scan(root).filter { $0.path == name })
+        _ = try await coordinator.execute(plan, token: CancellationToken())
+        let url = store.journalURL(plan.id), full = try Data(contentsOf: url)
+        let lines = full.split(separator: 10, omittingEmptySubsequences: true)
+        var kept = Data(); for line in lines.prefix(4) { kept.append(line); kept.append(10) }       // TransactionPrepared, Prepared, TemporaryRenamed, FinalIntent
+        kept.append(lines[4].prefix(lines[4].count / 2))                                             // FinalRenamed, half written
+        try kept.write(to: url)
+        let half = try store.replay(plan.id)
+        XCTAssertTrue(half.valid); XCTAssertTrue(half.lostTail); XCTAssertEqual(half.events.last?.state, "FinalIntent")
+        let found = try History.inspect(store: store, id: plan.id)
+        XCTAssertEqual(found.count, 1); XCTAssertNotNil(found[0].current)
+        let recovery = try History.recovery(store: store, id: plan.id, generation: UUID())
+        XCTAssertEqual(recovery.operations.count, 1)
+        let restored = try await coordinator.execute(recovery, token: CancellationToken())
+        XCTAssertEqual(restored.succeeded, 1)
+        XCTAssertEqual(scan(root).filter { $0.path == name }.count, 1, "The item is back under its original name")
     }
     func testCancelAndProcessLock() async throws {
         let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }

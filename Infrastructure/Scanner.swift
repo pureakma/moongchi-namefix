@@ -102,8 +102,19 @@ public enum Scanner {
                     guard seen.insert(path).inserted else { continue }
                     let blocked = protectedReason(path)
                     let proposed = NormalizationAnalysis(raw: path.leaf, target: target).proposed, changes = proposed != path.leaf
-                    result.append(FileEntry(path: path, identity: identity, isDirectory: true, status: blocked != nil ? .unsupported : changes ? .accessDenied : .normal,
-                                            reason: blocked ?? (changes ? "ParentFolderNeeded" : "NormalHelp"), proposed: proposed))
+                    // Where the folder is decides before its name does: a disk added as a whole, or a drive
+                    // names are not changed on, is said to be that, not to be waiting for the folder above it.
+                    var place = blocked
+                    if place == nil {
+                        var info = statfs()
+                        if fstatfs(rootFD, &info) == 0, Data(withUnsafeBytes(of: info.f_mntonname) { String(cString: $0.baseAddress!.assumingMemoryBound(to: CChar.self)) }.utf8) == path.bytes { place = "VolumeRootExcluded" }
+                        else {
+                            do { let volume = try FS.support(rootFD); if volume.level != .supported { place = volume.reason ?? "VolumeFormatUnsupported" } }
+                            catch let error as FSError { place = error.code }
+                        }
+                    }
+                    result.append(FileEntry(path: path, identity: identity, isDirectory: true, status: place != nil ? .unsupported : changes ? .accessDenied : .normal,
+                                            reason: place ?? (changes ? "ParentFolderNeeded" : "NormalHelp"), proposed: proposed))
                     if blocked == nil { work.append(contentsOf: try FS.names(rootFD).map { (path.appending($0), 1, identity.device) }) }
                     continue
                 }

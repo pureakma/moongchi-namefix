@@ -168,8 +168,16 @@ import NameFixRuntime
                 return e
             }
             for (name, size) in [("V-access", wide), ("V-access-narrow", narrow)] {
-                try render("\(name)-\(language)", language: language, theme: "olive", size: size, entries: waiting) { model in model.message = "FolderAccessNeeded" }
-                try render("\(name.replacingOccurrences(of: "V-access", with: "W-parent"))-\(language)", language: language, theme: "olive", size: size, entries: waiting.map { item in var e = item; if e.reason == "FolderAccessNeeded" { e.status = .needsNormalization; e.reason = "ChangeHelp" }; return e }) { model in model.message = "ParentFolderNeeded" }
+                try render("\(name)-\(language)", language: language, theme: "olive", size: size, entries: waiting) { model in model.message = "FolderAccessNeeded"; model.accessNeed = "FolderAccessNeeded" }
+                try render("\(name.replacingOccurrences(of: "V-access", with: "W-parent"))-\(language)", language: language, theme: "olive", size: size, entries: waiting.map { item in var e = item; if e.reason == "FolderAccessNeeded" { e.status = .needsNormalization; e.reason = "ChangeHelp" }; return e }) { model in model.message = "ParentFolderNeeded"; model.accessNeed = "ParentFolderNeeded" }
+            }
+            // Names in scripts whose letters stand taller or run the other way than the body font's: every one is drawn.
+            if language == "ko-KR" {
+                let scripts = ["👨‍👩‍👧‍👦 가족 사진.jpg", "ไทย ภาษา ที่.txt", "हिन्दी दस्तावेज़.txt", "العربية ملف.txt", "神社 \u{FA19}\u{FA4C}.txt", "cafe\u{301} 🇰🇷.txt"].map { name -> FileEntry in
+                    let analysis = NormalizationAnalysis(raw: Data(name.utf8))
+                    return FileEntry(path: RawPath("/Users/me/Documents/Trip/" + name), identity: identity, parentIdentity: identity, status: analysis.status, reason: analysis.status == .normal ? "NormalHelp" : "ChangeHelp", proposed: analysis.nfc)
+                }
+                try render("X-scripts-\(language)", language: language, theme: "olive", size: wide, entries: scripts)
             }
             // One item: the count reads naturally in every language.
             try render("U-single-\(language)", language: language, theme: "olive", size: wide, entries: Array(rows(conflict: false).filter { !$0.isDirectory }.prefix(1)))

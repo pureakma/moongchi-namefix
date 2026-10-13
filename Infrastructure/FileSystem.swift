@@ -47,8 +47,12 @@ public enum FS {
         guard path.bytes.first == 47, !path.bytes.contains(0) else { throw FSError("InvalidPath", EINVAL) }
         var fd: Int32, parts: [Data]
         if AccessRoots.shared.restricted {
-            guard let anchor = AccessRoots.shared.anchor(path) else { throw FSError("FolderAccessNeeded", EPERM) }
-            (fd, parts) = anchor
+            switch AccessRoots.shared.anchor(path) {
+            case .open(let anchored, let rest): fd = anchored; parts = rest
+            // Allowed, but no longer there: the same answer as for a folder that is gone, not a request for access.
+            case .moved: throw FSError("UnavailableHelp", ENOENT)
+            case .none: throw FSError("FolderAccessNeeded", EPERM)
+            }
         } else {
             fd = open("/", O_RDONLY | O_DIRECTORY | O_CLOEXEC); parts = path.bytes.split(separator: 47).map { Data($0) }
         }

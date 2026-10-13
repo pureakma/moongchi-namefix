@@ -126,7 +126,7 @@
 "ExtensionCondition" = "Only this extension (e.g. jpg)";
 "Failed" = "Failed";
 "FastRename" = "Rename faster";
-"FastRenameHelp" = "Off by default. When on, large batches finish several times faster. File contents are still never changed and nothing is overwritten. If power is lost in the middle of an operation, the last few items may be missing from History and need to be checked by hand. External drives always use the safe method.";
+"FastRenameHelp" = "Off by default. When on, large batches finish several times faster. File contents are still never changed and nothing is overwritten. If power is lost or the Mac has to be forced off in the middle of an operation, the last few items may be missing from History and need to be checked by hand. External drives always use the safe method.";
 "FastRenameTip" = "That took a while because there were many files. Turn on “Rename faster” in Settings to make it several times faster next time.";
 "FastRenameTipShort" = "Renaming can be made faster in Settings";
 "FavoriteMissing" = "Not found · choose again";

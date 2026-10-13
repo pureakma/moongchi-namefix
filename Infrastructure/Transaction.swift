@@ -35,13 +35,21 @@ public actor TransactionCoordinator {
             guard try FS.rawDirectoryPath(fd) == op.source.parent else { throw FSError("SourceChanged") }
         }
     }
-    /// Whether every folder of the plan is on a built-in drive. An external drive can be unplugged
-    /// at any moment, so the faster record is never used there.
-    public static func builtIn(_ operations: [RenameOperation]) -> Bool {
-        Set(operations.map(\.source.parent)).allSatisfy { (try? URL(fileURLWithPath: $0.display, isDirectory: true).resourceValues(forKeys: [.volumeIsInternalKey]).volumeIsInternal) == true }
+    /// Whether the faster record (D-036) may be used for this plan. Every folder has to be on a
+    /// built-in drive, since an external one can be unplugged at any moment, and on the same volume
+    /// as the journal: writing records "in order" orders them only against writes to the journal's
+    /// own drive. Anything that cannot be determined means no.
+    public static func fastAllowed(_ operations: [RenameOperation], journal: URL) -> Bool {
+        var record = stat()
+        guard stat(journal.path, &record) == 0 else { return false }
+        return Set(operations.map(\.source.parent)).allSatisfy { folder in
+            var place = stat()
+            guard stat(folder.display, &place) == 0, place.st_dev == record.st_dev else { return false }
+            return (try? URL(fileURLWithPath: folder.display, isDirectory: true).resourceValues(forKeys: [.volumeIsInternalKey]).volumeIsInternal) == true
+        }
     }
     public func execute(_ plan: RenamePlan, token: CancellationToken, fast: Bool = false, progress: @Sendable (TransactionProgress) -> Void = { _ in }) throws -> TransactionSummary {
-        let fast = fast && Self.builtIn(plan.operations)
+        let fast = fast && Self.fastAllowed(plan.operations, journal: store.root)
         let lockFD = open(store.root.appendingPathComponent("transaction.lock").path, O_CREAT | O_RDWR | O_NOFOLLOW | O_CLOEXEC, 0o600)
         guard lockFD >= 0 else { throw FSError("JournalWriteFailed") }
         defer { close(lockFD) }

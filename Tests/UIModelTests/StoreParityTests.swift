@@ -190,4 +190,104 @@ import NameFixRuntime
         XCTAssertNil(model.folderRequest); XCTAssertNotEqual(model.entries.first?.reason, "FolderAccessNeeded")
         await model.shutdown()
     }
+
+    /// The offer to choose the missing folder follows what the listed items wait for, not the notice:
+    /// it is there after the notice was closed or replaced by another one, and gone when nothing waits.
+    func testTheOfferToChooseAFolderFollowsTheItemsNotTheNotice() async throws {
+        restricted()
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        let above = root.appendingPathComponent("above"), album = above.appendingPathComponent(decomposed)
+        _ = try write(album, "e\u{301}.txt")
+        let lone = try write(root.appendingPathComponent("lone"), "o\u{301}.txt")
+        let model = AppModel(dataRoot: root.appendingPathComponent("support")); await model.start()
+        model.add([album]); try await settled(model) { model.entries.count == 2 }
+        XCTAssertEqual(model.accessNeed, "ParentFolderNeeded")
+        model.message = nil; XCTAssertEqual(model.accessNeed, "ParentFolderNeeded", "Closing the notice does not take the offer away")
+        model.message = "VolumeFATUnsupported"; model.requestParentFolder(); XCTAssertEqual(model.folderRequest?.purpose, .parent)
+        model.allowFolder(above); try await settled(model) { model.accessNeed == nil }
+        XCTAssertTrue(model.entries.allSatisfy { $0.status.fixable })
+        // A file on its own takes over: its folder is what is waited for now.
+        model.add([lone]); try await settled(model) { model.entries.count == 3 }
+        XCTAssertEqual(model.accessNeed, "FolderAccessNeeded")
+        model.declineFolder(); model.message = nil
+        model.requestFolderForLooseItems(); XCTAssertEqual(model.folderRequest?.folder.path, lone.deletingLastPathComponent().path)
+        model.allowFolder(lone.deletingLastPathComponent()); try await settled(model) { model.accessNeed == nil }
+        await model.shutdown()
+    }
+
+    /// An added folder that is renamed in Finder afterwards is "not available" — nothing to choose,
+    /// no button that does nothing. A file whose folder is spelled another way in its path than on
+    /// disk is still the file in the folder the user picks.
+    func testARenamedFolderIsUnavailableAndAnotherSpellingOfTheFolderIsAccepted() async throws {
+        restricted()
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        let trip = root.appendingPathComponent("Trip"); _ = try write(trip, "e\u{301}.txt")
+        let model = AppModel(dataRoot: root.appendingPathComponent("support")); await model.start()
+        model.add([trip]); try await settled(model) { model.entries.count == 2 }
+        try FileManager.default.moveItem(at: trip, to: root.appendingPathComponent("Trip renamed"))
+        model.scan(); try await settled(model) { model.entries.first?.reason == "UnavailableHelp" }
+        XCTAssertNil(model.accessNeed); XCTAssertNotEqual(model.message, "FolderAccessNeeded")
+        model.requestFolderForLooseItems(); model.requestParentFolder(); XCTAssertNil(model.folderRequest)
+        model.remove(nil); try await settled(model) { model.roots.isEmpty }
+        // The folder's name is stored with joined letters. A file URL spells it with separate ones, whatever is on disk.
+        XCTAssertEqual(mkdir(root.path + "/" + composed, 0o755), 0)
+        let stored = RawPath(root.path + "/" + composed)
+        let arriving = try write(root.appendingPathComponent(composed), "a\u{301}.txt")
+        XCTAssertNotEqual(RawPath(arriving.deletingLastPathComponent().path), stored, "The URL does not spell the folder the way it is stored")
+        model.add([arriving]); try await settled(model) { model.entries.count == 1 }
+        XCTAssertEqual(model.roots.first?.parent, stored, "The item is known by the path the system reports")
+        XCTAssertEqual(model.entries.first?.reason, "FolderAccessNeeded")
+        let asked = try XCTUnwrap(model.folderRequest?.folder)
+        model.allowFolder(asked); try await settled(model) { model.entries.first?.status.fixable == true }
+        XCTAssertNil(model.message); XCTAssertNil(model.accessNeed)
+        // Asked for once more under the URL's own spelling, the same folder is still the right one.
+        XCTAssertTrue(AppModel.sameSpelling(RawPath(arriving.deletingLastPathComponent().path), stored))
+        XCTAssertEqual(AppModel.systemSpelling(of: arriving.deletingLastPathComponent()), stored)
+        // A folder that only looks related (another folder altogether) is still refused.
+        model.remove(nil); try await settled(model) { model.roots.isEmpty }
+        AccessRoots.shared.releaseAll(); _ = try AccessRoots.shared.grant(root.appendingPathComponent("support"))
+        let other = root.appendingPathComponent("other"); try FileManager.default.createDirectory(at: other, withIntermediateDirectories: true)
+        model.add([arriving]); try await settled(model) { model.entries.count == 1 }
+        model.allowFolder(other); XCTAssertEqual(model.message, "WrongFolderChosen"); XCTAssertNil(AccessRoots.shared.root(containing: RawPath(other.path)))
+        await model.shutdown()
+    }
+
+    /// Undo that needs its folder again: another folder is not kept and does not start a loop of
+    /// requests, and kept access is not thrown away when the history could not be read.
+    func testUndoRefusesAnotherFolderAndKeptAccessSurvivesAnUnreadableHistory() async throws {
+        restricted()
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        let input = root.appendingPathComponent("inputs"), support = root.appendingPathComponent("support"), kept = support.appendingPathComponent("access.json")
+        let other = root.appendingPathComponent("other"); try FileManager.default.createDirectory(at: other, withIntermediateDirectories: true)
+        _ = try write(input, "e\u{301}.txt"); let before = try names(input)
+        let model = AppModel(dataRoot: support); await model.start()
+        model.add([input]); try await settled(model) { model.entries.contains { $0.status.fixable } }
+        model.prepare(); try await settled(model) { model.plan != nil }
+        model.execute(); try await settled(model) { model.result != nil }
+        model.dismissResult(); try await settled(model)
+        for _ in 0..<200 where !FileManager.default.fileExists(atPath: kept.path) { try await Task.sleep(for: .milliseconds(10)) }
+        await model.shutdown()
+        let saved = try Data(contentsOf: kept)
+        // The history cannot be read at launch: what was kept for it stays.
+        AccessRoots.shared.releaseAll()
+        let history = support.appendingPathComponent("History"), aside = support.appendingPathComponent("History-aside")
+        try FileManager.default.moveItem(at: history, to: aside); try Data("not a folder".utf8).write(to: history)
+        let blind = AppModel(dataRoot: support); await blind.start(); await blind.shutdown()
+        XCTAssertEqual(try JSONDecoder().decode(GrantLibrary.self, from: Data(contentsOf: kept)).grants.count, try JSONDecoder().decode(GrantLibrary.self, from: saved).grants.count)
+        try FileManager.default.removeItem(at: history); try FileManager.default.moveItem(at: aside, to: history)
+        // The kept access is gone: Undo asks for the folder. Another folder is refused and nothing is asked again by itself.
+        AccessRoots.shared.releaseAll(); try FileManager.default.removeItem(at: kept)
+        let again = AppModel(dataRoot: support); await again.start()
+        let record = try XCTUnwrap(again.history.first).id
+        again.prepare(mode: "undo", historyID: record); try await settled(again) { again.folderRequest != nil }
+        XCTAssertEqual(again.folderRequest?.folder.path, input.path)
+        again.allowFolder(other); try await settled(again)
+        XCTAssertEqual(again.message, "WrongFolderChosen"); XCTAssertNil(again.folderRequest); XCTAssertNil(again.plan)
+        XCTAssertNil(AccessRoots.shared.root(containing: RawPath(other.path)))
+        again.prepare(mode: "undo", historyID: record); try await settled(again) { again.folderRequest != nil }
+        again.allowFolder(input); try await settled(again) { again.plan != nil }
+        again.execute(); try await settled(again) { again.result != nil }
+        XCTAssertEqual(try names(input), before)
+        again.dismissResult(); try await settled(again); await again.shutdown()
+    }
 }

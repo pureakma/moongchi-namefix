@@ -2308,6 +2308,38 @@
       "command": "eng/test.sh --level 3; eng/test-volumes.py; eng/test-sandbox.py; eng/validate-resources.py; eng/validate-marketing.py; eng/build.sh AppStore; eng/archive-store.sh --preflight",
       "evidencePath": "artifacts/evidence/store-release-1",
       "notes": "Store Release Phase 1 gate, 1.0.0 build 6 source. Verdict HUMAN_ACTION_REQUIRED: the product and the archive are ready; signing in, agreements and the app record are the user's. 153 tests, 0 failures. Disposable volume matrix PASS on APFS, case-sensitive APFS, exFAT, FAT32. Real App Sandbox 15 scenarios PASS. Resources 571 keys x 3 languages; store metadata valid and compared with Info.plist. AppStore build and a preflight archive: com.ailoworks.namefix, 1.0.0 (6), arm64 only, macOS 14.0, three entitlements, no get-task-allow, hardened runtime, no probe, fixture or update strings, one executable. The archive has a local signature and is not a submission. Found and fixed here: LSApplicationCategoryType and ITSAppUsesNonExemptEncryption were missing from Info.plist; one test assumed the fixture is always on a built-in disk. Not done: automatic-signing archive, App ID and profile, App Store Connect record, upload, submission. Not User QA."
+    },
+    {
+      "validationId": "MAC-PRERELEASE-REVIEW-GATE-20261013",
+      "status": "PASS",
+      "configuration": "AppStore",
+      "architecture": "arm64",
+      "scope": [
+        "Packages/NameFixCore/Sources/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Application/**/*.swift",
+        "App/**/*.swift",
+        "App/Info.plist",
+        "App/NameFix-AppStore.entitlements",
+        "Resources/**/*.strings",
+        "Resources/*.xcstrings",
+        "Package.swift",
+        "project.yml",
+        "eng/test-sandbox.py",
+        "eng/test-volumes.py",
+        "eng/test.sh",
+        "eng/build.sh",
+        "eng/archive-store.sh",
+        "eng/validate-marketing.py",
+        "eng/validate-resources.py",
+        "marketing/appstore.json"
+      ],
+      "sourceFingerprint": "567d6b4af37ef82d611fd95cf9422e69c27888ad41dd31260c48c077561e293b",
+      "testFingerprint": "ecc4bbe049bc1f48b920c54a9b2d56667a12bdaf6d9a147123574ab1c40061b5",
+      "timestamp": "2026-10-13T06:37:07.883826+00:00",
+      "command": "eng/test.sh --level 3; eng/test-volumes.py; eng/test-sandbox.py; eng/test-sandbox.py --direct; eng/validate-resources.py; eng/validate-marketing.py; eng/build.sh AppStore; eng/archive-store.sh --preflight; --render-ux/shell/responsive/expansion",
+      "evidencePath": "artifacts/evidence/prerelease-review",
+      "notes": "Gate after the fixes from an independent pre-release review (T-013), 1.0.0 build 6 source. Three read-only reviewers covered folder access, the journal with the faster record, and the result list; no P0. Fixed: the faster record now also needs the journal on the same volume (D-036); a lone file whose folder path is spelled differently than stored is recognised (confirmed in the real sandbox that such paths arrive decomposed); a record cut off mid-write is read as a lost tail (D-040); request buttons follow the items; unsupported-drive reason before the folder-above request; moved grants are passed over; undo requests refuse an unrelated folder; kept access survives an unreadable history; access holds are balanced; journal sequence after a failed sync; list keyboard, double-click, font, clipping, tooltips, accessibility role; hint for folder-only lists; Tab leaves input methods alone. 157 tests, 0 failures; 4 volume kinds; 15 real sandbox scenarios and 15 outside; AppStore build and preflight archive arm64 only; 238 renders. Not done here: VoiceOver, physical cable pull, network and iCloud locations. Not User QA."
     }
   ]
 }

@@ -48,6 +48,9 @@ private struct Envelope: Codable { var payload: Data; var checksum: String }
 public struct JournalReplay: Sendable {
     public var events: [JournalEvent]
     public var valid: Bool
+    /// The file ends in the middle of a record: power was lost while the last record was being
+    /// written. The records before it are whole and are what happened up to then (D-040).
+    public var lostTail = false
 }
 public struct TransactionSummary: Codable, Identifiable, Sendable {
     public var schemaVersion: Int = 1
@@ -82,8 +85,9 @@ public final class JournalWriter {
         let payload = try encoder.encode(event), checksum = Durable.hash(payload)
         var line = try encoder.encode(Envelope(payload: payload, checksum: checksum)); line.append(10)
         try Durable.writeAll(fd, line)
-        if fast, operation != nil, error == nil { try Durable.ordered(fd) } else { try Durable.sync(fd) }
+        // The line is in the file from here on, so the next record continues from it even if confirming it fails.
         sequence += 1; previous = checksum
+        if fast, operation != nil, error == nil { try Durable.ordered(fd) } else { try Durable.sync(fd) }
     }
 }
 public struct JournalStore: Sendable {
@@ -116,7 +120,12 @@ public struct JournalStore: Sendable {
             }
             if buffer.count > 1_048_576 { return JournalReplay(events: events, valid: false) }
         }
-        return JournalReplay(events: events, valid: buffer.isEmpty)
+        // What is left has no line end: the last record was being written when the file stopped growing.
+        // Every record is written before the step it announces or after the step it reports, so the
+        // records before it describe a state Recovery already handles: an item at its old, temporary or
+        // new name. A record that is complete but wrong (a checksum, its place in the chain) is damage
+        // and still makes the whole journal unusable, above.
+        return JournalReplay(events: events, valid: true, lostTail: !buffer.isEmpty)
     }
 }
 

@@ -18,7 +18,44 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인.
 
-### Store Release Phase 1 Gate (2026-10-07) — 현재 값
+### 출시 전 코드 리뷰와 그 수정 (2026-10-13, T-013) — 현재 값
+
+영수증 MAC-PRERELEASE-REVIEW-GATE-20261013, 로컬 evidence artifacts/evidence/prerelease-review. 이 대화의 맥락을 모르는 리뷰어 셋이 2026-10-07 이후 바뀐 source를 읽기 전용으로 리뷰했다(폴더 접근 규칙, 작업 기록과 빠른 방식, 결과 목록과 화면 동작). P0는 없었다. 지적된 것을 고친 뒤 아래 Gate를 현재 source에서 한 번 실행했다. AI가 실행한 Engineering Verification이다.
+
+| 항목 | 명령 | 결과 |
+|---|---|---|
+| Runtime·UI model·Core test | eng/test.sh --level 3 | 157개 실행, 실패 0 (통합 76 중 11 skip, UI model 52 중 1 skip, Core 29) |
+| 일회용 volume | eng/test-volumes.py | APFS, 대소문자 구분 APFS, exFAT, FAT32 PASS |
+| 실제 App Sandbox | eng/test-sandbox.py | 15개 PASS. 새로 확인한 것: 이름이 합침형으로 저장된 폴더 안의 파일(경로는 분리형으로 도착함)을 폴더 선택 뒤 이름 변경, exFAT 위의 추가한 폴더는 ‘드라이브 제외’, 목록의 전체 선택과 Return으로 자세히 보기 |
+| sandbox 밖 회귀(제품 gate 아님) | eng/test-sandbox.py --direct | 15개 PASS |
+| 리소스·스토어 문구 | eng/validate-resources.py; eng/validate-marketing.py | 571 keys × ko/en/ja PASS, 스토어 문구 PASS |
+| AppStore build·archive preflight | eng/build.sh --configuration AppStore; eng/archive-store.sh --preflight | 둘 다 성공. arm64만, entitlement 셋, 확인용 코드 문자열 0건 |
+| 대표 화면 | --render-ux, --render-shell, --render-responsive, --render-expansion | 238장(79+51+75+33), assertion PASS. 여러 문자의 이름(emoji, 태국어, 데바나가리, 아랍어, 옛 글자체 한자)이 목록에 그려지는 것과 ‘상위 폴더 선택…’ 버튼을 직접 확인 |
+
+리뷰 지적과 처리(P0 0, P1 2, 나머지 P2):
+
+| 지적 | 처리 |
+|---|---|
+| P1: 빠른 방식이 작업 기록의 volume을 보지 않음. 파일과 기록이 다른 드라이브면 전원 차단 시 임시 이름으로 남고 기록에 없을 수 있음 | 수정: 내장 드라이브이고 기록과 같은 volume일 때만 빠른 방식(D-036 보완). test 추가 |
+| P1: 따로 넘겨받은 파일의 폴더 경로가 허용한 폴더와 글자 표기가 다르면 ‘다른 폴더를 선택했습니다’가 반복됨. 리뷰는 추정으로 냈고, 실제 sandbox에서 경로가 분리형으로 도착하는 것을 확인함 | 수정: 시스템이 알려 주는 경로로 다시 적음. model test와 실제 sandbox 시나리오 추가 |
+| 끝이 끊긴 기록 하나가 모든 Undo를 막고 풀 방법이 없음 | 수정: 유실된 끝으로 읽음(D-040). 손상은 이전처럼 차단. test 교체·추가 |
+| 다른 안내가 떠 있거나 안내를 닫으면 폴더 선택 버튼이 없음 | 수정: 버튼이 항목의 상태를 따름 |
+| 지원하지 않는 드라이브의 폴더가 ‘상위 폴더 선택 필요’로 나옴 | 수정: 드라이브 사유가 먼저. 실제 sandbox의 exFAT 시나리오로 확인 |
+| 추가한 폴더를 Finder에서 이름을 바꾸면 ‘폴더 선택 필요’인데 버튼이 무반응. 같은 이름을 이어받은 폴더가 상위 허용으로도 안 열림 | 수정: ‘지금 접근할 수 없음’으로 구분하고, 옮겨진 허용은 건너뜀. test 추가 |
+| 되돌리기용 요청에서 다른 폴더를 받아 두고 창이 반복됨 | 수정: 닿지 못하면 받지 않음. test 추가 |
+| 기록을 못 읽고 시작하면 남겨 둔 접근이 지워짐 | 수정: 읽은 뒤에만 정리. test 추가 |
+| 접근 hold가 늦게 풀리거나 안 풀림(같은 폴더 두 번 추가, 줄 하나씩 제거, 되돌리기 반복, 감시 재시작 사이의 틈, 같은 자리의 다른 폴더) | 수정: 한 번만 잡고, 목록에서 빠지면 돌려주고, 감시는 새로 잡은 뒤 놓음 |
+| 확정 실패 뒤 다음 기록의 순번이 겹침 | 수정: 줄을 쓴 시점에 순번을 올림 |
+| 목록: ⌘A가 꺼져 있을 수 있음, Return과 키보드 메뉴로 자세히 보기 불가, 빈 곳·열 제목·체크 상자 더블클릭에 자세히 보기가 열림 | 수정. 실제 앱에서 전체 선택과 Return 동작 확인 |
+| 목록: 앱 글꼴이 아님, 조각이 옆 칸으로 넘칠 수 있음, 키 큰 문자가 잘릴 수 있음, 설명이 칸 전체에 하나, VoiceOver에 칸으로 안 잡힐 수 있음 | 수정: 앱 글꼴, 칸 안으로 자르기, 줄 높이 여유, 조각별 설명, 칸 역할 유지. 화면으로 확인(VoiceOver 읽기는 미확인) |
+| ‘선택한 항목만’에서 체크를 풀면 키보드 위치를 잃음 | 수정: 그 자리의 줄에 남음 |
+| 폴더만 넣으면 ‘폴더 이름도 변경’ 안내가 안 나옴, 일본어 입력 중 Tab이 후보 선택을 가로챔 | 수정 |
+| 폴더 트리 더블클릭에 필터가 켜졌다 꺼짐 | 수정: 선택된 채로 남음 |
+| 빠른 방식 안내가 외장 드라이브 작업 뒤에도 뜨고, 다른 안내에 덮여도 봤다고 기록됨 | 수정 |
+| 성능: 100,000줄에서 목록 갱신이 느릴 것이라는 추정 | 수정 없음. 개발용 Mac에서 잰 값이 0.05초이므로 통과 |
+| 온전히 쓰였지만 틀린 기록(디스크 손상 등)을 사용자가 치울 방법이 없음 | 수정 없음. 새 기능이 필요하고 드문 경우라 남김(P2) |
+
+### Store Release Phase 1 Gate (2026-10-07)
 
 판정 HUMAN_ACTION_REQUIRED: 제품과 archive는 준비됐고 Apple 계정에서 사용자가 할 일만 남았다(RELEASE.md). 영수증 MAC-STORE-RELEASE-1-GATE-20261007, 로컬 evidence artifacts/evidence/store-release-1. 모든 항목을 현재 source에서 한 번 실행했다. AI가 실행한 Engineering Verification이며 User QA PASS가 아니다.
 

@@ -40,8 +40,11 @@ public final class AccessRoots: @unchecked Sendable {
             let root = AuthorizedRoot(path: try FS.rawDirectoryPath(fd), identity: try FS.directoryIdentity(fd), volume: FS.volumeUUID(fd))
             lock.lock(); defer { lock.unlock() }
             if var known = grants[root.path], known.root == root { known.holders += 1; grants[root.path] = known; close(fd); return root }
-            if let replaced = grants[root.path] { close(replaced.fd) }
-            grants[root.path] = Grant(root: root, fd: fd, url: url, lease: lease, holders: 1)
+            // Another folder is at that place now. Whoever held the place still holds it, and will give
+            // it back once each: the count goes on, so nobody's release closes it under someone else.
+            let earlier = grants[root.path]
+            if let earlier { close(earlier.fd) }
+            grants[root.path] = Grant(root: root, fd: fd, url: url, lease: lease, holders: (earlier?.holders ?? 0) + 1)
             return root
         } catch { close(fd); throw error }
     }
@@ -70,24 +73,35 @@ public final class AccessRoots: @unchecked Sendable {
         lock.lock(); let url = grants[path]?.url; lock.unlock()
         return try? url?.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
     }
-    private func match(_ path: RawPath) -> Grant? {
-        var best: Grant?
-        for (root, grant) in grants where path == root || path.bytes.starts(with: root.bytes + Data([47])) || root.bytes == Data([47]) {
-            if best == nil || root.bytes.count > best!.root.path.bytes.count { best = grant }
-        }
-        return best
+    /// Every allowed folder that contains this path, the deepest first.
+    private func matches(_ path: RawPath) -> [Grant] {
+        grants.filter { root, _ in path == root || path.bytes.starts(with: root.bytes + Data([47])) || root.bytes == Data([47]) }
+            .map(\.value).sorted { $0.root.path.bytes.count > $1.root.path.bytes.count }
     }
-    /// A descriptor for the allowed folder above `path` and the components still to walk, or nil
-    /// when no allowed folder contains it. The folder must still be the one that was allowed and
-    /// still be where it was: a moved or replaced folder is not used.
-    func anchor(_ path: RawPath) -> (fd: Int32, rest: [Data])? {
+    private func match(_ path: RawPath) -> Grant? { matches(path).first }
+    /// Where a walk to `path` may start.
+    enum Anchor {
+        /// A descriptor for an allowed folder above the path, and the components still to walk.
+        case open(fd: Int32, rest: [Data])
+        /// A folder above the path was allowed, but it has been moved or replaced since.
+        case moved
+        /// No allowed folder contains the path.
+        case none
+    }
+    /// The folder must still be the one that was allowed and still be where it was: a moved or
+    /// replaced folder is not used. It is passed over, so a folder allowed above it can still lead there.
+    func anchor(_ path: RawPath) -> Anchor {
         lock.lock(); defer { lock.unlock() }
-        guard let grant = match(path),
-              (try? FS.directoryIdentity(grant.fd)) == grant.root.identity, (try? FS.rawDirectoryPath(grant.fd)) == grant.root.path else { return nil }
-        let copy = openat(grant.fd, ".", O_RDONLY | O_DIRECTORY | O_CLOEXEC)
-        guard copy >= 0 else { return nil }
-        let remainder = path == grant.root.path ? Data() : Data(path.bytes.dropFirst(grant.root.path.bytes == Data([47]) ? 0 : grant.root.path.bytes.count))
-        return (copy, remainder.split(separator: 47).map { Data($0) })
+        let candidates = matches(path)
+        guard !candidates.isEmpty else { return .none }
+        for grant in candidates {
+            guard (try? FS.directoryIdentity(grant.fd)) == grant.root.identity, (try? FS.rawDirectoryPath(grant.fd)) == grant.root.path else { continue }
+            let copy = openat(grant.fd, ".", O_RDONLY | O_DIRECTORY | O_CLOEXEC)
+            guard copy >= 0 else { continue }
+            let remainder = path == grant.root.path ? Data() : Data(path.bytes.dropFirst(grant.root.path.bytes == Data([47]) ? 0 : grant.root.path.bytes.count))
+            return .open(fd: copy, rest: remainder.split(separator: 47).map { Data($0) })
+        }
+        return .moved
     }
 }
 

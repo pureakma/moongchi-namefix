@@ -390,15 +390,19 @@ struct StatusLine: View {
                             if message == "ParentFolderNeeded" { Button(model.t("ChooseParentFolder")) { showsNotice = false; model.requestParentFolder() } }
                         }.padding(14).frame(width: 340, alignment: .leading)
                     }
-                // What to do about it is one click away, not behind the text.
-                if message == "FolderAccessNeeded" || message == "WrongFolderChosen" && model.entries.contains(where: { $0.reason == "FolderAccessNeeded" }) {
-                    Button(model.t("ChooseFolderToAllow")) { model.requestFolderForLooseItems() }.controlSize(.small).fixedSize().disabled(model.busy).accessibilityIdentifier("chooseFolder")
-                } else if message == "ParentFolderNeeded" || message == "WrongFolderChosen" && model.entries.contains(where: { $0.reason == "ParentFolderNeeded" }) {
-                    Button(model.t("ChooseParentFolder")) { model.requestParentFolder() }.controlSize(.small).fixedSize().disabled(model.busy).accessibilityIdentifier("chooseParentFolder")
-                }
+                accessButton
                 Button { model.message = nil } label: { Image(systemName: "xmark").font(.caption) }.buttonStyle(.plain).foregroundStyle(palette.secondary)
                     .hoverTip(model.t("Close"), below: false).accessibilityLabel(model.t("Close"))
             }
+        } else { accessButton }
+    }
+    /// What to do about a missing folder is one click away, whatever else the line says and
+    /// also after the notice was closed. It follows what the listed items wait for, not the notice.
+    @ViewBuilder private var accessButton: some View {
+        if model.accessNeed == "FolderAccessNeeded" {
+            Button(model.t("ChooseFolderToAllow")) { model.requestFolderForLooseItems() }.controlSize(.small).fixedSize().disabled(model.busy || model.plan != nil).accessibilityIdentifier("chooseFolder")
+        } else if model.accessNeed == "ParentFolderNeeded" {
+            Button(model.t("ChooseParentFolder")) { model.requestParentFolder() }.controlSize(.small).fixedSize().disabled(model.busy || model.plan != nil).accessibilityIdentifier("chooseParentFolder")
         }
     }
     @ViewBuilder private var activity: some View {
@@ -443,10 +447,13 @@ struct ResultTable: NSViewRepresentable {
     struct Look {
         let text, secondary, preview, warning, control, border: NSColor
         let compact: Bool
-        let body = NSFont.systemFont(ofSize: NSFont.systemFontSize), caption = NSFont.systemFont(ofSize: 10), chip = NSFont.systemFont(ofSize: 12, weight: .medium)
-        init(_ palette: Palette, compact: Bool) {
+        /// Names are in the app's own typeface, like the rest of the window; the small labels are the system's, as before.
+        let body: NSFont
+        let caption = NSFont.systemFont(ofSize: 10), chip = NSFont.systemFont(ofSize: 12, weight: .medium)
+        init(_ palette: Palette, compact: Bool, language: String = "system") {
             text = NSColor(palette.text); secondary = NSColor(palette.secondary); preview = NSColor(palette.preview); warning = NSColor(palette.warning)
             control = NSColor(palette.control); border = NSColor(palette.border); self.compact = compact
+            body = NSFont(name: L10n.language(language) == "ja" ? "PretendardJPVariable-Regular" : "PretendardVariable-Regular", size: 13) ?? .systemFont(ofSize: NSFont.systemFontSize)
         }
         var padding: CGFloat { compact ? 3 : 7 }
     }
@@ -470,11 +477,12 @@ struct ResultTable: NSViewRepresentable {
         table.style = .inset; table.backgroundColor = .clear; table.usesAlternatingRowBackgroundColors = false
         table.columnAutoresizingStyle = .uniformColumnAutoresizingStyle; table.allowsColumnReordering = false
         table.allowsMultipleSelection = false; table.allowsEmptySelection = true; table.gridStyleMask = .solidHorizontalGridLineMask
-        table.dataSource = self; table.delegate = self; table.target = self; table.doubleAction = #selector(inspect)
+        table.dataSource = self; table.delegate = self; table.target = self; table.doubleAction = #selector(doubleClicked)
         table.setAccessibilityIdentifier("resultsTable")
         let menu = NSMenu(); menu.delegate = self; table.menu = menu
         table.space = { [weak self] in self?.toggleFocused() ?? false }
         table.all = { [weak self] in self?.model.select("visible") }
+        table.open = { [weak self] in self?.inspect(row: self?.table.selectedRow ?? -1) ?? false }
         table.undo = { [weak self] in
             guard let model = self?.model, let record = model.history.first(where: { $0.mode == "rename" && $0.succeeded > 0 }) else { return false }
             model.prepare(mode: "undo", historyID: record.id); return true
@@ -485,11 +493,11 @@ struct ResultTable: NSViewRepresentable {
     }
 
     func update(_ palette: Palette) {
-        let settings = model.settings
+        let settings = model.settings, wasAt = table.selectedRow
         let now = [settings.language, palette.dark ? "d" : "l", palette.olive ? "o" : "", settings.compactRows ? "c" : ""]
         let restyled = now != state
         if restyled {
-            state = now; look = Look(palette, compact: settings.compactRows); table.gridColor = look.border.withAlphaComponent(0.6)
+            state = now; look = Look(palette, compact: settings.compactRows, language: settings.language); table.gridColor = look.border.withAlphaComponent(0.6)
             for (column, key) in zip(table.tableColumns, ["", "Name", "Preview", "Status"]) { column.title = key.isEmpty ? "" : model.t(key) }
             table.headerView?.needsDisplay = true
         }
@@ -509,7 +517,14 @@ struct ResultTable: NSViewRepresentable {
         let current = table.selectedRow >= 0 && table.selectedRow < rows.count ? rows[table.selectedRow].id : nil
         if current != model.focused {
             syncing = true
-            if let id = model.focused, let index = rows.firstIndex(where: { $0.id == id }) { table.selectRowIndexes([index], byExtendingSelection: false) } else { table.deselectAll(nil) }
+            if let id = model.focused, let index = rows.firstIndex(where: { $0.id == id }) { table.selectRowIndexes([index], byExtendingSelection: false) }
+            else if model.focused != nil, model.filter == "SelectedOnly", wasAt >= 0, !rows.isEmpty {
+                // The focused row left a list of ticked rows because it was just unticked: the keyboard
+                // stays at that place, on the row that moved up into it.
+                let index = min(wasAt, rows.count - 1), id = rows[index].id
+                table.selectRowIndexes([index], byExtendingSelection: false); table.scrollRowToVisible(index)
+                DispatchQueue.main.async { [weak self] in if self?.model.focused != id { self?.model.focused = id } }
+            } else { table.deselectAll(nil) }
             syncing = false
         }
     }
@@ -569,31 +584,47 @@ struct ResultTable: NSViewRepresentable {
         guard table.selectedRow >= 0, table.selectedRow < rows.count, rows[table.selectedRow].status.fixable, !model.busy else { return false }
         model.toggle(rows[table.selectedRow]); return true
     }
-    @objc private func inspect() {
-        let row = table.clickedRow >= 0 ? table.clickedRow : table.selectedRow
-        guard row >= 0, row < rows.count else { return }
-        model.focused = rows[row].id; model.sheet = "inspector"
+    @discardableResult private func inspect(row: Int) -> Bool {
+        guard row >= 0, row < rows.count else { return false }
+        model.focused = rows[row].id; model.sheet = "inspector"; return true
     }
+    /// A double-click opens the details of the row it was on: not of whichever row is focused when
+    /// the click was on the header or below the rows, and not when it was on the tick box.
+    @objc private func doubleClicked() {
+        guard table.clickedRow >= 0, table.clickedColumn != table.column(withIdentifier: NSUserInterfaceItemIdentifier("check")) else { return }
+        inspect(row: table.clickedRow)
+    }
+    /// The row the menu is for: the one under the pointer, or the focused one when the menu was opened from the keyboard.
+    private var menuRow = -1
+    @objc private func inspectFromMenu() { inspect(row: menuRow) }
     @objc private func copyPath() {
-        guard table.clickedRow >= 0, table.clickedRow < rows.count else { return }
-        NSPasteboard.general.clearContents(); NSPasteboard.general.setString(rows[table.clickedRow].path.display, forType: .string)
+        guard menuRow >= 0, menuRow < rows.count else { return }
+        NSPasteboard.general.clearContents(); NSPasteboard.general.setString(rows[menuRow].path.display, forType: .string)
     }
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
-        guard table.clickedRow >= 0 else { return }
-        menu.addItem(withTitle: model.t("InspectShort"), action: #selector(inspect), keyEquivalent: "").target = self
+        menuRow = table.clickedRow >= 0 ? table.clickedRow : table.selectedRow
+        guard menuRow >= 0, menuRow < rows.count else { return }
+        menu.addItem(withTitle: model.t("InspectShort"), action: #selector(inspectFromMenu), keyEquivalent: "").target = self
         menu.addItem(withTitle: model.t("CopyPath"), action: #selector(copyPath), keyEquivalent: "").target = self
     }
 }
 
 /// The table's own keys: Space ticks the focused row, ⌘A selects what is listed, ⌘Z offers the last rename for undo.
 final class KeyTable: NSTableView {
-    var space: () -> Bool = { false }, undo: () -> Bool = { false }, all: () -> Void = {}
+    var space: () -> Bool = { false }, undo: () -> Bool = { false }, open: () -> Bool = { false }, all: () -> Void = {}
     override func keyDown(with event: NSEvent) {
-        if event.charactersIgnoringModifiers == " ", event.modifierFlags.intersection([.command, .option, .control]).isEmpty, space() { return }
+        let plain = event.modifierFlags.intersection([.command, .option, .control]).isEmpty
+        if event.charactersIgnoringModifiers == " ", plain, space() { return }
+        // Return opens the details of the focused row, as a double-click does.
+        if event.keyCode == 36 || event.keyCode == 76, plain, open() { return }
         super.keyDown(with: event)
     }
     override func selectAll(_ sender: Any?) { all() }
+    // A table that focuses one row at a time switches Select All off; here it ticks every listed row.
+    override func validateUserInterfaceItem(_ item: any NSValidatedUserInterfaceItem) -> Bool {
+        item.action == #selector(selectAll(_:)) ? numberOfRows > 0 : super.validateUserInterfaceItem(item)
+    }
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
         if window?.firstResponder === self, event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command, event.charactersIgnoringModifiers == "z", undo() { return true }
         return super.performKeyEquivalent(with: event)
@@ -624,22 +655,46 @@ final class NameCell: NSTableCellView, NSViewToolTipOwner {
     }
     private var content = Content()
     private var look: ResultList.Look?
-    private var chipArea = NSRect.zero, moreArea = NSRect.zero, chipRects: [NSRect] = []
-    init(_ id: NSUserInterfaceItemIdentifier) { super.init(frame: .zero); identifier = id; setAccessibilityElement(true); setAccessibilityRole(.staticText) }
+    // The cell keeps its place in the table for assistive apps (a cell under its column), with what it draws as its label.
+    // Nothing is drawn outside it: a narrow column cuts the pieces off instead of letting them run into the next one.
+    init(_ id: NSUserInterfaceItemIdentifier) { super.init(frame: .zero); identifier = id; setAccessibilityElement(true); clipsToBounds = true }
     required init?(coder: NSCoder) { nil }
     override var isFlipped: Bool { true }
     override var backgroundStyle: NSView.BackgroundStyle { didSet { needsDisplay = true } }
     func show(_ content: Content, _ look: ResultList.Look) {
         self.content = content; self.look = look; needsDisplay = true
-        let shown = content.chips.prefix(3).map { $0.glyph + " " + $0.code }.joined(separator: ", ")
+        let shown = (content.chips.prefix(3).map { $0.glyph + " " + $0.code } + (content.more > 0 ? ["+\(content.more)"] : [])).joined(separator: ", ")
         setAccessibilityLabel(content.iconLabel.isEmpty ? content.text : content.iconLabel + ", " + content.text)
         setAccessibilityValue(shown.isEmpty ? nil : shown); setAccessibilityHelp(content.small ? content.tip : nil)
-        removeAllToolTips(); addToolTip(NSRect(x: 0, y: 0, width: 10_000, height: 10_000), owner: self, userData: nil)
+        // One tooltip rectangle for each thing with something of its own to say: the name, each piece,
+        // the count of further changes, and the rest of the row of pieces. They do not overlap.
+        removeAllToolTips()
+        let pieces = pieces(), top = pieces.chips.first?.minY ?? 10_000
+        addToolTip(NSRect(x: 0, y: 0, width: 10_000, height: top), owner: self, userData: nil)
+        for box in pieces.chips { addToolTip(box, owner: self, userData: nil) }
+        if pieces.more != .zero { addToolTip(pieces.more, owner: self, userData: nil) }
+        if let last = pieces.chips.last { addToolTip(NSRect(x: max(last.maxX, pieces.more.maxX) + 1, y: top, width: 10_000, height: 20), owner: self, userData: nil) }
+    }
+    /// Where the pieces under the name sit. Drawing and tooltips both ask here, so they agree.
+    private func pieces() -> (x: CGFloat, y: CGFloat, chips: [NSRect], more: NSRect) {
+        guard let look, !content.small, !content.chips.isEmpty else { return (0, 0, [], .zero) }
+        let line = ceil(look.body.ascender - look.body.descender + look.body.leading)
+        let x: CGFloat = content.icon == nil ? 0 : 22, y = look.padding + 2 + line + 4 + (content.pair == nil ? 0 : 17)
+        var left = x, chips: [NSRect] = []
+        for token in content.chips.prefix(3) {
+            let width = NSAttributedString(string: token.glyph, attributes: [.font: look.chip]).size().width
+            let box = NSRect(x: left, y: y, width: ceil(max(width, 8)) + 8, height: 20)
+            chips.append(box); left = box.maxX + 3
+        }
+        if content.chips.count > 3 { left += NSAttributedString(string: "…", attributes: [.font: look.body]).size().width + 3 }
+        let more = content.more > 0 ? NSRect(x: left, y: y, width: NSAttributedString(string: "+\(content.more)", attributes: [.font: look.caption]).size().width + 4, height: 20) : .zero
+        return (x, y, chips, more)
     }
     func view(_ view: NSView, stringForToolTip tag: NSView.ToolTipTag, point: NSPoint, userData data: UnsafeMutableRawPointer?) -> String {
-        if let index = chipRects.firstIndex(where: { $0.contains(point) }), index < content.chips.count { return content.chips[index].code }
-        if moreArea.contains(point) { return content.moreTip }
-        if chipArea.contains(point) { return content.chipTip }
+        let pieces = pieces()
+        if let index = pieces.chips.firstIndex(where: { $0.contains(point) }), index < content.chips.count { return content.chips[index].code }
+        if pieces.more.contains(point) { return content.moreTip }
+        if !pieces.chips.isEmpty, point.y >= pieces.y { return content.chipTip }
         return content.tip
     }
     override func draw(_ dirtyRect: NSRect) {
@@ -647,7 +702,6 @@ final class NameCell: NSTableCellView, NSViewToolTipOwner {
         let lit = backgroundStyle == .emphasized
         let color = lit ? NSColor.alternateSelectedControlTextColor : content.color, quiet = lit ? NSColor.alternateSelectedControlTextColor.withAlphaComponent(0.8) : look.secondary
         let style = NSMutableParagraphStyle(); style.lineBreakMode = .byTruncatingTail
-        chipRects = []; chipArea = .zero; moreArea = .zero
         if content.small {
             let text = NSAttributedString(string: content.text, attributes: [.font: look.caption, .foregroundColor: color, .paragraphStyle: style])
             let height = ceil(text.size().height)
@@ -662,30 +716,28 @@ final class NameCell: NSTableCellView, NSViewToolTipOwner {
             x = 22
         }
         NSAttributedString(string: content.text, attributes: [.font: look.body, .foregroundColor: color, .paragraphStyle: style])
-            .draw(with: NSRect(x: x, y: y, width: max(0, bounds.width - x), height: line), options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine])
+            // Room below the line for letters of scripts that stand taller than the body font; the line itself stays one line.
+            .draw(with: NSRect(x: x, y: y, width: max(0, bounds.width - x), height: max(line, bounds.height - y)), options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine])
         y += line + 4
         if let pair = content.pair {
             NSAttributedString(string: "🔗 " + pair, attributes: [.font: look.caption, .foregroundColor: quiet, .paragraphStyle: style])
                 .draw(with: NSRect(x: x, y: y, width: max(0, bounds.width - x), height: 13), options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine])
             y += 17
         }
-        guard !content.chips.isEmpty else { return }
-        var left = x
-        for token in content.chips.prefix(3) {
+        let pieces = pieces()
+        guard !pieces.chips.isEmpty else { return }
+        for (token, box) in zip(content.chips, pieces.chips) {
             let glyph = NSAttributedString(string: token.glyph, attributes: [.font: look.chip, .foregroundColor: lit ? NSColor.alternateSelectedControlTextColor : content.color])
-            let size = glyph.size(), box = NSRect(x: left, y: y, width: ceil(max(size.width, 8)) + 8, height: 20)
-            let path = NSBezierPath(roundedRect: box.insetBy(dx: 0.5, dy: 0.5), xRadius: 4, yRadius: 4)
+            let size = glyph.size(), path = NSBezierPath(roundedRect: box.insetBy(dx: 0.5, dy: 0.5), xRadius: 4, yRadius: 4)
             (lit ? NSColor.white.withAlphaComponent(0.18) : look.control).setFill(); path.fill()
             (lit ? NSColor.white.withAlphaComponent(0.5) : look.border).setStroke(); path.lineWidth = 1; path.stroke()
             glyph.draw(at: NSPoint(x: box.minX + (box.width - size.width) / 2, y: box.minY + (box.height - size.height) / 2))
-            chipRects.append(box); left = box.maxX + 3
         }
-        if content.chips.count > 3 { let dots = NSAttributedString(string: "…", attributes: [.font: look.body, .foregroundColor: color]); dots.draw(at: NSPoint(x: left, y: y + 1)); left += dots.size().width + 3 }
-        chipArea = NSRect(x: x, y: y, width: left - x, height: 20)
+        let after = (pieces.chips.last?.maxX ?? pieces.x) + 3
+        if content.chips.count > 3 { NSAttributedString(string: "…", attributes: [.font: look.body, .foregroundColor: color]).draw(at: NSPoint(x: after, y: pieces.y + 1)) }
         if content.more > 0 {
             let more = NSAttributedString(string: "+\(content.more)", attributes: [.font: look.caption, .foregroundColor: quiet])
-            more.draw(at: NSPoint(x: left + 1, y: y + (20 - more.size().height) / 2))
-            moreArea = NSRect(x: left, y: y, width: more.size().width + 4, height: 20)
+            more.draw(at: NSPoint(x: pieces.more.minX + 1, y: pieces.y + (20 - more.size().height) / 2))
         }
     }
 }
