@@ -66,6 +66,8 @@ public final class JournalWriter {
     private let fd: Int32
     private var sequence = 0
     private var previous = ""
+    private var length: off_t = 0
+    private var broken = false
     private let fast: Bool
     /// `fast` is the user's setting (D-036): the records of one item are written in order but not
     /// each confirmed by the drive. The first record, every failure and the last record are still
@@ -84,7 +86,15 @@ public final class JournalWriter {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         let payload = try encoder.encode(event), checksum = Durable.hash(payload)
         var line = try encoder.encode(Envelope(payload: payload, checksum: checksum)); line.append(10)
-        try Durable.writeAll(fd, line)
+        guard !broken else { throw FSError("JournalWriteFailed") }
+        do { try Durable.writeAll(fd, line) } catch {
+            // A line that stopped halfway is taken out again, so the record of the failure does not land on
+            // it and make the whole file unreadable. If it cannot be taken out nothing more is written,
+            // and what is there ends in a cut-off line, which Recovery reads as a lost tail.
+            if ftruncate(fd, length) != 0 || lseek(fd, length, SEEK_SET) != length { broken = true }
+            throw error
+        }
+        length += off_t(line.count)
         // The line is in the file from here on, so the next record continues from it even if confirming it fails.
         sequence += 1; previous = checksum
         if fast, operation != nil, error == nil { try Durable.ordered(fd) } else { try Durable.sync(fd) }

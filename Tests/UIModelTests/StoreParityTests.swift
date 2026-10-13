@@ -290,4 +290,47 @@ import NameFixRuntime
         XCTAssertEqual(try names(input), before)
         again.dismissResult(); try await settled(again); await again.shutdown()
     }
+    /// A folder whose name was respelled since an operation ran there is not the recorded place.
+    /// Undo says so once; it does not take the folder and then ask for it again without end.
+    func testUndoInAFolderRespelledSinceSaysSoAndDoesNotAskAgain() async throws {
+        restricted()
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        let input = root.appendingPathComponent("Inputs"), support = root.appendingPathComponent("support"), kept = support.appendingPathComponent("access.json")
+        _ = try write(input, "e\u{301}.txt")
+        let model = AppModel(dataRoot: support); await model.start()
+        model.add([input]); try await settled(model) { model.entries.contains { $0.status.fixable } }
+        model.prepare(); try await settled(model) { model.plan != nil }
+        model.execute(); try await settled(model) { model.result != nil }
+        model.dismissResult(); try await settled(model)
+        for _ in 0..<200 where !FileManager.default.fileExists(atPath: kept.path) { try await Task.sleep(for: .milliseconds(10)) }
+        await model.shutdown()
+        AccessRoots.shared.releaseAll(); try FileManager.default.removeItem(at: kept)
+        let respelled = root.appendingPathComponent("inputs")
+        XCTAssertEqual(rename(input.path, respelled.path), 0)
+        let again = AppModel(dataRoot: support); await again.start()
+        let record = try XCTUnwrap(again.history.first).id
+        again.prepare(mode: "undo", historyID: record); try await settled(again) { again.folderRequest != nil }
+        XCTAssertEqual(again.folderRequest?.folder.path, input.path)
+        again.allowFolder(respelled); try await settled(again)
+        XCTAssertEqual(again.message, "UnavailableHelp"); XCTAssertNil(again.folderRequest); XCTAssertNil(again.plan)
+        XCTAssertNil(AccessRoots.shared.root(containing: RawPath(respelled.path)), "A folder that does not help is not kept")
+        await again.shutdown()
+    }
+    /// A folder is held once however often it is handed over, and given back when its row is removed.
+    func testAFolderAddedTwiceIsHeldOnceAndGivenBackWithItsRow() async throws {
+        restricted()
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        let a = root.appendingPathComponent("a"), b = root.appendingPathComponent("b")
+        _ = try write(a, "e\u{301}.txt"); _ = try write(b, "o\u{301}.txt")
+        let model = AppModel(dataRoot: root.appendingPathComponent("support")); await model.start()
+        model.add([a]); try await settled(model) { !model.entries.isEmpty }
+        model.add([a, b]); try await settled(model) { model.roots.count == 2 }
+        XCTAssertEqual(model.roots.count, 2)
+        model.remove(RawPath(a.path)); try await settled(model) { model.roots.count == 1 }
+        XCTAssertFalse(AccessRoots.shared.isRoot(RawPath(a.path)), "Held once: removing its row gives it back")
+        XCTAssertTrue(AccessRoots.shared.isRoot(RawPath(b.path)))
+        model.remove(nil); try await settled(model) { model.roots.isEmpty }
+        XCTAssertFalse(AccessRoots.shared.isRoot(RawPath(b.path)))
+        await model.shutdown()
+    }
 }

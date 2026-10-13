@@ -386,8 +386,8 @@ struct StatusLine: View {
                     .popover(isPresented: $showsNotice, arrowEdge: .top) {
                         VStack(alignment: .leading, spacing: 10) {
                             Text(model.t(message)).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
-                            if message == "FolderAccessNeeded" { Button(model.t("ChooseFolderToAllow")) { showsNotice = false; model.requestFolderForLooseItems() } }
-                            if message == "ParentFolderNeeded" { Button(model.t("ChooseParentFolder")) { showsNotice = false; model.requestParentFolder() } }
+                            if message == "FolderAccessNeeded" { Button(model.t("ChooseFolderToAllow")) { showsNotice = false; model.requestFolderForLooseItems() }.disabled(model.busy || model.plan != nil) }
+                            if message == "ParentFolderNeeded" { Button(model.t("ChooseParentFolder")) { showsNotice = false; model.requestParentFolder() }.disabled(model.busy || model.plan != nil) }
                         }.padding(14).frame(width: 340, alignment: .leading)
                     }
                 accessButton
@@ -463,6 +463,8 @@ struct ResultTable: NSViewRepresentable {
     private var look = Look(Palette("light", systemDark: false), compact: false)
     private var state: [String] = []
     private var revision: UInt64 = .max, selected: Set<UUID> = [], busy = false, ratio = -1.0, syncing = false
+    /// The focused row the user just unticked in a list of ticked rows, and where it stood.
+    private var leaving: (id: UUID, at: Int)?
     init(model: AppModel) { self.model = model }
 
     func build(_ palette: Palette) -> NSScrollView {
@@ -493,7 +495,7 @@ struct ResultTable: NSViewRepresentable {
     }
 
     func update(_ palette: Palette) {
-        let settings = model.settings, wasAt = table.selectedRow
+        let settings = model.settings
         let now = [settings.language, palette.dark ? "d" : "l", palette.olive ? "o" : "", settings.compactRows ? "c" : ""]
         let restyled = now != state
         if restyled {
@@ -514,14 +516,17 @@ struct ResultTable: NSViewRepresentable {
         if settings.nameColumnRatio != ratio, table.enclosingScrollView.map({ $0.contentSize.width > 200 }) == true { ratio = settings.nameColumnRatio; share() }
         else if ratio < 0 { DispatchQueue.main.async { [weak self] in guard let self, self.ratio < 0, let scroll = self.table.enclosingScrollView, scroll.contentSize.width > 200 else { return }; self.ratio = self.model.settings.nameColumnRatio; self.share() } }
         // The focused row follows the model (the inspector and the keyboard both read it).
+        if let left = leaving, left.id != model.focused || model.selected.contains(left.id) || model.filter != "SelectedOnly" { leaving = nil }
         let current = table.selectedRow >= 0 && table.selectedRow < rows.count ? rows[table.selectedRow].id : nil
         if current != model.focused {
             syncing = true
             if let id = model.focused, let index = rows.firstIndex(where: { $0.id == id }) { table.selectRowIndexes([index], byExtendingSelection: false) }
-            else if model.focused != nil, model.filter == "SelectedOnly", wasAt >= 0, !rows.isEmpty {
+            else if let left = leaving, left.id == model.focused, model.filter == "SelectedOnly", !model.selected.contains(left.id), !rows.isEmpty {
                 // The focused row left a list of ticked rows because it was just unticked: the keyboard
-                // stays at that place, on the row that moved up into it.
-                let index = min(wasAt, rows.count - 1), id = rows[index].id
+                // stays at that place, on the row that moved up into it. A row that is out of sight for
+                // another reason (a search, another folder, the filter just switched on) moves nothing.
+                leaving = nil
+                let index = min(left.at, rows.count - 1), id = rows[index].id
                 table.selectRowIndexes([index], byExtendingSelection: false); table.scrollRowToVisible(index)
                 DispatchQueue.main.async { [weak self] in if self?.model.focused != id { self?.model.focused = id } }
             } else { table.deselectAll(nil) }
@@ -550,7 +555,7 @@ struct ResultTable: NSViewRepresentable {
             let cell = tableView.makeView(withIdentifier: id, owner: nil) as? CheckCell ?? CheckCell(id) { [weak self] cell in
                 guard let self else { return }
                 let row = self.table.row(for: cell)
-                if row >= 0, row < self.rows.count { self.model.toggle(self.rows[row]) }
+                if row >= 0, row < self.rows.count { self.toggle(row) }
             }
             fill(cell, entry); return cell
         }
@@ -582,11 +587,16 @@ struct ResultTable: NSViewRepresentable {
     }
     private func toggleFocused() -> Bool {
         guard table.selectedRow >= 0, table.selectedRow < rows.count, rows[table.selectedRow].status.fixable, !model.busy else { return false }
-        model.toggle(rows[table.selectedRow]); return true
+        toggle(table.selectedRow); return true
+    }
+    private func toggle(_ row: Int) {
+        let entry = rows[row]
+        if row == table.selectedRow, model.filter == "SelectedOnly", model.selected.contains(entry.id) { leaving = (entry.id, row) }
+        model.toggle(entry)
     }
     @discardableResult private func inspect(row: Int) -> Bool {
         guard row >= 0, row < rows.count else { return false }
-        model.focused = rows[row].id; model.sheet = "inspector"; return true
+        model.focused = rows[row].id; model.present("inspector"); return true
     }
     /// A double-click opens the details of the row it was on: not of whichever row is focused when
     /// the click was on the header or below the rows, and not when it was on the tick box.
@@ -595,16 +605,20 @@ struct ResultTable: NSViewRepresentable {
         inspect(row: table.clickedRow)
     }
     /// The row the menu is for: the one under the pointer, or the focused one when the menu was opened from the keyboard.
-    private var menuRow = -1
-    @objc private func inspectFromMenu() { inspect(row: menuRow) }
+    /// It is the item that is kept, not its place: the list may be refreshed while the menu is open.
+    private var menuItem: FileEntry?
+    @objc private func inspectFromMenu() { if let item = menuItem { model.focused = item.id; model.present("inspector") } }
     @objc private func copyPath() {
-        guard menuRow >= 0, menuRow < rows.count else { return }
-        NSPasteboard.general.clearContents(); NSPasteboard.general.setString(rows[menuRow].path.display, forType: .string)
+        guard let item = menuItem else { return }
+        NSPasteboard.general.clearContents(); NSPasteboard.general.setString(item.path.display, forType: .string)
     }
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
-        menuRow = table.clickedRow >= 0 ? table.clickedRow : table.selectedRow
-        guard menuRow >= 0, menuRow < rows.count else { return }
+        // A click below the rows is on no row, and gets no menu.
+        let pointer = [.rightMouseDown, .leftMouseDown, .otherMouseDown].contains(NSApp.currentEvent?.type)
+        let row = pointer ? table.clickedRow : table.selectedRow
+        menuItem = row >= 0 && row < rows.count ? rows[row] : nil
+        guard menuItem != nil else { return }
         menu.addItem(withTitle: model.t("InspectShort"), action: #selector(inspectFromMenu), keyEquivalent: "").target = self
         menu.addItem(withTitle: model.t("CopyPath"), action: #selector(copyPath), keyEquivalent: "").target = self
     }
@@ -615,7 +629,8 @@ final class KeyTable: NSTableView {
     var space: () -> Bool = { false }, undo: () -> Bool = { false }, open: () -> Bool = { false }, all: () -> Void = {}
     override func keyDown(with event: NSEvent) {
         let plain = event.modifierFlags.intersection([.command, .option, .control]).isEmpty
-        if event.charactersIgnoringModifiers == " ", plain, space() { return }
+        // One press, one tick: a held key does not go on down the list.
+        if event.charactersIgnoringModifiers == " ", plain, event.isARepeat || space() { return }
         // Return opens the details of the focused row, as a double-click does.
         if event.keyCode == 36 || event.keyCode == 76, plain, open() { return }
         super.keyDown(with: event)
@@ -657,7 +672,7 @@ final class NameCell: NSTableCellView, NSViewToolTipOwner {
     private var look: ResultList.Look?
     // The cell keeps its place in the table for assistive apps (a cell under its column), with what it draws as its label.
     // Nothing is drawn outside it: a narrow column cuts the pieces off instead of letting them run into the next one.
-    init(_ id: NSUserInterfaceItemIdentifier) { super.init(frame: .zero); identifier = id; setAccessibilityElement(true); clipsToBounds = true }
+    init(_ id: NSUserInterfaceItemIdentifier) { super.init(frame: .zero); identifier = id; setAccessibilityElement(true); setAccessibilityRole(.cell); clipsToBounds = true }
     required init?(coder: NSCoder) { nil }
     override var isFlipped: Bool { true }
     override var backgroundStyle: NSView.BackgroundStyle { didSet { needsDisplay = true } }
@@ -671,9 +686,12 @@ final class NameCell: NSTableCellView, NSViewToolTipOwner {
         removeAllToolTips()
         let pieces = pieces(), top = pieces.chips.first?.minY ?? 10_000
         addToolTip(NSRect(x: 0, y: 0, width: 10_000, height: top), owner: self, userData: nil)
-        for box in pieces.chips { addToolTip(box, owner: self, userData: nil) }
-        if pieces.more != .zero { addToolTip(pieces.more, owner: self, userData: nil) }
-        if let last = pieces.chips.last { addToolTip(NSRect(x: max(last.maxX, pieces.more.maxX) + 1, y: top, width: 10_000, height: 20), owner: self, userData: nil) }
+        var edge: CGFloat = 0
+        for box in pieces.chips + (pieces.more == .zero ? [] : [pieces.more]) {
+            if box.minX > edge { addToolTip(NSRect(x: edge, y: top, width: box.minX - edge, height: 20), owner: self, userData: nil) }
+            addToolTip(box, owner: self, userData: nil); edge = box.maxX
+        }
+        if !pieces.chips.isEmpty { addToolTip(NSRect(x: edge, y: top, width: 10_000, height: 20), owner: self, userData: nil) }
     }
     /// Where the pieces under the name sit. Drawing and tooltips both ask here, so they agree.
     private func pieces() -> (x: CGFloat, y: CGFloat, chips: [NSRect], more: NSRect) {
@@ -716,8 +734,9 @@ final class NameCell: NSTableCellView, NSViewToolTipOwner {
             x = 22
         }
         NSAttributedString(string: content.text, attributes: [.font: look.body, .foregroundColor: color, .paragraphStyle: style])
-            // Room below the line for letters of scripts that stand taller than the body font; the line itself stays one line.
-            .draw(with: NSRect(x: x, y: y, width: max(0, bounds.width - x), height: max(line, bounds.height - y)), options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine])
+            // One line's height: a name may contain a line break, and a taller box would draw its second line over what is below.
+            // Letters that stand taller than the body font are not cut by this box, only by the cell.
+            .draw(with: NSRect(x: x, y: y, width: max(0, bounds.width - x), height: line), options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine])
         y += line + 4
         if let pair = content.pair {
             NSAttributedString(string: "🔗 " + pair, attributes: [.font: look.caption, .foregroundColor: quiet, .paragraphStyle: style])

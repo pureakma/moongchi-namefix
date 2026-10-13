@@ -140,7 +140,7 @@ public enum History {
         guard AccessRoots.shared.restricted else { return nil }
         let replay = try store.replay(id)
         guard replay.valid else { throw FSError("HistoryWarning") }
-        let uncovered = replay.events.compactMap(\.operation).map(\.source.parent).filter { AccessRoots.shared.root(containing: $0) == nil }
+        let uncovered = replay.events.compactMap(\.operation).map(\.source.parent).filter { AccessRoots.shared.root(reaching: $0) == nil }
         guard let highest = uncovered.min(by: { $0.depth == $1.depth ? $0.bytes.count < $1.bytes.count : $0.depth < $1.depth }) else { return nil }
         let parent = highest.display
         if let grant = kept.filter({ $0.transactions.contains(id) && (parent == $0.path || parent.hasPrefix($0.path + "/")) }).max(by: { $0.path.count < $1.path.count }) { return RawPath(grant.path) }

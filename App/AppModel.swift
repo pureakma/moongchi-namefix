@@ -333,7 +333,7 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
             else if let held { AccessRoots.shared.release(held) }
         }
         respellLooseRoots()
-        requestFolderForLooseItems()
+        askForLooseFolders()
         scan()
     }
     /// A sandboxed app can read and rename an item only through a folder the user allowed.
@@ -341,12 +341,25 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
     /// Files in the same folder are asked for once; files from several folders, one folder at a time,
     /// and a folder the app can already reach again (a favourite, a watched or recent folder) is not asked for.
     func requestFolderForLooseItems() {
-        guard AccessRoots.shared.restricted, folderRequest == nil else { return }
-        var folders: [RawPath] = []
-        for root in roots where AccessRoots.shared.root(containing: root.parent) == nil && !AccessRoots.shared.isRoot(root) && !folders.contains(root.parent) { folders.append(root.parent) }
-        folders.removeAll(where: reuseKeptAccess)
-        guard let first = folders.first else { return }
+        guard !busy, plan == nil else { return }
+        // Folders reached again through kept access are listed by a new scan; nothing else changes here.
+        if askForLooseFolders() { scan() }
+    }
+    /// Asks for the first folder that is still missing. True when kept access made a folder reachable instead.
+    @discardableResult private func askForLooseFolders() -> Bool {
+        guard AccessRoots.shared.restricted, folderRequest == nil else { return false }
+        func missing() -> [RawPath] {
+            var folders: [RawPath] = []
+            for root in roots where AccessRoots.shared.root(reaching: root.parent) == nil && !AccessRoots.shared.isRoot(root) && !folders.contains(root.parent) { folders.append(root.parent) }
+            return folders
+        }
+        let before = missing()
+        // Kept access may respell the items it reaches, so what is still missing is looked at again afterwards.
+        let reused = before.reduce(false) { reuseKeptAccess($1) || $0 }
+        let folders = reused ? missing() : before
+        guard let first = folders.first else { return reused }
         folderRequest = FolderRequest(folder: URL(fileURLWithPath: first.display, isDirectory: true), purpose: .input, remaining: folders.count - 1)
+        return reused
     }
     /// The user wants an added folder's own name changed too: ask for the folder above it.
     /// Nothing is asked while only the items inside are renamed.
@@ -361,7 +374,13 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
     /// used only if the place it leads to now really contains the folder; anything else is given back.
     private func reuseKeptAccess(_ folder: RawPath) -> Bool {
         guard AccessRoots.shared.restricted else { return false }
-        func reachable() -> Bool { if let fd = try? FS.openDirectory(folder) { close(fd); return true }; return false }
+        // The folder as it was given, or as the system spells it: an item handed over on its own often
+        // arrives with its folder's letters spelled apart, and an allowed folder is known by its stored name.
+        func reachable() -> Bool {
+            let system = Self.systemSpelling(of: URL(fileURLWithPath: folder.display, isDirectory: true)).flatMap { Self.sameSpelling($0, folder) ? $0 : nil }
+            for candidate in [folder, system].compactMap({ $0 }) { if let fd = try? FS.openDirectory(candidate) { close(fd); return true } }
+            return false
+        }
         if reachable() { return true }
         let target = folder.display
         func covers(_ path: String) -> Bool { target == path || target.hasPrefix(path.hasSuffix("/") ? path : path + "/") }
@@ -370,10 +389,11 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
         kept += (settings.recentAccess ?? [:]).compactMap { covers($0.key) ? $0.value : nil }
         for bookmark in kept {
             var stale = false
+            // A bookmark that had to guess is not trusted here, and a folder that does not lead there is not taken.
             guard let url = try? URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope, .withoutUI, .withoutMounting], relativeTo: nil, bookmarkDataIsStale: &stale),
-                  !stale, let root = try? AccessRoots.shared.grant(url) else { continue }   // a bookmark that had to guess is not trusted here
-            if reachable() { inputGrants.append(root.path); return true }
-            AccessRoots.shared.release(root.path)
+                  !stale, let root = try? AccessRoots.shared.grant(url, if: { _ in reachable() }) else { continue }
+            inputGrants.append(root.path); respellLooseRoots()
+            return true
         }
         return false
     }
@@ -382,18 +402,28 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
         // A request withdrawn while the panel was open (its items were removed) keeps nothing.
         guard let request = folderRequest else { return }
         folderRequest = nil
-        guard let root = try? AccessRoots.shared.grant(url) else { message = "FolderAccessNeeded"; return }
         func reachable(_ path: RawPath) -> Bool { if let fd = try? FS.openDirectory(path) { close(fd); return true }; return false }
-        // With the folder allowed, its items can be known by the path the system reports for it.
-        respellLooseRoots()
-        // The folder that was asked for, spelled the system's way, has to be reachable now. Any other
-        // folder helps nothing: it is given back and the choice stays open.
         let wanted = RawPath(request.folder.path)
-        let target = Self.systemSpelling(of: request.folder).flatMap { Self.sameSpelling($0, wanted) ? $0 : nil } ?? wanted
-        guard reachable(target) else { AccessRoots.shared.release(root.path); message = "WrongFolderChosen"; return }
+        var recorded = false, renamed = false
+        if case .history = request.purpose { recorded = true }
+        let taken: AuthorizedRoot?
+        do {
+            // The folder that was asked for has to be reachable with the chosen one in place. Any other
+            // folder helps nothing: it is not taken, and the choice stays open.
+            taken = try AccessRoots.shared.grant(url) { _ in
+                // With the folder allowed, its items can be known by the path the system reports for it.
+                respellLooseRoots()
+                let system = Self.systemSpelling(of: request.folder).flatMap { Self.sameSpelling($0, wanted) ? $0 : nil }
+                // A history record names its folder byte for byte, and Undo looks for exactly that. A folder
+                // whose name was respelled since is not the recorded place: accepting it would only ask again.
+                if recorded { renamed = !reachable(wanted) && system.map(reachable) == true; return reachable(wanted) }
+                return reachable(system ?? wanted)
+            }
+        } catch { message = "FolderAccessNeeded"; return }
+        guard let root = taken else { message = renamed ? "UnavailableHelp" : "WrongFolderChosen"; return }
         inputGrants.append(root.path)
         if ["FolderAccessNeeded", "UndoNeedsFolder", "ParentFolderNeeded", "WrongFolderChosen"].contains(message) { message = nil }
-        if case .history(let mode, let id) = request.purpose { prepare(mode: mode, historyID: id) } else { requestFolderForLooseItems(); scan() }
+        if case .history(let mode, let id) = request.purpose { prepare(mode: mode, historyID: id) } else { askForLooseFolders(); scan() }
     }
     /// Items handed over on their own are known by the path the system reports for their folder.
     /// A file URL often spells a folder's letters separately although its name is stored with them
@@ -453,7 +483,7 @@ struct FolderNeeded: Error, Sendable { let folder: RawPath }
         guard AccessRoots.shared.restricted else { return }
         var seen = Set<RawPath>()
         for operation in operations {
-            guard let root = AccessRoots.shared.root(containing: operation.source.parent), seen.insert(root.path).inserted else { continue }
+            guard let root = AccessRoots.shared.root(reaching: operation.source.parent), seen.insert(root.path).inserted else { continue }
             if let index = grantLibrary.grants.firstIndex(where: { $0.path == root.path.display && $0.identity == root.identity }) {
                 if !grantLibrary.grants[index].transactions.contains(transaction) { grantLibrary.grants[index].transactions.append(transaction) }
             } else if let bookmark = AccessRoots.shared.bookmark(for: root.path) {

@@ -196,6 +196,35 @@ final class TransactionTests: XCTestCase, @unchecked Sendable {
         var here = stat(), there = stat()
         if stat(root.path, &here) == 0, stat(elsewhere.path, &there) == 0, here.st_dev != there.st_dev { XCTAssertFalse(TransactionCoordinator.fastAllowed(plan.operations, journal: elsewhere)) }
         XCTAssertFalse(TransactionCoordinator.fastAllowed(plan.operations, journal: root.appendingPathComponent("no-such-folder")))
+        // Two built-in volumes of this Mac: both are internal, so only their device numbers tell them apart.
+        let boot = URL(fileURLWithPath: "/System/Volumes/Preboot")
+        var mine = stat(), other = stat()
+        if ProcessInfo.processInfo.environment["NAMEFIX_FIXTURE_ROOT"] == nil, stat(root.path, &mine) == 0, stat(boot.path, &other) == 0, mine.st_dev != other.st_dev,
+           (try? boot.resourceValues(forKeys: [.volumeIsInternalKey]).volumeIsInternal) == true {
+            XCTAssertFalse(TransactionCoordinator.fastAllowed(plan.operations, journal: boot), "The files and the record are on different volumes")
+        }
+    }
+    /// A record that stops halfway while it is written (the disk is full) is taken out again, so the
+    /// record of the failure that follows it can be read and the journal stays usable.
+    func testARecordThatStopsHalfwayIsTakenOutAgain() throws {
+        let root = try fixture(); defer { try? FileManager.default.removeItem(at: root) }
+        let store = try JournalStore(root: root.appendingPathComponent("journal")), id = UUID()
+        let writer = try JournalWriter(url: store.journalURL(id))
+        try writer.append("TransactionPrepared")
+        let size = try Data(contentsOf: store.journalURL(id)).count
+        // No file of this process may grow past ten bytes more than the journal has: the next record stops inside its line.
+        var limit = rlimit(); XCTAssertEqual(getrlimit(RLIMIT_FSIZE, &limit), 0)
+        let handler = signal(SIGXFSZ, SIG_IGN)
+        var tight = limit; tight.rlim_cur = rlim_t(size + 10); XCTAssertEqual(setrlimit(RLIMIT_FSIZE, &tight), 0)
+        let probe = open(root.appendingPathComponent("probe").path, O_WRONLY | O_CREAT, 0o600)
+        let written = Data(repeating: 120, count: size + 60).withUnsafeBytes { Darwin.write(probe, $0.baseAddress, $0.count) }
+        let failed = Result { try writer.append("Prepared") }
+        XCTAssertEqual(setrlimit(RLIMIT_FSIZE, &limit), 0); signal(SIGXFSZ, handler); close(probe)
+        XCTAssertEqual(written, size + 10, "The limit cuts a write short instead of refusing all of it")
+        XCTAssertThrowsError(try failed.get()) { XCTAssertEqual(($0 as? FSError)?.code, "JournalWriteFailed") }
+        try writer.append("Failed", error: "JournalWriteFailed")
+        let replay = try store.replay(id)
+        XCTAssertTrue(replay.valid); XCTAssertFalse(replay.lostTail); XCTAssertEqual(replay.events.map(\.state), ["TransactionPrepared", "Failed"])
     }
     /// A record cut off while it was being written is a lost tail: the records before it are used and
     /// the file is left as it is. A complete record that is wrong is damage and blocks Undo, as before.

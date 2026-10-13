@@ -8,6 +8,8 @@ import NameFixApplication
 /// with the store entitlements and hands it a folder the way Finder does (Open With).
 /// Nothing is clicked and no user folder is used; every file is made by the test tool.
 @MainActor enum SandboxFixtures {
+    /// Tab presses in the rule fields that were left to an input method. Counted for the "typing" phase.
+    static var tabsLeftToInputMethod = 0
     /// `--sandbox-probe <phase>`; a folder or file arrives through `application(_:open:)`.
     /// The report goes to stdout, which the tool connects to a file from outside the sandbox.
     static var phase: String? {
@@ -278,6 +280,30 @@ import NameFixApplication
             model.dismissResult(); _ = await settle(model)
             try? await Task.sleep(for: .seconds(1))
             await model.shutdown()
+        case "panel":
+            // The real folder panel, as the app shows it: what it says, where it opens, and that Cancel
+            // goes through the panel's own handler and changes nothing. Nothing in it is clicked; choosing
+            // a folder in it is the one step only a person can do.
+            _ = await settle(model) { !model.entries.isEmpty }
+            let window = NSApp.windows.first { $0.contentViewController is MainSidebarController }
+            if model.folderRequest == nil { model.requestParentFolder() }
+            facts["purpose"] = model.folderRequest.map { $0.purpose == .parent ? "parent" : $0.purpose == .input ? "input" : "history" } ?? ""
+            var panel: NSOpenPanel?
+            for _ in 0..<60 { panel = window?.attachedSheet as? NSOpenPanel; if panel != nil { break }; try? await Task.sleep(for: .milliseconds(100)) }
+            facts["panelShown"] = panel != nil
+            if let panel {
+                try? await Task.sleep(for: .milliseconds(800))
+                facts["panelMessage"] = panel.message ?? ""; facts["panelPrompt"] = panel.prompt ?? ""
+                facts["panelFolder"] = panel.directoryURL?.lastPathComponent ?? ""
+                facts["panelChoosesFoldersOnly"] = panel.canChooseDirectories && !panel.canChooseFiles && !panel.allowsMultipleSelection
+                panel.cancel(nil)
+                for _ in 0..<40 { if window?.attachedSheet == nil { break }; try? await Task.sleep(for: .milliseconds(100)) }
+                facts["closedByCancel"] = window?.attachedSheet == nil
+            }
+            _ = await settle(model)
+            facts["requestAfterCancel"] = model.folderRequest != nil; facts["needAfterCancel"] = model.accessNeed ?? ""; facts["entriesAfterCancel"] = model.entries.count
+            facts["fixableAfterCancel"] = model.entries.filter { $0.status.fixable }.count
+            await model.shutdown()
         case "look":
             // A folder on a drive the app does not rename on: it is listed, explained, and nothing is offered.
             _ = await settle(model) { !model.entries.isEmpty }
@@ -288,6 +314,56 @@ import NameFixApplication
             model.prepare(); try? await Task.sleep(for: .seconds(2))
             facts["planned"] = model.plan?.operations.count ?? 0
             await model.shutdown()
+        case "typing":
+            // The rule editor's two fields, reached the way the keyboard reaches them: text goes in through
+            // the field's own editor, and Tab is handed to the window as a key press.
+            _ = await settle(model) { !model.entries.isEmpty }
+            let window = NSApp.windows.first { $0.contentViewController is MainSidebarController }
+            model.openWorkbench(); _ = await settle(model) { model.isWorkbench }
+            try? await Task.sleep(for: .milliseconds(1500))
+            func fields(_ view: NSView) -> [NSTextField] { ((view as? NSTextField).map { $0.isEditable ? [$0] : [] } ?? []) + view.subviews.flatMap(fields) }
+            let all = window?.contentView.map(fields) ?? []
+            facts["textFields"] = all.count; facts["rules"] = model.workbenchDraft.rules.map(\.kind.rawValue)
+            func editor() -> NSTextView? { window?.firstResponder as? NSTextView }
+            func pause(_ ms: Int = 300) async { try? await Task.sleep(for: .milliseconds(ms)) }
+            func type(_ text: String) async { editor()?.insertText(text, replacementRange: NSRange(location: NSNotFound, length: 0)); await pause() }
+            func erase() async { editor()?.deleteBackward(nil); await pause() }
+            func rule() -> RenameRule? { model.workbenchDraft.rules.first }
+            /// Which of the two fields has the keyboard: what is typed now lands in it.
+            func place() async -> String {
+                let before = rule(), search = model.query; await type("q"); let after = rule(), found = model.query
+                await erase()
+                return after?.text != before?.text ? "find" : after?.replacement != before?.replacement ? "replace" : found != search ? "search" : "elsewhere"
+            }
+            var find: NSTextField?, replace: NSTextField?
+            for field in all {
+                window?.makeFirstResponder(field); await pause()
+                let name = await place()
+                if name == "find" { find = field } else if name == "replace" { replace = field }
+            }
+            facts["foundFields"] = find != nil && replace != nil
+            func tab(shift: Bool = false) async {
+                if let event = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: shift ? [.shift] : [], timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window?.windowNumber ?? 0, context: nil, characters: shift ? "\u{19}" : "\t", charactersIgnoringModifiers: "\t", isARepeat: false, keyCode: 48) { window?.sendEvent(event) }
+                await pause(500)
+            }
+            func mark(_ text: String) async {
+                editor()?.setMarkedText(text, selectedRange: NSRange(location: (text as NSString).length, length: 0), replacementRange: NSRange(location: NSNotFound, length: 0)); await pause()
+            }
+            if let find, let replace {
+                window?.makeFirstResponder(find); await pause(); await type("\u{AC00}")
+                await tab(); facts["tabGoesTo"] = await place()
+                await tab(shift: true); facts["shiftTabGoesTo"] = await place()
+                // A Hangul syllable still being typed: Tab ends it and goes on to the other field.
+                window?.makeFirstResponder(find); await pause(); await mark("\u{D55C}")
+                facts["hangulMarked"] = editor()?.hasMarkedText() ?? false
+                await tab(); facts["tabWhileTypingHangulGoesTo"] = await place(); facts["findAfterHangul"] = rule()?.text ?? ""; facts["leftAloneAfterHangul"] = tabsLeftToInputMethod
+                // Where Tab goes when the app does not take it: from the second field nothing of the app's is in the way.
+                window?.makeFirstResponder(replace); await pause(); await tab(); facts["plainTabFromReplaceGoesTo"] = await place()
+                // Kana an input method is still choosing for: Tab is not taken by the app.
+                window?.makeFirstResponder(find); await pause(); await mark("\u{306B}\u{307B}")
+                facts["kanaMarked"] = editor()?.hasMarkedText() ?? false
+                await tab(); facts["leftAloneAfterKana"] = tabsLeftToInputMethod; facts["kanaStillMarked"] = editor()?.hasMarkedText() ?? false; facts["focusAfterKanaTab"] = window?.firstResponder === replace.currentEditor() ? "replace" : window?.firstResponder === find.currentEditor() ? "find" : "elsewhere"
+            }
         case "gui":
             // The real window, its sheets and its menus, with a folder handed over. Nothing is clicked:
             // the same actions the controls call are called, and the window is asked what it shows.
@@ -314,7 +390,56 @@ import NameFixApplication
                     facts["detailsSheet"] = model.sheet == "inspector" && window?.attachedSheet != nil
                     model.sheet = nil; try? await Task.sleep(for: .milliseconds(700))
                 }
-                facts["listFont"] = (table.view(atColumn: 1, row: 0, makeIfNecessary: false) as? NameCell) != nil
+                // The keys themselves, handed to the list's own key handler: Down moves, Space ticks, Return opens.
+                func key(_ code: UInt16, _ characters: String, held: Bool = false) {
+                    if let event = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window?.windowNumber ?? 0, context: nil, characters: characters, charactersIgnoringModifiers: characters, isARepeat: held, keyCode: code) { table.keyDown(with: event) }
+                }
+                if let row = model.visible.firstIndex(where: { $0.status.fixable }) {
+                    table.selectRowIndexes([row], byExtendingSelection: false); try? await Task.sleep(for: .milliseconds(300))
+                    let ticked = model.selected.count
+                    key(49, " "); try? await Task.sleep(for: .milliseconds(300)); facts["spaceUnticks"] = model.selected.count == ticked - 1
+                    key(49, " "); try? await Task.sleep(for: .milliseconds(300)); facts["spaceTicksAgain"] = model.selected.count == ticked
+                    let at = table.selectedRow
+                    key(125, "\u{F701}"); try? await Task.sleep(for: .milliseconds(300)); facts["downMoves"] = table.selectedRow == min(at + 1, table.numberOfRows - 1) && model.focused == model.visible[table.selectedRow].id
+                    key(36, "\r"); try? await Task.sleep(for: .milliseconds(900)); facts["returnKeyOpens"] = model.sheet == "inspector"
+                    model.sheet = nil; try? await Task.sleep(for: .milliseconds(700))
+                    // What assistive apps are told about the list: a table of rows, a named cell under each column, a named tick box.
+                    let name = table.view(atColumn: 1, row: row, makeIfNecessary: true) as? NameCell, tick = table.view(atColumn: 0, row: row, makeIfNecessary: true) as? CheckCell
+                    facts["axTable"] = table.accessibilityRole()?.rawValue ?? ""; facts["axRows"] = table.accessibilityRows()?.count ?? -1
+                    facts["axColumns"] = table.tableColumns.map(\.title)
+                    facts["axCellRole"] = name?.accessibilityRole()?.rawValue ?? ""; facts["axCellLabel"] = name?.accessibilityLabel() ?? ""; facts["axCellValue"] = (name?.accessibilityValue() as? String) ?? ""
+                    facts["axTickLabel"] = tick?.box.accessibilityLabel() ?? ""; facts["axTickRole"] = (tick?.box.cell as? NSButtonCell)?.accessibilityRole()?.rawValue ?? ""
+                    facts["axRowRoles"] = (table.rowView(atRow: row, makeIfNecessary: true)?.accessibilityChildren() ?? []).map { ($0 as? NSAccessibilityProtocol)?.accessibilityRole()?.rawValue ?? "" }
+                    facts["listFontName"] = name.map { _ in ResultList.Look(Palette("olive", systemDark: false), compact: false, language: model.settings.language).body.fontName } ?? ""
+                    // A held Space ticks once: the repeats of the key do nothing.
+                    let before = model.selected.count
+                    key(49, " ", held: true); try? await Task.sleep(for: .milliseconds(300)); facts["heldSpaceDoesNothing"] = model.selected.count == before
+                    // Among ticked rows only: unticking the focused row keeps the keyboard at its place, on the row that moved up.
+                    model.filter = "SelectedOnly"; try? await Task.sleep(for: .milliseconds(600))
+                    if model.visible.count > 2 {
+                        table.selectRowIndexes([0], byExtendingSelection: false); try? await Task.sleep(for: .milliseconds(300))
+                        let first = model.visible[0].id
+                        key(49, " "); try? await Task.sleep(for: .milliseconds(600))
+                        facts["staysAfterUntick"] = table.selectedRow == 0 && !model.visible.contains { $0.id == first } && model.focused == model.visible.first?.id
+                        // Switching that filter on while the focused row is not ticked moves nothing and keeps the focus.
+                        model.filter = "All"; try? await Task.sleep(for: .milliseconds(600))
+                        if let index = model.visible.firstIndex(where: { $0.id == first }) {
+                            table.selectRowIndexes([index], byExtendingSelection: false); try? await Task.sleep(for: .milliseconds(300))
+                            model.filter = "SelectedOnly"; try? await Task.sleep(for: .milliseconds(600))
+                            facts["filterMovesNothing"] = table.selectedRow == -1 && model.focused == first
+                            model.filter = "All"; try? await Task.sleep(for: .milliseconds(600))
+                            facts["focusBackWithAll"] = table.selectedRow == index
+                        }
+                        table.selectAll(nil); try? await Task.sleep(for: .milliseconds(300))
+                    }
+                    // The menu opened from the keyboard is for the focused row; with no row there is nothing to offer.
+                    if let menu = table.menu {
+                        table.selectRowIndexes([row], byExtendingSelection: false); try? await Task.sleep(for: .milliseconds(200))
+                        menu.delegate?.menuNeedsUpdate?(menu); facts["menuForFocusedRow"] = menu.items.count
+                        table.deselectAll(nil); try? await Task.sleep(for: .milliseconds(200))
+                        menu.delegate?.menuNeedsUpdate?(menu); facts["menuWithoutRow"] = menu.items.count
+                    }
+                }
             }
             let all = model.visible.count
             model.filter = "WindowsNames"; _ = await settle(model) { model.visible.count != all }

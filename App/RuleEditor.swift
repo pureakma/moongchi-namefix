@@ -204,7 +204,7 @@ struct RuleEditor: View {
     /// What the rules do to one real name, before the list preview is refreshed.
     @ViewBuilder private var sampleLine: some View {
         if let sampleError { Text(model.t(sampleError)).font(.caption).foregroundStyle(palette.warning).fixedSize(horizontal: false, vertical: true) }
-        else if let example {
+        else if let example, samplesFromList || !foldersLeftOut {
             VStack(alignment: .leading, spacing: 2) {
                 Text(model.t("SampleLabel")).font(.caption).foregroundStyle(palette.secondary)
                 Text(example.before).font(.caption).lineLimit(1).truncationMode(.middle)
@@ -453,8 +453,29 @@ struct RuleFields: View {
     @Binding var rule: RenameRule
     let palette: Palette
     @FocusState private var focus: String?
-    /// True while the field being typed in holds text an input method has not committed yet.
-    private static var composing: Bool { (NSApp.keyWindow?.firstResponder as? NSTextView)?.hasMarkedText() ?? false }
+    /// True while the field being typed in holds text an input method is still choosing for (kana or
+    /// pinyin with its candidates, where Tab picks one). A Hangul syllable being typed is uncommitted
+    /// too, but nothing is chosen there: Tab ends it and moves on, as it does everywhere else.
+    private static var composing: Bool {
+        guard let field = NSApp.windows.lazy.compactMap({ $0.firstResponder as? NSTextView }).first(where: { $0.hasMarkedText() }) else { return false }
+        let marked = field.markedRange(), text = field.string as NSString
+        guard marked.location != NSNotFound, NSMaxRange(marked) <= text.length else { return true }
+        return !Self.hangul(text.substring(with: marked))
+    }
+    /// Only Hangul: syllables, the letters they are built from, and the letters as typed one by one.
+    static func hangul(_ text: String) -> Bool {
+        !text.isEmpty && text.unicodeScalars.allSatisfy { (0xAC00...0xD7A3).contains($0.value) || (0x1100...0x11FF).contains($0.value) || (0x3130...0x318F).contains($0.value) || (0xA960...0xA97F).contains($0.value) || (0xD7B0...0xD7FF).contains($0.value) }
+    }
+    /// Whether this Tab is the app's to take: Tab alone (or with Shift, going back), and no input method
+    /// choosing. Caps Lock and the number pad say nothing about what was meant.
+    private static func takes(_ press: KeyPress, back: Bool) -> Bool {
+        guard press.modifiers.subtracting([.capsLock, .numericPad]) == (back ? .shift : []) else { return false }
+        let choosing = composing
+        #if DEBUG
+        if choosing { SandboxFixtures.tabsLeftToInputMethod += 1 }
+        #endif
+        return !choosing
+    }
     // RuleScope.name shares its raw value with the "Current name" column title.
     private func scopeKey(_ scope: RuleScope) -> String { scope == .name ? "ScopeFullName" : scope.rawValue }
     private func field(_ key: String, _ text: Binding<String>) -> some View {
@@ -470,9 +491,9 @@ struct RuleFields: View {
                 // Tab goes from what to find straight to what to put there, and Shift-Tab back.
                 // While an input method is composing (Tab picks a candidate there), and with any other modifier, Tab is left alone.
                 field("FieldFind", $rule.text).focused($focus, equals: "find")
-                    .onKeyPress(.tab, phases: .down) { press in guard press.modifiers.isEmpty, !Self.composing else { return .ignored }; focus = "replace"; return .handled }
+                    .onKeyPress(.tab, phases: .down) { press in guard Self.takes(press, back: false) else { return .ignored }; focus = "replace"; return .handled }
                 field("FieldReplaceWith", $rule.replacement).focused($focus, equals: "replace")
-                    .onKeyPress(.tab, phases: .down) { press in guard press.modifiers == .shift, !Self.composing else { return .ignored }; focus = "find"; return .handled }
+                    .onKeyPress(.tab, phases: .down) { press in guard Self.takes(press, back: true) else { return .ignored }; focus = "find"; return .handled }
             case .prefix, .suffix: field("FieldAddText", $rule.text)
             case .insert:
                 field("FieldAddText", $rule.text)

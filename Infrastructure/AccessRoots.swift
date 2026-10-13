@@ -33,19 +33,48 @@ public final class AccessRoots: @unchecked Sendable {
     /// Starts working in a folder the user chose, dropped, opened or saved a bookmark for.
     /// Every grant is counted; `release` gives one back.
     @discardableResult public func grant(_ url: URL) throws -> AuthorizedRoot {
+        let taken = try take(url)
+        if let replaced = taken.replaced { close(replaced.fd) }
+        return taken.root
+    }
+    /// Takes the folder only if it is the one that is wanted. `wanted` is asked with the folder in
+    /// place, so it can try to reach something through it. A folder that is not wanted leaves
+    /// everything as it was, also the place of a moved folder it would have taken over: nil.
+    public func grant(_ url: URL, if wanted: (AuthorizedRoot) -> Bool) throws -> AuthorizedRoot? {
+        let taken = try take(url)
+        if wanted(taken.root) { if let replaced = taken.replaced { close(replaced.fd) }; return taken.root }
+        lock.lock(); defer { lock.unlock() }
+        guard var now = grants[taken.root.path] else { if let replaced = taken.replaced { close(replaced.fd) }; return nil }
+        now.holders -= 1
+        if var back = taken.replaced, now.fd == taken.fd {
+            close(now.fd); back.holders = now.holders
+            if back.holders > 0 { grants[taken.root.path] = back } else { close(back.fd); grants[taken.root.path] = nil }
+        } else {
+            if let replaced = taken.replaced { close(replaced.fd) }
+            if now.holders > 0 { grants[taken.root.path] = now } else { close(now.fd); grants[taken.root.path] = nil }
+        }
+        return nil
+    }
+    /// Puts the folder in place and says what was there under another identity, still open.
+    private func take(_ url: URL) throws -> (root: AuthorizedRoot, fd: Int32, replaced: Grant?) {
         let lease = AccessLease(url)
         let fd = open(url.path, O_RDONLY | O_DIRECTORY | O_CLOEXEC)
         guard fd >= 0 else { throw FSError(errno == ENOENT ? "UnavailableHelp" : "FolderAccessNeeded") }
         do {
             let root = AuthorizedRoot(path: try FS.rawDirectoryPath(fd), identity: try FS.directoryIdentity(fd), volume: FS.volumeUUID(fd))
             lock.lock(); defer { lock.unlock() }
-            if var known = grants[root.path], known.root == root { known.holders += 1; grants[root.path] = known; close(fd); return root }
+            if var known = grants[root.path], known.root == root {
+                // The same folder again. A descriptor that no longer leads there (its drive was taken out and
+                // put back) is exchanged for the one just opened.
+                if alive(known) { close(fd) } else { close(known.fd); known = Grant(root: root, fd: fd, url: url, lease: lease, holders: known.holders) }
+                known.holders += 1; grants[root.path] = known
+                return (root, known.fd, nil)
+            }
             // Another folder is at that place now. Whoever held the place still holds it, and will give
             // it back once each: the count goes on, so nobody's release closes it under someone else.
             let earlier = grants[root.path]
-            if let earlier { close(earlier.fd) }
             grants[root.path] = Grant(root: root, fd: fd, url: url, lease: lease, holders: (earlier?.holders ?? 0) + 1)
-            return root
+            return (root, fd, earlier)
         } catch { close(fd); throw error }
     }
     public func release(_ path: RawPath) {
@@ -54,19 +83,31 @@ public final class AccessRoots: @unchecked Sendable {
         grant.holders -= 1
         if grant.holders > 0 { grants[path] = grant } else { close(grant.fd); grants[path] = nil }
     }
+    /// Still the folder that was allowed, and still where it was.
+    private func alive(_ grant: Grant) -> Bool {
+        (try? FS.directoryIdentity(grant.fd)) == grant.root.identity && (try? FS.rawDirectoryPath(grant.fd)) == grant.root.path
+    }
     /// Gives back every folder. For tests, which share this one registry.
     public func releaseAll() { lock.lock(); grants.values.forEach { close($0.fd) }; grants = [:]; lock.unlock() }
-    /// The allowed folder that contains this path, the deepest one when several do.
+    /// The allowed folder that contains this path, the deepest one when several do. It says that
+    /// the place was allowed, also when the folder has been moved or replaced since.
     public func root(containing path: RawPath) -> AuthorizedRoot? {
         lock.lock(); defer { lock.unlock() }
         return match(path)?.root
+    }
+    /// The allowed folder a walk to this path would really start at now. A folder that was moved or
+    /// replaced since it was allowed leads nowhere: what it covered is asked for again, and it is
+    /// not remembered as the way back to anything.
+    public func root(reaching path: RawPath) -> AuthorizedRoot? {
+        lock.lock(); defer { lock.unlock() }
+        return matches(path).first(where: alive)?.root
     }
     public func isRoot(_ path: RawPath) -> Bool { lock.lock(); defer { lock.unlock() }; return grants[path] != nil }
     /// True for an allowed folder whose own name cannot be changed yet: the name is kept by the
     /// folder above it, and that folder has not been allowed. Never true outside the sandbox.
     public func needsParent(_ path: RawPath) -> Bool {
         lock.lock(); defer { lock.unlock() }
-        return limited && grants[path] != nil && match(path.parent) == nil
+        return limited && grants[path] != nil && !matches(path.parent).contains(where: alive)
     }
     /// A bookmark that lets the app reach this allowed folder again after it is reopened.
     public func bookmark(for path: RawPath) -> Data? {
@@ -94,8 +135,7 @@ public final class AccessRoots: @unchecked Sendable {
         lock.lock(); defer { lock.unlock() }
         let candidates = matches(path)
         guard !candidates.isEmpty else { return .none }
-        for grant in candidates {
-            guard (try? FS.directoryIdentity(grant.fd)) == grant.root.identity, (try? FS.rawDirectoryPath(grant.fd)) == grant.root.path else { continue }
+        for grant in candidates where alive(grant) {
             let copy = openat(grant.fd, ".", O_RDONLY | O_DIRECTORY | O_CLOEXEC)
             guard copy >= 0 else { continue }
             let remainder = path == grant.root.path ? Data() : Data(path.bytes.dropFirst(grant.root.path.bytes == Data([47]) ? 0 : grant.root.path.bytes.count))
@@ -133,12 +173,15 @@ public struct GrantLibrary: Codable, Sendable {
     /// must be on the recorded volume and be the recorded folder, wherever it is mounted now.
     public static func resolve(_ grant: StoredGrant) -> (Resolution, renewed: Data?) {
         var stale = false
-        guard let url = try? URL(resolvingBookmarkData: grant.bookmark, options: [.withSecurityScope, .withoutUI, .withoutMounting], relativeTo: nil, bookmarkDataIsStale: &stale),
-              let root = try? AccessRoots.shared.grant(url) else { return (.unavailable, nil) }
-        let sameVolume = grant.volume == nil ? root.identity.device == grant.identity.device : root.volume == grant.volume
-        guard sameVolume, root.identity.inode == grant.identity.inode, root.identity.birthSeconds == grant.identity.birthSeconds, root.identity.birthNanoseconds == grant.identity.birthNanoseconds else {
-            AccessRoots.shared.release(root.path); return (.differentFolder, nil)
-        }
+        guard let url = try? URL(resolvingBookmarkData: grant.bookmark, options: [.withSecurityScope, .withoutUI, .withoutMounting], relativeTo: nil, bookmarkDataIsStale: &stale) else { return (.unavailable, nil) }
+        let taken: AuthorizedRoot?
+        do {
+            taken = try AccessRoots.shared.grant(url) { root in
+                let sameVolume = grant.volume == nil ? root.identity.device == grant.identity.device : root.volume == grant.volume
+                return sameVolume && root.identity.inode == grant.identity.inode && root.identity.birthSeconds == grant.identity.birthSeconds && root.identity.birthNanoseconds == grant.identity.birthNanoseconds
+            }
+        } catch { return (.unavailable, nil) }
+        guard let root = taken else { return (.differentFolder, nil) }
         return (.granted(root), stale ? AccessRoots.shared.bookmark(for: root.path) : nil)
     }
 }

@@ -98,6 +98,8 @@ final class AccessRootsTests: XCTestCase, @unchecked Sendable {
         try FileManager.default.moveItem(at: b, to: c); try FileManager.default.moveItem(at: a, to: b)
         // /above/B is now the folder that was A. The grant kept under that name belongs to the folder now at C.
         let fd = try FS.openDirectory(RawPath(b.path)); defer { close(fd) }
+        XCTAssertEqual(AccessRoots.shared.root(reaching: RawPath(b.path))?.path, RawPath(above.path), "What leads there is the folder above, not the grant that went stale")
+        XCTAssertEqual(AccessRoots.shared.root(containing: RawPath(b.path))?.path, RawPath(b.path), "The place itself is still known as one that was allowed")
         XCTAssertEqual(try FS.directoryIdentity(fd), wasA.identity)
         XCTAssertEqual(try FS.names(fd), [Data("inside-a.txt".utf8)])
         // Without the folder above, the same name is simply not available.
@@ -106,6 +108,34 @@ final class AccessRootsTests: XCTestCase, @unchecked Sendable {
         // Never allowed at all is still a request for access.
         let stranger = try folder()
         XCTAssertThrowsError(try FS.openDirectory(RawPath(stranger.path))) { XCTAssertEqual(($0 as? FSError)?.code, "FolderAccessNeeded") }
+    }
+    /// A folder that turns out not to be the wanted one is not taken. Where it would have taken over
+    /// the place of a folder that was moved away, that place stays as it was: not available, and
+    /// still held by whoever held it.
+    func testAFolderThatIsNotWantedLeavesEverythingAsItWas() throws {
+        let place = try folder()
+        let first = try AccessRoots.shared.grant(place)
+        func replace() throws {
+            let moved = place.deletingLastPathComponent().appendingPathComponent("namefix-access-moved-\(UUID())"); made.append(moved)
+            try FileManager.default.moveItem(at: place, to: moved); try FileManager.default.createDirectory(at: place, withIntermediateDirectories: true)
+        }
+        try replace()
+        XCTAssertNil(try AccessRoots.shared.grant(place, if: { root in XCTAssertNotEqual(root.identity, first.identity); return false }))
+        XCTAssertThrowsError(try FS.openDirectory(first.path)) { XCTAssertEqual(($0 as? FSError)?.code, "UnavailableHelp") }
+        XCTAssertNil(AccessRoots.shared.root(reaching: first.path), "A moved folder leads nowhere")
+        XCTAssertTrue(AccessRoots.shared.isRoot(first.path), "Its holder still holds the place")
+        AccessRoots.shared.release(first.path); XCTAssertFalse(AccessRoots.shared.isRoot(first.path))
+        // Not wanted, with nothing there before: not kept either.
+        XCTAssertNil(try AccessRoots.shared.grant(place, if: { _ in false })); XCTAssertFalse(AccessRoots.shared.isRoot(first.path))
+        // Wanted: it is asked while the folder is in place, and the folder is kept.
+        let kept = try XCTUnwrap(try AccessRoots.shared.grant(place, if: { root in (try? FS.openDirectory(root.path)).map { fd -> Bool in close(fd); return true } ?? false }))
+        XCTAssertEqual(AccessRoots.shared.root(reaching: kept.path), kept)
+        // Taking over a moved folder's place carries its holders on: each of them gives the place back once.
+        try replace()
+        let third = try AccessRoots.shared.grant(place)
+        XCTAssertNotEqual(third.identity, kept.identity)
+        AccessRoots.shared.release(third.path); XCTAssertEqual(AccessRoots.shared.root(reaching: third.path), third, "One of the two holders gave it back")
+        AccessRoots.shared.release(third.path); XCTAssertFalse(AccessRoots.shared.isRoot(third.path))
     }
 
     func testScanRenameAndUndoInsideAnAllowedFolder() async throws {

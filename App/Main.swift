@@ -233,7 +233,8 @@ import NameFixCore
     private func askForFolder(_ request: AppModel.FolderRequest) {
         guard let window, !askingForFolder, model.folderRequest == request else { return }
         #if DEBUG
-        if SandboxFixtures.phase != nil { return }   // the probe reads the request; no panel is shown
+        // The probe reads the request and no panel is shown, unless it asks to look at the real panel.
+        if SandboxFixtures.phase != nil, !CommandLine.arguments.contains("--probe-panel") { return }
         #endif
         askingForFolder = true
         let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.allowsMultipleSelection = false; panel.resolvesAliases = false

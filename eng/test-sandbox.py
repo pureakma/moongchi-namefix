@@ -281,12 +281,28 @@ with tempfile.TemporaryDirectory(prefix="namefix-sandbox-", dir="/private/tmp") 
     expect(f["confirmationSheet"] and f["planned"] == 4 and f["resultSheet"] and f["renamed"] == 4 and f["historySheet"] and f["history"] == 1, "confirmation, result and history sheets open on the window", f)
     expect(f["undone"] == 4 and listing(desk) == original, "undo from the record restores every name", f)
     expect(f["selectAllOffered"] and f["selectAllTicks"] == 4 and f["returnOpens"] and f["detailsSheet"], "Select All ticks the listed names and Return opens the details of the focused row", f)
+    expect(f["spaceUnticks"] and f["spaceTicksAgain"] and f["downMoves"] and f["returnKeyOpens"], "the list's own key handling: Space ticks, Down moves the focus, Return opens the details", f)
+    expect(f["axTable"] == "AXTable" and f["axRows"] == f["entries"] and f["axColumns"][1:] != ["", "", ""] and f["axCellRole"] == "AXCell" and f["axCellLabel"] and f["axTickRole"] == "AXCheckBox" and f["axTickLabel"] and f["axRowRoles"] == ["AXCheckBox", "AXCell", "AXCell", "AXCell"], "assistive apps are given a table of rows, a named cell under each column and a named tick box", f)
+    expect("Pretendard" in f["listFontName"], "names are drawn in the app's typeface", f)
+    expect(f["heldSpaceDoesNothing"] and f["staysAfterUntick"] and f["filterMovesNothing"] and f["focusBackWithAll"], "a held Space ticks once; among ticked rows the keyboard stays in place after an untick and is not moved by switching the filter", f)
+    expect(f["menuForFocusedRow"] == 2 and f["menuWithoutRow"] == 0, "the row menu is for the focused row, and there is none without a row", f)
+    access = f"{f['axCellRole']} “{f['axCellLabel']}”"
     expect(f["selected"] == 4 and f["ticked"] == 4 and f["selectedAfterRename"] == 0, "names to fix start selected and ticked; the selection is cleared after the rename", f)
     expect(f["fixableAfterUndo"] == 4 and f["selectedAfterUndo"] == 4 and f["tickedAfterUndo"] == 4, "after an undo the names are selected again", f)
     expect(f["otherSheets"] == ["settings", "help", "onboarding"], "settings, help and the introduction open on the window", f)
     expect(not any("pdate" in title or "업데이트" in title or "アップデート" in title for title in f["appMenu"]), "the app has no update command of its own: the App Store updates it", f)
     expect(f["supportAddress"].startswith("mailto:"), "contact address", f)
-    results.append("real window: confirmation, result, history, settings, help and introduction sheets, Windows-name filter, rename and undo; no update command in the app menu")
+    results.append("real window: confirmation, result, history, settings, help and introduction sheets, Windows-name filter, rename and undo; list keys (Space, Down, Return, Select All); accessibility table with named cells; no update command in the app menu")
+
+    # 9b. The two fields of a Replace rule, reached the way the keyboard reaches them. Text is put in through the
+    # field's own editor, and Tab is handed to the window as a key press. An input method is not run: a syllable
+    # or kana "still being typed" is text the editor holds as not yet committed, which is what the app looks at.
+    step(work, "reset")
+    f = step(work, "typing", desk, shown=True)
+    expect(f["foundFields"] and f["tabGoesTo"] == "replace" and f["shiftTabGoesTo"] == "find", "Tab goes from what to find to what to put there, and Shift-Tab back", f)
+    expect(f["hangulMarked"] and f["tabWhileTypingHangulGoesTo"] == "replace" and f["findAfterHangul"] == "\ud55c" and f["leftAloneAfterHangul"] == 0, "Tab while a Hangul syllable is still being typed moves on and keeps the syllable", f)
+    expect(f["kanaMarked"] and f["leftAloneAfterKana"] == 1, "Tab while kana is still being chosen for is left to the input method", f)
+    results.append("rule fields: Tab and Shift-Tab between find and replace, also while a Hangul syllable is being typed; left alone while kana is being chosen")
 
     # 10. Names from many scripts, byte for byte: what is fixed, what is left, and the exact way back.
     step(work, "reset")
@@ -337,6 +353,22 @@ with tempfile.TemporaryDirectory(prefix="namefix-sandbox-", dir="/private/tmp") 
     expect(not f["askedForFolder"] and f["undone"] == 5 and listing(above) == top and listing(shelf) == inside, "undo after a new launch restores the folder and its contents", f)
     results.append("added folder's own name: " + ("asked for the folder above only when wanted, cancel safe, then renamed; undo after a new launch exact" if sandboxed else "renamed at once, nothing asked; undo after a new launch exact"))
 
+    # 11b. The real folder panel (sandbox only): it opens at the folder above, says what it is for, chooses folders only,
+    #      and Cancel through its own handler changes nothing. Choosing a folder in it is left to a person.
+    if sandboxed:
+        step(work, "reset")
+        over = work / "over"; shelf2 = over / unicodedata.normalize("NFD", "여행 사진"); fixture(shelf2); top2 = listing(over)
+        f = step(work, "panel", shelf2, more=["--probe-panel"], shown=True)
+        expect(f["purpose"] == "parent" and f["panelShown"] and f["panelFolder"] == "over" and f["panelChoosesFoldersOnly"], "the panel for the folder above opens at that folder and chooses one folder", f)
+        expect(unicodedata.normalize("NFC", "여행 사진") in unicodedata.normalize("NFC", f["panelMessage"]) and "over" in f["panelMessage"] and f["panelPrompt"], "the panel names the folder and says what it is for", f)
+        expect(f["closedByCancel"] and not f["requestAfterCancel"] and f["needAfterCancel"] == "ParentFolderNeeded" and f["fixableAfterCancel"] == 4 and listing(over) == top2, "Cancel in the panel changes nothing and the offer stays", f)
+        lone2 = work / "lone2"; lone2.mkdir(); touch(lone2, nfd("메모.txt"))
+        step(work, "reset")
+        f = step(work, "panel", lone2 / unicodedata.normalize("NFD", "메모.txt"), more=["--probe-panel"], shown=True)
+        expect(f["purpose"] == "input" and f["panelShown"] and f["panelFolder"] == "lone2" and "lone2" in f["panelMessage"], "a lone file opens the panel at its folder by itself", f)
+        expect(f["closedByCancel"] and not f["requestAfterCancel"] and f["needAfterCancel"] == "FolderAccessNeeded" and listing(lone2) == [nfd("메모.txt").hex()], "Cancel leaves the file as it is and the offer stays", f)
+        results.append("real folder panel: opens at the right folder with its reason, folders only; Cancel changes nothing (choosing in the panel is not automated)")
+
     # 12. One file handed over: its folder is asked for, cancelling changes nothing, choosing it goes on at once.
     step(work, "reset")
     desk1 = work / "one"; desk1.mkdir(); touch(desk1, nfd("메모.txt")); one = listing(desk1)
@@ -373,11 +405,12 @@ with tempfile.TemporaryDirectory(prefix="namefix-sandbox-", dir="/private/tmp") 
 
     # 14. A folder the app can already reach again (a favourite) is not asked for.
     step(work, "reset")
-    fav = work / "fav"; fixture(fav)
+    # The folder's name is stored with its letters joined, and the file arrives with them spelled apart.
+    fav = work / unicodedata.normalize("NFC", "\uc990\uaca8\ucc3e\uae30 caf\u00e9"); fixture(fav)
     f = step(work, "favorite", fav); expect(f["favorites"] == 1, "favourite added", f)
     f = step(work, "files", [fav / unicodedata.normalize("NFD", names[0])])
     expect(f["asked"] == [] and f["fixable"] == 1 and f["renamed"] == 1, "a file in a favourite folder needs no request", f)
-    results.append("file in a favourite folder: " + ("kept access reused, nothing asked" if sandboxed else "nothing asked"))
+    results.append("file in a favourite folder (its name stored joined): " + ("kept access reused, nothing asked" if sandboxed else "nothing asked"))
     step(work, "reset")
 print("\n".join("PASS " + line for line in results))
 print("PASS: real App Sandbox, store entitlements, access granted by macOS through Open With; no clicks, no user folders" if sandboxed

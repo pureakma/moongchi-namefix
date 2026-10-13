@@ -107,7 +107,9 @@ public enum Scanner {
                     var place = blocked
                     if place == nil {
                         var info = statfs()
-                        if fstatfs(rootFD, &info) == 0, Data(withUnsafeBytes(of: info.f_mntonname) { String(cString: $0.baseAddress!.assumingMemoryBound(to: CChar.self)) }.utf8) == path.bytes { place = "VolumeRootExcluded" }
+                        // The mount point and the folder's reported path are compared apart from letter case and composition:
+                        // a folder inside the volume is always longer than the mount point, so nothing else can match.
+                        if fstatfs(rootFD, &info) == 0, withUnsafeBytes(of: info.f_mntonname, { String(cString: $0.baseAddress!.assumingMemoryBound(to: CChar.self)) }).precomposedStringWithCanonicalMapping.lowercased() == path.display.precomposedStringWithCanonicalMapping.lowercased() { place = "VolumeRootExcluded" }
                         else {
                             do { let volume = try FS.support(rootFD); if volume.level != .supported { place = volume.reason ?? "VolumeFormatUnsupported" } }
                             catch let error as FSError { place = error.code }
