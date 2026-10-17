@@ -30,6 +30,7 @@
 "All" = "All";
 "AllowFolder" = "Choose Folder";
 "Ambiguous" = "Manual review required";
+"AppName" = "Moongchi NameFix";
 "AppTagline" = "A filename fixer and batch renamer for Mac, by AILO WORKS";
 "BasicExample" = "Basic Example";
 "BatchEmptyTitle" = "Rename many files at once";
@@ -148,7 +149,7 @@
 "FilesystemHelp" = "Only items on APFS disks (your Mac’s internal disk and external APFS drives) are renamed. Apps, links, cloud-synced folders, network drives, and exFAT or FAT drives are protected and left unchanged.";
 "Filter" = "Filter";
 "FinalRenamed" = "Final name applied";
-"FinderServiceTitle" = "Scan Names with NameFix";
+"FinderServiceTitle" = "Scan Names with Moongchi NameFix";
 "FolderAccessMessage" = "Choose the “{0}” folder to check and change the names inside it. File contents are never changed.";
 "FolderAccessMore" = "{0} more folders need to be chosen after this one.";
 "FolderAccessMoreOne" = "1 more folder needs to be chosen after this one.";

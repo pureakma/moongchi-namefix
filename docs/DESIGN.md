@@ -189,7 +189,7 @@ macOS native toolbar, menu, sheet, popover, focus, overflow를 우선 사용한�
 
 ## 접근성과 다국어
 
-ko/en/ja를 지원한다. Pretendard/Pretendard JP와 시스템 fallback을 사용한다. 날짜·숫자는 앱에서 고른 언어의 형식으로 표시하고, macOS 폴더 접근 권한 안내와 Finder 서비스 이름도 세 언어로 제공한다. 아이콘만 있는 버튼에는 접근성 이름을 주고, 상태는 색만이 아니라 기호와 글자로 함께 표시한다. 긴 일본어·영어 문구, keyboard focus, Full Keyboard Access, VoiceOver, 큰 글자, 대비/투명도 설정을 고려한다.
+ko/en/ja를 지원한다. 앱 이름의 언어별 표기는 D-044와 번역 원본의 AppName을 따른다. 첫 실행은 시스템 언어 중 처음 지원하는 언어를 쓰고, 지원 언어가 없으면 영어를 쓴다. 사용자가 언어를 지정한 경우 그 선택을 유지한다. 앱 내부의 창·메뉴·정보·알림은 앱 언어를, Finder·Dock의 이름은 macOS의 앱 언어 선택을 따른다. Pretendard/Pretendard JP와 시스템 fallback을 사용한다. 날짜·숫자는 앱에서 고른 언어의 형식으로 표시하고, macOS 폴더 접근 권한 안내와 Finder 서비스 이름도 세 언어로 제공한다. 아이콘만 있는 버튼에는 접근성 이름을 주고, 상태는 색만이 아니라 기호와 글자로 함께 표시한다. 긴 일본어·영어 문구, keyboard focus, Full Keyboard Access, VoiceOver, 큰 글자, 대비/투명도 설정을 고려한다.
 
 자동 렌더와 model test는 Engineering Verification이다. 실제 VoiceOver/키보드/연속 resize/Finder gesture User QA를 대체하지 않는다. 남은 항목은 QA.md에 모은다.
 

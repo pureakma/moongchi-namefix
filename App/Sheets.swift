@@ -132,7 +132,7 @@ struct SheetRouter: View {
     private var about: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                Text("Moongchi NameFix").font(.largeTitle)
+                Text(model.t("AppName")).font(.largeTitle)
                 Text("\(AppInfo.version) (\(AppInfo.build)) · Apple Silicon · macOS 14+")
                 Text(model.t("LocalOnly"))
                 Text(model.t("License")).font(.headline)

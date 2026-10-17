@@ -21,7 +21,7 @@ import NameFixCore
             NSApp.appearance = NSAppearance(named: .aqua)
             for size in [CGSize(width: 1180, height: 720), CGSize(width: 600, height: 600), CGSize(width: 320, height: 560)] {
                 let window = NSWindow(contentRect: CGRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
-                window.isReleasedWhenClosed = false; window.title = "Moongchi NameFix"; window.titlebarAppearsTransparent = true
+                window.isReleasedWhenClosed = false; window.title = model.t("AppName"); window.titlebarAppearsTransparent = true
                 window.backgroundColor = NSColor(Palette(model.settings.theme, systemDark: false).sidebar)
                 let host = NSHostingView(rootView: MainView(model: model)); host.sizingOptions = []
                 window.contentView = host

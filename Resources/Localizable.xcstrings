@@ -2997,19 +2997,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "NameFix로 파일 이름 검사"
+            "value": "뭉치 네임픽스로 파일 이름 검사"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scan Names with NameFix"
+            "value": "Scan Names with Moongchi NameFix"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "NameFixでファイル名をスキャン"
+            "value": "ムンチ ネームフィックスでファイル名をスキャン"
           }
         }
       }
@@ -3480,7 +3480,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moongchi NameFix에 관하여"
+            "value": "뭉치 네임픽스에 관하여"
           }
         },
         "en": {
@@ -3492,7 +3492,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moongchi NameFixについて"
+            "value": "ムンチ ネームフィックスについて"
           }
         }
       }
@@ -3871,7 +3871,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moongchi NameFix 종료"
+            "value": "뭉치 네임픽스 종료"
           }
         },
         "en": {
@@ -3883,7 +3883,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moongchi NameFixを終了"
+            "value": "ムンチ ネームフィックスを終了"
           }
         }
       }
@@ -8241,7 +8241,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moongchi NameFix 가리기"
+            "value": "뭉치 네임픽스 가리기"
           }
         },
         "en": {
@@ -8253,7 +8253,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moongchi NameFixを隠す"
+            "value": "ムンチ ネームフィックスを隠す"
           }
         }
       }
@@ -13061,6 +13061,29 @@
           "stringUnit": {
             "state": "translated",
             "value": "別のフォルダが選択されました"
+          }
+        }
+      }
+    },
+    "AppName": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뭉치 네임픽스"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moongchi NameFix"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ムンチ ネームフィックス"
           }
         }
       }

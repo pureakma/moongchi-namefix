@@ -8,6 +8,10 @@ data = json.loads((root / "marketing/appstore.json").read_text(encoding="utf-8")
 errors = []
 limits = data["limits"]
 fields = ["name", "subtitle", "promotionalText", "description", "keywords"]
+catalog = json.loads((root / "Resources/Localizable.xcstrings").read_text(encoding="utf-8"))["strings"]
+localized_names = {code: catalog["AppName"]["localizations"][code]["stringUnit"]["value"] for code in data["product"]["languages"]}
+if data["product"]["name"] != localized_names["en"]:
+    errors.append("canonical product name differs from the English app name")
 for code in data["product"]["languages"]:
     locale = data["locales"].get(code)
     if not locale:
@@ -16,7 +20,7 @@ for code in data["product"]["languages"]:
         value = locale.get(field, "")
         if not value.strip(): errors.append(f"{code}.{field}: empty")
         if len(value) > limits[field]: errors.append(f"{code}.{field}: {len(value)} > {limits[field]}")
-    if locale.get("name") != data["product"]["name"]: errors.append(f"{code}.name differs from the product name")
+    if locale.get("name") != localized_names[code]: errors.append(f"{code}.name differs from the localized app name")
     if any(len(word.strip()) < 2 for word in locale.get("keywords", "").split(",")): errors.append(f"{code}.keywords: a keyword is too short")
     for scene in data["screenshots"]["scenes"]:
         caption = scene["caption"].get(code)

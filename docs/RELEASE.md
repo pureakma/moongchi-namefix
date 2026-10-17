@@ -6,13 +6,15 @@
 - 구성은 project.yml의 Debug와 AppStore 둘.
   - Debug: 개발·QA. App Sandbox OFF, bundle ID com.moongchi.namefix.dev. render·probe·진단 fixture는 이 구성에만 compile된다. 실제 sandbox 검증용으로 eng/build.sh --sandbox-debug가 같은 Debug 앱을 스토어 entitlement로 만든다(식별자 com.moongchi.namefix.sandboxqa).
   - AppStore: 공개 배포. App Sandbox ON, entitlement는 app-sandbox · files.user-selected.read-write · files.bookmarks.app-scope 셋, 디버깅 entitlement 없음, bundle ID com.ailoworks.namefix.
-- 버전: MARKETING_VERSION 1.0.0, CURRENT_PROJECT_VERSION 6. 원본은 project.yml 하나이며 build 명령이 바꾸지 않는다.
+- 버전: MARKETING_VERSION 1.0.1, CURRENT_PROJECT_VERSION 7. 원본은 project.yml 하나이며 build 명령이 바꾸지 않는다.
 - macOS 14 이상, Apple Silicon arm64 전용. Hardened Runtime ON.
 - 개발사 AILO WORKS, 문의 ailo@ailoworks.com
 - 모든 기능 무료. 유료 등급·구매·계정·광고·추적 없음. 앱은 네트워크를 쓰지 않는다.
 - 앱에 업데이트 명령이나 자체 updater는 없다. 앱스토어판의 설치와 업데이트는 App Store가, 일반판의 새 버전 안내는 다운로드 페이지가 맡는다.
 
 ## 현재 상태
+
+T-017/D-044: 언어별 앱 이름을 고친 1.0.1 build 7을 준비 중이다. 기존 1.0.0 일반판 파일·태그와 스토어 심사 대기 건은 보존하고, 새 빌드 준비·업로드 뒤 심사 제출을 교체한다. 한국어·일본어 App Store 앱 이름은 저장했으며 영어는 기존 표기를 유지한다. 새 버전의 서명·공증·업로드·공개 완료는 아직 아니다.
 
 2026-10-17 일반판 1.0.0 build 6과 MIT 소스코드의 GitHub 공개를 완료했다(T-015, T-016). 제품 source는 바꾸지 않았다. 일반판 앱과 DMG의 Developer ID 서명·Apple 공증·스테이플링·Gatekeeper, ZIP 추출 앱과 DMG 내부 앱 검증, 공개 첨부 파일 여섯 개의 익명 다운로드·SHA-256 일치 확인이 끝났다. 스토어판은 같은 날 심사 제출과 심사 대기 상태를 확인했으며 승인·App Store 공개는 별도다(T-007). 공개 URL·산출물은 아래 GitHub 절, 검증 근거는 QA.md가 원본이다.
 

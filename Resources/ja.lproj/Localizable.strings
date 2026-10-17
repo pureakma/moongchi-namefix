@@ -1,4 +1,4 @@
-"About" = "Moongchi NameFixについて";
+"About" = "ムンチ ネームフィックスについて";
 "AboutFeatures" = "濁点・半濁点などが分かれたファイル名の文字を整え、ルールで複数のファイル名をまとめて変更します。";
 "AboutFree" = "すべての機能が無料で、機能のロックや利用期間・回数の制限はありません。";
 "AboutPrivate" = "アカウントなしでこのMac上で処理し、ネットワーク通信は行いません。";
@@ -30,6 +30,7 @@
 "All" = "すべて";
 "AllowFolder" = "このフォルダを選択";
 "Ambiguous" = "手動確認が必要";
+"AppName" = "ムンチ ネームフィックス";
 "AppTagline" = "AILO WORKSがつくるMac用ファイル名整理ツール";
 "BasicExample" = "基本の例";
 "BatchEmptyTitle" = "複数のファイル名をまとめて変更";
@@ -148,7 +149,7 @@
 "FilesystemHelp" = "APFS形式のディスク（Mac本体の内蔵ディスクと外付けのAPFSドライブ）にある項目だけ、名前を変更します。アプリ、リンク、クラウド同期フォルダ、ネットワークドライブ、exFAT・FATのドライブの項目は変更せずに保護します。";
 "Filter" = "絞り込み";
 "FinalRenamed" = "新しい名前に変更済み";
-"FinderServiceTitle" = "NameFixでファイル名をスキャン";
+"FinderServiceTitle" = "ムンチ ネームフィックスでファイル名をスキャン";
 "FolderAccessMessage" = "「{0}」フォルダを選択すると、その中の名前を確認して変更できます。ファイルの内容は変更しません。";
 "FolderAccessMore" = "このあと、さらに{0}個のフォルダを選択します。";
 "FolderAccessMoreOne" = "このあと、さらに1個のフォルダを選択します。";
@@ -232,7 +233,7 @@
 "MenuCopy" = "コピー";
 "MenuCut" = "カット";
 "MenuFullScreen" = "フルスクリーンにする";
-"MenuHide" = "Moongchi NameFixを隠す";
+"MenuHide" = "ムンチ ネームフィックスを隠す";
 "MenuHideOthers" = "ほかを隠す";
 "MenuMinimize" = "しまう";
 "MenuPaste" = "ペースト";
@@ -349,7 +350,7 @@
 "ProRequired" = "この機能は利用できません。アプリを再起動してみてください。";
 "QueuedInputs" = "ファイルを受け取りました。現在の処理が終わったらスキャンします。";
 "QueuedInputsShort" = "受け取り済み · スキャン待ち";
-"Quit" = "Moongchi NameFixを終了";
+"Quit" = "ムンチ ネームフィックスを終了";
 "RawExportHelp" = "名前をそのまま保存します。表計算アプリで開くと数式として解釈されることがあるため、テキストとして読み込んでください。";
 "RecentFolders" = "最近使ったフォルダ";
 "RecentPrivacy" = "デフォルトではオフです。フォルダのパスを最大10件、このMacに保存します。オフにすると、保存した一覧を消去します。";

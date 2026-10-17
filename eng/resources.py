@@ -16,6 +16,8 @@ def value_for(key, language):
 
 # Info.plist keys that macOS shows to the user, each mapped to its catalog key.
 info_plist_keys = [
+    ("CFBundleDisplayName", "AppName"),
+    ("CFBundleName", "AppName"),
     ("Inspect Names with NameFix", "FinderServiceTitle"),
     ("NSDesktopFolderUsageDescription", "FolderAccessPurpose"),
     ("NSDocumentsFolderUsageDescription", "FolderAccessPurpose"),

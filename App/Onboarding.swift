@@ -295,7 +295,7 @@ struct DeveloperCard: View {
                 Image(nsImage: NSApp.applicationIconImage).resizable().interpolation(.high).frame(width: 72, height: 72).accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 3) {
                     Text("MOONGCHI").font(.system(size: 10, weight: .semibold, design: .monospaced)).tracking(3).foregroundStyle(palette.secondary).accessibilityHidden(true)
-                    Text("Moongchi NameFix").font(L10n.font(model.settings.language, size: 22, weight: .semibold)).accessibilityAddTraits(.isHeader)
+                    Text(model.t("AppName")).font(L10n.font(model.settings.language, size: 22, weight: .semibold)).accessibilityAddTraits(.isHeader)
                     Text(model.t("AppTagline")).foregroundStyle(palette.secondary).fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer(minLength: 0)

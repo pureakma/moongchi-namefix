@@ -2563,6 +2563,43 @@
       "evidencePath": "artifacts/evidence/public-release-20261017/github-publication.json",
       "evidenceSHA256": "fd085914a078a3fce935edb9b4be1a32fbaae7614c4a68cb7f8e72fe2278e0aa",
       "notes": "Actual PUBLIC repository and v1.0.0 release, MIT source, 6 anonymous HTTP 200 downloads and matching hashes. Tag 48f3ee8; product source dcfe247. DMG notarized before public visibility per user approval D-043. No product source/build/full QA changes, no fresh-Mac GUI installation, no App Store approval claim."
+    },
+    {
+      "validationId": "MAC-LOCALIZED-BRANDING-20261017",
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "scope": [
+        "App/Localization.swift",
+        "App/Main.swift",
+        "App/Sheets.swift",
+        "App/MacIntegration.swift",
+        "App/Onboarding.swift",
+        "App/MarketingFixtures.swift",
+        "App/ShellFixtures.swift",
+        "Resources/Localizable.xcstrings",
+        "Resources/**/*.strings",
+        "eng/resources.py",
+        "eng/validate-resources.py",
+        "eng/validate-marketing.py",
+        "marketing/appstore.json",
+        "project.yml"
+      ],
+      "sourceFingerprint": "c51c8e60db4cf583fca7260b728b2e1006194f091f4a0246f5ff01f880e8b3e4",
+      "testFingerprint": "ea2798fcbca32fe8543bf0274116359f5bab436fc4006a5b26b123c0b7495db7",
+      "dependencyFingerprint": "9a4486991c5d84f7775691b534f4618d15bbed7e5dd33b0684f9e07d4d800322",
+      "toolchainFingerprint": "ee3fe26035862d2b9653c1a570be3eca4ee5be2815f0ce99ff2d8ffa3399e4c8",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-17T11:06:57.062812+00:00",
+      "command": "swift test --filter LocalizationTests; eng/build.sh --configuration Debug --arch arm64; eng/validate-resources.py; eng/validate-marketing.py; plutil lint; Foundation bundle probe with three AppleLanguages; Debug --render-shell",
+      "evidencePath": "artifacts/evidence/localization-20261017/engineering.json",
+      "evidenceSHA256": "23217829cfd79bdb4af6c395c99d63ab054dfef151b7515c43b5af090639ec98",
+      "notes": "Branding/localization impact only. Safe engine gates reused; no release or user QA proof."
     }
   ]
 }

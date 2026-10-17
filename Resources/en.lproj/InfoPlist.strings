@@ -1,4 +1,6 @@
-"Inspect Names with NameFix" = "Scan Names with NameFix";
+"CFBundleDisplayName" = "Moongchi NameFix";
+"CFBundleName" = "Moongchi NameFix";
+"Inspect Names with NameFix" = "Scan Names with Moongchi NameFix";
 "NSDesktopFolderUsageDescription" = "NameFix scans and renames only the files and folders you choose.";
 "NSDocumentsFolderUsageDescription" = "NameFix scans and renames only the files and folders you choose.";
 "NSDownloadsFolderUsageDescription" = "NameFix scans and renames only the files and folders you choose.";

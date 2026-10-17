@@ -11,7 +11,7 @@ import NameFixRuntime
     init(model: AppModel) { self.model = model; super.init() }
     func finished(_ summary: TransactionSummary) {
         guard !NSApp.isActive, UserDefaults.standard.bool(forKey: "NameFix.Notifications"), let model else { return }
-        let content = UNMutableNotificationContent(); content.title = "Moongchi NameFix"
+        let content = UNMutableNotificationContent(); content.title = model.t("AppName")
         content.body = model.t("CompletionNotification", model.n(summary.succeeded), model.n(summary.failed)); content.sound = nil
         let request = UNNotificationRequest(identifier: summary.id.uuidString, content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request) { [weak model] error in

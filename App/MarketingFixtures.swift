@@ -84,7 +84,7 @@ import NameFixRuntime
             model.settings.language = language; model.settings.theme = "olive"
             let controller = MainSidebarController(model: model)
             let window = ActiveWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView], backing: .buffered, defer: false)
-            window.isReleasedWhenClosed = false; window.appearance = NSApp.appearance; window.titlebarAppearsTransparent = true
+            window.isReleasedWhenClosed = false; window.appearance = NSApp.appearance; window.title = model.t("AppName"); window.titlebarAppearsTransparent = true
             let palette = Palette("olive", systemDark: false)
             window.backgroundColor = NSColor(palette.sidebar)
             window.contentViewController = controller

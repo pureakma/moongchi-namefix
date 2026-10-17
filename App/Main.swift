@@ -91,7 +91,7 @@ import NameFixCore
         Self.shared = self
         NSWindow.allowsAutomaticWindowTabbing = false
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1180, height: 780), styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView], backing: .buffered, defer: false)
-        window.minSize = .zero; window.title = "Moongchi NameFix"; window.titlebarAppearsTransparent = true
+        window.minSize = .zero; window.title = model.t("AppName"); window.titlebarAppearsTransparent = true
         window.isReleasedWhenClosed = false; window.delegate = self
         let split = MainSidebarController(model: model); sidebarController = split
         split.rememberWidth()
@@ -285,7 +285,8 @@ import NameFixCore
     private func buildMenus() {
         let main = NSMenu()
         func menu(_ title: String) -> NSMenu { let item = NSMenuItem(title: title, action: nil, keyEquivalent: ""); let sub = NSMenu(title: title); item.submenu = sub; main.addItem(item); return sub }
-        let app = menu("Moongchi NameFix")
+        window?.title = model.t("AppName")
+        let app = menu(model.t("AppName"))
         app.addItem(ActionItem(model.t("About")) { [weak self] in self?.model.present("about") })
         // The app itself makes no connection: the browser opens the product page (D-029).
         app.addItem(ActionItem(model.t("Settings"), key: ",") { [weak self] in self?.model.present("settings") })

@@ -13,9 +13,9 @@ enum AppInfo {
     /// The Mac App Store edition is updated by the store, so it offers no update check of its own.
 }
 enum L10n {
-    static func language(_ value: String) -> String {
+    static func language(_ value: String, preferredLanguages: [String] = Locale.preferredLanguages) -> String {
         if value != "system" { return String(value.prefix(2)) }
-        return Locale.preferredLanguages.compactMap { let s = String($0.prefix(2)); return ["ko", "en", "ja"].contains(s) ? s : nil }.first ?? "en"
+        return preferredLanguages.compactMap { let s = String($0.prefix(2)); return ["ko", "en", "ja"].contains(s) ? s : nil }.first ?? "en"
     }
     static func text(_ key: String, language: String, _ args: [String] = []) -> String {
         let lang = self.language(language)

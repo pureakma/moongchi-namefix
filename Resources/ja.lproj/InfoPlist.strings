@@ -1,4 +1,6 @@
-"Inspect Names with NameFix" = "NameFixでファイル名をスキャン";
+"CFBundleDisplayName" = "ムンチ ネームフィックス";
+"CFBundleName" = "ムンチ ネームフィックス";
+"Inspect Names with NameFix" = "ムンチ ネームフィックスでファイル名をスキャン";
 "NSDesktopFolderUsageDescription" = "選択したファイルとフォルダの名前だけをスキャンし、変更します。";
 "NSDocumentsFolderUsageDescription" = "選択したファイルとフォルダの名前だけをスキャンし、変更します。";
 "NSDownloadsFolderUsageDescription" = "選択したファイルとフォルダの名前だけをスキャンし、変更します。";

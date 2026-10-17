@@ -1,4 +1,4 @@
-"About" = "Moongchi NameFix에 관하여";
+"About" = "뭉치 네임픽스에 관하여";
 "AboutFeatures" = "자소 분리된 파일 이름을 정리하고, 규칙으로 여러 파일 이름을 한 번에 바꿉니다.";
 "AboutFree" = "모든 기능이 무료이며, 기능 잠금이나 사용 기간·횟수 제한이 없습니다.";
 "AboutPrivate" = "계정 없이 이 Mac에서 처리하며, 네트워크 통신을 하지 않습니다.";
@@ -30,6 +30,7 @@
 "All" = "전체";
 "AllowFolder" = "이 폴더 선택";
 "Ambiguous" = "직접 확인 필요";
+"AppName" = "뭉치 네임픽스";
 "AppTagline" = "AILO WORKS가 만드는 Mac용 파일 이름 정리 도구";
 "BasicExample" = "기본 예제";
 "BatchEmptyTitle" = "여러 파일 이름을 한 번에 바꾸기";
@@ -148,7 +149,7 @@
 "FilesystemHelp" = "APFS 형식 디스크(Mac의 내장 디스크와 외장 APFS 드라이브)에 있는 항목만 이름을 바꿉니다. 앱, 링크, 클라우드 동기화 폴더, 네트워크 드라이브, exFAT·FAT 드라이브의 항목은 바꾸지 않고 보호합니다.";
 "Filter" = "필터";
 "FinalRenamed" = "최종 이름 적용";
-"FinderServiceTitle" = "NameFix로 파일 이름 검사";
+"FinderServiceTitle" = "뭉치 네임픽스로 파일 이름 검사";
 "FolderAccessMessage" = "‘{0}’ 폴더를 선택하면 그 안의 이름을 확인하고 바꿀 수 있습니다. 파일 내용은 바꾸지 않습니다.";
 "FolderAccessMore" = "이 폴더 다음에 선택할 폴더가 {0}개 더 있습니다.";
 "FolderAccessMoreOne" = "이 폴더 다음에 선택할 폴더가 1개 더 있습니다.";
@@ -232,7 +233,7 @@
 "MenuCopy" = "복사하기";
 "MenuCut" = "오려두기";
 "MenuFullScreen" = "전체 화면 시작";
-"MenuHide" = "Moongchi NameFix 가리기";
+"MenuHide" = "뭉치 네임픽스 가리기";
 "MenuHideOthers" = "기타 가리기";
 "MenuMinimize" = "최소화";
 "MenuPaste" = "붙여넣기";
@@ -349,7 +350,7 @@
 "ProRequired" = "이 기능을 사용할 수 없습니다. 앱을 다시 실행해 보세요.";
 "QueuedInputs" = "파일을 받았습니다. 현재 작업이 끝나면 검사합니다.";
 "QueuedInputsShort" = "파일 받음 · 대기 중";
-"Quit" = "Moongchi NameFix 종료";
+"Quit" = "뭉치 네임픽스 종료";
 "RawExportHelp" = "원문 CSV는 이름을 그대로 저장합니다. 스프레드시트에서 열면 수식처럼 해석될 수 있으므로 텍스트로 가져오세요.";
 "RecentFolders" = "최근 폴더";
 "RecentPrivacy" = "기본으로 꺼져 있습니다. 폴더 경로를 최대 10개까지 이 Mac에 저장하며, 끄면 저장된 목록을 지웁니다.";

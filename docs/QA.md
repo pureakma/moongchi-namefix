@@ -18,6 +18,18 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인.
 
+### 글로벌 앱 이름 현지화 영향 검증 (2026-10-17, T-017)
+
+앱 이름·시스템 언어 선택의 계약과 소비자만 검증했다. 파일 엔진·저장 schema·권한은 바꾸지 않았으며 T-013·T-014의 관련 안전 검증은 재사용한다. User QA나 Apple 심사 승인을 뜻하지 않는다. 로컬 근거는 artifacts/evidence/localization-20261017, 영수증 MAC-LOCALIZED-BRANDING-20261017.
+
+| 항목 | 결과 |
+|---|---|
+| 언어 선택 unit | LocalizationTests 3개, 실패 0. 새 설정은 system, 우선순위와 영어 fallback, 기존 명시적 언어 선택 유지 |
+| 리소스·스토어 문구 | 569 keys × ko/en/ja, InfoPlist.strings 문법·번역 원본/생성물 일치, 언어별 Store 이름 계약 PASS |
+| Debug arm64 build | 성공, 1.0.1 (7) |
+| 실제 Foundation 번들 해석 | 앱과 같은 localizations를 가진 격리 main bundle harness에서 세 AppleLanguages로 앱 번들의 CFBundleDisplayName·CFBundleName·Finder 표시 이름 확인 PASS. 일반 CLI의 다른 bundle 언어는 main bundle 제약을 받아 초기 harness를 수정했으며 제품 결함으로 기록하지 않음 |
+| 화면 렌더 | shell/settings 51장 assertion PASS. 일본어 좁은 설정 화면 확인. 스토어 캡처는 새 빌드로 별도 생성·확인 |
+
 ### 배포 인증 복구와 실제 업로드 (2026-10-17, T-015, T-007)
 
 제품 source는 변경하지 않았다. T-013·T-014의 제품 검증을 재사용하고 전체 test·UI QA를 반복하지 않았다. 아래는 Release Engineering 및 실제 Apple UI 결과이며 User QA PASS가 아니다. 로컬 evidence는 artifacts/evidence/release-recovery-20261017, 일반판 검증은 artifacts/direct/1.0.0/build6-xcode-20261017/evidence에 있다. 영수증 MAC-RELEASE-APP-NOTARIZATION-20261017, MAC-RELEASE-STORE-UPLOAD-20261017, MAC-RELEASE-STORE-SUBMISSION-20261017.
