@@ -55,11 +55,11 @@ codesign -dvv "$app" > "$evidence/app-signature.txt" 2>&1
 
 notarize() {  # $1 file to submit, $2 label
   xcrun notarytool submit "$1" --keychain-profile "$profile" --wait --output-format json > "$evidence/notary-$2-submit.json"
-  local id status
+  local id notary_status
   id=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("id",""))' "$evidence/notary-$2-submit.json")
-  status=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("status",""))' "$evidence/notary-$2-submit.json")
+  notary_status=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("status",""))' "$evidence/notary-$2-submit.json")
   [[ -n "$id" ]] && xcrun notarytool log "$id" --keychain-profile "$profile" "$evidence/notary-$2-log.json" > /dev/null 2>&1 || true
-  [[ "$status" == "Accepted" ]] || { echo "notarization of $2: ${status:-no answer}" >&2; return 1; }
+  [[ "$notary_status" == "Accepted" ]] || { echo "notarization of $2: ${notary_status:-no answer}" >&2; return 1; }
 }
 
 notarized=false

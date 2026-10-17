@@ -28,7 +28,17 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 | 리소스·스토어 문구 | 569 keys × ko/en/ja, InfoPlist.strings 문법·번역 원본/생성물 일치, 언어별 Store 이름 계약 PASS |
 | Debug arm64 build | 성공, 1.0.1 (7) |
 | 실제 Foundation 번들 해석 | 앱과 같은 localizations를 가진 격리 main bundle harness에서 세 AppleLanguages로 앱 번들의 CFBundleDisplayName·CFBundleName·Finder 표시 이름 확인 PASS. 일반 CLI의 다른 bundle 언어는 main bundle 제약을 받아 초기 harness를 수정했으며 제품 결함으로 기록하지 않음 |
-| 화면 렌더 | shell/settings 51장 assertion PASS. 일본어 좁은 설정 화면 확인. 스토어 캡처는 새 빌드로 별도 생성·확인 |
+| 화면 렌더 | shell/settings 51장 assertion PASS. 일본어 좁은 설정 화면 확인. 새 빌드의 실제 창으로 중립 경로의 샘플 파일을 처리하여 스토어 15장 생성(artifacts/marketing/namefix/1.0.1-localized), 한국어 검사·일본어 미리보기 대표 화면 확인 |
+
+### 1.0.1 현지화 배포 검증 (2026-10-17, T-017)
+
+App Store Connect에서 기존 제출 철회 뒤 1.0.1 (7) 재제출을 접수했고 제출 항목 1개·심사 대기 중을 확인했다(store-submission.json·store-submission.png). 이름과 설명을 세 언어로 저장·재확인했다. 기능 화면에 변화가 없어 기존 스크린샷 15장은 재사용했다. Apple 심사 승인이나 사용자 QA PASS를 뜻하지 않는다.
+
+제품 source 07dcc18에서 AppStore 구성 archive·export·upload 성공. 같은 archive의 앱을 Developer ID로 재서명했다. 앱·DMG 공증 Accepted(각 ID는 RELEASE.md), staple·Gatekeeper PASS. ZIP을 풀고 DMG를 읽기 전용으로 열어 내부 앱의 서명·공증·버전·arm64·세 언어 이름을 검증했고, 직접 앱·ZIP·DMG 앱의 실행 파일 SHA-256이 일치했다. 공개 v1.0.1 첨부 여섯 파일을 인증 없이 HTTP 200으로 내려받아 서버 digest와 로컬 체크섬 일치를 확인했다. 이 Mac의 설치 앱도 공개 ZIP으로 1.0.1 (7)로 교체하고 실제 앱 메뉴·정보 화면의 한국어 이름을 확인했다. 사용자 설정·기록 파일은 건드리지 않았다.
+
+공증 뒤 패키징 도구가 zsh의 읽기 전용 status 변수에 값을 넣어 중단하는 결함을 발견했다. eng/package-direct.sh의 함수 지역 변수를 notary_status로 고치고 zsh -n 및 실제 후속 DMG 공증·패키징 경로로 확인했다. 이미 Accepted인 앱 공증은 반복하지 않았고 나머지 단계만 재개했다. 앱 재빌드와 파일 엔진 전체 QA는 이 도구 수정의 영향에 포함되지 않는다.
+
+근거: artifacts/evidence/localization-20261017의 store-archive.txt·store-upload.txt·store-bundle-localization.json·direct-verification.json·github-publication.json, artifacts/install/github-v1.0.1-20261017/installation.json·installed-about.png. 영수증 MAC-LOCALIZED-RELEASE-20261017. 실제 새 Mac 설치, 원어민 User QA, Apple 심사 승인을 뜻하지 않는다.
 
 ### 배포 인증 복구와 실제 업로드 (2026-10-17, T-015, T-007)
 

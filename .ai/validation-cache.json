@@ -2600,6 +2600,41 @@
       "evidencePath": "artifacts/evidence/localization-20261017/engineering.json",
       "evidenceSHA256": "23217829cfd79bdb4af6c395c99d63ab054dfef151b7515c43b5af090639ec98",
       "notes": "Branding/localization impact only. Safe engine gates reused; no release or user QA proof."
+    },
+    {
+      "validationId": "MAC-LOCALIZED-RELEASE-20261017",
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "AppStore",
+      "scope": [
+        "App/Localization.swift",
+        "App/Main.swift",
+        "App/Sheets.swift",
+        "App/MacIntegration.swift",
+        "App/Onboarding.swift",
+        "Resources/Localizable.xcstrings",
+        "Resources/**/*.strings",
+        "project.yml",
+        "eng/package-direct.sh",
+        "eng/archive-store.sh",
+        "marketing/appstore.json"
+      ],
+      "sourceFingerprint": "0e9fca17013185215e49e797a93de940374ad815d5e572f868469bedc0c98b4f",
+      "testFingerprint": "ea2798fcbca32fe8543bf0274116359f5bab436fc4006a5b26b123c0b7495db7",
+      "dependencyFingerprint": "9a4486991c5d84f7775691b534f4618d15bbed7e5dd33b0684f9e07d4d800322",
+      "toolchainFingerprint": "ee3fe26035862d2b9653c1a570be3eca4ee5be2815f0ce99ff2d8ffa3399e4c8",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "filesystem": "APFS + read-only HFS+ DMG",
+        "caseSensitive": false,
+        "signing": "Developer ID and automatic Store distribution"
+      },
+      "timestamp": "2026-10-17T11:17:54.804950+00:00",
+      "command": "signed archive/export/upload; reuse archive for Developer ID; notarytool and stapler app/DMG; Gatekeeper; ZIP extraction and read-only DMG checks; Foundation localized bundle probes; gh release + six anonymous downloads; install public ZIP; native app menu/About; App Store Connect metadata save, old submission withdrawal, version/build replacement and resubmission",
+      "evidencePath": "artifacts/evidence/localization-20261017/release-verification.json",
+      "evidenceSHA256": "5e7b1c90fe25e95dc67d824bcafc95801802d44280ea829fbbdcb0b40abc5fd7",
+      "notes": "v1.0.1 public, locally installed; Store submission e16e234c-4941-4665-af97-dda0c89cb43c Waiting for Review, not approved. Previous v1.0.0 immutable. No full QA/User QA claim."
     }
   ]
 }
