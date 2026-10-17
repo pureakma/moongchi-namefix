@@ -11,7 +11,7 @@
 | UI/UX와 디자인 계약 | [DESIGN.md](DESIGN.md) | 화면/상호작용 Task | UI 계약 변경 | On-demand | - |
 | 파일시스템 안전·권한·개인정보 계약 | [FILESYSTEM_CAPABILITIES.md](FILESYSTEM_CAPABILITIES.md) | mutation/권한/안전 Task | 안전 계약 또는 지원 범위 변경 | On-demand | - |
 | Engineering Verification·User QA | [QA.md](QA.md) | 검증 범위·QA 판단 | 검증 상태/QA 항목 변경 | On-demand | - |
-| 빌드·배포(Mac App Store) | [RELEASE.md](RELEASE.md) | Release Task | 배포 사실/정책 변경 | On-demand | - |
+| 빌드·배포(Mac App Store, 일반판) | [RELEASE.md](RELEASE.md) | Release Task | 배포 사실/정책 변경 | On-demand | - |
 | 사용자 기능 안내 | [EXPANSION_USER_GUIDE.md](EXPANSION_USER_GUIDE.md) | 사용자 문구 Task | 사용자 동작 변경 | On-demand | - |
 
 루트 README.md는 프로젝트 진입점, AGENTS.md는 AI 실행 규칙이다. ThirdPartyNotices.md와 Resources의 라이선스는 법적 자산, assets/branding/NameFix-Original.png는 현재 앱 아이콘 원본이다. 과거 Windows→macOS handoff와 이전 아이콘은 Git 이력에서만 조회한다.

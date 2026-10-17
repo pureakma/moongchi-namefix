@@ -12,12 +12,12 @@
 
 ## 현재 Milestone
 
-Global Product Hardening Phase 1·2, 최종 QA, 그리고 공개 배포를 Mac App Store 하나로 정리하는 것까지. 출시, 스토어 업로드·제출, 웹사이트 수정은 하지 않는다. 이 Milestone의 Task는 모두 끝났고, 다음은 사용자가 승인하는 Release Candidate Phase다. 아래 완료된 Task에 나오는 ‘직접 배포판’은 그때의 구성이며 지금은 없다(D-038).
+Global Product Hardening Phase 1·2, 최종 QA, 그리고 공개 배포 경로를 정리하는 것까지(Mac App Store와, 같은 빌드의 일반판 직접 다운로드, D-042). 출시, 스토어 업로드·제출, 웹사이트 수정은 하지 않는다. 이 Milestone의 Task는 모두 끝났고, 다음은 사용자가 승인하는 Release Candidate Phase다. 아래 완료된 Task에 나오는 ‘직접 배포판’은 그때의 구성(sandbox 밖 Release 구성과 CLI)이며, 지금의 일반판은 앱스토어판과 같은 빌드다(D-042).
 
 ### T-015 일반판(직접 다운로드) 빌드 [blocked]
 - 근원: R-017
 - 범위: 앱스토어판과 같은 빌드를 Developer ID로 서명·공증·스테이플링해 DMG와 ZIP으로 만든다(D-042). 앱의 기능·문구는 바꾸지 않는다. 다운로드 페이지 게시, 저장소 공개, 후원 계정은 포함하지 않는다.
-- 사유: 공증 단계에서 저장된 notarytool 프로필(MoongchiNotaryRC)의 인증 정보가 Apple에서 거절됐다(HTTP 401, 2026-10-17). 서명까지는 끝났고 스크립트 전체 경로는 공증 없이 한 번 확인했다.
+- 사유: 공증 단계에서 저장된 notarytool 프로필(MoongchiNotaryRC)의 인증 정보가 Apple에서 거절됐다(HTTP 401, 2026-10-17). 같은 날 개발자가 새 앱 암호로 인증 정보를 다시 저장하려 했으나 저장 전 확인에서 같은 401이 났다. 원인 후보: 앱 암호를 만든 Apple ID와 --apple-id가 다름, 그 Apple ID가 팀 25373G7846의 계정이 아님, 입력 오류, 계정의 조직 전환으로 인증이 막힘. 서명까지는 끝났고 스크립트 전체 경로는 공증 없이 한 번 확인했다.
 - 조건: 개발자가 RELEASE.md ‘일반판 만들기’대로 공증 인증 정보를 다시 저장한다. 그 뒤 eng/package-direct.sh로 처음부터 다시 만든다. 계정의 조직 전환 중이라 공증이 계속 거절되면 전환이 끝날 때까지 기다린다.
 
 ### T-014 메뉴 막대 아이콘 제거 [completed]

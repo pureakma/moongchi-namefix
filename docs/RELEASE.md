@@ -42,7 +42,7 @@ xcrun notarytool store-credentials MoongchiNotaryRC --apple-id <개발자 Apple 
   App 전용 암호는 appleid.apple.com의 ‘로그인 및 보안 › 앱 암호’에서 만들고, 위 명령이 물을 때 입력한다(화면에 표시되지 않음).
 - 공증 없이 실행하면 서명까지만 하고 BUILD_INFO의 forDownload가 false다. Gatekeeper는 ‘Unnotarized Developer ID’로 거절한다. 이런 결과는 내려받게 하지 않는다.
 - 결과 위치: artifacts/direct/<버전>/build<번호> (Git 제외). build 5의 과거 후보(artifacts/release-candidate)는 건드리지 않는다.
-- 현재(2026-10-17): source e776f8d로 Developer ID 서명까지 성공. 공증은 저장된 프로필의 인증 정보가 Apple에서 거절돼(HTTP 401) 멈췄다. 개발자가 위 방법으로 인증 정보를 다시 저장하면 같은 명령으로 처음부터 다시 만든다. 계정의 조직 전환 중이라 인증 정보를 새로 저장해도 공증이 거절될 수 있다.
+- 현재(2026-10-17): source e776f8d로 Developer ID 서명까지 성공. 공증은 저장된 프로필의 인증 정보가 Apple에서 거절돼(HTTP 401) 멈췄다. 개발자가 위 방법으로 인증 정보를 다시 저장하면 같은 명령으로 처음부터 다시 만든다. 같은 날 개발자가 새 앱 암호로 다시 저장하려 했으나 저장 전 확인에서 같은 401이 났다. 앱 암호를 만든 Apple ID, 팀 소속, 입력을 확인하고, 그래도 거절되면 계정의 조직 전환이 끝난 뒤 다시 한다.
 
 ## Mac App Store 제출 (T-007, 보류)
 

@@ -59,7 +59,7 @@ T-002의 구현과 Engineering Verification은 끝났고 User QA만 남았다. �
 
 2026-10-07 사용자가 ‘Global Product Hardening Phase 2’를 승인했다(T-009, R-016). 범위는 Mac App Store sandbox에서도 같은 GUI 기능이 되도록 하는 공통 구조(D-032~D-035)와 업데이트 방식 확정(D-029)이다. App Store Connect 기록 생성·업로드·심사 제출, 배포 인증서 발급, 웹사이트 수정, DMG 공개, build 6 공증, Sparkle, SMB/cloud mutation은 이 Phase에 넣지 않는다.
 
-2026-10-07 사용자가 ‘App Store Feature Parity Polish’(T-011, D-037)와 ‘App Store Only Distribution Simplification’(T-012, R-017, D-038)을 승인했다. 앞의 것은 sandbox 안에서 모든 GUI 기능을 내는 것, 뒤의 것은 공개 배포를 Mac App Store 하나로 줄이고 직접 배포판·CLI·업데이트 확인 메뉴와 그 도구를 없애는 것이다. Release Candidate 생성, 스토어 archive·업로드·제출은 포함하지 않는다.
+2026-10-07 사용자가 ‘App Store Feature Parity Polish’(T-011, D-037)와 ‘App Store Only Distribution Simplification’(T-012, R-017, D-038)을 승인했다. 앞의 것은 sandbox 안에서 모든 GUI 기능을 내는 것, 뒤의 것은 공개 배포를 Mac App Store 하나로 줄이고 직접 배포판·CLI·업데이트 확인 메뉴와 그 도구를 없애는 것이다. 2026-10-17 사용자가 일반판(직접 다운로드)을 다시 두기로 했다. 앱스토어판과 같은 빌드를 Developer ID로 서명·공증하며 둘 다 무료다(R-017, D-042, T-015). Release Candidate 생성, 스토어 archive·업로드·제출은 포함하지 않는다.
 
 다음 개발은 사용자가 새 범위를 승인하면 그 범위의 Milestone/Task를 STATUS에 만들고 진행한다. 출시를 승인할 경우의 순서는 docs/RELEASE.md의 ‘Release Candidate 진입 조건’과 ‘Mac App Store 제출’을 따른다.
 

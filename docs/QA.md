@@ -14,7 +14,7 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 ## 현재 source의 Engineering Verification 상태
 
-현재 판정: USER_QA_COMPLETE_WITH_EXTERNAL_PENDING (2026-10-07, Final User QA Session, T-010). P0 0건, P1 0건, P2 2건은 의도적으로 남겼다. R1~R4는 사용자 PASS, R5·R7은 PARTIAL, R6은 사용자 결정으로 AI 전체 검수로 대체했다(원어민 확인 아님). 항목별 결과와 세션에서 고친 것은 아래 ‘User QA’의 ‘남은 확인 일곱 가지’에 있다. Release Candidate 단계에 들어갈 수 있고, 사용자가 승인하기 전에는 후보를 만들지 않는다. 세션 뒤 source의 영수증은 .ai/validation-cache.json의 MAC-USER-QA-SESSION-20261007(로컬 evidence artifacts/evidence/user-qa)이다. 그 뒤 공개 배포를 Mac App Store 하나로 줄였고(D-038, T-012) 현재 source의 Engineering 기준은 바로 아래 ‘App Store Only Gate’다.
+현재 판정: USER_QA_COMPLETE_WITH_EXTERNAL_PENDING (2026-10-07, Final User QA Session, T-010). P0 0건, P1 0건, P2 2건은 의도적으로 남겼다. R1~R4는 사용자 PASS, R5·R7은 PARTIAL, R6은 사용자 결정으로 AI 전체 검수로 대체했다(원어민 확인 아님). 항목별 결과와 세션에서 고친 것은 아래 ‘User QA’의 ‘남은 확인 일곱 가지’에 있다. Release Candidate 단계에 들어갈 수 있고, 사용자가 승인하기 전에는 후보를 만들지 않는다. 세션 뒤 source의 영수증은 .ai/validation-cache.json의 MAC-USER-QA-SESSION-20261007(로컬 evidence artifacts/evidence/user-qa)이다. 그 뒤 공개 배포를 Mac App Store 하나로 줄였다가(D-038, T-012) 같은 빌드의 일반판을 다시 두었고(D-042) 현재 source의 Engineering 기준은 바로 아래 ‘App Store Only Gate’다.
 
 추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인.
 
