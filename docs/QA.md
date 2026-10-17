@@ -40,7 +40,7 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 ### 오픈소스 공개 전 점검 (2026-10-17, T-016)
 
-제품 source·실행 경로 변경 없음. 공개 대상인 기존 main의 136개 커밋에서 고유 파일 blob 915개 중 텍스트 893개와 커밋 메타데이터를 점검했다. private key, GitHub/AWS/Google/OpenAI/Slack 토큰, 리터럴 암호 할당, 전화번호 패턴 일치가 없었다. 과거 UI 참조 이미지 9장도 실제 확인했고 합성 시험 경로 외 개인 계정·연락처는 없었다. 발견된 /Users/me 경로는 fixture 예시이며, 기타 이력의 로컬 경로는 빌드·브랜딩 자료다. 공개 문의 이메일·Team ID는 인증 비밀이 아니다. 패턴 검사와 관찰 범위의 결과이며 모든 가능한 비밀 부재 보증은 아니다. Git 작성자 이름·이메일의 공개는 별도 사용자 확인 대상이다.
+제품 source·실행 경로 변경 없음. 공개 대상인 기존 main의 136개 커밋에서 고유 파일 blob 915개 중 텍스트 893개와 커밋 메타데이터를 점검했다. private key, GitHub/AWS/Google/OpenAI/Slack 토큰, 리터럴 암호 할당, 전화번호 패턴 일치가 없었다. 과거 UI 참조 이미지 9장도 실제 확인했고 합성 시험 경로 외 개인 계정·연락처는 없었다. 발견된 /Users/me 경로는 fixture 예시이며, 기타 이력의 로컬 경로는 빌드·브랜딩 자료다. 공개 문의 이메일·Team ID는 인증 비밀이 아니다. 패턴 검사와 관찰 범위의 결과이며 모든 가능한 비밀 부재 보증은 아니다. Git 작성자 이름·이메일을 포함한 공개의 사용자 확인 결과와 순서는 D-043·RELEASE.md를 따른다.
 
 기존 ZIP·DMG의 SHA-256을 BUILD_INFO와 대조해 일치를 확인했다. 공증 앱의 codesign --verify --deep --strict, stapler validate, spctl exec를 공개 준비 Gate에서 다시 확인해 통과했다. DMG 공증·공개 완료로 확대하지 않는다. 기존 MoongchiNotaryRC 조회는 이번 재개 시 한 번 더 HTTP 401이었고 추가 재시도하지 않았다. 새 전체 QA·제품 빌드는 수행하지 않았다. 로컬 근거: artifacts/evidence/public-release-20261017/repository-review.json. 현재 라이선스와 공개 상태는 RELEASE.md.
 
