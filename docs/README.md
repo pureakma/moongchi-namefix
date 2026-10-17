@@ -14,6 +14,6 @@
 | 빌드·배포(Mac App Store, 일반판) | [RELEASE.md](RELEASE.md) | Release Task | 배포 사실/정책 변경 | On-demand | - |
 | 사용자 기능 안내 | [EXPANSION_USER_GUIDE.md](EXPANSION_USER_GUIDE.md) | 사용자 문구 Task | 사용자 동작 변경 | On-demand | - |
 
-루트 README.md는 프로젝트 진입점, AGENTS.md는 AI 실행 규칙이다. ThirdPartyNotices.md와 Resources의 라이선스는 법적 자산, assets/branding/NameFix-Original.png는 현재 앱 아이콘 원본이다. 과거 Windows→macOS handoff와 이전 아이콘은 Git 이력에서만 조회한다.
+루트 README.md는 프로젝트 진입점, AGENTS.md는 AI 실행 규칙이다. LICENSE는 코드·문서의 MIT, ThirdPartyNotices.md와 Resources의 라이선스는 타사 법적 자산, assets/branding/README.md는 브랜딩 적용 범위, assets/branding/NameFix-Original.png는 현재 앱 아이콘 원본이다. 과거 Windows→macOS handoff와 이전 아이콘은 Git 이력에서만 조회한다.
 
 현재 Active Plan은 별도 PLAN.md가 아니라 PROJECT.md의 현재 승인 범위 한 곳만 사용한다. 별도 Handoff 문서는 만들지 않는다. Git과 STATUS로 재개할 수 있어야 한다.

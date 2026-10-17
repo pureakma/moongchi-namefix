@@ -14,14 +14,14 @@
 
 ## 현재 상태
 
-출시 보류(D-026). Store Release Phase 1(2026-10-07): 현재 source 1.0.0 build 6의 최종 Gate를 통과했고 제출 직전까지 준비했다. 판정 HUMAN_ACTION_REQUIRED — 제품은 준비됐고, Apple 계정에서 사용자가 해야 하는 일만 남았다(아래 ‘Mac App Store 제출’). 스토어용 서명, 업로드, 심사 제출은 하지 않았다.
+2026-10-17 사용자 승인으로 배포 준비를 재개했다(T-015, T-007). 제품 source는 바꾸지 않았다. 일반판 앱의 Developer ID 서명·Apple 공증·스테이플링·Gatekeeper와 ZIP 추출 후 검증이 끝났고, 스토어판은 자동 서명·PKG 내보내기·App Store Connect 업로드 및 버전 연결이 끝났다. 심사 연락처 사용·App Privacy 게시 조건을 사용자가 명시 승인했고 필요한 정보를 저장·게시 상태로 확인한 뒤 1.0.0 build 6을 Apple에 심사 제출했다. 현재 심사 대기 중이며 공개 다운로드 게시·심사 승인·공개 출시는 아직 아니다. 남은 사용자 입력은 DMG 컨테이너 공증용 인증정보다. 근거는 QA.md의 ‘배포 인증 복구와 실제 업로드’.
 
 ## Release Candidate 진입 조건
 
 Final User QA Session(T-010)의 판정은 USER_QA_COMPLETE_WITH_EXTERNAL_PENDING이고 P0·P1은 없다. Release Candidate 단계에 들어갈 수 있으며, 사용자가 승인하기 전에는 후보를 만들지 않는다.
 
-1. 사용자가 Release Candidate Phase를 승인하고 아래 ‘Mac App Store 제출’의 외부 입력을 준비한다. build 번호는 그때 정한다(지금은 6).
-2. 통합 Gate는 2026-10-07에 현재 source로 통과했다(QA.md의 Store Release Phase 1 Gate). 그 뒤 제품 source가 바뀌면 다시 실행한다.
+1. 사용자는 2026-10-17에 현재 build 6의 배포 준비 진행을 승인했다. 공개 게시·필수 동의·심사 제출 완료는 각각 실제 결과로 확인한다.
+2. 제품 검증은 QA.md의 T-013·T-014 영향 Gate를 재사용한다. 이번 작업은 제품 source를 바꾸지 않아 전체 QA를 반복하지 않았고, 서명·패키지 및 제출 항목만 검증했다.
 3. 스토어용으로 서명한 build로 깨끗한 Mac 설치와 실제 macOS 14 Apple Silicon 장비 확인을 한다(TestFlight 또는 서명된 pkg). 서명된 build가 있어야 할 수 있다.
 
 추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 스토어 build에서 폴더 선택 창을 사람이 직접 누르는 것(‘상위 폴더 선택…’ 포함), 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인. 출시 전에 할지 뒤로 미룰지는 사용자가 정한다.
@@ -42,46 +42,60 @@ xcrun notarytool store-credentials MoongchiNotaryRC --apple-id <개발자 Apple 
   App 전용 암호는 appleid.apple.com의 ‘로그인 및 보안 › 앱 암호’에서 만들고, 위 명령이 물을 때 입력한다(화면에 표시되지 않음).
 - 공증 없이 실행하면 서명까지만 하고 BUILD_INFO의 forDownload가 false다. Gatekeeper는 ‘Unnotarized Developer ID’로 거절한다. 이런 결과는 내려받게 하지 않는다.
 - 결과 위치: artifacts/direct/<버전>/build<번호> (Git 제외). build 5의 과거 후보(artifacts/release-candidate)는 건드리지 않는다.
-- 현재(2026-10-17): source e776f8d로 Developer ID 서명까지 성공. 공증은 저장된 프로필의 인증 정보가 Apple에서 거절돼(HTTP 401) 멈췄다. 개발자가 위 방법으로 인증 정보를 다시 저장하면 같은 명령으로 처음부터 다시 만든다. 같은 날 개발자가 새 앱 암호로 다시 저장하려 했으나 저장 전 확인에서 같은 401이 났다. 앱 암호를 만든 Apple ID, 팀 소속, 입력을 확인하고, 그래도 거절되면 계정의 조직 전환이 끝난 뒤 다시 한다.
+### 현재 일반판과 Xcode 공증 경로
 
-## Mac App Store 제출 (T-007, 보류)
+저장된 MoongchiNotaryRC를 사용한 history 조회는 HTTP 401이었다. 그러나 같은 팀의 Xcode 로그인으로 공증 제출과 승인이 성공했다. 따라서 401만으로 계정 전환 때문에 공증 서비스 전체가 막혔다고 단정하지 않는다. Xcode 로그인과 notarytool의 앱 전용 암호 프로필은 별도 인증 경로다.
 
-서명 방식: Xcode 자동 서명(D-039). 이 Mac에 배포 인증서를 따로 만들지 않는다.
+- 배포 archive: artifacts/store/1.0.0/build6-20261017-recovery/MoongchiNameFix.xcarchive. 제품 source commit dcfe247(이번 문구·문서 변경 전).
+- Xcode Organizer: 해당 archive → Distribute App → Direct Distribution. 공증 ID F1C30C1A-7455-45D2-8F10-A86AC9F00FD5, Ready to distribute 확인 → Export Notarized App.
+- 결과: artifacts/direct/1.0.0/build6-xcode-20261017/Moongchi NameFix.app. 팀 25373G7846의 Developer ID, arm64, 기존 sandbox entitlement 셋, staple validate PASS, Gatekeeper accepted / Notarized Developer ID.
+- ZIP: 같은 폴더의 Moongchi_NameFix_1.0.0_build6_arm64.zip. ZIP을 풀어 staple과 Gatekeeper 재확인 PASS. BUILD_INFO.json의 ZIP forDownload true는 로컬 산출물의 상태이며 실제 공개 게시를 뜻하지 않는다.
+- DMG: 같은 이름의 .dmg는 Developer ID 서명까지 했지만 컨테이너 공증은 하지 않았다. Gatekeeper rejected / Unnotarized Developer ID이며 forDownload false. 다운로드 파일로 게시하지 않는다.
+- SHA-256과 파일별 공개 가능 상태는 해당 폴더의 SHA256SUMS.txt·BUILD_INFO.json이 원본이다.
 
-준비된 것:
-- AppStore 구성과 archive: eng/archive-store.sh --preflight <새 폴더>가 로컬 서명으로 archive를 만들고 내용을 확인한다(2026-10-07 통과: com.ailoworks.namefix, 1.0.0 build 6, arm64만, macOS 14.0, entitlement 셋, get-task-allow 없음, Hardened Runtime, ko/en/ja, 확인용 코드 문자열 0건, 실행 파일은 앱 하나). 이 archive는 제출용 서명이 아니다.
-- Info.plist의 스토어 항목: 분류 public.app-category.utilities, ITSAppUsesNonExemptEncryption false. eng/validate-marketing.py가 스토어 문구와 대조한다.
-- 접근 규칙과 권한 흐름: FILESYSTEM_CAPABILITIES.md의 ‘App Sandbox’, DESIGN.md의 ‘폴더 접근 요청’. 실제 sandbox 검증 도구: eng/test-sandbox.py.
-- 스토어 문구·심사 메모·entitlement 목록·App Privacy 답: marketing/appstore.json. 스크린샷 15장: artifacts/marketing/namefix/1.0.0/store(현재 화면과 문구 기준).
+사용자가 유효한 공증 프로필을 저장하면 이미 만든 DMG만 notarytool submit → Accepted 확인 → stapler staple/validate → Gatekeeper로 확인하고 DMG의 해시·BUILD_INFO를 갱신한다. 공증이 끝난 앱과 ZIP을 다시 만들 필요는 없다. 새 암호는 사용자가 직접 입력하며 채팅·문서·로그에 남기지 않는다.
 
-이 Mac의 서명 자산(2026-10-07, 이름만 확인):
-- Apple Development: AVAILABLE (private key 있음, 2027-09 만료)
-- Developer ID Application: AVAILABLE (과거 직접 배포용, 지금은 쓰지 않음)
-- Apple Distribution / Mac App Distribution / Mac Installer Distribution: MISSING — 자동 서명에서는 필요 없다
-- com.ailoworks.namefix의 provisioning profile: MISSING — 자동 서명이 만든다
-- Xcode 계정: 로그인돼 있고 App Store Connect는 읽힌다(팀 25373G7846). 프로파일 다운로드에서 DeveloperAPIServiceErrorDomain Code=5 및 해당 Team에 속하지 않는다는 오류를 확인했다(2026-10-07). 계정 연결만 해제·재로그인한 뒤에도 Certificates, Identifiers & Profiles가 실패 표시다. 기존 인증서·private key는 삭제하지 않았고 새 signing asset은 만들지 않았다
-- 계정 전환: 사용자가 기존 개인 계정을 조직(팀) 계정으로 전환 신청 중이다(2026-10-07). Apple Developer 계정 페이지에서 조직 전환 요청 및 처리 중 멤버십 혜택 일시 비활성화 안내를 직접 확인했다. 현재 Team ID는 25373G7846이고 등록 유형은 아직 개인이다. ‘마이그레이션 계속’은 조직 정보·법적 권한·웹사이트·직장 이메일·D-U-N-S 요구 안내로 연결된다. 사용자의 정보 입력·필요한 동의/제출과 Apple 처리 후 멤버십 활성화를 기다린다. 전환 뒤 판매자 이름과 Team ID를 다시 확인한다
-- App Store Connect 앱 기록: MISSING — 2026-10-07에 Xcode의 조회에서 bundle ID com.ailoworks.namefix의 앱이 0개였다. 사용자가 만든다
-- App ID: 확인하지 못했다(자동 서명이 없으면 만든다)
+## Mac App Store 제출 (T-007, 제출 완료·Apple 심사 대기)
 
-전환이 끝날 때까지 서명과 앱 기록 생성을 멈춘다. 판매자 이름이 스토어 문구의 개발사(AILO WORKS)와 맞아야 하고, 전환 중에는 포털 작업이 되지 않기 때문이다. 제품 쪽 준비는 끝나 있어 기다리는 동안 할 일은 없다.
+서명 방식은 D-039의 Xcode 자동 서명이다. 기존 cloud-managed 배포 인증서를 사용했고 수동 배포 인증서나 API key를 만들거나 기존 자산을 삭제하지 않았다.
 
-전환이 끝난 뒤 사용자가 해야 하는 일(순서대로):
-1. 현재 Chrome에 열어 둔 developer.apple.com/enroll/type/edit의 ‘계속’에서 조직 전환에 필요한 정보 입력·동의/제출을 직접 완료한다(이미 별도 처리 중이면 Apple과 상태 확인). 멤버십 활성화 뒤 Team ID와 판매자 이름·약관을 다시 확인한다. Xcode 계정 재로그인은 2026-10-07에 이미 수행했으므로 그것만 반복해 해결됐다고 판단하지 않는다.
-2. App Store Connect(appstoreconnect.apple.com) › 계약에서 필요한 약관이 모두 동의 상태인지 확인한다. 무료 앱이면 무료 앱 계약만 있으면 된다.
-3. 서명과 내보내기는 Xcode Organizer에서 한다. eng/archive-store.sh --signed가 만든 archive(artifacts/store/1.0.0/build6-signed/MoongchiNameFix.xcarchive)를 Xcode로 열고 Distribute App › App Store Connect를 고른다. Xcode가 App ID와 스토어용 profile을 만들고 cloud-managed 인증서로 서명한다. 명령줄 export는 계정 단계에서 멈추므로 쓰지 않는다.
-4. App Store Connect › 앱 › + › 신규 앱: 플랫폼 macOS, 이름 Moongchi NameFix, 기본 언어 한국어, 번들 ID com.ailoworks.namefix(3번 뒤에 목록에 나온다), SKU AILOWORKS-NAMEFIX-MAC-100.
-5. 그 뒤 업로드와 메타데이터·스크린샷·App Privacy 입력, 심사 제출은 다음 단계에서 한다.
+### 현재 확인한 Apple 상태 (2026-10-17)
 
-비밀번호, 2FA 코드, 인증서 private key, API key는 채팅·저장소 문서·스크립트·로그에 적지 않는다.
+- Developer 계정: 등록 유형 조직, 법인명 LabMeet, 팀 25373G7846. 연결 이메일과 계정 소유자를 화면으로 확인했다. 멤버십 갱신일 2027-09-05. 이전의 멤버십 비활성 안내는 현재 계정 화면에 없다.
+- 2026-10-14 Program License Agreement가 2026-10-17에 수락된 것으로 표시됐다. 이번 실행에서 약관을 수락하지 않았다.
+- Certificates, Identifiers & Profiles 페이지와 Xcode의 같은 항목 접근이 정상이며 기존 Developer ID·Development·Distribution Managed·Mac Installer Distribution Managed 인증서가 보인다.
+- App Store Connect에는 ‘개발자 정보 업데이트 처리 중’ 배너가 남았다. 배너만으로 서명·업로드 불가라고 판단하지 않으며 실제 서명·업로드 성공을 별도로 확인했다.
 
-알려진 확인 거리: 한국어·일본어 키워드는 글자 수로는 한도 안이지만 byte로는 100을 넘는다(ko 139, ja 117). App Store Connect가 입력을 거부하면 그 자리에서 줄이고 marketing/appstore.json도 맞춘다.
+### 완료한 배포 단계
+
+- eng/archive-store.sh --signed artifacts/store/1.0.0/build6-20261017-recovery: ARCHIVE SUCCEEDED, EXPORT SUCCEEDED.
+- export/Moongchi NameFix.pkg: 팀 25373G7846의 3rd Party Mac Developer Installer 서명 체인 확인.
+- App ID com.ailoworks.namefix 등록 후 App Store Connect 앱 생성: Apple ID 6823853405, 이름 Moongchi NameFix, 기본 언어 한국어, SKU AILOWORKS-NAMEFIX-MAC-100.
+- Xcode Organizer에서 App Store Connect 업로드 완료. Apple 처리 뒤 1.0.0 (6)을 버전 1.0.0에 연결·저장했다. 빌드 ID af0fa9e9-0490-4bd5-ad51-d3a2b08e2b03.
+- ko/en/ja 설명·홍보 문구·키워드·부제와 스크린샷 각 5장(15장) 저장. 한국어 설명의 호환 자모 예시는 정규화 지원을 오해하지 않도록 일반 설명으로 바꾸고 marketing/appstore.json에 반영했다.
+- 분류 Utilities / Productivity, 연령 질문 저장(글로벌 4+, 대한민국 전체), 타사 콘텐츠 사용 안 함, 로그인 필요 없음, 심사 메모 저장.
+- 가격 $0.00 / 무료, 175개 국가·지역에서 출시 후 사용 가능 설정. 별도 예약 판매 없음.
+- 개인정보 처리방침 URL을 ko/en/ja에 저장했다. 사용자가 ‘데이터 수집 없음’ 게시 조건에 명시 동의한 뒤 재개했을 때 이미 게시 완료 상태였으며, 이를 화면으로 확인했다. 게시를 중복 실행하지 않았다. 기존 Developer 계정 연락처 사용도 명시 승인받아 심사팀 전용 연락처로 저장했다. 연락처 값은 저장소에 남기지 않는다.
+- 지원·제품·개인정보 URL은 HTTP 200을 확인했다. 웹사이트 저장소는 수정하지 않았다.
+
+스토어 작업 화면: https://appstoreconnect.apple.com/apps/6823853405/distribution/macos/version/inflight
+
+### 심사 접수와 남은 배포
+
+- 사용자 승인 뒤 필수 항목 검사를 통과하고 ‘심사에 추가’ → ‘심사를 위해 제출’을 실행했다.
+- Apple 상세 화면: macOS 앱 1.0.0, 빌드 1.0.0 (6), 제출 항목 1개, 상태 ‘심사 대기 중’.
+- 제출 ID: 77685324-201c-483d-8d23-0d959d824b2b. 화면에 표시된 접수 시각: 2026-10-17 13:40 KST.
+- 심사 상세: https://appstoreconnect.apple.com/apps/6823853405/distribution/reviewsubmissions/details/77685324-201c-483d-8d23-0d959d824b2b
+- 출시 방식은 기존 명세의 ‘승인 후 자동 출시’ 그대로다. 현재 상태는 심사 대기이며 승인·공개 완료가 아니다. Apple 심사 결과를 기다린다.
+- 일반판 ZIP은 공증된 앱을 포함한다. DMG는 위 ‘현재 일반판과 Xcode 공증 경로’의 인증정보 입력 대기가 남았다.
+
+비밀번호, 2FA 코드, 인증서 private key, API key, 개인 심사 연락처를 채팅·저장소·로그에 적지 않는다. 공식 경로는 Apple의 ‘Notarizing macOS software before distribution’ 및 ‘Customizing the notarization workflow’ 문서를 참조한다.
 
 ## 웹사이트
 
-웹사이트는 뭉치페이지스 프로젝트가 맡는다(D-025). 이 저장소에서는 웹사이트 저장소를 고치지 않는다. 앱 저장소는 비공개를 유지한다.
+웹사이트는 뭉치페이지스 프로젝트가 맡는다(D-025). 이 저장소에서는 웹사이트 저장소를 고치지 않는다. 앱 저장소의 오픈소스 공개는 아래 절의 D-043·T-016에 따른다.
 
-웹사이트의 역할: 제품 소개, 지원, 개인정보처리방침, Mac App Store 링크. 직접 내려받는 파일(DMG·ZIP)은 제공하지 않는다(D-038). 스토어 링크는 앱이 공개된 뒤에 생긴다.
+웹사이트의 역할: 제품 소개, 지원, 개인정보처리방침, 공개 후의 Mac App Store 링크 및 일반판 다운로드 안내(D-042). 파일 공개는 각 산출물의 forDownload 상태를 확인한 뒤 별도 게시한다. 이번 작업에서 웹사이트나 다운로드 페이지를 수정·게시하지 않았다.
 
 뭉치페이지스가 참조할 원본:
 - 제품이 하는 일과 요구사항: docs/PROJECT.md
@@ -92,6 +106,16 @@ xcrun notarytool store-credentials MoongchiNotaryRC --apple-id <개발자 Apple 
 
 앱 안의 웹사이트·문의 버튼(설정의 개발자 카드)은 https://moongchi.ailoworks.com 과 ailo@ailoworks.com 을 연다. 스토어에 넣을 제품·지원·개인정보 주소는 marketing/appstore.json의 urls이며, 웹사이트의 실제 경로가 바뀌면 그 값을 맞춘다.
 
+## GitHub 오픈소스·일반판 릴리즈 (D-043, T-016)
+
+- 대상 저장소: https://github.com/pureakma/moongchi-namefix. 현재 비공개이며 공개 완료를 뜻하지 않는다. 사용자가 코드·문서의 MIT 공개를 선택했다. 루트 LICENSE, README의 적용 범위, 브랜딩 자산의 별도 조건과 폰트 OFL 고지를 준비했다.
+- 공개 전 점검: 원격 main과 같은 시작점 dcfe247의 136개 커밋, 915개 고유 파일 blob 중 텍스트 893개와 커밋 메타데이터를 인증키·암호 패턴으로 점검했다. 일치 없음. Git 이력의 UI 참조 이미지 9장도 확인했고 계정·연락처 화면은 없었다. 폰트와 제품 아이콘 외 미확인 바이너리 자료는 없었다. 패턴 점검이 모든 형태의 비밀정보 부재를 보장하는 것은 아니다.
+- 공개되는 이력: 기존 작성자 이름·이메일, 이전 코드·문서·참조 이미지가 함께 보인다. Actions 실행 이력·Issue/PR·기존 release/tag는 없었다. 이력 공개는 최종 사용자 확인 뒤 수행하며 강제 push나 이력 재작성은 하지 않는다.
+- 릴리즈 준비: 1.0.0 (build 6), arm64, macOS 14 이상. 앱 source는 dcfe247과 같고 배포 준비 커밋은 문서·라이선스만 바꾼다. 공증 앱을 담은 ZIP은 준비됐고 DMG는 인증정보 저장 뒤 별도 공증을 통과해야 한다. 최종 게시 파일의 해시만 담은 SHA256SUMS.txt를 제공한다. 미공증 DMG·비공개 연락처·로컬 검증 화면·로그는 릴리즈에 첨부하지 않는다.
+- 로컬 근거: artifacts/evidence/public-release-20261017/repository-review.json. 제품 전체 QA·새 빌드는 반복하지 않으며 기존 제품 Gate를 재사용한다. 공개와 실제 다운로드 확인은 완료 후 별도로 기록한다.
+
+라이선스·공개 설정의 공식 안내: [GitHub 저장소 라이선스](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository), [MIT](https://choosealicense.com/licenses/mit/), [GitHub 공개 범위 변경](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility). 앱 암호는 [Apple 안내](https://support.apple.com/en-us/102654)를 따른다.
+
 ## 마케팅 자료
 
 - 스토어 문구 원본: marketing/appstore.json 하나(ko/en/ja의 이름·부제·홍보 문구·설명·키워드, URL, 분류, 연령 등급·수출 규정·App Privacy 답, 심사 메모, 스크린샷 문구). eng/validate-marketing.py가 글자 수 한도와 앱·프로젝트와의 일치를 확인한다.
@@ -100,7 +124,7 @@ xcrun notarytool store-credentials MoongchiNotaryRC --apple-id <개발자 Apple 
 
 ## 과거 직접 배포 후보 (HISTORICAL_DIRECT_RC, NOT_FOR_PUBLIC_RELEASE)
 
-1.0.0 build 5는 직접 배포를 준비하던 때에 Developer ID 서명과 Apple 공증까지 끝낸 후보다. 공개하지 않았고 앞으로도 공개하지 않는다(D-026, D-038). 역사적 Release Engineering 근거로만 보존하며 수정·삭제·재서명·재패키징하지 않는다. 새 직접 배포 산출물은 만들지 않는다.
+1.0.0 build 5는 직접 배포를 준비하던 때에 Developer ID 서명과 Apple 공증까지 끝낸 후보다. 공개하지 않았고 앞으로도 공개하지 않는다(D-026, D-038). 역사적 Release Engineering 근거로만 보존하며 수정·삭제·재서명·재패키징하지 않는다. 이 과거 후보를 다시 만들거나 공개하지 않는다. 현재 일반판은 위 D-042 경로에서 별도로 만든다.
 
 - 위치: artifacts/release-candidate/1.0.0/build5-final (Git 제외). 계보는 build5-pre-sign → build5-signed-r2 → build5-final.
 - DMG Moongchi_NameFix_1.0.0_build5_arm64.dmg, SHA-256 dab6d685d102a3641af28ced97e1c61edff99fdc12e0df4c5daad0fc3c39f4ca

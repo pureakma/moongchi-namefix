@@ -18,6 +18,12 @@ DerivedData/
 *.p12
 *.p8
 *.mobileprovision
+*.provisionprofile
+*.pfx
+*.key
+*.pem
+*.cer
+*.certSigningRequest
 
 # AI/document migration scratch
 .devtmp/

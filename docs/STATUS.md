@@ -2,23 +2,29 @@
 
 <!-- HOT:START -->
 ## 지금
-- 단계: 출시 전 코드 리뷰, 그 수정, 수정에 대한 재리뷰와 그 수정까지 완료(T-013). 현재 source 1.0.0 build 6이 두 차례 리뷰의 지적을 반영하고 통합 Gate를 다시 통과했다. 제품 쪽에 출시를 막는 것은 없다. 그 뒤 메뉴 막대 아이콘을 제거했다(T-014, D-041). 출시 보류, 배포 작업(서명·업로드·제출)은 마지막에 따로 한다
-- 현재 Task: 없음 (진행할 수 있는 Task 없음)
-- 다음: 일반판(T-015)은 개발자가 공증 인증 정보를 다시 저장하면 eng/package-direct.sh로 처음부터 다시 만든다(RELEASE.md ‘일반판 만들기’). 앱스토어판은 사용자의 개발자 계정 전환(개인 → 조직)이 끝나기를 기다린다. Xcode 재로그인은 이미 수행했지만 포털 접근이 복구되지 않았다. Apple의 조직 전환 정보 입력·처리 및 멤버십 재활성화가 끝나면 Organizer에서 Distribute App › Custom › App Store Connect › Export로 서명·내보내기 → App Store Connect 앱 기록 생성(지금 0개) → 업로드·제출 단계
-- 위험·막힘: 확인된 P0·P1 없음. 일반판 공증이 저장된 인증 정보의 거절(HTTP 401)로 멈췄다(T-015, blocked). 스토어용 서명이 ‘No Account for Team’으로 멈춘다(명령줄과 Xcode 둘 다). Apple 계정 페이지에서 조직 전환 중 멤버십 혜택이 비활성화된 것을 확인했다. 전환 안내 화면을 사용자에게 열어 두었다. 상세 원본은 RELEASE.md의 Mac App Store 제출 절이다. 전환 뒤 Team ID와 판매자 이름을 확인해야 한다(T-007). D-003의 비협조 writer source-race 알려진 제한
+- 단계: 제품 개발 완료. 사용자 승인으로 배포 준비 재개(T-015, T-007). 일반판 앱은 Xcode 공증·스테이플링·Gatekeeper 통과, ZIP 생성. 스토어용 자동 서명·PKG 내보내기·build 6 업로드 및 심사 제출 완료. Apple 심사 대기 중이며 공개 출시는 아직 아님
+- 현재 Task: T-016 (오픈소스 공개와 GitHub 일반판 릴리즈 준비)
+- 다음: MIT·공개용 안내·Git 이력 점검 후 GitHub 릴리즈를 준비하고 이력 공개를 확인(T-016). DMG 인증정보를 사용자가 Terminal에서 저장하면 DMG 공증을 완료(T-015). Apple 스토어는 제출 완료·심사 결과 대기. 산출물·공개 상태는 RELEASE.md가 원본
+- 위험·막힘: 기존 MoongchiNotaryRC는 HTTP 401이며 새 암호 입력은 사용자 직접 수행. 공증 서비스 전체가 비활성이라는 근거는 없음(Xcode 공증 성공). 심사 연락처 사용과 App Privacy 게시 조건은 사용자 명시 승인 및 반영 완료. App Store Connect에 개발자 정보 업데이트 처리 중 배너가 남지만 서명·업로드는 성공. D-003의 비협조 writer source-race 알려진 제한
 - 검증 대기: 제품 blocker는 없다. 추가 확인으로 남긴 것(실제로 하지 않았고 PASS로 적지 않음): 스토어 build에서 폴더 선택 창을 사람이 직접 누르는 것(‘상위 폴더 선택…’ 포함), 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인. 상세는 docs/QA.md
 - 마지막 갱신: 2026-10-17
 <!-- HOT:END -->
 
 ## 현재 Milestone
 
-Global Product Hardening Phase 1·2, 최종 QA, 그리고 공개 배포 경로를 정리하는 것까지(Mac App Store와, 같은 빌드의 일반판 직접 다운로드, D-042). 출시, 스토어 업로드·제출, 웹사이트 수정은 하지 않는다. 이 Milestone의 Task는 모두 끝났고, 다음은 사용자가 승인하는 Release Candidate Phase다. 아래 완료된 Task에 나오는 ‘직접 배포판’은 그때의 구성(sandbox 밖 Release 구성과 CLI)이며, 지금의 일반판은 앱스토어판과 같은 빌드다(D-042).
+완료된 제품의 일반판·Mac App Store 배포와 GitHub 오픈소스·일반판 릴리즈(T-015, T-007, T-016, R-010, R-017, R-018, D-042, D-043). 현재 승인 범위는 PROJECT.md가 원본이다. 새 기능 개발과 웹사이트 수정은 하지 않는다. 인증정보 입력·개인정보를 포함한 이력 공개의 사용자 확인은 제품 미완성과 구분한다.
+
+### T-016 오픈소스 공개와 GitHub 일반판 릴리즈 [inProgress]
+- 근원: R-018
+- 범위: 사용자 선택 MIT, 브랜딩·폰트 권리 구분, README·배포 안내, 현재 파일과 Git 이력의 공개 전 점검, 일반 commit/push, 릴리즈 설명·공증된 배포 파일·체크섬 준비. 기존 이력 공개는 사용자 확인 뒤, DMG 공개는 컨테이너 공증 통과 뒤 수행한다. 웹사이트 수정 없음.
+- 완료기준: 라이선스·안내와 이력 점검, 공개 대상 확인, GitHub 공개 및 실제 릴리즈 파일 다운로드·해시 확인. DMG 공증 인증정보 대기는 T-015와 구분해 기록한다.
+- 현재: MIT 선택 완료. 공개 전 점검과 문서 정비 중. 현재 저장소는 비공개이며 릴리즈 공개 전이다.
 
 ### T-015 일반판(직접 다운로드) 빌드 [blocked]
 - 근원: R-017
 - 범위: 앱스토어판과 같은 빌드를 Developer ID로 서명·공증·스테이플링해 DMG와 ZIP으로 만든다(D-042). 앱의 기능·문구는 바꾸지 않는다. 다운로드 페이지 게시, 저장소 공개, 후원 계정은 포함하지 않는다.
-- 사유: 공증 단계에서 저장된 notarytool 프로필(MoongchiNotaryRC)의 인증 정보가 Apple에서 거절됐다(HTTP 401, 2026-10-17). 같은 날 개발자가 새 앱 암호로 인증 정보를 다시 저장하려 했으나 저장 전 확인에서 같은 401이 났다. 원인 후보: 앱 암호를 만든 Apple ID와 --apple-id가 다름, 그 Apple ID가 팀 25373G7846의 계정이 아님, 입력 오류, 계정의 조직 전환으로 인증이 막힘. 서명까지는 끝났고 스크립트 전체 경로는 공증 없이 한 번 확인했다.
-- 조건: 개발자가 RELEASE.md ‘일반판 만들기’대로 공증 인증 정보를 다시 저장한다. 그 뒤 eng/package-direct.sh로 처음부터 다시 만든다. 계정의 조직 전환 중이라 공증이 계속 거절되면 전환이 끝날 때까지 기다린다.
+- 사유: 앱은 공증·스테이플링·Gatekeeper와 ZIP 추출 후 검증까지 통과했다. DMG 컨테이너 자체는 미공증으로 Gatekeeper 거절이며 공개 불가. 저장된 notarytool 프로필의 HTTP 401 때문에 DMG 공증만 사용자 인증정보 저장을 기다린다.
+- 조건: 사용자가 같은 Apple 계정의 유효한 공증 인증정보를 Terminal에서 저장한다. 그 뒤 이미 만든 DMG만 제출·스테이플링·검증하고 해당 해시와 BUILD_INFO를 갱신한다. 앱을 다시 빌드하거나 공증할 필요는 없다. 상세 위치·근거는 RELEASE.md와 QA.md.
 
 ### T-014 메뉴 막대 아이콘 제거 [completed]
 - 근원: R-008
@@ -80,20 +86,19 @@ Global Product Hardening Phase 1·2, 최종 QA, 그리고 공개 배포 경로�
 - 근거: User QA 결과를 QA.md에 반영했다(R1~R4 PASS, R5·R7 PARTIAL, R6 AI 검수 대체). 확인된 P0·P1 없음. 하지 않은 확인은 추가 확인 목록에 있다
 - 검증: docs/QA.md의 현재 Engineering Verification 표
 
-### T-007 Mac App Store 제출 [onHold]
+### T-007 Mac App Store 제출 [completed]
 - 근원: R-010
 - 범위: AppStore 구성의 자동 서명 archive(D-039), App Store Connect 기록·메타데이터·스크린샷·App Privacy 입력, 업로드와 심사 제출. sandbox 구성과 권한 흐름은 T-009에서 끝났고 스토어 문구는 marketing/appstore.json에 있다.
-- 사유: 사용자의 개발자 계정이 개인에서 조직으로 전환 중이다(2026-10-07 신청). 그동안 Xcode의 자동 서명이 ‘No Account for Team’으로 멈추고, 판매자 이름도 전환 뒤에 확정된다. App Store Connect 앱 기록은 아직 없다. 출시 자체도 보류 중이다(D-026).
-- 조건: 계정 전환이 끝나고 사용자가 docs/RELEASE.md ‘Mac App Store 제출’의 순서대로 진행한다. 제품 쪽 준비는 Store Release Phase 1 Gate에서 끝났다(QA.md).
+- 근거: 사용자 승인 뒤 기존 Apple 계정 연락처를 심사팀 전용으로 저장하고 App Privacy ‘데이터 수집 없음’ 게시 상태를 확인했다. 필수 항목 검사 통과 후 1.0.0 build 6을 제출, Apple 상세 화면에서 ‘심사 대기 중’과 제출 항목 1개 확인. 제출 ID·화면·검증 원본은 RELEASE.md·QA.md, 영수증 MAC-RELEASE-STORE-SUBMISSION-20261017. 심사 승인·공개 출시는 아직 아니다.
 
 ## 현재 상태 요약
 
 - 구현: 현재 승인된 앱 기능 범위에서 추가 필수 구현 Task 없음. P0 0건, P1 0건(User QA에서 나온 1건은 수정하고 사용자가 확인), P2 2건은 의도적으로 남겼다(QA.md). 작업 기록의 확정 수준은 사용자가 고른다(D-036).
-- 제품: Mac App Store의 앱 하나이며 무료다(D-038). App Sandbox 안에서 사용자가 고른 폴더에서만 작업하고, 모자란 폴더는 필요한 순간에 한 번 요청한다(D-037). 직접 배포판, CLI, 앱 자체의 업데이트 확인은 없다. 구성은 Debug와 AppStore 둘.
+- 제품: Mac App Store와 같은 빌드의 일반판 직접 다운로드를 제공하며 모두 무료다(D-042). App Sandbox 안에서 사용자가 고른 폴더에서만 작업하고, 모자란 폴더는 필요한 순간에 한 번 요청한다(D-037). 사용자용 CLI와 앱 자체 업데이트 확인은 없다. 구성은 Debug와 AppStore 둘.
 - 지원 위치: 로컬 writable APFS(내장·외장)에서만 이름을 바꾼다. exFAT·FAT·HFS+·네트워크·cloud 위치는 나열하고 이유를 알린 뒤 그대로 둔다(D-027).
 - 알려진 제한: 비협조 외부 writer의 source 교체를 expected-inode 조건으로 원자 차단하지 못한다. 감지·중단·보존·복구 안내는 구현돼 있다. swap/cycle/묶음 파일 그룹은 그룹 도중 취소하면 복구 확인이 필요할 수 있다. 읽을 수 없는 작업 기록이 있으면 Undo/Recovery를 막는다.
 - 유료 등급: 없음. 모든 기능을 무료로 제공한다(D-014).
-- Release: 출시 보류. Release Candidate와 스토어 제출은 시작하지 않았다(T-007). 1.0.0 build 5의 서명·공증된 직접 배포 후보(artifacts/release-candidate/1.0.0/build5-final)는 공개하지 않는 역사적 근거로만 보존한다(D-026, D-038). 웹사이트는 뭉치페이지스가 맡는다(D-025).
+- Release: 사용자 승인으로 서명·공증·스토어 업로드를 진행했다(T-015, T-007). 현재 앱·ZIP과 미공증 DMG, 스토어 심사 접수 상태는 RELEASE.md에 있다. 스토어 심사는 제출했고 공개 배포·승인은 아직 아니다. build 5의 과거 후보는 보존한다. 웹사이트는 별도 저장소 범위다(D-025).
 - User QA: Final User QA Session 완료(2026-10-07). Q1~Q5, F1~F5, R1~R4는 사용자 PASS. R5·R7은 PARTIAL, R6은 사용자 결정으로 AI 전체 검수로 대체했다. 판정 USER_QA_COMPLETE_WITH_EXTERNAL_PENDING. Release Candidate 단계에 들어갈 수 있다.
 - 추가 확인(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 스토어 build에서 폴더 선택 창을 사람이 직접 누르는 것(‘상위 폴더 선택…’ 포함), 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인. 깨끗한 Mac 설치와 실제 macOS 14 Apple Silicon 장비 확인은 스토어용으로 서명한 build가 생긴 뒤에 한다.
 

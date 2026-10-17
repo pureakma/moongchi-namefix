@@ -2396,6 +2396,120 @@
       "command": "eng/test.sh --scope ui-model; eng/test-sandbox.py; eng/validate-resources.py; eng/build.sh AppStore; eng/archive-store.sh --preflight; --render-ux/shell/responsive/expansion",
       "evidencePath": "artifacts/evidence/menubar-removal",
       "notes": "Menu bar icon removed (T-014, D-041): the status item, its menu, dropping files on it, the 'Show in menu bar' setting and three message keys. Launch at login, completion alerts and staying open without a window are unchanged. Only what the change touches was rerun: 16 UI model tests, 18 real sandbox scenarios, 568 keys in three locales, AppStore build and preflight archive (arm64 only, three entitlements, no probe strings, no NSStatusBar/NSStatusItem reference, removed keys absent from the bundle), 238 renders. Reused from MAC-PRERELEASE-REREVIEW-GATE-20261013 because Infrastructure, Application, Core and their tests did not change: integration and core tests, the four volume kinds, the run outside the sandbox, store metadata. Not done: looking at the menu bar and the Mac integration settings in a running app (the renders do not show that part of the settings). Not User QA."
+    },
+    {
+      "validationId": "MAC-RELEASE-APP-NOTARIZATION-20261017",
+      "scope": [
+        "App/**/*.swift",
+        "App/Info.plist",
+        "App/*.entitlements",
+        "Application/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Packages/**/Sources/**/*.swift",
+        "Resources/**/*",
+        "Package.swift",
+        "project.yml"
+      ],
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "AppStore",
+      "command": "Xcode Organizer Direct Distribution; codesign --verify --deep --strict; xcrun stapler validate; spctl -a -vv -t exec; ZIP extraction and staple/Gatekeeper verification",
+      "sourceFingerprint": "be20b233271b7fd4dcac4a4579197ced941c58bc2e5453c6e38f1cc208e4ea81",
+      "testFingerprint": null,
+      "dependencyFingerprint": "6cc016ffa8403b630b2a486951d54e8d5514e6fb25a4e4f687c37509f88a3be6",
+      "toolchainFingerprint": "77cd134efba503045d22c5d54e4d6ac19e9bdd6ce8f04342b21aff217007f3fe",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "xcode": "27.1 (27A9275)",
+        "filesystem": null,
+        "signing": "Developer ID / cloud-managed App Store",
+        "teamID": "25373G7846"
+      },
+      "timestamp": "2026-10-17T03:40:07.068372+00:00",
+      "evidencePath": "artifacts/evidence/release-recovery-20261017/release-recovery.json",
+      "evidenceSHA256": "4491e937e11e776429fbee7a182f2b6f280760d9531892b77493afccec1802ae",
+      "notes": "PASS only for the notarized app and ZIP. DMG container is not notarized and was rejected by Gatekeeper. Not a full product QA or public-release PASS."
+    },
+    {
+      "validationId": "MAC-RELEASE-STORE-UPLOAD-20261017",
+      "scope": [
+        "App/**/*.swift",
+        "App/Info.plist",
+        "App/*.entitlements",
+        "Application/**/*.swift",
+        "Infrastructure/**/*.swift",
+        "Packages/**/Sources/**/*.swift",
+        "Resources/**/*",
+        "Package.swift",
+        "project.yml"
+      ],
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "AppStore",
+      "command": "eng/archive-store.sh --signed artifacts/store/1.0.0/build6-20261017-recovery; pkgutil --check-signature; Xcode Organizer App Store Connect upload; browser build processing and version link verification",
+      "sourceFingerprint": "be20b233271b7fd4dcac4a4579197ced941c58bc2e5453c6e38f1cc208e4ea81",
+      "testFingerprint": null,
+      "dependencyFingerprint": "6cc016ffa8403b630b2a486951d54e8d5514e6fb25a4e4f687c37509f88a3be6",
+      "toolchainFingerprint": "77cd134efba503045d22c5d54e4d6ac19e9bdd6ce8f04342b21aff217007f3fe",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "xcode": "27.1 (27A9275)",
+        "filesystem": null,
+        "signing": "Developer ID / cloud-managed App Store",
+        "teamID": "25373G7846"
+      },
+      "timestamp": "2026-10-17T03:40:07.068372+00:00",
+      "evidencePath": "artifacts/evidence/release-recovery-20261017/release-recovery.json",
+      "evidenceSHA256": "4491e937e11e776429fbee7a182f2b6f280760d9531892b77493afccec1802ae",
+      "notes": "PASS only for signing/export/upload and the processed build link. App Privacy legal consent and review-contact permission are pending; review has not been submitted. External account state is a dated observation, not reusable proof of future portal availability."
+    },
+    {
+      "validationId": "MAC-RELEASE-STORE-SUBMISSION-20261017",
+      "status": "PASS",
+      "configuration": "AppStore",
+      "architecture": "arm64",
+      "scope": [
+        "marketing/appstore.json",
+        "App/Info.plist",
+        "project.yml"
+      ],
+      "sourceFingerprint": "0b29b377eba8a61acd09f57b6c5ba3c7643dc3ae495463ac907b098cd08c18fc",
+      "testFingerprint": null,
+      "timestamp": "2026-10-17T04:41:47.729884+00:00",
+      "command": "Chrome: verify published App Privacy; save user-approved review contact; Add for Review; Submit for Review; verify submission detail status Waiting for Review",
+      "evidencePath": "artifacts/evidence/release-recovery-20261017/store-submission.json",
+      "evidenceSHA256": "25d70d4eb51762037eb34413be8cfa77c2561be5b9784d092d34e855e40410f3",
+      "notes": "Actual Apple submission accepted for version 1.0.0 build 6. User explicitly permitted using existing Developer contact and accepted App Privacy publication conditions. Contact values are not stored in repository/evidence. PASS is submission receipt only, not approval, public release, product QA, or DMG notarization. No new full QA, build, credential attempt, commit or push."
+    },
+    {
+      "validationId": "MAC-PUBLIC-SOURCE-REVIEW-20261017",
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "documentation-only",
+      "scope": [
+        "LICENSE",
+        "README.md",
+        "ThirdPartyNotices.md",
+        "assets/branding/README.md",
+        ".gitignore"
+      ],
+      "sourceFingerprint": "2d0f21064507ae4a13464a9ccadd5dbb548ad569711eebf0e78663fce9026720",
+      "testFingerprint": null,
+      "dependencyFingerprint": null,
+      "toolchainFingerprint": null,
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": null,
+        "filesystem": null,
+        "caseSensitive": null
+      },
+      "timestamp": "2026-10-17T04:48:35.193487+00:00",
+      "command": "git rev-list --objects --all; git cat-file --batch; read-only Python secret-pattern scan of 893 text blobs and commit metadata; visual review of 9 historical reference images; gh API Actions/branches/tags/issues inventory; SHA-256 comparison; codesign/stapler/spctl app verification; python3 tools/doccheck.py; python3 eng/validate-marketing.py",
+      "evidencePath": "artifacts/evidence/public-release-20261017/repository-review.json",
+      "evidenceSHA256": "8de0b4e40e5af1c8ca2d2904d9467870d12932bce57dc4c00746ca5d408e7afb",
+      "notes": "Scoped pre-publication review only. History baseline dcfe247, 136 commits, 915 unique file blobs. No matching known secret/phone patterns. Author identity exposure needs user confirmation. MIT chosen by user; branding excluded and fonts OFL. Not proof of universal secret absence, DMG notarization, public publication, or new product QA."
     }
   ]
 }

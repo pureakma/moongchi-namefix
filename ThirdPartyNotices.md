@@ -1,5 +1,7 @@
 # Third-party notices
 
+The original application source code and documentation are available under the root MIT LICENSE. Branding assets and the application name are excluded from that license; see assets/branding/README.md. The bundled fonts retain their separate licenses below.
+
 Moongchi NameFix bundles unmodified Pretendard Variable and Pretendard JP Variable by Kil Hyung-jin (2021), under SIL Open Font License 1.1. The full notices ship in the app Resources directory and are viewable in About. Reserved Font Names: Pretendard and Pretendard JP.
 
 - Resources/PretendardVariable-LICENSE.txt

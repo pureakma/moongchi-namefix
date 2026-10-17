@@ -18,16 +18,31 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인.
 
-### 일반판 패키징 확인 (2026-10-17, T-015)
+### 배포 인증 복구와 실제 업로드 (2026-10-17, T-015, T-007)
 
-eng/package-direct.sh를 source e776f8d로 두 번 실행했다(로컬 evidence artifacts/direct/1.0.0). AI가 실행한 Engineering Verification이다.
+제품 source는 변경하지 않았다. T-013·T-014의 제품 검증을 재사용하고 전체 test·UI QA를 반복하지 않았다. 아래는 Release Engineering 및 실제 Apple UI 결과이며 User QA PASS가 아니다. 로컬 evidence는 artifacts/evidence/release-recovery-20261017, 일반판 검증은 artifacts/direct/1.0.0/build6-xcode-20261017/evidence에 있다. 영수증 MAC-RELEASE-APP-NOTARIZATION-20261017, MAC-RELEASE-STORE-UPLOAD-20261017, MAC-RELEASE-STORE-SUBMISSION-20261017.
 
-| 실행 | 결과 |
+| 항목 | 결과 |
 |---|---|
-| 공증 프로필과 함께 (build6) | archive와 Developer ID 서명 성공(Hardened Runtime, secure timestamp, arm64만, entitlement 셋, 확인용 코드 문자열 0건). 앱 공증 제출이 HTTP 401(인증 정보 거절)로 멈춤 |
-| 공증 없이, 나머지 단계 확인용 (check-unnotarized) | DMG(HFS+, 압축)·ZIP·SHA256SUMS·BUILD_INFO 생성, DMG도 Developer ID 서명. Gatekeeper는 앱과 DMG 모두 ‘Unnotarized Developer ID’로 거절(공증 전이라 예상대로), forDownload false |
+| Git 시작 | main, clean, fetch 성공, 원격 차이 0/0, source dcfe247 |
+| 환경 | macOS 27.0.1, Xcode 27.1 (27A9275), arm64. archive는 macOS 27.0 SDK 사용 |
+| 기존 notarytool 프로필 | history 조회 1회 HTTP 401. 무한 재시도·새 암호 입력·API key 생성 안 함 |
+| Apple 계정·포털 | 조직 LabMeet, 팀 25373G7846, Certificates/Profiles 접근 복구. ASC 처리 중 배너는 별도 표시 |
+| 자동 서명 archive/export | eng/archive-store.sh --signed: 둘 다 SUCCEEDED. 기존 cloud-managed 서명 사용, export PKG의 Installer 서명 체인 확인 |
+| 일반판 앱 공증 | Xcode Direct Distribution 제출 → Ready to distribute → Export Notarized App. 공증 ID·산출물 원본은 RELEASE.md |
+| 일반판 앱·ZIP | codesign --verify --deep --strict, stapler validate, spctl exec PASS. ZIP 추출 앱의 staple·Gatekeeper PASS. arm64·기존 entitlement 셋 확인 |
+| DMG | 생성·Developer ID 서명 완료. 컨테이너 미공증이므로 spctl open은 rejected / Unnotarized Developer ID. 공개 불가. 사용자 공증 인증정보 저장 대기 |
+| 스토어 업로드 | Xcode 업로드 완료 및 ASC 처리 완료를 확인, 1.0.0 (6) 버전 연결·저장 |
+| 스토어 등록 | ko/en/ja와 스크린샷 15장, 분류·부제·4+ 등급·무료·전 지역 설정. App Privacy 게시 상태 확인, 승인받은 심사 연락처 저장 |
+| 실제 심사 제출 | 사용자 명시 승인 뒤 필수 항목 검사 통과, 1.0.0 (6) 제출. Apple 상세 화면의 심사 대기 중·제출 항목 1개 확인. 접수 증거 store-submission.json·store-submitted.jpg |
 
-아직 하지 않은 것: 공증과 스테이플링, 공증된 DMG를 다른 Mac에서 내려받아 여는 것.
+이번에 하지 않은 것: 새 전체 QA, 다른 Mac의 다운로드 설치, 새 공증 암호 입력·재시도, DMG 컨테이너 공증, Apple 심사 승인, 웹사이트/다운로드 공개, Git commit/push. App Privacy는 명시 동의를 받은 뒤 이미 게시된 상태를 확인한 것이며 최종 게시를 중복 실행하지 않았다. 현재 산출물 상태와 다음 순서는 RELEASE.md가 원본이다.
+
+### 오픈소스 공개 전 점검 (2026-10-17, T-016)
+
+제품 source·실행 경로 변경 없음. 공개 대상인 기존 main의 136개 커밋에서 고유 파일 blob 915개 중 텍스트 893개와 커밋 메타데이터를 점검했다. private key, GitHub/AWS/Google/OpenAI/Slack 토큰, 리터럴 암호 할당, 전화번호 패턴 일치가 없었다. 과거 UI 참조 이미지 9장도 실제 확인했고 합성 시험 경로 외 개인 계정·연락처는 없었다. 발견된 /Users/me 경로는 fixture 예시이며, 기타 이력의 로컬 경로는 빌드·브랜딩 자료다. 공개 문의 이메일·Team ID는 인증 비밀이 아니다. 패턴 검사와 관찰 범위의 결과이며 모든 가능한 비밀 부재 보증은 아니다. Git 작성자 이름·이메일의 공개는 별도 사용자 확인 대상이다.
+
+기존 ZIP·DMG의 SHA-256을 BUILD_INFO와 대조해 일치를 확인했다. 공증 앱의 codesign --verify --deep --strict, stapler validate, spctl exec를 공개 준비 Gate에서 다시 확인해 통과했다. DMG 공증·공개 완료로 확대하지 않는다. 기존 MoongchiNotaryRC 조회는 이번 재개 시 한 번 더 HTTP 401이었고 추가 재시도하지 않았다. 새 전체 QA·제품 빌드는 수행하지 않았다. 로컬 근거: artifacts/evidence/public-release-20261017/repository-review.json. 현재 라이선스와 공개 상태는 RELEASE.md.
 
 ### 메뉴 막대 아이콘 제거 (2026-10-13, T-014)
 
