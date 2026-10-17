@@ -111,8 +111,9 @@ xcrun notarytool store-credentials MoongchiNotaryRC --apple-id <개발자 Apple 
 - 대상 저장소: https://github.com/pureakma/moongchi-namefix. 현재 비공개이며 공개 완료를 뜻하지 않는다. 사용자가 코드·문서의 MIT 공개를 선택했다. 루트 LICENSE, README의 적용 범위, 브랜딩 자산의 별도 조건과 폰트 OFL 고지를 준비했다.
 - 공개 전 점검: 원격 main과 같은 시작점 dcfe247의 136개 커밋, 915개 고유 파일 blob 중 텍스트 893개와 커밋 메타데이터를 인증키·암호 패턴으로 점검했다. 일치 없음. Git 이력의 UI 참조 이미지 9장도 확인했고 계정·연락처 화면은 없었다. 폰트와 제품 아이콘 외 미확인 바이너리 자료는 없었다. 패턴 점검이 모든 형태의 비밀정보 부재를 보장하는 것은 아니다.
 - 공개되는 이력: 기존 작성자 이름·이메일, 이전 코드·문서·참조 이미지가 함께 보인다. Actions 실행 이력·Issue/PR·기존 release/tag는 없었다. 이력 공개는 최종 사용자 확인 뒤 수행하며 강제 push나 이력 재작성은 하지 않는다.
-- 릴리즈 준비: 1.0.0 (build 6), arm64, macOS 14 이상. 앱 source는 dcfe247과 같고 배포 준비 커밋은 문서·라이선스만 바꾼다. 공증 앱을 담은 ZIP은 준비됐고 DMG는 인증정보 저장 뒤 별도 공증을 통과해야 한다. 최종 게시 파일의 해시만 담은 SHA256SUMS.txt를 제공한다. 미공증 DMG·비공개 연락처·로컬 검증 화면·로그는 릴리즈에 첨부하지 않는다.
-- 로컬 근거: artifacts/evidence/public-release-20261017/repository-review.json. 제품 전체 QA·새 빌드는 반복하지 않으며 기존 제품 Gate를 재사용한다. 공개와 실제 다운로드 확인은 완료 후 별도로 기록한다.
+- 릴리즈 초안: 준비 커밋 4168663을 비공개 main에 일반 push한 뒤 v1.0.0 초안(ID 415588827)을 만들었다. https://github.com/pureakma/moongchi-namefix/releases/tag/untagged-5d1d60a3c99fc3b536a4. 1.0.0 (build 6), arm64, macOS 14 이상. 앱 source는 dcfe247과 같고 배포 준비 커밋은 문서·라이선스만 바꿨다. 공증 앱을 담은 ZIP, 해당 ZIP만 담은 SHA256SUMS.txt, LICENSE·ThirdPartyNotices.md·Branding-Notice.txt 다섯 파일을 첨부했고 GitHub 서버 SHA-256을 로컬 파일과 대조해 모두 일치했다. DMG·비공개 연락처·로컬 검증 화면·로그는 첨부하지 않았다. DMG는 인증정보 저장 뒤 별도 공증을 통과해야 추가한다.
+- 다음: 기존 이력·작성자 정보 공개의 사용자 확인 뒤 저장소 공개 및 릴리즈 게시. DMG 공증이 먼저 끝나면 첨부 파일과 체크섬·설명을 함께 갱신한다. 현재는 비공개 초안이며 익명 다운로드·공개 출시 완료가 아니다.
+- 로컬 근거: artifacts/evidence/public-release-20261017의 repository-review.json·github-release-draft.json·release-notes.md. 제품 전체 QA·새 빌드는 반복하지 않으며 기존 제품 Gate를 재사용한다. 공개와 실제 다운로드 확인은 완료 후 별도로 기록한다.
 
 라이선스·공개 설정의 공식 안내: [GitHub 저장소 라이선스](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository), [MIT](https://choosealicense.com/licenses/mit/), [GitHub 공개 범위 변경](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility). 앱 암호는 [Apple 안내](https://support.apple.com/en-us/102654)를 따른다.
 

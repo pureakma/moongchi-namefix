@@ -44,6 +44,8 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 기존 ZIP·DMG의 SHA-256을 BUILD_INFO와 대조해 일치를 확인했다. 공증 앱의 codesign --verify --deep --strict, stapler validate, spctl exec를 공개 준비 Gate에서 다시 확인해 통과했다. DMG 공증·공개 완료로 확대하지 않는다. 기존 MoongchiNotaryRC 조회는 이번 재개 시 한 번 더 HTTP 401이었고 추가 재시도하지 않았다. 새 전체 QA·제품 빌드는 수행하지 않았다. 로컬 근거: artifacts/evidence/public-release-20261017/repository-review.json. 현재 라이선스와 공개 상태는 RELEASE.md.
 
+공개 준비 변경의 python3 tools/doccheck.py 및 --git, eng/validate-marketing.py, git diff --check가 통과했다. GitHub 비공개 v1.0.0 초안의 다섯 첨부 파일 서버 SHA-256을 로컬과 대조해 일치했다. 실제 공개와 익명 다운로드 검증은 아직 하지 않았다. 초안 근거는 artifacts/evidence/public-release-20261017/github-release-draft.json. 라이선스·문서 커밋 4168663과 앱 source dcfe247 사이의 제품 디렉터리 diff는 없다.
+
 ### 메뉴 막대 아이콘 제거 (2026-10-13, T-014)
 
 영수증 MAC-MENUBAR-REMOVAL-20261013, 로컬 evidence artifacts/evidence/menubar-removal. 바뀐 것은 App의 세 파일(MacIntegration, Main, Sheets)과 문구 셋의 삭제다(D-041). 영향받는 것만 다시 실행했다. Infrastructure·Application·Core와 그 test는 바뀌지 않아 아래 T-013 Gate의 결과(통합·Core test, 일회용 volume, sandbox 밖 회귀, 스토어 문구)를 그대로 쓴다. AI가 실행한 Engineering Verification이다.
