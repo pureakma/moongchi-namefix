@@ -1,8 +1,8 @@
 # 빌드·배포
 
-## 출시 정책 (D-038)
+## 출시 정책 (D-038, D-042)
 
-- 공개 제품은 하나: Mac App Store의 Moongchi NameFix. 무료. 직접 배포판(Developer ID 서명·공증·DMG/ZIP·홈페이지 다운로드)과 사용자용 CLI는 없다.
+- 공개 경로는 둘: Mac App Store, 그리고 직접 다운로드(일반판, DMG·ZIP). 둘 다 무료. 두 경로의 앱은 같은 AppStore 구성 빌드이고 서명만 다르다(앱스토어판은 Apple 배포 서명, 일반판은 Developer ID 서명·공증). 사용자용 CLI는 없다. 앱 안에 후원 링크는 없다.
 - 구성은 project.yml의 Debug와 AppStore 둘.
   - Debug: 개발·QA. App Sandbox OFF, bundle ID com.moongchi.namefix.dev. render·probe·진단 fixture는 이 구성에만 compile된다. 실제 sandbox 검증용으로 eng/build.sh --sandbox-debug가 같은 Debug 앱을 스토어 entitlement로 만든다(식별자 com.moongchi.namefix.sandboxqa).
   - AppStore: 공개 배포. App Sandbox ON, entitlement는 app-sandbox · files.user-selected.read-write · files.bookmarks.app-scope 셋, 디버깅 entitlement 없음, bundle ID com.ailoworks.namefix.
@@ -10,7 +10,7 @@
 - macOS 14 이상, Apple Silicon arm64 전용. Hardened Runtime ON.
 - 개발사 AILO WORKS, 문의 ailo@ailoworks.com
 - 모든 기능 무료. 유료 등급·구매·계정·광고·추적 없음. 앱은 네트워크를 쓰지 않는다.
-- 설치와 업데이트는 App Store가 맡는다. 앱에 업데이트 명령이나 자체 updater는 없다.
+- 앱에 업데이트 명령이나 자체 updater는 없다. 앱스토어판의 설치와 업데이트는 App Store가, 일반판의 새 버전 안내는 다운로드 페이지가 맡는다.
 
 ## 현재 상태
 
@@ -25,6 +25,24 @@ Final User QA Session(T-010)의 판정은 USER_QA_COMPLETE_WITH_EXTERNAL_PENDING
 3. 스토어용으로 서명한 build로 깨끗한 Mac 설치와 실제 macOS 14 Apple Silicon 장비 확인을 한다(TestFlight 또는 서명된 pkg). 서명된 build가 있어야 할 수 있다.
 
 추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 스토어 build에서 폴더 선택 창을 사람이 직접 누르는 것(‘상위 폴더 선택…’ 포함), 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인. 출시 전에 할지 뒤로 미룰지는 사용자가 정한다.
+
+## 일반판 만들기 (D-042, T-015)
+
+```sh
+eng/package-direct.sh <새 폴더> --notary-profile MoongchiNotaryRC
+```
+
+- 하는 일: 커밋된 제품 source로 AppStore 구성 archive를 만들고, 앱을 Developer ID(팀 25373G7846)로 다시 서명한 뒤(Hardened Runtime, secure timestamp, store entitlement 셋), 앱을 공증·스테이플링하고, DMG를 만들어 서명·공증·스테이플링하고, ZIP과 SHA256SUMS.txt, BUILD_INFO.json을 남긴다. 단계마다 arm64 전용, entitlement 셋, 확인용 코드 문자열 0건, Gatekeeper 판정을 확인한다. 제품 source에 커밋하지 않은 변경이 있으면 시작하지 않는다.
+- 공증 인증 정보는 개발자가 Terminal에서 한 번 저장한다. 비밀번호는 채팅·문서·Git에 남기지 않는다.
+
+```sh
+xcrun notarytool store-credentials MoongchiNotaryRC --apple-id <개발자 Apple ID> --team-id 25373G7846
+```
+
+  App 전용 암호는 appleid.apple.com의 ‘로그인 및 보안 › 앱 암호’에서 만들고, 위 명령이 물을 때 입력한다(화면에 표시되지 않음).
+- 공증 없이 실행하면 서명까지만 하고 BUILD_INFO의 forDownload가 false다. Gatekeeper는 ‘Unnotarized Developer ID’로 거절한다. 이런 결과는 내려받게 하지 않는다.
+- 결과 위치: artifacts/direct/<버전>/build<번호> (Git 제외). build 5의 과거 후보(artifacts/release-candidate)는 건드리지 않는다.
+- 현재(2026-10-17): source e776f8d로 Developer ID 서명까지 성공. 공증은 저장된 프로필의 인증 정보가 Apple에서 거절돼(HTTP 401) 멈췄다. 개발자가 위 방법으로 인증 정보를 다시 저장하면 같은 명령으로 처음부터 다시 만든다. 계정의 조직 전환 중이라 인증 정보를 새로 저장해도 공증이 거절될 수 있다.
 
 ## Mac App Store 제출 (T-007, 보류)
 

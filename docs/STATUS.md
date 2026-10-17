@@ -3,16 +3,22 @@
 <!-- HOT:START -->
 ## 지금
 - 단계: 출시 전 코드 리뷰, 그 수정, 수정에 대한 재리뷰와 그 수정까지 완료(T-013). 현재 source 1.0.0 build 6이 두 차례 리뷰의 지적을 반영하고 통합 Gate를 다시 통과했다. 제품 쪽에 출시를 막는 것은 없다. 그 뒤 메뉴 막대 아이콘을 제거했다(T-014, D-041). 출시 보류, 배포 작업(서명·업로드·제출)은 마지막에 따로 한다
-- 현재 Task: 없음 (다음 Task는 사용자 승인 대기)
-- 다음: 사용자의 개발자 계정 전환(개인 → 조직)이 끝나기를 기다린다. Xcode 재로그인은 이미 수행했지만 포털 접근이 복구되지 않았다. Apple의 조직 전환 정보 입력·처리 및 멤버십 재활성화가 끝나면 Organizer에서 Distribute App › Custom › App Store Connect › Export로 서명·내보내기 → App Store Connect 앱 기록 생성(지금 0개) → 업로드·제출 단계
-- 위험·막힘: 확인된 P0·P1 없음. 스토어용 서명이 ‘No Account for Team’으로 멈춘다(명령줄과 Xcode 둘 다). Apple 계정 페이지에서 조직 전환 중 멤버십 혜택이 비활성화된 것을 확인했다. 전환 안내 화면을 사용자에게 열어 두었다. 상세 원본은 RELEASE.md의 Mac App Store 제출 절이다. 전환 뒤 Team ID와 판매자 이름을 확인해야 한다(T-007). D-003의 비협조 writer source-race 알려진 제한
+- 현재 Task: 없음 (진행할 수 있는 Task 없음)
+- 다음: 일반판(T-015)은 개발자가 공증 인증 정보를 다시 저장하면 eng/package-direct.sh로 처음부터 다시 만든다(RELEASE.md ‘일반판 만들기’). 앱스토어판은 사용자의 개발자 계정 전환(개인 → 조직)이 끝나기를 기다린다. Xcode 재로그인은 이미 수행했지만 포털 접근이 복구되지 않았다. Apple의 조직 전환 정보 입력·처리 및 멤버십 재활성화가 끝나면 Organizer에서 Distribute App › Custom › App Store Connect › Export로 서명·내보내기 → App Store Connect 앱 기록 생성(지금 0개) → 업로드·제출 단계
+- 위험·막힘: 확인된 P0·P1 없음. 일반판 공증이 저장된 인증 정보의 거절(HTTP 401)로 멈췄다(T-015, blocked). 스토어용 서명이 ‘No Account for Team’으로 멈춘다(명령줄과 Xcode 둘 다). Apple 계정 페이지에서 조직 전환 중 멤버십 혜택이 비활성화된 것을 확인했다. 전환 안내 화면을 사용자에게 열어 두었다. 상세 원본은 RELEASE.md의 Mac App Store 제출 절이다. 전환 뒤 Team ID와 판매자 이름을 확인해야 한다(T-007). D-003의 비협조 writer source-race 알려진 제한
 - 검증 대기: 제품 blocker는 없다. 추가 확인으로 남긴 것(실제로 하지 않았고 PASS로 적지 않음): 스토어 build에서 폴더 선택 창을 사람이 직접 누르는 것(‘상위 폴더 선택…’ 포함), 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인. 상세는 docs/QA.md
-- 마지막 갱신: 2026-10-13
+- 마지막 갱신: 2026-10-17
 <!-- HOT:END -->
 
 ## 현재 Milestone
 
 Global Product Hardening Phase 1·2, 최종 QA, 그리고 공개 배포를 Mac App Store 하나로 정리하는 것까지. 출시, 스토어 업로드·제출, 웹사이트 수정은 하지 않는다. 이 Milestone의 Task는 모두 끝났고, 다음은 사용자가 승인하는 Release Candidate Phase다. 아래 완료된 Task에 나오는 ‘직접 배포판’은 그때의 구성이며 지금은 없다(D-038).
+
+### T-015 일반판(직접 다운로드) 빌드 [blocked]
+- 근원: R-017
+- 범위: 앱스토어판과 같은 빌드를 Developer ID로 서명·공증·스테이플링해 DMG와 ZIP으로 만든다(D-042). 앱의 기능·문구는 바꾸지 않는다. 다운로드 페이지 게시, 저장소 공개, 후원 계정은 포함하지 않는다.
+- 사유: 공증 단계에서 저장된 notarytool 프로필(MoongchiNotaryRC)의 인증 정보가 Apple에서 거절됐다(HTTP 401, 2026-10-17). 서명까지는 끝났고 스크립트 전체 경로는 공증 없이 한 번 확인했다.
+- 조건: 개발자가 RELEASE.md ‘일반판 만들기’대로 공증 인증 정보를 다시 저장한다. 그 뒤 eng/package-direct.sh로 처음부터 다시 만든다. 계정의 조직 전환 중이라 공증이 계속 거절되면 전환이 끝날 때까지 기다린다.
 
 ### T-014 메뉴 막대 아이콘 제거 [completed]
 - 근원: R-008

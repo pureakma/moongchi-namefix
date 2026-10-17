@@ -18,6 +18,17 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인.
 
+### 일반판 패키징 확인 (2026-10-17, T-015)
+
+eng/package-direct.sh를 source e776f8d로 두 번 실행했다(로컬 evidence artifacts/direct/1.0.0). AI가 실행한 Engineering Verification이다.
+
+| 실행 | 결과 |
+|---|---|
+| 공증 프로필과 함께 (build6) | archive와 Developer ID 서명 성공(Hardened Runtime, secure timestamp, arm64만, entitlement 셋, 확인용 코드 문자열 0건). 앱 공증 제출이 HTTP 401(인증 정보 거절)로 멈춤 |
+| 공증 없이, 나머지 단계 확인용 (check-unnotarized) | DMG(HFS+, 압축)·ZIP·SHA256SUMS·BUILD_INFO 생성, DMG도 Developer ID 서명. Gatekeeper는 앱과 DMG 모두 ‘Unnotarized Developer ID’로 거절(공증 전이라 예상대로), forDownload false |
+
+아직 하지 않은 것: 공증과 스테이플링, 공증된 DMG를 다른 Mac에서 내려받아 여는 것.
+
 ### 메뉴 막대 아이콘 제거 (2026-10-13, T-014)
 
 영수증 MAC-MENUBAR-REMOVAL-20261013, 로컬 evidence artifacts/evidence/menubar-removal. 바뀐 것은 App의 세 파일(MacIntegration, Main, Sheets)과 문구 셋의 삭제다(D-041). 영향받는 것만 다시 실행했다. Infrastructure·Application·Core와 그 test는 바뀌지 않아 아래 T-013 Gate의 결과(통합·Core test, 일회용 volume, sandbox 밖 회귀, 스토어 문구)를 그대로 쓴다. AI가 실행한 Engineering Verification이다.
