@@ -38,6 +38,12 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 이번에 하지 않은 것: 새 전체 QA, 다른 Mac의 다운로드 설치, 새 공증 암호 입력·재시도, DMG 컨테이너 공증, Apple 심사 승인, 웹사이트/다운로드 공개, Git commit/push. App Privacy는 명시 동의를 받은 뒤 이미 게시된 상태를 확인한 것이며 최종 게시를 중복 실행하지 않았다. 현재 산출물 상태와 다음 순서는 RELEASE.md가 원본이다.
 
+### DMG 공증 완료 (2026-10-17, T-015)
+
+사용자가 Terminal에 인증정보를 직접 저장한 뒤 MoongchiNotaryRC history 조회가 정상화됐다. 기존 build 6 DMG를 재생성 없이 제출해 Accepted / Ready for distribution / statusCode 0 / issues 없음으로 승인받았다. 이후 stapler staple·validate, codesign --verify --strict, spctl open이 통과했다. 읽기 전용으로 DMG를 열어 내부 앱의 서명·staple·Gatekeeper·버전·arm64·기존 공증 앱과 실행 파일 해시 일치·Applications 바로가지를 확인하고 분리했다. 앱과 ZIP은 다시 만들지 않았고 ZIP 해시는 그대로다. DMG 최종 해시·BUILD_INFO·릴리즈 체크섬을 갱신했다. 전체 제품 QA나 사용자 QA를 다시 수행한 결과가 아니다.
+
+영수증 MAC-RELEASE-DMG-NOTARIZATION-20261017. 근거는 artifacts/evidence/public-release-20261017/dmg-notarization.json과 해당 report가 가리키는 패키지 evidence다. 공증 ID·산출물·실제 공개 상태는 RELEASE.md가 원본이다.
+
 ### 오픈소스 공개 전 점검 (2026-10-17, T-016)
 
 제품 source·실행 경로 변경 없음. 공개 대상인 기존 main의 136개 커밋에서 고유 파일 blob 915개 중 텍스트 893개와 커밋 메타데이터를 점검했다. private key, GitHub/AWS/Google/OpenAI/Slack 토큰, 리터럴 암호 할당, 전화번호 패턴 일치가 없었다. 과거 UI 참조 이미지 9장도 실제 확인했고 합성 시험 경로 외 개인 계정·연락처는 없었다. 발견된 /Users/me 경로는 fixture 예시이며, 기타 이력의 로컬 경로는 빌드·브랜딩 자료다. 공개 문의 이메일·Team ID는 인증 비밀이 아니다. 패턴 검사와 관찰 범위의 결과이며 모든 가능한 비밀 부재 보증은 아니다. Git 작성자 이름·이메일을 포함한 공개의 사용자 확인 결과와 순서는 D-043·RELEASE.md를 따른다.

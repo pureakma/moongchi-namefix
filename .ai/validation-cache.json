@@ -2510,6 +2510,31 @@
       "evidencePath": "artifacts/evidence/public-release-20261017/repository-review.json",
       "evidenceSHA256": "8de0b4e40e5af1c8ca2d2904d9467870d12932bce57dc4c00746ca5d408e7afb",
       "notes": "Scoped pre-publication review only. History baseline dcfe247, 136 commits, 915 unique file blobs. No matching known secret/phone patterns. Author identity exposure needs user confirmation. MIT chosen by user; branding excluded and fonts OFL. Not proof of universal secret absence, DMG notarization, public publication, or new product QA."
+    },
+    {
+      "validationId": "MAC-RELEASE-DMG-NOTARIZATION-20261017",
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "AppStore",
+      "scope": [
+        "artifacts/direct/1.0.0/build6-xcode-20261017/BUILD_INFO.json",
+        "artifacts/direct/1.0.0/build6-xcode-20261017/Moongchi_NameFix_1.0.0_build6_arm64.dmg"
+      ],
+      "sourceFingerprint": "37272a16b88ca9374e8a051e3ea13cd706d94937e2e2d395ac4dc645e0e40aa8",
+      "testFingerprint": null,
+      "dependencyFingerprint": null,
+      "toolchainFingerprint": null,
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "filesystem": "HFS+ disk image; read-only mount",
+        "caseSensitive": false
+      },
+      "timestamp": "2026-10-17T06:50:32.098961+00:00",
+      "command": "xcrun notarytool history; submit existing DMG --wait; log; stapler staple/validate; codesign --verify --strict; spctl -t open --context context:primary-signature; hdiutil attach -readonly; verify inner app codesign/staple/Gatekeeper, version, lipo and binary hash; detach",
+      "evidencePath": "artifacts/evidence/public-release-20261017/dmg-notarization.json",
+      "evidenceSHA256": "a8b29c820557a481f5a0af1b93dc538586487208d50b211945db31b2d2ede580",
+      "notes": "Accepted submission 2c4acae3-ac86-4400-9cc4-c8c2e68f486c. Container and inner app verification PASS. App/ZIP not regenerated. Reuses product gates and prior ZIP extraction proof. Not public-release/anonymous-download/User QA proof."
     }
   ]
 }

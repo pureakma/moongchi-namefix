@@ -14,7 +14,7 @@
 
 ## 현재 상태
 
-2026-10-17 사용자 승인으로 배포 준비를 재개했다(T-015, T-007). 제품 source는 바꾸지 않았다. 일반판 앱의 Developer ID 서명·Apple 공증·스테이플링·Gatekeeper와 ZIP 추출 후 검증이 끝났고, 스토어판은 자동 서명·PKG 내보내기·App Store Connect 업로드 및 버전 연결이 끝났다. 심사 연락처 사용·App Privacy 게시 조건을 사용자가 명시 승인했고 필요한 정보를 저장·게시 상태로 확인한 뒤 1.0.0 build 6을 Apple에 심사 제출했다. 현재 심사 대기 중이며 공개 다운로드 게시·심사 승인·공개 출시는 아직 아니다. 남은 사용자 입력은 DMG 컨테이너 공증용 인증정보다. 근거는 QA.md의 ‘배포 인증 복구와 실제 업로드’.
+2026-10-17 사용자 승인으로 배포 준비를 재개했다(T-015, T-007). 제품 source는 바꾸지 않았다. 일반판 앱과 DMG의 Developer ID 서명·Apple 공증·스테이플링·Gatekeeper, ZIP 추출 앱과 DMG 내부 앱의 검증이 끝났다. 사용자가 Terminal에 인증정보를 저장한 뒤 notarytool 인증이 복구됐고 DMG 공증을 마쳤다. 스토어판은 1.0.0 build 6 심사 제출 완료·Apple 심사 대기다. 일반판의 공개는 아래 GitHub 절에서 구분한다. 근거는 QA.md의 배포 검증 절들이다.
 
 ## Release Candidate 진입 조건
 
@@ -44,16 +44,16 @@ xcrun notarytool store-credentials MoongchiNotaryRC --apple-id <개발자 Apple 
 - 결과 위치: artifacts/direct/<버전>/build<번호> (Git 제외). build 5의 과거 후보(artifacts/release-candidate)는 건드리지 않는다.
 ### 현재 일반판과 Xcode 공증 경로
 
-저장된 MoongchiNotaryRC를 사용한 history 조회는 HTTP 401이었다. 그러나 같은 팀의 Xcode 로그인으로 공증 제출과 승인이 성공했다. 따라서 401만으로 계정 전환 때문에 공증 서비스 전체가 막혔다고 단정하지 않는다. Xcode 로그인과 notarytool의 앱 전용 암호 프로필은 별도 인증 경로다.
+처음 MoongchiNotaryRC history 조회는 HTTP 401이었으나 Xcode 로그인으로 앱 공증은 성공했다. 이후 사용자가 Terminal에서 인증정보를 직접 저장했고 history 조회가 정상화돼 DMG 공증도 마쳤다. Xcode 로그인과 notarytool의 앱 전용 암호 프로필은 별도 인증 경로다. 새 암호를 채팅·문서·로그에 남기지 않았다.
 
 - 배포 archive: artifacts/store/1.0.0/build6-20261017-recovery/MoongchiNameFix.xcarchive. 제품 source commit dcfe247(이번 문구·문서 변경 전).
 - Xcode Organizer: 해당 archive → Distribute App → Direct Distribution. 공증 ID F1C30C1A-7455-45D2-8F10-A86AC9F00FD5, Ready to distribute 확인 → Export Notarized App.
 - 결과: artifacts/direct/1.0.0/build6-xcode-20261017/Moongchi NameFix.app. 팀 25373G7846의 Developer ID, arm64, 기존 sandbox entitlement 셋, staple validate PASS, Gatekeeper accepted / Notarized Developer ID.
 - ZIP: 같은 폴더의 Moongchi_NameFix_1.0.0_build6_arm64.zip. ZIP을 풀어 staple과 Gatekeeper 재확인 PASS. BUILD_INFO.json의 ZIP forDownload true는 로컬 산출물의 상태이며 실제 공개 게시를 뜻하지 않는다.
-- DMG: 같은 이름의 .dmg는 Developer ID 서명까지 했지만 컨테이너 공증은 하지 않았다. Gatekeeper rejected / Unnotarized Developer ID이며 forDownload false. 다운로드 파일로 게시하지 않는다.
+- DMG: 같은 이름의 .dmg를 notarytool로 제출해 Accepted, 공증 ID 2c4acae3-ac86-4400-9cc4-c8c2e68f486c, Apple 결과 Ready for distribution / statusCode 0 / issues 없음. 스테이플링·validate·서명·Gatekeeper accepted / Notarized Developer ID. 읽기 전용으로 열어 내부 앱의 서명·staple·Gatekeeper·1.0.0 (6)·arm64·기존 앱과 실행 파일 SHA-256 일치·Applications 바로가지를 확인했다. forDownload true.
 - SHA-256과 파일별 공개 가능 상태는 해당 폴더의 SHA256SUMS.txt·BUILD_INFO.json이 원본이다.
 
-사용자가 유효한 공증 프로필을 저장하면 이미 만든 DMG만 notarytool submit → Accepted 확인 → stapler staple/validate → Gatekeeper로 확인하고 DMG의 해시·BUILD_INFO를 갱신한다. 공증이 끝난 앱과 ZIP을 다시 만들 필요는 없다. 새 암호는 사용자가 직접 입력하며 채팅·문서·로그에 남기지 않는다.
+DMG의 최종 SHA-256·BUILD_INFO를 갱신했다. 앱과 ZIP은 다시 만들지 않았으며 ZIP 해시는 그대로다. DMG 공증·내용 검증 근거는 해당 폴더 evidence와 artifacts/evidence/public-release-20261017/dmg-notarization.json에 있다.
 
 ## Mac App Store 제출 (T-007, 제출 완료·Apple 심사 대기)
 
@@ -87,7 +87,7 @@ xcrun notarytool store-credentials MoongchiNotaryRC --apple-id <개발자 Apple 
 - 제출 ID: 77685324-201c-483d-8d23-0d959d824b2b. 화면에 표시된 접수 시각: 2026-10-17 13:40 KST.
 - 심사 상세: https://appstoreconnect.apple.com/apps/6823853405/distribution/reviewsubmissions/details/77685324-201c-483d-8d23-0d959d824b2b
 - 출시 방식은 기존 명세의 ‘승인 후 자동 출시’ 그대로다. 현재 상태는 심사 대기이며 승인·공개 완료가 아니다. Apple 심사 결과를 기다린다.
-- 일반판 ZIP은 공증된 앱을 포함한다. DMG는 위 ‘현재 일반판과 Xcode 공증 경로’의 인증정보 입력 대기가 남았다.
+- 일반판 앱·ZIP·DMG는 위 ‘현재 일반판과 Xcode 공증 경로’의 검증을 통과했다. 실제 공개 상태는 아래 GitHub 절을 따른다.
 
 비밀번호, 2FA 코드, 인증서 private key, API key, 개인 심사 연락처를 채팅·저장소·로그에 적지 않는다. 공식 경로는 Apple의 ‘Notarizing macOS software before distribution’ 및 ‘Customizing the notarization workflow’ 문서를 참조한다.
 
@@ -111,8 +111,8 @@ xcrun notarytool store-credentials MoongchiNotaryRC --apple-id <개발자 Apple 
 - 대상 저장소: https://github.com/pureakma/moongchi-namefix. 현재 비공개이며 공개 완료를 뜻하지 않는다. 사용자가 코드·문서의 MIT 공개를 선택했다. 루트 LICENSE, README의 적용 범위, 브랜딩 자산의 별도 조건과 폰트 OFL 고지를 준비했다.
 - 공개 전 점검: 원격 main과 같은 시작점 dcfe247의 136개 커밋, 915개 고유 파일 blob 중 텍스트 893개와 커밋 메타데이터를 인증키·암호 패턴으로 점검했다. 일치 없음. Git 이력의 UI 참조 이미지 9장도 확인했고 계정·연락처 화면은 없었다. 폰트와 제품 아이콘 외 미확인 바이너리 자료는 없었다. 패턴 점검이 모든 형태의 비밀정보 부재를 보장하는 것은 아니다.
 - 공개되는 이력: 기존 작성자 이름·이메일, 이전 코드·문서·참조 이미지가 함께 보인다. Actions 실행 이력·Issue/PR·기존 release/tag는 없었다. 사용자는 이력을 포함한 공개 범위와 DMG 공증 후 동시 공개를 승인했다(D-043). 강제 push나 이력 재작성은 하지 않는다.
-- 릴리즈 초안: 준비 커밋 4168663을 비공개 main에 일반 push한 뒤 v1.0.0 초안(ID 415588827)을 만들었다. https://github.com/pureakma/moongchi-namefix/releases/tag/untagged-5d1d60a3c99fc3b536a4. 1.0.0 (build 6), arm64, macOS 14 이상. 앱 source는 dcfe247과 같고 배포 준비 커밋은 문서·라이선스만 바꿨다. 공증 앱을 담은 ZIP, 해당 ZIP만 담은 SHA256SUMS.txt, LICENSE·ThirdPartyNotices.md·Branding-Notice.txt 다섯 파일을 첨부했고 GitHub 서버 SHA-256을 로컬 파일과 대조해 모두 일치했다. DMG·비공개 연락처·로컬 검증 화면·로그는 첨부하지 않았다. DMG는 인증정보 저장 뒤 별도 공증을 통과해야 추가한다.
-- 다음: 유효한 인증정보 저장 뒤 DMG 제출 → Accepted 확인 → 스테이플링·검증 → Gatekeeper 통과 → 최종 DMG 해시·BUILD_INFO 갱신 → 초안에 DMG 추가 및 체크섬·설명 갱신 → 저장소와 릴리즈 동시 공개 → 익명 다운로드·해시 검증. 공개 범위의 최종 사용자 확인은 완료됐고 ZIP만 먼저 게시하지 않는다(D-043). 현재는 비공개 초안이며 공개 출시 완료가 아니다.
+- 릴리즈 초안: v1.0.0, ID 415588827. 1.0.0 (build 6), arm64, macOS 14 이상. 앱 source는 dcfe247과 같고 배포 준비 커밋은 문서·라이선스만 바꿨다. 공증 DMG·ZIP, 두 패키지를 담은 SHA256SUMS.txt, LICENSE·ThirdPartyNotices.md·Branding-Notice.txt를 제공한다. 비공개 연락처·로컬 검증 화면·로그는 첨부하지 않는다.
+- 다음: 갱신한 초안의 첨부 파일·서버 해시를 확인하고 승인된 범위대로 저장소와 릴리즈를 함께 공개한 뒤 익명 다운로드·해시를 확인한다. ZIP만 먼저 게시하지 않는다(D-043). 현재는 비공개 초안이며 공개 출시 완료가 아니다.
 - 로컬 근거: artifacts/evidence/public-release-20261017의 repository-review.json·github-release-draft.json·release-notes.md. 제품 전체 QA·새 빌드는 반복하지 않으며 기존 제품 Gate를 재사용한다. 공개와 실제 다운로드 확인은 완료 후 별도로 기록한다.
 
 라이선스·공개 설정의 공식 안내: [GitHub 저장소 라이선스](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository), [MIT](https://choosealicense.com/licenses/mit/), [GitHub 공개 범위 변경](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility). 앱 암호는 [Apple 안내](https://support.apple.com/en-us/102654)를 따른다.
