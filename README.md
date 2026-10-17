@@ -6,7 +6,7 @@ A free, native macOS app for Unicode filename normalization and batch renaming. 
 
 ## 다운로드와 사용
 
-- [GitHub Releases](https://github.com/pureakma/moongchi-namefix/releases): 게시된 버전의 DMG 또는 ZIP을 받습니다. 공개 릴리즈가 없으면 아직 다운로드 게시 전입니다.
+- [최신 버전 다운로드](https://github.com/pureakma/moongchi-namefix/releases/latest): Developer ID 서명·Apple 공증을 통과한 DMG 또는 ZIP을 받습니다.
 - macOS 14 이상, Apple Silicon(M1 이상) 전용입니다.
 - DMG를 열고 앱을 Applications로 복사하거나, ZIP을 풀고 앱을 Applications로 옮깁니다. 보안 기능을 끄거나 격리 속성을 제거할 필요가 없습니다.
 - 앱에 파일·폴더를 놓고 변경 전후를 확인합니다. 읽기만 하는 검사 뒤, 이름을 바꿀 때 별도 확인을 받습니다. 필요한 경우 macOS 폴더 접근 창이 열립니다.

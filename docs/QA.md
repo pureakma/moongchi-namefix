@@ -38,6 +38,12 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 이번에 하지 않은 것: 새 전체 QA, 다른 Mac의 다운로드 설치, 새 공증 암호 입력·재시도, DMG 컨테이너 공증, Apple 심사 승인, 웹사이트/다운로드 공개, Git commit/push. App Privacy는 명시 동의를 받은 뒤 이미 게시된 상태를 확인한 것이며 최종 게시를 중복 실행하지 않았다. 현재 산출물 상태와 다음 순서는 RELEASE.md가 원본이다.
 
+### GitHub 오픈소스·일반판 공개 완료 (2026-10-17, T-016)
+
+공증 완료한 DMG를 포함한 최종 첨부 여섯 파일의 서버 SHA-256을 확인한 뒤 비공개 상태에서 릴리즈를 확정하고 저장소를 PUBLIC으로 전환했다. 소스와 릴리즈가 함께 공개됐다. 별도 로그인·Authorization 헤더 없이 GitHub API에서 저장소 PUBLIC·MIT와 v1.0.0 공개 릴리즈를, 릴리즈 페이지에서 HTTP 200을 확인했다. DMG·ZIP·체크섬·LICENSE·ThirdPartyNotices.md·Branding-Notice.txt 여섯 파일을 실제 익명 다운로드해 전부 HTTP 200과 서버 해시 일치를 확인했고, 받은 체크섬으로 두 패키지를 다시 대조했다. 공개 LICENSE도 로컬과 일치했다.
+
+원래 136개 커밋의 공개 전 점검을 재사용하고 그 뒤 바뀐 문서·라이선스·검증 기록을 추가 점검했다. 알려진 비밀 패턴 일치 없음, dcfe247 대비 제품 source diff 없음. 공개는 D-043의 사용자 승인대로 수행했다. URL·태그·버전·배포 상태는 RELEASE.md, 원시 근거는 artifacts/evidence/public-release-20261017/github-publication.json, 영수증은 MAC-RELEASE-PUBLICATION-20261017이다. 이 결과는 실제 새 Mac의 GUI 설치·사용자 QA·App Store 심사 승인이 아니다. 새 전체 QA·제품 빌드는 수행하지 않았다.
+
 ### DMG 공증 완료 (2026-10-17, T-015)
 
 사용자가 Terminal에 인증정보를 직접 저장한 뒤 MoongchiNotaryRC history 조회가 정상화됐다. 기존 build 6 DMG를 재생성 없이 제출해 Accepted / Ready for distribution / statusCode 0 / issues 없음으로 승인받았다. 이후 stapler staple·validate, codesign --verify --strict, spctl open이 통과했다. 읽기 전용으로 DMG를 열어 내부 앱의 서명·staple·Gatekeeper·버전·arm64·기존 공증 앱과 실행 파일 해시 일치·Applications 바로가지를 확인하고 분리했다. 앱과 ZIP은 다시 만들지 않았고 ZIP 해시는 그대로다. DMG 최종 해시·BUILD_INFO·릴리즈 체크섬을 갱신했다. 전체 제품 QA나 사용자 QA를 다시 수행한 결과가 아니다.

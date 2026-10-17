@@ -2535,6 +2535,34 @@
       "evidencePath": "artifacts/evidence/public-release-20261017/dmg-notarization.json",
       "evidenceSHA256": "a8b29c820557a481f5a0af1b93dc538586487208d50b211945db31b2d2ede580",
       "notes": "Accepted submission 2c4acae3-ac86-4400-9cc4-c8c2e68f486c. Container and inner app verification PASS. App/ZIP not regenerated. Reuses product gates and prior ZIP extraction proof. Not public-release/anonymous-download/User QA proof."
+    },
+    {
+      "validationId": "MAC-RELEASE-PUBLICATION-20261017",
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "AppStore",
+      "scope": [
+        "README.md",
+        "LICENSE",
+        "ThirdPartyNotices.md",
+        "assets/branding/README.md",
+        "docs/RELEASE.md"
+      ],
+      "sourceFingerprint": "229ea837d6b8c884ba43a9ae62d1f108fd4ae7f7992ad6d63cad38f8ecde6d57",
+      "testFingerprint": null,
+      "dependencyFingerprint": null,
+      "toolchainFingerprint": null,
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": null,
+        "filesystem": null,
+        "caseSensitive": null
+      },
+      "timestamp": "2026-10-17T06:53:06.764348+00:00",
+      "command": "gh release upload/edit; verify six server asset digests; publish release while private; gh repo edit --visibility public; anonymous urllib GitHub repository/release API and HTML; download six assets without Authorization; SHA-256 comparison and downloaded checksum validation",
+      "evidencePath": "artifacts/evidence/public-release-20261017/github-publication.json",
+      "evidenceSHA256": "fd085914a078a3fce935edb9b4be1a32fbaae7614c4a68cb7f8e72fe2278e0aa",
+      "notes": "Actual PUBLIC repository and v1.0.0 release, MIT source, 6 anonymous HTTP 200 downloads and matching hashes. Tag 48f3ee8; product source dcfe247. DMG notarized before public visibility per user approval D-043. No product source/build/full QA changes, no fresh-Mac GUI installation, no App Store approval claim."
     }
   ]
 }

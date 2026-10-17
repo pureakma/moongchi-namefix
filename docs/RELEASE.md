@@ -14,7 +14,7 @@
 
 ## 현재 상태
 
-2026-10-17 사용자 승인으로 배포 준비를 재개했다(T-015, T-007). 제품 source는 바꾸지 않았다. 일반판 앱과 DMG의 Developer ID 서명·Apple 공증·스테이플링·Gatekeeper, ZIP 추출 앱과 DMG 내부 앱의 검증이 끝났다. 사용자가 Terminal에 인증정보를 저장한 뒤 notarytool 인증이 복구됐고 DMG 공증을 마쳤다. 스토어판은 1.0.0 build 6 심사 제출 완료·Apple 심사 대기다. 일반판의 공개는 아래 GitHub 절에서 구분한다. 근거는 QA.md의 배포 검증 절들이다.
+2026-10-17 일반판 1.0.0 build 6과 MIT 소스코드의 GitHub 공개를 완료했다(T-015, T-016). 제품 source는 바꾸지 않았다. 일반판 앱과 DMG의 Developer ID 서명·Apple 공증·스테이플링·Gatekeeper, ZIP 추출 앱과 DMG 내부 앱 검증, 공개 첨부 파일 여섯 개의 익명 다운로드·SHA-256 일치 확인이 끝났다. 스토어판은 같은 날 심사 제출과 심사 대기 상태를 확인했으며 승인·App Store 공개는 별도다(T-007). 공개 URL·산출물은 아래 GitHub 절, 검증 근거는 QA.md가 원본이다.
 
 ## Release Candidate 진입 조건
 
@@ -95,7 +95,7 @@ DMG의 최종 SHA-256·BUILD_INFO를 갱신했다. 앱과 ZIP은 다시 만들�
 
 웹사이트는 뭉치페이지스 프로젝트가 맡는다(D-025). 이 저장소에서는 웹사이트 저장소를 고치지 않는다. 앱 저장소의 오픈소스 공개는 아래 절의 D-043·T-016에 따른다.
 
-웹사이트의 역할: 제품 소개, 지원, 개인정보처리방침, 공개 후의 Mac App Store 링크 및 일반판 다운로드 안내(D-042). 파일 공개는 각 산출물의 forDownload 상태를 확인한 뒤 별도 게시한다. 이번 작업에서 웹사이트나 다운로드 페이지를 수정·게시하지 않았다.
+웹사이트의 역할: 제품 소개, 지원, 개인정보처리방침, 공개 후의 Mac App Store 링크 및 일반판 다운로드 안내(D-042). 이번 작업에서는 별도 웹사이트 저장소를 수정·게시하지 않았다. 일반판의 실제 공개 다운로드는 아래 GitHub 릴리즈다.
 
 뭉치페이지스가 참조할 원본:
 - 제품이 하는 일과 요구사항: docs/PROJECT.md
@@ -108,12 +108,13 @@ DMG의 최종 SHA-256·BUILD_INFO를 갱신했다. 앱과 ZIP은 다시 만들�
 
 ## GitHub 오픈소스·일반판 릴리즈 (D-043, T-016)
 
-- 대상 저장소: https://github.com/pureakma/moongchi-namefix. 현재 비공개이며 공개 완료를 뜻하지 않는다. 사용자가 코드·문서의 MIT 공개를 선택했다. 루트 LICENSE, README의 적용 범위, 브랜딩 자산의 별도 조건과 폰트 OFL 고지를 준비했다.
+- 공개 저장소: https://github.com/pureakma/moongchi-namefix. PUBLIC·MIT 확인. 코드·문서는 루트 LICENSE의 MIT, 브랜딩 자산은 별도 조건, 폰트는 OFL 고지를 유지한다. 사용자가 승인한 기존 이력까지 공개했다.
 - 공개 전 점검: 원격 main과 같은 시작점 dcfe247의 136개 커밋, 915개 고유 파일 blob 중 텍스트 893개와 커밋 메타데이터를 인증키·암호 패턴으로 점검했다. 일치 없음. Git 이력의 UI 참조 이미지 9장도 확인했고 계정·연락처 화면은 없었다. 폰트와 제품 아이콘 외 미확인 바이너리 자료는 없었다. 패턴 점검이 모든 형태의 비밀정보 부재를 보장하는 것은 아니다.
 - 공개되는 이력: 기존 작성자 이름·이메일, 이전 코드·문서·참조 이미지가 함께 보인다. Actions 실행 이력·Issue/PR·기존 release/tag는 없었다. 사용자는 이력을 포함한 공개 범위와 DMG 공증 후 동시 공개를 승인했다(D-043). 강제 push나 이력 재작성은 하지 않는다.
-- 릴리즈 초안: v1.0.0, ID 415588827. 1.0.0 (build 6), arm64, macOS 14 이상. 앱 source는 dcfe247과 같고 배포 준비 커밋은 문서·라이선스만 바꿨다. 공증 DMG·ZIP, 두 패키지를 담은 SHA256SUMS.txt, LICENSE·ThirdPartyNotices.md·Branding-Notice.txt를 제공한다. 비공개 연락처·로컬 검증 화면·로그는 첨부하지 않는다.
-- 다음: 갱신한 초안의 첨부 파일·서버 해시를 확인하고 승인된 범위대로 저장소와 릴리즈를 함께 공개한 뒤 익명 다운로드·해시를 확인한다. ZIP만 먼저 게시하지 않는다(D-043). 현재는 비공개 초안이며 공개 출시 완료가 아니다.
-- 로컬 근거: artifacts/evidence/public-release-20261017의 repository-review.json·github-release-draft.json·release-notes.md. 제품 전체 QA·새 빌드는 반복하지 않으며 기존 제품 Gate를 재사용한다. 공개와 실제 다운로드 확인은 완료 후 별도로 기록한다.
+- 공개 릴리즈: https://github.com/pureakma/moongchi-namefix/releases/tag/v1.0.0, ID 415588827. 태그 v1.0.0은 준비 커밋 48f3ee8, 앱 source는 dcfe247이다. 1.0.0 (build 6), arm64, macOS 14 이상. 공증 DMG·ZIP, 두 패키지를 담은 SHA256SUMS.txt, LICENSE·ThirdPartyNotices.md·Branding-Notice.txt를 제공한다. 비공개 연락처·로컬 검증 화면·로그는 첨부하지 않았다.
+- 공개 순서: DMG 공증과 모든 첨부 파일·서버 해시 확인 후 비공개 저장소 안에서 릴리즈를 확정하고, 저장소 공개 전환으로 소스와 릴리즈가 함께 공개되게 했다(D-043). 2026-10-17 15:51 KST에 익명 접근으로 PUBLIC·MIT·릴리즈 페이지 HTTP 200을 확인했다. 첨부 파일 여섯 개를 Authorization 헤더 없이 실제 내려받아 서버 SHA-256과 일치, 내려받은 체크섬으로 DMG·ZIP 재대조 PASS.
+- 다운로드: [DMG](https://github.com/pureakma/moongchi-namefix/releases/download/v1.0.0/Moongchi_NameFix_1.0.0_build6_arm64.dmg) · [ZIP](https://github.com/pureakma/moongchi-namefix/releases/download/v1.0.0/Moongchi_NameFix_1.0.0_build6_arm64.zip) · [체크섬](https://github.com/pureakma/moongchi-namefix/releases/download/v1.0.0/SHA256SUMS.txt). 일반판의 남은 사용자 입력은 없다. 웹사이트 수정·App Store 심사 승인은 이번 공개 완료에 포함하지 않는다.
+- 로컬 근거: artifacts/evidence/public-release-20261017의 repository-review.json·repository-delta-review.json·dmg-notarization.json·github-release-ready.json·github-publication.json. 제품 전체 QA·새 빌드를 반복하지 않았으며 기존 제품 Gate를 재사용했다. 다운로드 바이트 검증은 실제 새 Mac의 GUI 설치·사용자 QA와 구분한다.
 
 라이선스·공개 설정의 공식 안내: [GitHub 저장소 라이선스](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository), [MIT](https://choosealicense.com/licenses/mit/), [GitHub 공개 범위 변경](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility). 앱 암호는 [Apple 안내](https://support.apple.com/en-us/102654)를 따른다.
 
