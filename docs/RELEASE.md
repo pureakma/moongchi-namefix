@@ -6,7 +6,7 @@
 - 구성은 project.yml의 Debug와 AppStore 둘.
   - Debug: 개발·QA. App Sandbox OFF, bundle ID com.moongchi.namefix.dev. render·probe·진단 fixture는 이 구성에만 compile된다. 실제 sandbox 검증용으로 eng/build.sh --sandbox-debug가 같은 Debug 앱을 스토어 entitlement로 만든다(식별자 com.moongchi.namefix.sandboxqa).
   - AppStore: 공개 배포. App Sandbox ON, entitlement는 app-sandbox · files.user-selected.read-write · files.bookmarks.app-scope 셋, 디버깅 entitlement 없음, bundle ID com.ailoworks.namefix.
-- 버전: MARKETING_VERSION 1.0.1, CURRENT_PROJECT_VERSION 7. 원본은 project.yml 하나이며 build 명령이 바꾸지 않는다.
+- 버전: MARKETING_VERSION 1.0.2, CURRENT_PROJECT_VERSION 8. 원본은 project.yml 하나이며 build 명령이 바꾸지 않는다.
 - macOS 14 이상, Apple Silicon arm64 전용. Hardened Runtime ON.
 - 개발사 AILO WORKS, 문의 ailo@ailoworks.com
 - 모든 기능 무료. 유료 등급·구매·계정·광고·추적 없음. 앱은 네트워크를 쓰지 않는다.
@@ -14,7 +14,11 @@
 
 ## 현재 상태
 
-2026-10-17 언어별 앱 이름을 고친 1.0.1 build 7 일반판을 공개하고 이 Mac에 설치했다(T-017, D-044). 같은 AppStore archive에서 만든 앱·DMG의 Developer ID 서명·Apple 공증·스테이플링·Gatekeeper, ZIP·DMG 내부 앱과 세 언어 표시 이름, 공개 파일 여섯 개의 익명 다운로드·SHA-256 일치 확인이 끝났다. 스토어에는 새 빌드를 업로드·연결하고 기존 1.0.0 심사 대기 제출을 철회한 뒤 재제출했다. Apple 상세 화면에서 1.0.1 (7)·제출 항목 1개·심사 대기 중을 확인했다. Apple 승인·스토어 공개와 구분한다. 직전 1.0.0 공개 파일·태그는 바꾸지 않았다. 현재 산출물·근거는 바로 아래 T-017 절과 QA.md다.
+T-019 진행 중: 2026-10-26 사용자가 수정본 배포 실행을 승인하여 1.0.2(8)을 준비한다. 먼저 서명된 빌드를 준비하고 스토어 제출과 일반판을 갱신한다. 완료 근거 없이 이전 심사 미통과/일반판 공개 상태를 PASS로 바꾸지 않는다.
+
+2026-10-26 사용자가 제공한 Apple 심사 메시지에서 1.0.1 (7)의 심사 미통과를 확인했다. 심사일은 2026-10-24, 제출 ID e16e234c-4941-4665-af97-dda0c89cb43c, 사유는 Guideline 4 - Design: 메인 창을 닫은 뒤 메뉴에서 다시 열 수 없음이다. 이는 대기/승인이 아닌 수정 후 재제출이 필요한 상태이며, 이 실행에서 App Store Connect 실시간 상태를 다시 조회하지는 않았다. 로컬 수정·Debug 영향 검증은 T-018, QA.md가 원본이다. 새 Release 빌드·업로드·재제출은 하지 않았다. 일반판 v1.0.1(7) 공개 파일은 그대로다.
+
+아래 T-017의 심사 대기 표시는 2026-10-17 재제출 당시 근거이며 현재 심사 결과는 위 문단을 따른다.
 
 ## Release Candidate 진입 조건
 

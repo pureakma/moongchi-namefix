@@ -240,6 +240,7 @@
 "MenuRedo" = "Redo";
 "MenuSelectAll" = "Select All";
 "MenuShowAll" = "Show All";
+"MenuShowMainWindow" = "Show Main Window";
 "MenuUndo" = "Undo";
 "MenuZoom" = "Zoom";
 "MetadataFallback" = "Fallback text (empty: skip the file)";

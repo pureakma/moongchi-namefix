@@ -272,7 +272,13 @@ import NameFixCore
         guard let urls = pasteboard.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL], !urls.isEmpty else { error.pointee = model.t("NoInputs") as NSString; return }
         model.add(urls, fromOS: true); window?.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
     }
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { window?.makeKeyAndOrderFront(nil); return true }
+    @objc private func showMainWindow(_ sender: Any?) {
+        guard let window else { return }
+        if window.isMiniaturized { window.deminiaturize(sender) }
+        window.makeKeyAndOrderFront(sender)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showMainWindow(nil); return true }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if quitting { return .terminateNow }
@@ -324,6 +330,10 @@ import NameFixCore
         view.addItem(.separator())
         let fullScreen = NSMenuItem(title: model.t("MenuFullScreen"), action: #selector(NSWindow.toggleFullScreen(_:)), keyEquivalent: "f"); fullScreen.keyEquivalentModifierMask = [.command, .control]; view.addItem(fullScreen)
         let windows = menu(model.t("WindowMenu"))
+        let showWindow = NSMenuItem(title: model.t("MenuShowMainWindow"), action: #selector(showMainWindow(_:)), keyEquivalent: "0")
+        showWindow.target = self; showWindow.identifier = NSUserInterfaceItemIdentifier("showMainWindow")
+        windows.addItem(showWindow)
+        windows.addItem(.separator())
         windows.addItem(NSMenuItem(title: model.t("MenuMinimize"), action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m"))
         windows.addItem(NSMenuItem(title: model.t("MenuZoom"), action: #selector(NSWindow.performZoom(_:)), keyEquivalent: ""))
         windows.addItem(.separator())

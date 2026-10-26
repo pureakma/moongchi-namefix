@@ -2635,6 +2635,35 @@
       "evidencePath": "artifacts/evidence/localization-20261017/release-verification.json",
       "evidenceSHA256": "5e7b1c90fe25e95dc67d824bcafc95801802d44280ea829fbbdcb0b40abc5fd7",
       "notes": "v1.0.1 public, locally installed; Store submission e16e234c-4941-4665-af97-dda0c89cb43c Waiting for Review, not approved. Previous v1.0.0 immutable. No full QA/User QA claim."
+    },
+    {
+      "validationId": "MAC-WINDOW-REOPEN-20261026",
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "Debug",
+      "scope": [
+        "App/Main.swift",
+        "App/SandboxFixtures.swift",
+        "Resources/Localizable.xcstrings",
+        "Resources/**/*.strings",
+        "eng/test-window-reopen.py"
+      ],
+      "sourceFingerprint": "99a945aa0f18e9d603e8b288a2a531609f4a18db766eefa4bfe52c8214047358",
+      "testFingerprint": "b0e46481b6dc5b689ed130eb62a28fdd4a3558b58242b9fb703071647cc1061e",
+      "dependencyFingerprint": "9a4486991c5d84f7775691b534f4618d15bbed7e5dd33b0684f9e07d4d800322",
+      "toolchainFingerprint": "ee3fe26035862d2b9653c1a570be3eca4ee5be2815f0ce99ff2d8ffa3399e4c8",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "filesystem": "APFS",
+        "caseSensitive": false,
+        "signing": "ad-hoc"
+      },
+      "timestamp": "2026-10-26T01:01:44.718215+00:00",
+      "command": "eng/build.sh --configuration Debug --arch arm64; eng/validate-resources.py; python3 eng/test-window-reopen.py --output artifacts/evidence/window-reopen-20261026; CUA Cmd-W/Cmd-0 and Window menu AX",
+      "evidencePath": "artifacts/evidence/window-reopen-20261026/verification.json",
+      "evidenceSHA256": "92dc62bd09133c30a1deb80e40ce60fc68b271f015b8757412ba1ca1630d84b6",
+      "notes": "Window/menu gate only. Synthetic model state; scan/save excluded after Desktop fixture openat waits. No release build, upload, review reply or user QA."
     }
   ]
 }

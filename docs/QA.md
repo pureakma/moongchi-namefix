@@ -18,6 +18,21 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인.
 
+### 창 닫기 후 재열기 결함 수정 (2026-10-26, T-018)
+
+사용자가 제공한 Apple 심사 결과(2026-10-24, Guideline 4)와 source를 대조해 재열기 메뉴 부재를 확인했다. 윈도우 메뉴에 ‘메인 창 보기’(⌘0)를 추가하고 Dock 복귀와 같은 action을 사용한다. 같은 NSWindow를 유지하고 최소화만 풀어 다시 표시하므로 입력·검색·설정·폴더 감시와 기존 종료/취소 정책은 유지한다.
+
+| 항목 | 결과 |
+|---|---|
+| Debug arm64 | eng/build.sh --configuration Debug --arch arm64 성공 |
+| 번역 | python3 eng/validate-resources.py: 570 keys × ko/en/ja PASS |
+| 실제 AppKit 회귀 | python3 eng/test-window-reopen.py --output artifacts/evidence/window-reopen-20261026: 언어별 실제 메뉴 제목·⌘0·닫은 뒤 두 번 재열기·최소화 복원·Dock delegate·동일 창·입력/검색 상태 보존·창을 닫아도 실행 유지 PASS(7계약 × 3언어). 테스트 파일 내용 불변 |
+| 직접 UI 조작 | AI가 격리 Debug 앱에서 ⌘W로 창이 없어지는 것을 확인하고 ⌘0으로 다시 열었다. 윈도우 메뉴에 ‘메인 창 보기’ 활성 항목 확인(CUA AX). 메뉴 screenshot은 제어 도구가 제공하지 못해 이미지 증빙은 없음 |
+
+검증 경계: 초기 harness는 Desktop 아래 시험 폴더의 scan/settings save가 openat에서 대기해 종료했다. 원인 전체를 이번 창 결함으로 분류하지 않았으며 그 실행은 PASS가 아니다. 최종 harness는 UI presentation state를 직접 넣고 언어 설정을 메모리에서 바꾸어 파일 처리·설정 저장을 제외했다. 백그라운드 실행의 focus 제약 때문에 자동 검증은 실제 창의 visible/minimized 상태를 판정했고 키보드 재열기는 별도 CUA 조작으로 확인했다. 파일 엔진·기록·권한은 바꾸지 않았으므로 기존 관련 검증을 재사용하며 전체 QA를 반복하지 않았다. 이 결과는 Engineering Verification이며 사용자 QA나 Store 구성 검증·심사 통과가 아니다.
+
+영수증 MAC-WINDOW-REOPEN-20261026, evidence artifacts/evidence/window-reopen-20261026의 debug-build.txt·resources.txt·runtime.txt·window-reopen.json. 새 Release 빌드·재제출·공개 배포는 하지 않았다.
+
 ### 글로벌 앱 이름 현지화 영향 검증 (2026-10-17, T-017)
 
 앱 이름·시스템 언어 선택의 계약과 소비자만 검증했다. 파일 엔진·저장 schema·권한은 바꾸지 않았으며 T-013·T-014의 관련 안전 검증은 재사용한다. User QA나 Apple 심사 승인을 뜻하지 않는다. 로컬 근거는 artifacts/evidence/localization-20261017, 영수증 MAC-LOCALIZED-BRANDING-20261017.

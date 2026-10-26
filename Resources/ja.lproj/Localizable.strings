@@ -240,6 +240,7 @@
 "MenuRedo" = "やり直す";
 "MenuSelectAll" = "すべてを選択";
 "MenuShowAll" = "すべてを表示";
+"MenuShowMainWindow" = "メインウインドウを表示";
 "MenuUndo" = "取り消す";
 "MenuZoom" = "拡大/縮小";
 "MetadataFallback" = "情報がない場合に使うテキスト（空欄の場合は除外）";

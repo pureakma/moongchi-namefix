@@ -81,6 +81,60 @@ import NameFixApplication
         // A folder beside the one handed over was never allowed: the system itself must refuse it.
         if let beside = opened.first?.deletingLastPathComponent().appendingPathComponent("outside") { facts["systemRefusesNeighbour"] = open(beside.path, O_RDONLY | O_DIRECTORY) < 0 }
         switch phase {
+        case "window-reopen":
+            // Exercise the real retained main window and the production menu action. No user files
+            // or input events: the caller provides isolated support and sample folders.
+            guard let window = NSApp.windows.first(where: { $0.contentViewController is MainSidebarController }),
+                  let delegate = NSApp.delegate as? AppDelegate else {
+                facts["error"] = "main window or delegate missing"; finish(facts)
+            }
+            // Populate presentation state directly: filesystem traversal is outside this gate.
+            let sampleRoot = RawPath(model.dataRoot.deletingLastPathComponent().appendingPathComponent("samples").path)
+            model.roots = [sampleRoot]
+            model.entries = [FileEntry(path: sampleRoot.appending(Data("example.txt".utf8)), status: .normal, reason: "Normal", proposed: Data("example.txt".utf8))]
+            let roots = model.roots, entries = model.entries.map(\.id)
+            model.query = "retained window state"
+            var checks: [[String: Any]] = []
+            for language in ["ko-KR", "en-US", "ja-JP"] {
+                // Menu localization is exercised without a settings write to the Desktop fixture.
+                model.settings.language = language
+                let ready = await settle(model) {
+                    NSApp.windowsMenu?.items.contains(where: { $0.identifier?.rawValue == "showMainWindow" && $0.title == model.t("MenuShowMainWindow") }) == true
+                }
+                guard ready, let menu = NSApp.windowsMenu,
+                      let item = menu.items.first(where: { $0.identifier?.rawValue == "showMainWindow" }),
+                      let action = item.action else {
+                    facts["error"] = "localized menu missing"; finish(facts)
+                }
+                var check: [String: Any] = ["language": language, "title": item.title,
+                                           "shortcut": item.keyEquivalent == "0" && item.keyEquivalentModifierMask == .command]
+                var reopened = true
+                for _ in 0..<2 {
+                    window.performClose(nil)
+                    let closed = !window.isVisible
+                    menu.update()
+                    let sent = NSApp.sendAction(action, to: item.target, from: item)
+                    let visible = await settle(model) { window.isVisible }
+                    reopened = reopened && closed && item.isEnabled && sent && visible
+                }
+                check["closedWindowReopensTwice"] = reopened
+                window.miniaturize(nil)
+                let minimized = await settle(model) { window.isMiniaturized }
+                let sent = NSApp.sendAction(action, to: item.target, from: item)
+                let restored = await settle(model) { !window.isMiniaturized && window.isVisible }
+                check["minimizedWindowRestored"] = minimized && sent && restored
+                window.performClose(nil)
+                let dockClosed = !window.isVisible
+                let handled = delegate.applicationShouldHandleReopen(NSApp, hasVisibleWindows: false)
+                let dockVisible = await settle(model) { window.isVisible }
+                check["dockReopens"] = dockClosed && handled && dockVisible
+                check["sameWindow"] = NSApp.windows.contains(where: { $0 === window })
+                check["statePreserved"] = !roots.isEmpty && model.roots == roots && model.entries.map(\.id) == entries && model.query == "retained window state"
+                check["keepsRunningAfterClose"] = !delegate.applicationShouldTerminateAfterLastWindowClosed(NSApp)
+                checks.append(check)
+            }
+            facts["checks"] = checks
+            await model.shutdown()
         case "rename":
             // A folder handed over like Finder's Open With: scan, plan, rename, keep the way back.
             _ = await settle(model) { !model.entries.isEmpty }

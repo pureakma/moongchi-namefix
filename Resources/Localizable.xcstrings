@@ -13087,6 +13087,29 @@
           }
         }
       }
+    },
+    "MenuShowMainWindow": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메인 창 보기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Main Window"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メインウインドウを表示"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
