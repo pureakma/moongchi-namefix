@@ -2664,6 +2664,38 @@
       "evidencePath": "artifacts/evidence/window-reopen-20261026/verification.json",
       "evidenceSHA256": "92dc62bd09133c30a1deb80e40ce60fc68b271f015b8757412ba1ca1630d84b6",
       "notes": "Window/menu gate only. Synthetic model state; scan/save excluded after Desktop fixture openat waits. No release build, upload, review reply or user QA."
+    },
+    {
+      "validationId": "MAC-WINDOW-RELEASE-20261026",
+      "status": "PASS",
+      "architecture": "arm64",
+      "configuration": "AppStore",
+      "scope": [
+        "App/Main.swift",
+        "Resources/Localizable.xcstrings",
+        "Resources/**/*.strings",
+        "project.yml",
+        "eng/package-direct.sh",
+        "eng/archive-store.sh",
+        "marketing/appstore.json",
+        "README.md"
+      ],
+      "sourceFingerprint": "2c5d8732d84a7ea433600b245a27db9a4294437d982ea35e47bf215ddd7687df",
+      "testFingerprint": "b0e46481b6dc5b689ed130eb62a28fdd4a3558b58242b9fb703071647cc1061e",
+      "dependencyFingerprint": "1b3425b51a2d467f34fe13058d0f094702746f4bca985aae454d06cd02944e11",
+      "toolchainFingerprint": "ee3fe26035862d2b9653c1a570be3eca4ee5be2815f0ce99ff2d8ffa3399e4c8",
+      "environment": {
+        "os": "macOS 27.0.1",
+        "sdk": "27.0",
+        "filesystem": "APFS + read-only HFS+ DMG",
+        "caseSensitive": false,
+        "signing": "Developer ID and automatic Store distribution"
+      },
+      "timestamp": "2026-10-26T01:21:22.354141+00:00",
+      "command": "Reuse signed archive/export/upload + app/DMG notarizations; verify app/ZIP/DMG signature/staple/Gatekeeper/arm64/entitlements/resources/production selector and hashes; CUA production window close/reopen; GitHub release + six anonymous downloads; install public ZIP + CUA About; App Store Connect replace build/save notes/update review/resubmit",
+      "evidencePath": "artifacts/evidence/window-release-20261026/release-verification.json",
+      "evidenceSHA256": "15be38e0d4fcd80f3bbe74644481908b4e8b53a0caea29e9d3f77a7de63a9e50",
+      "notes": "v1.0.2 public and locally installed. Store 1.0.2(8) Waiting for Review under e16e234c-4941-4665-af97-dda0c89cb43c, not approved. No UI redesign, FS contract change, full QA repeat or User QA claim."
     }
   ]
 }

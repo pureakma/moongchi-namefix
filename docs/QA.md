@@ -18,6 +18,16 @@ Task의 검증 범위는 변경 영역 + 변경 계약 + 그 소비자 + 무효�
 
 추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인.
 
+### 창 재열기 수정의 실제 배포 (2026-10-26, T-019)
+
+T-018의 Debug 창/메뉴 회귀와 세 언어 570 keys 검증을 재사용했다. 제품 source 8395f54의 1.0.2(8) AppStore archive·signed export·upload 성공. Store 처리 뒤 제출 준비 완료인 빌드 8을 연결하고 Guideline 4 수정 확인 절차가 담긴 메모를 원본과 대조했다. 기존 제출 항목 업데이트와 재제출 후 Apple 화면에서 1.0.2(8)·심사 대기 중 확인. 제출 ID와 공개 상태는 RELEASE.md가 원본이다.
+
+같은 archive 앱을 재서명한 일반판과 DMG의 공증 Accepted·스테이플링·Gatekeeper PASS. ZIP과 읽기 전용 DMG 내부 앱의 서명·staple·버전·arm64·entitlement 셋·세 언어 앱 이름/메인 창 보기 문구·실행 파일 해시 일치 PASS. 배포 binary에 창 재열기 selector/문구 key가 있고 Debug probe 문자열은 없다. 서명·공증된 실제 배포 앱에서도 AI가 ⌘W로 창을 닫고 ⌘0으로 복원, 윈도우 메뉴의 메인 창 보기 활성 항목을 확인했다. 이 UI 검증은 중단 전 같은 산출물에서 완료했으며 재빌드하지 않았다.
+
+GitHub v1.0.2 공개 첨부 여섯 파일의 서버 digest·로컬 파일 일치를 확인하고 공개했다. 인증 없는 실제 다운로드 여섯 개 HTTP 200 및 내려받은 체크섬 재대조 PASS. 공개 ZIP으로 이 Mac의 설치 앱을 교체하고 서명·staple·Gatekeeper, 실제 앱 정보의 1.0.2(8)을 확인했다. 기존 공개 릴리즈와 사용자 파일/설정/기록은 유지했다. User QA·새 Mac 설치·Apple 심사 승인과는 구분한다.
+
+근거: artifacts/evidence/window-release-20261026의 store-archive.txt·store-upload.txt·direct-verification.json·github-publication.json·store-resubmission.json·store-resubmission.png, artifacts/install/github-v1.0.2-20261026/installation.json. 영수증 MAC-WINDOW-RELEASE-20261026. 중단 전 완료된 빌드/공증을 재요청하지 않았고 전체 QA는 반복하지 않았다.
+
 ### 창 닫기 후 재열기 결함 수정 (2026-10-26, T-018)
 
 사용자가 제공한 Apple 심사 결과(2026-10-24, Guideline 4)와 source를 대조해 재열기 메뉴 부재를 확인했다. 윈도우 메뉴에 ‘메인 창 보기’(⌘0)를 추가하고 Dock 복귀와 같은 action을 사용한다. 같은 NSWindow를 유지하고 최소화만 풀어 다시 표시하므로 입력·검색·설정·폴더 감시와 기존 종료/취소 정책은 유지한다.

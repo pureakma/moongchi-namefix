@@ -14,11 +14,9 @@
 
 ## 현재 상태
 
-T-019 진행 중: 2026-10-26 사용자가 수정본 배포 실행을 승인하여 1.0.2(8)을 준비한다. 먼저 서명된 빌드를 준비하고 스토어 제출과 일반판을 갱신한다. 완료 근거 없이 이전 심사 미통과/일반판 공개 상태를 PASS로 바꾸지 않는다.
+2026-10-26 T-018의 창 재열기 수정이 포함된 1.0.2 build 8 배포를 마쳤다(T-019). 새 빌드의 App Store 업로드·처리 완료 뒤 기존 심사 항목을 교체하고 재제출해 10:17 KST에 ‘심사 대기 중’을 확인했다. 같은 archive의 일반판 앱·DMG 공증과 ZIP·DMG 내부 앱 검증, GitHub v1.0.2 공개·익명 다운로드 및 체크섬 대조, 이 Mac 설치·실행 버전 확인까지 끝났다. Apple 심사 승인·App Store 공개는 아직 아니다.
 
-2026-10-26 사용자가 제공한 Apple 심사 메시지에서 1.0.1 (7)의 심사 미통과를 확인했다. 심사일은 2026-10-24, 제출 ID e16e234c-4941-4665-af97-dda0c89cb43c, 사유는 Guideline 4 - Design: 메인 창을 닫은 뒤 메뉴에서 다시 열 수 없음이다. 이는 대기/승인이 아닌 수정 후 재제출이 필요한 상태이며, 이 실행에서 App Store Connect 실시간 상태를 다시 조회하지는 않았다. 로컬 수정·Debug 영향 검증은 T-018, QA.md가 원본이다. 새 Release 빌드·업로드·재제출은 하지 않았다. 일반판 v1.0.1(7) 공개 파일은 그대로다.
-
-아래 T-017의 심사 대기 표시는 2026-10-17 재제출 당시 근거이며 현재 심사 결과는 위 문단을 따른다.
+직전 1.0.1(7)은 2026-10-24 Guideline 4(닫힌 메인 창 재열기 메뉴 부재)로 심사를 통과하지 못했다. 윈도우 메뉴의 메인 창 보기(⌘0)를 추가했고 기존 파일 처리 화면·좁은 창 레이아웃·모두 닫기 동작은 바꾸지 않았다. 1.0.0·1.0.1 공개 파일과 태그도 유지했다.
 
 ## Release Candidate 진입 조건
 
@@ -29,6 +27,16 @@ Final User QA Session(T-010)의 판정은 USER_QA_COMPLETE_WITH_EXTERNAL_PENDING
 3. 스토어용으로 서명한 build로 깨끗한 Mac 설치와 실제 macOS 14 Apple Silicon 장비 확인을 한다(TestFlight 또는 서명된 pkg). 서명된 build가 있어야 할 수 있다.
 
 추가 확인으로 남긴 것(external / additional confidence checks, 현재 기록상 P0·P1 blocker 아님, 실제로 하지 않았음): 스토어 build에서 폴더 선택 창을 사람이 직접 누르는 것(‘상위 폴더 선택…’ 포함), 케이블을 실제로 뽑는 것(작업 중 포함), 네트워크 드라이브, iCloud Drive, VoiceOver, 대비 증가·큰 글자, 키보드만으로 전체 조작, 영어·일본어 원어민 확인. 출시 전에 할지 뒤로 미룰지는 사용자가 정한다.
+
+## 1.0.2 창 재열기 수정 배포 (T-019)
+
+- 제품 source: 8395f54fe559442bdc8d4edbaea1ca74d792ffd1. 동일 source의 AppStore 구성 archive를 한 번 생성하고 Store export/upload와 일반판 서명에 재사용했다. archive: artifacts/store/1.0.2/build8-20261026-window-reopen/MoongchiNameFix.xcarchive. 팀·bundle ID·macOS 14 이상·arm64·sandbox entitlement 셋 유지. Store archive/export/upload 모두 성공. Debug fixture와 probe 문자열은 배포 실행 파일에 없다.
+- Store: 버전 1.0.2, 빌드 8, 빌드 ID e61ef39e-2057-4de9-b18f-903058646c9e. 기존 심사 항목을 교체하고 ‘심사 업데이트’ → ‘앱 심사에 다시 제출’ 실행. Apple 상세 화면에서 macOS 1.0.2·1.0.2(8)·심사 대기 중 확인. 제출 ID e16e234c-4941-4665-af97-dda0c89cb43c를 유지하며 재접수 시각은 2026-10-26 10:17 KST다. [심사 상세](https://appstoreconnect.apple.com/apps/6823853405/distribution/reviewsubmissions/details/e16e234c-4941-4665-af97-dda0c89cb43c). 승인 후 자동 출시 유지. 이름·설명·기능 스크린샷·개인정보·연락처·무료 가격은 유지했다. 심사 메모 원본은 marketing/appstore.json이며 Guideline 4 수정과 창 닫기/메뉴/⌘0 확인 절차를 저장·대조했다. 별도의 회신 메시지는 보내지 않았다.
+- 일반판: artifacts/direct/1.0.2/build8-20261026-window-reopen. 같은 archive 앱을 Developer ID로 재서명했고 앱 공증 5237b698-9ae3-4b66-b72e-4fd9b3e1f4e5, DMG 공증 2616e857-e44e-4e1c-b5da-d337cabc4db8 모두 Accepted. 스테이플링·Gatekeeper PASS. ZIP 추출 앱·읽기 전용 DMG 내부 앱의 서명·공증·버전·arm64·entitlement·세 언어 앱 이름/창 재열기 문구를 확인했고 앱·ZIP·DMG 앱 실행 파일 해시가 일치했다.
+- 공개: [v1.0.2 릴리즈](https://github.com/pureakma/moongchi-namefix/releases/tag/v1.0.2). 공증 DMG·ZIP·체크섬·LICENSE·ThirdPartyNotices.md·Branding-Notice.txt 여섯 파일의 서버 digest가 로컬 파일과 일치한 뒤 공개했다. 공개 파일을 인증 없이 HTTP 200으로 내려받아 서버 digest와 다운로드한 체크섬 재대조 PASS. tag v1.0.2는 제품 source 8395f54다.
+- 다운로드: [DMG](https://github.com/pureakma/moongchi-namefix/releases/download/v1.0.2/Moongchi_NameFix_1.0.2_build8_arm64.dmg) · [ZIP](https://github.com/pureakma/moongchi-namefix/releases/download/v1.0.2/Moongchi_NameFix_1.0.2_build8_arm64.zip) · [체크섬](https://github.com/pureakma/moongchi-namefix/releases/download/v1.0.2/SHA256SUMS.txt). SHA-256: DMG 521b529c17beefa3ef9c0ffad49c403c00bdc823d72ba89f584159c33f04bc91, ZIP 46705e647dc9767ac46647d5c6c3962e6057d8ba4d86430173cbfbaf6f9a4124.
+- 설치: 공개 ZIP에서 /Applications/Moongchi NameFix.app을 1.0.2(8)로 교체하고 서명·staple·Gatekeeper와 실제 실행의 ‘뭉치 네임픽스 1.0.2 (8)’을 확인했다. 설정·기록 파일은 설치 작업에서 수정하지 않았으며, 이전 앱 백업은 사용자 지시대로 남기지 않았다. 근거 artifacts/install/github-v1.0.2-20261026/installation.json.
+- 검증: QA.md의 T-018/T-019, artifacts/evidence/window-release-20261026. 기존 제품/파일 엔진 검증과 이 배포 source의 창 회귀 근거를 재사용했다. 중단 전 완료된 archive·upload·공증을 다시 요청하거나 전체 QA를 반복하지 않았다. 웹사이트는 수정하지 않았다.
 
 ## 1.0.1 현지화 배포 (T-017, D-044)
 

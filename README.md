@@ -23,7 +23,7 @@ A free, native macOS app for Unicode filename normalization and batch renaming. 
 - 기본 이름 검사와 변경은 로컬에서 동작하며 핵심 기능에 네트워크 통신이나 텔레메트리를 요구하지 않습니다.
 - 로컬 writable APFS 이름 변경만 지원하며, 링크·앱/package·알려진 클라우드 위치·확인되지 않은 파일시스템은 보수적으로 보호합니다.
 - 모든 기능을 무료로 제공합니다. 유료 등급, 구매, 계정이 없습니다.
-- 제품 버전은 1.0.1 build 7입니다. 배포 파일의 서명·공증과 실제 공개 상태는 [배포 문서](docs/RELEASE.md)에서 구분해 기록합니다.
+- 제품 버전은 1.0.2 build 8입니다. 배포 파일의 서명·공증과 실제 공개 상태는 [배포 문서](docs/RELEASE.md)에서 구분해 기록합니다.
 
 ## 개발 시작
 
